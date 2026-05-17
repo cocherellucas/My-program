@@ -461,9 +461,12 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
 
       {activeProgram && Object.keys(weeks).length > 0 && (
         <Tabs defaultValue={currentWeekTab}>
-          <TabsList className="bg-white/10 text-white">
+          <TabsList className="bg-white/10 text-white w-full">
             {Object.keys(weeks).map(w => (
-              <TabsTrigger key={w} value={w}>Semaine {w}</TabsTrigger>
+              <TabsTrigger key={w} value={w} className="flex-1 text-xs sm:text-sm">
+                <span className="sm:hidden">S{w}</span>
+                <span className="hidden sm:inline">Semaine {w}</span>
+              </TabsTrigger>
             ))}
           </TabsList>
 
