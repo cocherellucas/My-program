@@ -96,7 +96,11 @@
   }
 }
 
-/* Cache la nav mobile quand le clavier est ouvert (CoachIA) */
+/* Clavier ouvert (CoachIA) : cache la nav et supprime le padding réservé */
 body.keyboard-open .mobile-nav {
   display: none;
+}
+body.keyboard-open main {
+  padding-bottom: 0 !important;
+  --coach-offset: 32px;
 }
