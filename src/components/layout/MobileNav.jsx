@@ -19,7 +19,7 @@ export default function MobileNav() {
   const location = useLocation();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50 px-2 pb-safe">
+    <nav className="mobile-nav fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50 px-2 pb-safe">
       <div className="flex items-center justify-around py-2">
         {items.map((item) => {
           const isActive = location.pathname === item.path;

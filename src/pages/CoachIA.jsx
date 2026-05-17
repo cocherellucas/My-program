@@ -19,6 +19,9 @@ export default function CoachIA() {
   useEffect(() => { base44.auth.me().then(setUser); }, []);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
+  const handleInputFocus = () => document.body.classList.add('keyboard-open');
+  const handleInputBlur = () => document.body.classList.remove('keyboard-open');
+
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
     const userMsg = input.trim();
@@ -143,6 +146,8 @@ export default function CoachIA() {
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onFocus={handleInputFocus}
+            onBlur={handleInputBlur}
             placeholder="Pose ta question au coach..."
             className="min-h-[44px] max-h-[120px] resize-none bg-white/10 border-white/20 text-white placeholder:text-white/40"
             onKeyDown={(e) => {

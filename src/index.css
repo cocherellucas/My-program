@@ -95,3 +95,8 @@
     background-color: #7c3aed;
   }
 }
+
+/* Cache la nav mobile quand le clavier est ouvert (CoachIA) */
+body.keyboard-open .mobile-nav {
+  display: none;
+}
