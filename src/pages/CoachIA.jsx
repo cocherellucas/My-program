@@ -19,7 +19,13 @@ export default function CoachIA() {
   useEffect(() => { base44.auth.me().then(setUser); }, []);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
-  const handleInputFocus = () => document.body.classList.add('keyboard-open');
+  const inputRef = useRef(null);
+  const handleInputFocus = () => {
+    document.body.classList.add('keyboard-open');
+    setTimeout(() => {
+      inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 350);
+  };
   const handleInputBlur = () => document.body.classList.remove('keyboard-open');
 
   const sendMessage = async () => {
@@ -144,11 +150,15 @@ export default function CoachIA() {
       <div className="border-t border-white/20 pt-4 sticky bottom-0 bg-violet-600 pb-2">
         <div className="flex gap-2">
           <Textarea
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onFocus={handleInputFocus}
             onBlur={handleInputBlur}
             placeholder="Pose ta question au coach..."
+            autoCorrect="off"
+            autoComplete="off"
+            spellCheck="false"
             className="min-h-[44px] max-h-[120px] resize-none bg-white/10 border-white/20 text-white placeholder:text-white/40"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
