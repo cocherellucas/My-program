@@ -355,7 +355,12 @@ export function computeDeloadScore({ sessions = [], program = null, user = {}, c
   }
 
   // 7. Zones fragiles déclarées → muscles à risque
-  const rawZones = user.fragile_zones || [];
+  const rawZones = (() => {
+    const fz = user.fragile_zones;
+    if (!fz) return [];
+    if (Array.isArray(fz)) return fz;
+    try { return JSON.parse(fz) || []; } catch { return []; }
+  })();
   rawZones.forEach(z => {
     const key = typeof z === 'string' ? z : z.key;
     (FRAGILE_ZONE_MUSCLES[key] || []).forEach(m => zonalMuscles.add(m));

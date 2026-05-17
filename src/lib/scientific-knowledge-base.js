@@ -2583,7 +2583,8 @@ export function getContextualKnowledge(user, objectives = []) {
   const level   = user.level || 'intermediate';
   const primary = objectives.find(o => o.priority === 'primary');
   const obj     = primary?.type || 'hypertrophy';
-  const fragileZones = (user.fragile_zones || []).map(z => typeof z === 'string' ? z : z.key);
+  const fzRaw = Array.isArray(user.fragile_zones) ? user.fragile_zones : (() => { try { return JSON.parse(user.fragile_zones || '[]'); } catch { return []; } })();
+  const fragileZones = fzRaw.map(z => typeof z === 'string' ? z : z.key);
 
   const base = mergeUnique([
     // ── Fondamentaux toujours présents ──────────────────────────────────────

@@ -1,3 +1,10 @@
+// Parse fragile_zones qu'elle soit tableau ou JSON string
+export function parseFragileZones(fz) {
+  if (!fz) return [];
+  if (Array.isArray(fz)) return fz;
+  try { return JSON.parse(fz) || []; } catch { return []; }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // RÉFÉRENTIEL SCIENTIFIQUE (Blocs G + H) — injecté dans chaque appel LLM
 // ─────────────────────────────────────────────────────────────────────────────
@@ -88,7 +95,7 @@ function buildDefaultRules(user, phaseCourante) {
   const days      = (user.available_days || []).join(', ');
   const equip     = (user.equipment || []).join(', ');
   const durations = Object.values(user.duration_per_day || {}).join('/') || '?';
-  const fragile   = (user.fragile_zones || []).join(', ');
+  const fragile   = parseFragileZones(user.fragile_zones).join(', ');
   return [
     'RÈGLES OBLIGATOIRES :',
     '- Respecter strictement les jours disponibles : ' + days,
@@ -109,7 +116,7 @@ export function buildSystemPrompt(user, objectives, programs, memory, recentSess
   const program = programs[0];
   const mem = memory[0];
 
-  const rawZones = user.fragile_zones || [];
+  const rawZones = parseFragileZones(user.fragile_zones);
   const zonesStr = rawZones.length === 0 ? 'aucune' : rawZones.map(z => {
     const key   = typeof z === 'string' ? z : z.key;
     const goal  = typeof z === 'string' ? 'protect' : z.goal;

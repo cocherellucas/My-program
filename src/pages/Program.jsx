@@ -165,7 +165,7 @@ ${(user.level === 'intermediate' || user.level === 'advanced') ? `- Morphologie 
 - Exercices aimés (à prioriser) : ${(user.preferred_exercises||[]).join(', ') || 'aucun'}
 - Exercices à éviter (ne jamais inclure) : ${(user.disliked_exercises||[]).join(', ') || 'aucun'}
 - Muscles à NE PAS développer : ${(() => { try { const m = JSON.parse(user.no_volume_muscles || '[]'); return m.length ? m.join(', ') : 'aucun'; } catch { return user.no_volume_muscles || 'aucun'; } })()}
-- Zones fragiles (adapter les exercices selon les règles scientifiques ci-dessous) : ${(user.fragile_zones || []).map(z => typeof z === 'string' ? z : z.key).join(', ') || 'aucune'}
+- Zones fragiles (adapter les exercices selon les règles scientifiques ci-dessous) : ${(() => { try { const fz = Array.isArray(user.fragile_zones) ? user.fragile_zones : JSON.parse(user.fragile_zones || '[]'); return fz.map(z => typeof z === 'string' ? z : z.key).join(', ') || 'aucune'; } catch { return 'aucune'; } })()}
 - Techniques avancées autorisées : ${user.accepts_advanced_techniques ? 'oui' : 'non'}
 - Préférence volume : ${['Faible (MEV)', 'Modéré (MAV)', 'Élevé (MRV)'][((user.pref_volume || 2) - 1)]}
 - Préférence intensité : ${['Confort (RIR 3+)', 'Challenge (RIR 1-2)', 'Maximal (RIR 0-1)'][((user.pref_intensity || 2) - 1)]}
