@@ -68,14 +68,14 @@ export default function CoachIA() {
   ];
 
   return (
-    <div className="flex flex-col" style={{ height: 'calc(100dvh - var(--coach-offset, 120px))' }}>
+    <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100dvh - var(--coach-offset, 120px))' }}>
       <div className="mb-4">
         <h1 className="text-3xl font-heading font-bold text-white">Coach IA</h1>
         <p className="text-white/70 mt-1">Demande-moi n'importe quoi sur ton entraînement</p>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto space-y-4 pb-4">
+      <div className="flex-1 overflow-y-auto space-y-4 pb-4 overscroll-contain" style={{ touchAction: 'pan-y' }}>
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mb-4">
@@ -147,7 +147,7 @@ export default function CoachIA() {
       </div>
 
       {/* Input */}
-      <div className="border-t border-white/20 pt-4 sticky bottom-0 bg-violet-600 pb-2">
+      <div className="border-t border-white/20 pt-4 flex-shrink-0 bg-violet-600 pb-2">
         <div className="flex gap-2">
           <Textarea
             ref={inputRef}
