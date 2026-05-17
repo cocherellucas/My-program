@@ -95,13 +95,15 @@ function SavedProgramCard({ prog, onDelete, onReapply }) {
                       <div className="flex-1 h-px bg-white/20" />
                     </div>
                   )}
-                  <div className="flex items-center gap-3 text-sm bg-white/10 rounded-lg px-3 py-2">
-                    <span className="font-medium w-24 capitalize text-white">{s.day_label || s.day}</span>
-                    <Badge className={`text-xs ${TYPE_COLORS[s.type] || 'bg-muted'}`}>{TYPE_LABELS[s.type] || s.type}</Badge>
-                    <span className="text-white/60 flex items-center gap-1">
-                      <Clock className="w-3 h-3" />{s.estimated_duration} min
-                    </span>
-                    <span className="text-white/60">{s.exercises?.length || 0} exercices</span>
+                  <div className="bg-white/10 rounded-lg px-3 py-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-medium text-white text-sm truncate flex-1">{s.day_label || s.day}</span>
+                      <Badge className={`text-xs flex-shrink-0 ${TYPE_COLORS[s.type] || 'bg-muted'}`}>{TYPE_LABELS[s.type] || s.type}</Badge>
+                    </div>
+                    <div className="flex items-center gap-3 mt-1 text-xs text-white/60">
+                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{s.estimated_duration} min</span>
+                      <span>{s.exercises?.length || 0} exercices</span>
+                    </div>
                   </div>
                 </React.Fragment>
               );
