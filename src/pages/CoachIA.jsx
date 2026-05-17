@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Loader2, Bot, User, Sparkles } from 'lucide-react';
+import { Send, Loader2, Bot, User, Sparkles, Paperclip, FileText } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
 import { buildSystemPrompt } from '@/lib/coach-prompts';
@@ -14,6 +14,7 @@ export default function CoachIA() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [attachedFile, setAttachedFile] = useState(null);
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -72,8 +73,12 @@ export default function CoachIA() {
   const handleInputBlur = () => document.body.classList.remove('keyboard-open');
 
   const sendMessage = async () => {
-    if (!input.trim() || loading) return;
-    const userMsg = input.trim();
+    if ((!input.trim() && !attachedFile) || loading) return;
+    let userMsg = input.trim();
+    if (attachedFile) {
+      userMsg = userMsg ? `${userMsg}\n\n[Fichier joint : ${attachedFile.name}]` : `[Fichier joint : ${attachedFile.name}]`;
+      setAttachedFile(null);
+    }
     setInput('');
     setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
     setLoading(true);
@@ -200,8 +205,16 @@ export default function CoachIA() {
       </div>
 
       {/* Input */}
-      <div ref={inputAreaRef} className="border-t border-white/20 pt-4 flex-shrink-0 bg-violet-600 pb-2">
-        <div className="flex gap-2">
+      <div ref={inputAreaRef} className="border-t border-white/20 pt-3 flex-shrink-0 bg-violet-600 pb-2">
+        {/* PDF joint */}
+        {attachedFile && (
+          <div className="flex items-center gap-2 mb-2 px-1">
+            <FileText className="w-4 h-4 text-white/70" />
+            <span className="text-xs text-white/70 flex-1 truncate">{attachedFile.name}</span>
+            <button onClick={() => setAttachedFile(null)} className="text-white/40 hover:text-white/70 text-xs">✕</button>
+          </div>
+        )}
+        <div className="relative">
           <Textarea
             ref={inputRef}
             value={input}
@@ -212,17 +225,24 @@ export default function CoachIA() {
             autoCorrect="off"
             autoComplete="off"
             spellCheck="false"
-            className="min-h-[44px] max-h-[120px] resize-none bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="min-h-[52px] max-h-[120px] resize-none bg-white/10 border-white/20 text-white placeholder:text-white/40 pr-20 pl-12"
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-              }
+              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
             }}
           />
-          <Button onClick={sendMessage} disabled={loading || !input.trim()} size="icon" className="h-11 w-11 flex-shrink-0">
-            <Send className="w-4 h-4" />
-          </Button>
+          {/* Bouton PDF */}
+          <label className="absolute left-3 bottom-3 cursor-pointer text-white/40 hover:text-white/70 transition-colors">
+            <Paperclip className="w-5 h-5" />
+            <input type="file" accept=".pdf,.txt" className="hidden" onChange={(e) => setAttachedFile(e.target.files?.[0] || null)} />
+          </label>
+          {/* Bouton Envoyer */}
+          <button
+            onClick={sendMessage}
+            disabled={loading || (!input.trim() && !attachedFile)}
+            className="absolute right-3 bottom-3 text-white/40 hover:text-white disabled:opacity-30 transition-colors"
+          >
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+          </button>
         </div>
       </div>
     </div>
