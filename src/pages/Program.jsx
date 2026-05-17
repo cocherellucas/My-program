@@ -67,6 +67,7 @@ export default function Program() {
   const [showRegenGate, setShowRegenGate] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const alreadySaved = activeProgram ? localStorage.getItem(`saved_program_${activeProgram.id}`) === 'true' : false;
   const [staleBanner, setStaleBanner] = useState(() => {
     try {
       const p = JSON.parse(localStorage.getItem('pending_program_regen') || 'null');
@@ -350,6 +351,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
       sessions_templates: sessionTemplates,
     });
 
+    localStorage.setItem(`saved_program_${activeProgram.id}`, 'true');
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
@@ -422,9 +424,11 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
         <div className="flex items-center gap-2">
           {activeProgram && (
             <>
-              <Button variant="outline" onClick={saveProgram} disabled={saving || saved} className="border-white/30 text-white hover:bg-white/10 hover:text-white">
-                {saved
-                  ? <><BookmarkCheck className="w-4 h-4 sm:mr-2 text-accent" /><span className="hidden sm:inline">Sauvegardé</span></>
+              <Button variant="outline" onClick={alreadySaved ? undefined : saveProgram} disabled={saving || saved || alreadySaved} className="border-white/30 text-white hover:bg-white/10 hover:text-white">
+                {alreadySaved
+                  ? <><BookmarkCheck className="w-4 h-4 sm:mr-2 text-accent" /><span className="hidden sm:inline">Déjà sauvegardé</span></>
+                  : saved
+                  ? <><BookmarkCheck className="w-4 h-4 sm:mr-2 text-accent" /><span className="hidden sm:inline">Sauvegardé !</span></>
                   : saving
                   ? <><Loader2 className="w-4 h-4 sm:mr-2 animate-spin" /><span className="hidden sm:inline">Sauvegarde…</span></>
                   : <><Bookmark className="w-4 h-4 sm:mr-2" /><span className="hidden sm:inline">Sauvegarder</span></>
