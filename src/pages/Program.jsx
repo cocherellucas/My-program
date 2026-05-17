@@ -327,6 +327,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
     const sessionTemplates = sessions.map(s => ({
       day: s.planned_date ? new Date(s.planned_date).toLocaleDateString('en', { weekday: 'long' }).toLowerCase() : '',
       day_label: s.day_label,
+      week_number: s.week_number,
       type: s.type,
       estimated_duration: s.estimated_duration,
       active_zones: s.active_zones,

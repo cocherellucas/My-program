@@ -78,10 +78,15 @@ function SavedProgramCard({ prog, onDelete, onReapply }) {
         <div className="border-t pt-3 space-y-2">
           <p className="text-xs font-medium text-white/50 uppercase tracking-wide">Séances du programme</p>
           <div className="grid gap-1">
-            {sessions.map((s, i) => {
-              const prevWeek = sessions[i - 1]?.week_number ?? null;
-              const curWeek = s.week_number ?? null;
-              const showWeekHeader = curWeek !== null && curWeek !== prevWeek;
+            {(() => {
+              // Inférer le numéro de semaine si non présent
+              const uniqueDays = [...new Set(sessions.map(s => s.day).filter(Boolean))];
+              const sessionsPerWeek = uniqueDays.length || 3;
+              return sessions.map((s, i) => {
+                const curWeek = s.week_number ?? (Math.floor(i / sessionsPerWeek) + 1);
+                const prevS = sessions[i - 1];
+                const prevWeek = prevS ? (prevS.week_number ?? (Math.floor((i - 1) / sessionsPerWeek) + 1)) : null;
+                const showWeekHeader = curWeek !== prevWeek;
               return (
                 <React.Fragment key={i}>
                   {showWeekHeader && (
@@ -100,7 +105,8 @@ function SavedProgramCard({ prog, onDelete, onReapply }) {
                   </div>
                 </React.Fragment>
               );
-            })}
+            });
+            })()}
           </div>
         </div>
       )}
