@@ -73,17 +73,30 @@ function SavedProgramCard({ prog, onDelete, onReapply }) {
       {expanded && sessions.length > 0 && (
         <div className="border-t pt-3 space-y-2">
           <p className="text-xs font-medium text-white/50 uppercase tracking-wide">Séances du programme</p>
-          <div className="grid gap-2">
-            {sessions.map((s, i) => (
-              <div key={i} className="flex items-center gap-3 text-sm bg-white/10 rounded-lg px-3 py-2">
-                <span className="font-medium w-24 capitalize text-white">{s.day_label || s.day}</span>
-                <Badge className={`text-xs ${TYPE_COLORS[s.type] || 'bg-muted'}`}>{TYPE_LABELS[s.type] || s.type}</Badge>
-                <span className="text-white/60 flex items-center gap-1">
-                  <Clock className="w-3 h-3" />{s.estimated_duration} min
-                </span>
-                <span className="text-white/60">{s.exercises?.length || 0} exercices</span>
-              </div>
-            ))}
+          <div className="grid gap-1">
+            {sessions.map((s, i) => {
+              const prevWeek = sessions[i - 1]?.week_number;
+              const curWeek = s.week_number || 1;
+              const showWeekHeader = curWeek !== prevWeek;
+              return (
+                <React.Fragment key={i}>
+                  {showWeekHeader && (
+                    <div className="flex items-center gap-2 mt-2 mb-1">
+                      <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Semaine {curWeek}</span>
+                      <div className="flex-1 h-px bg-white/20" />
+                    </div>
+                  )}
+                  <div className="flex items-center gap-3 text-sm bg-white/10 rounded-lg px-3 py-2">
+                    <span className="font-medium w-24 capitalize text-white">{s.day_label || s.day}</span>
+                    <Badge className={`text-xs ${TYPE_COLORS[s.type] || 'bg-muted'}`}>{TYPE_LABELS[s.type] || s.type}</Badge>
+                    <span className="text-white/60 flex items-center gap-1">
+                      <Clock className="w-3 h-3" />{s.estimated_duration} min
+                    </span>
+                    <span className="text-white/60">{s.exercises?.length || 0} exercices</span>
+                  </div>
+                </React.Fragment>
+              );
+            })}
           </div>
         </div>
       )}
