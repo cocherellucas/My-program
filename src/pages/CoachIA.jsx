@@ -218,7 +218,14 @@ export default function CoachIA() {
             <button onClick={() => setAttachedFile(null)} className="text-white/40 hover:text-white/70 text-xs px-1">✕</button>
           </div>
         )}
-        <div className="relative">
+        <div className="flex items-end gap-2">
+          {/* Bouton fichier */}
+          <label className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-white/10 cursor-pointer text-white/60 hover:text-white hover:bg-white/20 transition-colors mb-0.5">
+            <Paperclip className="w-5 h-5" />
+            <input type="file" accept=".pdf,.txt,image/*" className="hidden" onChange={(e) => setAttachedFile(e.target.files?.[0] || null)} />
+          </label>
+
+          {/* Champ texte */}
           <Textarea
             ref={inputRef}
             value={input}
@@ -229,23 +236,19 @@ export default function CoachIA() {
             autoCorrect="off"
             autoComplete="off"
             spellCheck="false"
-            className="min-h-[52px] max-h-[120px] resize-none bg-white/10 border-white/20 text-white placeholder:text-white/40 pr-20 pl-12"
+            className="flex-1 min-h-[40px] max-h-[120px] resize-none bg-white/10 border-white/20 text-white placeholder:text-white/40"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
             }}
           />
-          {/* Bouton PDF */}
-          <label className="absolute left-3 bottom-3 cursor-pointer text-white/40 hover:text-white/70 transition-colors">
-            <Paperclip className="w-5 h-5" />
-            <input type="file" accept=".pdf,.txt,image/*" className="hidden" onChange={(e) => setAttachedFile(e.target.files?.[0] || null)} />
-          </label>
-          {/* Bouton Envoyer */}
+
+          {/* Bouton envoyer */}
           <button
             onClick={sendMessage}
             disabled={loading || (!input.trim() && !attachedFile)}
-            className="absolute right-3 bottom-3 text-white/40 hover:text-white disabled:opacity-30 transition-colors"
+            className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-white/20 text-white hover:bg-white/30 disabled:opacity-30 transition-colors mb-0.5"
           >
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </button>
         </div>
       </div>
