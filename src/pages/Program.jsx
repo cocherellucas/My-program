@@ -334,14 +334,15 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
 
     const structureLabel = { full_body: 'Full Body', upper_lower: 'Upper/Lower', ppl: 'PPL', arnold_split: 'Arnold Split', custom: 'Personnalisé', unknown: '' };
     const label = structureLabel[structureType] || '';
-    const name = `${label ? label + ' — ' : ''}${activeProgram.planned_weeks || '?'} sem. · ${activeProgram.active_phase}`.trim();
+    const actualWeeks = new Set(sessions.map(s => s.week_number).filter(Boolean)).size || activeProgram.planned_weeks || '?';
+    const name = `${label ? label + ' — ' : ''}${actualWeeks} sem. · ${activeProgram.active_phase}`.trim();
 
     await base44.entities.SavedProgram.create({
       user_id: user.id,
       name,
       structure_type: structureType,
       weekly_structure: activeProgram.weekly_structure,
-      planned_weeks: activeProgram.planned_weeks,
+      planned_weeks: actualWeeks,
       active_phase: activeProgram.active_phase,
       multi_objective_mode: activeProgram.multi_objective_mode,
       objective_ids: activeProgram.objective_ids,
