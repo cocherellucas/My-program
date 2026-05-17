@@ -205,48 +205,47 @@ export default function CoachIA() {
       </div>
 
       {/* Input */}
-      <div ref={inputAreaRef} className="border-t border-white/20 pt-3 flex-shrink-0 bg-violet-600 pb-2">
+      <div ref={inputAreaRef} className="flex-shrink-0 bg-white/10 rounded-2xl border border-white/20 mx-0 mt-3">
         {/* Fichier joint */}
         {attachedFile && (
-          <div className="flex items-center gap-2 mb-2 px-1">
+          <div className="flex items-center gap-2 px-4 pt-3">
             {attachedFile.type.startsWith('image/') ? (
               <img src={URL.createObjectURL(attachedFile)} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
             ) : (
-              <FileText className="w-5 h-5 text-white/70 flex-shrink-0" />
+              <FileText className="w-4 h-4 text-white/70 flex-shrink-0" />
             )}
             <span className="text-xs text-white/70 flex-1 truncate">{attachedFile.name}</span>
-            <button onClick={() => setAttachedFile(null)} className="text-white/40 hover:text-white/70 text-xs px-1">✕</button>
+            <button onClick={() => setAttachedFile(null)} className="text-white/40 hover:text-white/70 text-xs">✕</button>
           </div>
         )}
-        <div className="flex items-end gap-2">
-          {/* Bouton fichier */}
-          <label className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-white/10 cursor-pointer text-white/60 hover:text-white hover:bg-white/20 transition-colors mb-0.5">
+
+        {/* Textarea */}
+        <Textarea
+          ref={inputRef}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onFocus={handleInputFocus}
+          onBlur={handleInputBlur}
+          placeholder="Écrire un message..."
+          autoCorrect="off"
+          autoComplete="off"
+          spellCheck="false"
+          className="w-full min-h-[48px] max-h-[120px] resize-none bg-transparent border-0 border-none text-white placeholder:text-white/40 focus:ring-0 shadow-none px-4 pt-3 pb-1"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+          }}
+        />
+
+        {/* Toolbar bas */}
+        <div className="flex items-center justify-between px-3 pb-2 pt-1">
+          <label className="cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors">
             <Paperclip className="w-5 h-5" />
             <input type="file" accept=".pdf,.txt,image/*" className="hidden" onChange={(e) => setAttachedFile(e.target.files?.[0] || null)} />
           </label>
-
-          {/* Champ texte */}
-          <Textarea
-            ref={inputRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onFocus={handleInputFocus}
-            onBlur={handleInputBlur}
-            placeholder="Pose ta question au coach..."
-            autoCorrect="off"
-            autoComplete="off"
-            spellCheck="false"
-            className="flex-1 min-h-[40px] max-h-[120px] resize-none bg-white/10 border-white/20 text-white placeholder:text-white/40"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-            }}
-          />
-
-          {/* Bouton envoyer */}
           <button
             onClick={sendMessage}
             disabled={loading || (!input.trim() && !attachedFile)}
-            className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-white/20 text-white hover:bg-white/30 disabled:opacity-30 transition-colors mb-0.5"
+            className="w-8 h-8 flex items-center justify-center rounded-lg bg-white text-violet-700 hover:bg-white/90 disabled:opacity-30 transition-all"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </button>
