@@ -67,7 +67,6 @@ export default function Program() {
   const [showRegenGate, setShowRegenGate] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const alreadySaved = activeProgram ? localStorage.getItem(`saved_program_${activeProgram.id}`) === 'true' : false;
   const [staleBanner, setStaleBanner] = useState(() => {
     try {
       const p = JSON.parse(localStorage.getItem('pending_program_regen') || 'null');
@@ -93,6 +92,7 @@ export default function Program() {
   });
 
   const activeProgram = programs[0] || null;
+  const alreadySaved = activeProgram ? localStorage.getItem(`saved_program_${activeProgram.id}`) === 'true' : false;
 
   const { data: sessions = [] } = useQuery({
     queryKey: ['program-sessions', activeProgram?.id],
