@@ -64,6 +64,7 @@ export default function Program() {
   const [genSeconds, setGenSeconds] = useState(0);
   const genTimerRef = React.useRef(null);
   const [showDialog, setShowDialog] = useState(false);
+  const [showRegenGate, setShowRegenGate] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [staleBanner, setStaleBanner] = useState(() => {
@@ -451,7 +452,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
               </AlertDialog>
             </>
           )}
-          <Button onClick={() => setShowDialog(true)} disabled={generating}>
+          <Button onClick={() => activeProgram ? setShowRegenGate(true) : setShowDialog(true)} disabled={generating}>
             {generating ? <Loader2 className="w-4 h-4 sm:mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 sm:mr-2" />}
             <span className="hidden sm:inline">{activeProgram ? 'Régénérer' : 'Générer le programme'}</span>
             <span className="sm:hidden">{activeProgram ? 'Régénérer' : 'Générer'}</span>
@@ -550,6 +551,43 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
           </Button>
         </Card>
       )}
+      {/* Gate régénération — si programme existant */}
+      <AlertDialog open={showRegenGate} onOpenChange={setShowRegenGate}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tu as déjà un programme actif</AlertDialogTitle>
+            <AlertDialogDescription>
+              Pour régénérer, tu dois d'abord choisir ce que tu fais avec le programme actuel.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex flex-col gap-2 py-2">
+            <button
+              onClick={async () => { await saveProgram(); setShowRegenGate(false); setShowDialog(true); }}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-violet-50 border border-violet-200 hover:bg-violet-100 transition-colors text-left"
+            >
+              <Bookmark className="w-5 h-5 text-violet-600 flex-shrink-0" />
+              <div>
+                <p className="font-semibold text-sm text-violet-900">Sauvegarder puis régénérer</p>
+                <p className="text-xs text-violet-600 mt-0.5">Le programme sera conservé dans Bibliothèque avant de régénérer</p>
+              </div>
+            </button>
+            <button
+              onClick={async () => { setShowRegenGate(false); await deleteProgram(); setShowDialog(true); }}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-50 border border-red-200 hover:bg-red-100 transition-colors text-left"
+            >
+              <Trash2 className="w-5 h-5 text-red-500 flex-shrink-0" />
+              <div>
+                <p className="font-semibold text-sm text-red-700">Supprimer et régénérer</p>
+                <p className="text-xs text-red-500 mt-0.5">Le programme actuel sera définitivement supprimé</p>
+              </div>
+            </button>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <GenerateProgramDialog
         open={showDialog}
         onClose={() => setShowDialog(false)}
