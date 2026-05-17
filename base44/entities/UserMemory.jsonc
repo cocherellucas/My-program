@@ -1,0 +1,143 @@
+{
+  "name": "UserMemory",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "exercise_preferences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "exercise": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "liked",
+              "neutral",
+              "disliked"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "structure_preferences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "structure": {
+            "type": "string"
+          },
+          "satisfaction_score": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "objective_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "objective": {
+            "type": "string"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          },
+          "result": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "fatigue_alerts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "week": {
+            "type": "string"
+          },
+          "average_fatigue": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "past_adaptations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "change": {
+            "type": "string"
+          },
+          "trigger": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "injuries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "zone": {
+            "type": "string"
+          },
+          "trigger_exercise": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "resolved": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "progression_score": {
+      "type": "number"
+    },
+    "last_ai_review_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "ai_reviews": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "user_id"
+  ]
+}

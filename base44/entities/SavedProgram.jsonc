@@ -1,0 +1,84 @@
+{
+  "name": "SavedProgram",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "structure_type": {
+      "type": "string",
+      "enum": [
+        "full_body",
+        "upper_lower",
+        "ppl",
+        "arnold_split",
+        "custom",
+        "unknown"
+      ]
+    },
+    "weekly_structure": {
+      "type": "string"
+    },
+    "planned_weeks": {
+      "type": "number"
+    },
+    "active_phase": {
+      "type": "string"
+    },
+    "multi_objective_mode": {
+      "type": "string"
+    },
+    "objective_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "program_data": {
+      "type": "object"
+    },
+    "sessions_templates": {
+      "type": "array",
+      "description": "Template des s\u00e9ances du programme",
+      "items": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string"
+          },
+          "day_label": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "estimated_duration": {
+            "type": "number"
+          },
+          "active_zones": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id",
+    "name"
+  ]
+}

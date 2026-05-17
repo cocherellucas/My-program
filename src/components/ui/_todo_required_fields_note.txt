@@ -1,0 +1,10 @@
+TODO : Ajouter la note "Les champs marqués * sont obligatoires" sur une page à préciser.
+
+Code à utiliser :
+<p className="text-white/40 text-xs mt-3">
+  Les champs marqués <span className="text-red-400 font-bold">*</span> sont obligatoires
+</p>
+
+Et ajouter <span className="text-red-400">*</span> après le label de chaque champ obligatoire.
+
+En attente : l'utilisateur doit indiquer sur quelle page afficher cette info.

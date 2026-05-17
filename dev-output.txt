@@ -1,0 +1,502 @@
+
+> base44-app@0.0.0 dev
+> vite
+
+[base44] Proxy not enabled (VITE_BASE44_APP_BASE_URL not set)
+[base44] Proxy not enabled (VITE_BASE44_APP_BASE_URL not set)
+[2m16:23:11[22m [31m[1m[vite][22m[39m [31mInternal server error: EBUSY: resource busy or locked, open 'C:\Users\coche\OneDrive\Desktop\my-program (1)\src\components\onboarding\StepAvailability.jsx'[39m
+      at async open (node:internal/fs/promises:640:25)
+      at async Object.readFile (node:internal/fs/promises:1287:14)
+      at async loadAndTransform (file:///c:/Users/coche/OneDrive/Desktop/my-program%20(1)/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35681:16)
+      at async viteTransformMiddleware (file:///c:/Users/coche/OneDrive/Desktop/my-program%20(1)/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:37254:24)
+[2m19:50:11[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\coche\OneDrive\Desktop\my-program (1)\src\components\onboarding\StepEquipment.jsx: Unexpected token, expected "," (54:11)
+
+[0m [90m 52 |[31m   [90m// Machines guidées — abdos & core[31m
+ [90m 53 |[31m   [32m'Machine crunch abdos'[31m[33m,[31m [32m'Machine rotation obliques'[31m[33m,[31m [32m'Chaise romaine'[31m[33m,[31m
+[31m[1m>[22m[31m[90m 54 |[31m   [32m'Captain'[31ms chair (dips [33m/[31m relevés de jambes)[32m',[31m
+ [90m    |[31m            [31m[1m^[22m[31m
+ [90m 55 |[31m
+ [90m 56 |[31m   [90m// Cardio[31m
+ [90m 57 |[31m   [32m'Tapis de course'[31m[33m,[31m [32m'Vélo stationnaire'[31m[33m,[31m [32m'Vélo elliptique'[31m[33m,[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/coche/OneDrive/Desktop/my-program (1)/src/components/onboarding/StepEquipment.jsx[39m:54:11
+[33m  52 |    // Machines guidées — abdos & core
+  53 |    'Machine crunch abdos', 'Machine rotation obliques', 'Chaise romaine',
+  54 |    'Captain's chair (dips / relevés de jambes)',
+     |             ^
+  55 |  
+  56 |    // Cardio[39m
+      at constructor (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:365:19)
+      at JSXParserMixin.raise (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:6599:19)
+      at JSXParserMixin.unexpected (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:6619:16)
+      at JSXParserMixin.expect (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:6899:12)
+      at JSXParserMixin.parseExprList (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12141:14)
+      at JSXParserMixin.parseArrayLike (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12057:26)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11335:23)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4764:20)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11081:23)
+      at JSXParserMixin.parseUpdate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10899:61)
+      at JSXParserMixin.parseExprOps (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10831:21)
+      at C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10800:39
+      at JSXParserMixin.allowInAnd (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12421:16)
+      at JSXParserMixin.parseMaybeAssignAllowIn (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10800:17)
+      at JSXParserMixin.parseVar (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:13384:91)
+      at JSXParserMixin.parseVarStatement (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:13230:10)
+      at JSXParserMixin.parseStatementContent (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12851:23)
+      at JSXParserMixin.parseStatementLike (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12767:17)
+      at JSXParserMixin.parseModuleItem (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12744:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:13316:36)
+      at JSXParserMixin.parseBlockBody (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:13309:10)
+      at JSXParserMixin.parseProgram (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12622:10)
+      at JSXParserMixin.parseTopLevel (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12612:25)
+      at JSXParserMixin.parse (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:14488:25)
+      at parse (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:14522:38)
+      at parser (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\core\lib\transformation\normalize-file.js:64:37)
+      at normalizeFile.next (<anonymous>)
+      at run (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\gensync\index.js:261:32)
+      at C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\gensync\index.js:223:11)
+      at C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\gensync\index.js:189:28
+      at C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\gensync\index.js:113:33
+      at step (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\gensync\index.js:287:14)
+      at C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\gensync\index.js:223:11)
+[2m16:28:57[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\coche\OneDrive\Desktop\my-program (1)\src\components\onboarding\StepPreferences.jsx: Unexpected token, expected "," (147:11)
+
+[0m [90m 145 |[31m               [33m<[31m[33m/[31m[33mbutton[31m[33m>[31m
+ [90m 146 |[31m             )[33m;[31m
+[31m[1m>[22m[31m[90m 147 |[31m           }}
+ [90m     |[31m            [31m[1m^[22m[31m
+ [90m 148 |[31m         [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 149 |[31m       [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 150 |[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/coche/OneDrive/Desktop/my-program (1)/src/components/onboarding/StepPreferences.jsx[39m:147:11
+[33m  145|                </button>
+  146|              );
+  147|            }}
+     |             ^
+  148|          </div>
+  149|        </div>[39m
+      at constructor (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:365:19)
+      at JSXParserMixin.raise (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:6599:19)
+      at JSXParserMixin.unexpected (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:6619:16)
+      at JSXParserMixin.expect (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:6899:12)
+      at JSXParserMixin.parseCallExpressionArguments (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11243:14)
+      at JSXParserMixin.parseCoverCallAndAsyncArrowHead (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11186:29)
+      at JSXParserMixin.parseSubscript (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11120:19)
+      at JSXParserMixin.parseSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11094:19)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11085:17)
+      at JSXParserMixin.parseUpdate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10899:61)
+      at JSXParserMixin.parseExprOps (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10831:21)
+      at JSXParserMixin.parseExpressionBase (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10784:23)
+      at C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10780:39
+      at JSXParserMixin.allowInAnd (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12426:12)
+      at JSXParserMixin.parseExpression (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10780:17)
+      at JSXParserMixin.jsxParseExpressionContainer (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4632:31)
+      at JSXParserMixin.jsxParseElementAt (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4711:36)
+      at JSXParserMixin.jsxParseElementAt (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4698:32)
+      at JSXParserMixin.jsxParseElement (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4749:17)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4759:19)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11081:23)
+      at JSXParserMixin.parseUpdate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10899:61)
+      at JSXParserMixin.parseExprOps (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10831:21)
+      at C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10800:39
+      at JSXParserMixin.allowInAnd (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12426:12)
+      at JSXParserMixin.parseMaybeAssignAllowIn (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10800:17)
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12493:17)
+      at JSXParserMixin.parseParenAndDistinguishExpression (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11675:28)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11331:23)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4764:20)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11081:23)
+      at JSXParserMixin.parseUpdate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10899:61)
+      at JSXParserMixin.parseExprOps (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10831:21)
+      at JSXParserMixin.parseExpressionBase (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10784:23)
+      at C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10780:39
+      at JSXParserMixin.allowInAnd (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12421:16)
+      at JSXParserMixin.parseExpression (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10780:17)
+[2m23:42:58[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\coche\OneDrive\Desktop\my-program (1)\src\components\onboarding\StepObjectives.jsx: Adjacent JSX elements must be wrapped in an enclosing tag. Did you want a JSX fragment <>...</>? (238:6)
+
+[0m [90m 236 |[31m       [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 237 |[31m
+[31m[1m>[22m[31m[90m 238 |[31m       [33m<[31m[33mButton[31m variant[33m=[31m[32m"outline"[31m onClick[33m=[31m{addObjective} className[33m=[31m[32m"w-full border-white/30 text-white hover:bg-white/10 hover:text-white"[31m[33m>[31m
+ [90m     |[31m       [31m[1m^[22m[31m
+ [90m 239 |[31m         [33m<[31m[33mPlus[31m className[33m=[31m[32m"w-4 h-4 mr-2"[31m [33m/[31m[33m>[31m
+ [90m 240 |[31m         [33mAjouter[31m un objectif
+ [90m 241 |[31m       [33m<[31m[33m/[31m[33mButton[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/coche/OneDrive/Desktop/my-program (1)/src/components/onboarding/StepObjectives.jsx[39m:238:6
+[33m  236|        </div>
+  237|  
+  238|        <Button variant="outline" onClick={addObjective} className="w-full border-white/30 text-white hover:bg-white/10 hover:text-white">
+     |        ^
+  239|          <Plus className="w-4 h-4 mr-2" />
+  240|          Ajouter un objectif[39m
+      at constructor (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:365:19)
+      at JSXParserMixin.raise (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:6599:19)
+      at JSXParserMixin.jsxParseElementAt (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4742:18)
+      at JSXParserMixin.jsxParseElement (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4749:17)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4759:19)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11081:23)
+      at JSXParserMixin.parseUpdate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10899:61)
+      at JSXParserMixin.parseExprOps (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10831:21)
+      at C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10800:39
+      at JSXParserMixin.allowInAnd (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12426:12)
+      at JSXParserMixin.parseMaybeAssignAllowIn (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10800:17)
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12493:17)
+      at JSXParserMixin.parseParenAndDistinguishExpression (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11675:28)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11331:23)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4764:20)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11081:23)
+      at JSXParserMixin.parseUpdate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10899:61)
+      at JSXParserMixin.parseExprOps (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10831:21)
+      at JSXParserMixin.parseFunctionBody (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12093:24)
+      at JSXParserMixin.parseArrowExpression (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12075:10)
+      at JSXParserMixin.parseParenAndDistinguishExpression (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11687:12)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11331:23)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4764:20)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11081:23)
+      at JSXParserMixin.parseUpdate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10899:61)
+      at JSXParserMixin.parseExprOps (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10831:21)
+      at C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10800:39
+      at JSXParserMixin.allowInAnd (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12426:12)
+      at JSXParserMixin.parseMaybeAssignAllowIn (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10800:17)
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12493:17)
+      at JSXParserMixin.parseExprListItem (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12175:18)
+      at JSXParserMixin.parseCallExpressionArguments (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11252:22)
+      at JSXParserMixin.parseCoverCallAndAsyncArrowHead (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11186:29)
+      at JSXParserMixin.parseSubscript (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11120:19)
+      at JSXParserMixin.parseSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11094:19)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11085:17)
+      at JSXParserMixin.parseUpdate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11046:23)
+[2m23:43:19[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\coche\OneDrive\Desktop\my-program (1)\src\components\onboarding\StepObjectives.jsx: Adjacent JSX elements must be wrapped in an enclosing tag. Did you want a JSX fragment <>...</>? (213:6)
+
+[0m [90m 211 |[31m       [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 212 |[31m
+[31m[1m>[22m[31m[90m 213 |[31m       [33m<[31m[33mButton[31m variant[33m=[31m[32m"outline"[31m onClick[33m=[31m{addObjective} className[33m=[31m[32m"w-full border-white/30 text-white hover:bg-white/10 hover:text-white"[31m[33m>[31m
+ [90m     |[31m       [31m[1m^[22m[31m
+ [90m 214 |[31m         [33m<[31m[33mPlus[31m className[33m=[31m[32m"w-4 h-4 mr-2"[31m [33m/[31m[33m>[31m
+ [90m 215 |[31m         [33mAjouter[31m un objectif
+ [90m 216 |[31m       [33m<[31m[33m/[31m[33mButton[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/coche/OneDrive/Desktop/my-program (1)/src/components/onboarding/StepObjectives.jsx[39m:213:6
+[33m  211|        </div>
+  212|  
+  213|        <Button variant="outline" onClick={addObjective} className="w-full border-white/30 text-white hover:bg-white/10 hover:text-white">
+     |        ^
+  214|          <Plus className="w-4 h-4 mr-2" />
+  215|          Ajouter un objectif[39m
+      at constructor (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:365:19)
+      at JSXParserMixin.raise (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:6599:19)
+      at JSXParserMixin.jsxParseElementAt (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4742:18)
+      at JSXParserMixin.jsxParseElement (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4749:17)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4759:19)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11081:23)
+      at JSXParserMixin.parseUpdate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10899:61)
+      at JSXParserMixin.parseExprOps (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10831:21)
+      at C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10800:39
+      at JSXParserMixin.allowInAnd (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12426:12)
+      at JSXParserMixin.parseMaybeAssignAllowIn (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10800:17)
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12493:17)
+      at JSXParserMixin.parseParenAndDistinguishExpression (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11675:28)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11331:23)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4764:20)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11081:23)
+      at JSXParserMixin.parseUpdate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10899:61)
+      at JSXParserMixin.parseExprOps (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10831:21)
+      at JSXParserMixin.parseFunctionBody (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12093:24)
+      at JSXParserMixin.parseArrowExpression (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12075:10)
+      at JSXParserMixin.parseParenAndDistinguishExpression (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11687:12)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11331:23)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4764:20)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11081:23)
+      at JSXParserMixin.parseUpdate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10899:61)
+      at JSXParserMixin.parseExprOps (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10831:21)
+      at C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10800:39
+      at JSXParserMixin.allowInAnd (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12426:12)
+      at JSXParserMixin.parseMaybeAssignAllowIn (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10800:17)
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12493:17)
+      at JSXParserMixin.parseExprListItem (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12175:18)
+      at JSXParserMixin.parseCallExpressionArguments (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11252:22)
+      at JSXParserMixin.parseCoverCallAndAsyncArrowHead (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11186:29)
+      at JSXParserMixin.parseSubscript (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11120:19)
+      at JSXParserMixin.parseSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11094:19)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11085:17)
+      at JSXParserMixin.parseUpdate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11046:23)
+[2m21:45:41[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Failed to parse source for import analysis because the content contains invalid JS syntax. If you are using JSX, make sure to name the file with the .jsx or .tsx extension.
+  Plugin: [35mvite:import-analysis[39m
+  File: [36mC:/Users/coche/OneDrive/Desktop/my-program (1)/src/lib/program-builder.js[39m:745:99
+[33m  743|  ${[...new Set(Object.values(ctx.techniquesByDay || {}).flatMap(t => t.notes))].map(n => '  → ' + n).join('\n')}
+  744|  ` : ''}
+  745|  EXERCICES TRIÉS PAR MUSCLE (utiliser UNIQUEMENT ces exercices, dans l'ordre de priorité indiqué) :
+     |                                                                                                    ^
+  746|  ${Object.entries(ctx.availableExercisesByMuscle || {}).map(([muscle, triage]) => {
+  747|    if (!triage || triage.all?.length === 0) return `  ${muscle}: aucun exercice disponible`;[39m
+[2m21:45:41[22m [31m[1m[vite][22m[39m [31mInternal server error: Failed to parse source for import analysis because the content contains invalid JS syntax. If you are using JSX, make sure to name the file with the .jsx or .tsx extension.[39m
+  Plugin: [35mvite:import-analysis[39m
+  File: [36mC:/Users/coche/OneDrive/Desktop/my-program (1)/src/lib/program-builder.js[39m:745:99
+[33m  743|  ${[...new Set(Object.values(ctx.techniquesByDay || {}).flatMap(t => t.notes))].map(n => '  → ' + n).join('\n')}
+  744|  ` : ''}
+  745|  EXERCICES TRIÉS PAR MUSCLE (utiliser UNIQUEMENT ces exercices, dans l'ordre de priorité indiqué) :
+     |                                                                                                    ^
+  746|  ${Object.entries(ctx.availableExercisesByMuscle || {}).map(([muscle, triage]) => {
+  747|    if (!triage || triage.all?.length === 0) return `  ${muscle}: aucun exercice disponible`;[39m
+      at TransformPluginContext._formatLog (file:///c:/Users/coche/OneDrive/Desktop/my-program%20(1)/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41)
+      at TransformPluginContext.error (file:///c:/Users/coche/OneDrive/Desktop/my-program%20(1)/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16)
+      at TransformPluginContext.transform (file:///c:/Users/coche/OneDrive/Desktop/my-program%20(1)/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40455:14)
+      at async EnvironmentPluginContainer.transform (file:///c:/Users/coche/OneDrive/Desktop/my-program%20(1)/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18)
+      at async loadAndTransform (file:///c:/Users/coche/OneDrive/Desktop/my-program%20(1)/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27)
+      at async viteTransformMiddleware (file:///c:/Users/coche/OneDrive/Desktop/my-program%20(1)/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:37254:24)
+[2m17:58:13[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\coche\OneDrive\Desktop\my-program (1)\src\components\onboarding\StepAvailability.jsx: Adjacent JSX elements must be wrapped in an enclosing tag. Did you want a JSX fragment <>...</>? (152:6)
+
+[0m [90m 150 |[31m         [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 151 |[31m
+[31m[1m>[22m[31m[90m 152 |[31m       [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m     |[31m       [31m[1m^[22m[31m
+ [90m 153 |[31m
+ [90m 154 |[31m       {selectedDays[33m.[31mlength [33m>[31m [35m0[31m [33m&&[31m (
+ [90m 155 |[31m         [33m<[31m[33mdiv[31m className[33m=[31m[32m"space-y-3"[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/coche/OneDrive/Desktop/my-program (1)/src/components/onboarding/StepAvailability.jsx[39m:152:6
+[33m  150|          </div>
+  151|  
+  152|        </div>
+     |        ^
+  153|  
+  154|        {selectedDays.length > 0 && ([39m
+      at constructor (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:365:19)
+      at JSXParserMixin.raise (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:6599:19)
+      at JSXParserMixin.jsxParseElementAt (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4742:18)
+      at JSXParserMixin.jsxParseElement (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4749:17)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4759:19)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11081:23)
+      at JSXParserMixin.parseUpdate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10899:61)
+      at JSXParserMixin.parseExprOpBaseRightExpr (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10986:34)
+      at JSXParserMixin.parseExprOpRightExpr (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10981:21)
+      at JSXParserMixin.parseExprOp (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10947:27)
+      at JSXParserMixin.parseExprOp (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10953:21)
+      at JSXParserMixin.parseExprOps (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10908:17)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10831:21)
+      at JSXParserMixin.parseExpressionBase (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10784:23)
+      at C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10780:39
+      at JSXParserMixin.allowInAnd (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12426:12)
+      at JSXParserMixin.parseExpression (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10780:17)
+      at JSXParserMixin.jsxParseExpressionContainer (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4632:31)
+      at JSXParserMixin.jsxParseElementAt (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4711:36)
+      at JSXParserMixin.jsxParseElementAt (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4698:32)
+      at JSXParserMixin.jsxParseElement (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4749:17)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4759:19)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11081:23)
+      at JSXParserMixin.parseUpdate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10899:61)
+      at JSXParserMixin.parseExprOps (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10831:21)
+      at C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10800:39
+      at JSXParserMixin.allowInAnd (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12426:12)
+      at JSXParserMixin.parseMaybeAssignAllowIn (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10800:17)
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12493:17)
+      at JSXParserMixin.parseParenAndDistinguishExpression (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11675:28)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11331:23)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4764:20)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11081:23)
+      at JSXParserMixin.parseUpdate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10899:61)
+      at JSXParserMixin.parseExprOps (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10831:21)
+      at JSXParserMixin.parseExpressionBase (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10784:23)
+      at C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10780:39
+      at JSXParserMixin.allowInAnd (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12421:16)
+      at JSXParserMixin.parseExpression (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10780:17)
+[2m17:58:42[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\coche\OneDrive\Desktop\my-program (1)\src\components\onboarding\StepAvailability.jsx: Adjacent JSX elements must be wrapped in an enclosing tag. Did you want a JSX fragment <>...</>? (281:4)
+
+[0m [90m 279 |[31m       [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 280 |[31m
+[31m[1m>[22m[31m[90m 281 |[31m     [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m     |[31m     [31m[1m^[22m[31m
+ [90m 282 |[31m   )[33m;[31m
+ [90m 283 |[31m }
+ [90m 284 |[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/coche/OneDrive/Desktop/my-program (1)/src/components/onboarding/StepAvailability.jsx[39m:281:4
+[33m  279|        </div>
+  280|  
+  281|      </div>
+     |      ^
+  282|    );
+  283|  }[39m
+      at constructor (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:365:19)
+      at JSXParserMixin.raise (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:6599:19)
+      at JSXParserMixin.jsxParseElementAt (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4742:18)
+      at JSXParserMixin.jsxParseElement (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4749:17)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4759:19)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11081:23)
+      at JSXParserMixin.parseUpdate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10899:61)
+      at JSXParserMixin.parseExprOpBaseRightExpr (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10986:34)
+      at JSXParserMixin.parseExprOpRightExpr (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10981:21)
+      at JSXParserMixin.parseExprOp (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10947:27)
+      at JSXParserMixin.parseExprOp (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10953:21)
+      at JSXParserMixin.parseExprOps (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10908:17)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10831:21)
+      at JSXParserMixin.parseExpressionBase (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10784:23)
+      at C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10780:39
+      at JSXParserMixin.allowInAnd (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12426:12)
+      at JSXParserMixin.parseExpression (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10780:17)
+      at JSXParserMixin.jsxParseExpressionContainer (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4632:31)
+      at JSXParserMixin.jsxParseElementAt (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4711:36)
+      at JSXParserMixin.jsxParseElement (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4749:17)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4759:19)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11081:23)
+      at JSXParserMixin.parseUpdate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10899:61)
+      at JSXParserMixin.parseExprOps (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10831:21)
+      at C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10800:39
+      at JSXParserMixin.allowInAnd (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12426:12)
+      at JSXParserMixin.parseMaybeAssignAllowIn (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10800:17)
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12493:17)
+      at JSXParserMixin.parseParenAndDistinguishExpression (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11675:28)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11331:23)
+      at JSXParserMixin.parseExprAtom (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:4764:20)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11081:23)
+      at JSXParserMixin.parseUpdate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10899:61)
+      at JSXParserMixin.parseExprOps (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10831:21)
+      at JSXParserMixin.parseExpressionBase (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10784:23)
+      at C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10780:39
+      at JSXParserMixin.allowInAnd (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12421:16)
+      at JSXParserMixin.parseExpression (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10780:17)
+      at JSXParserMixin.parseReturnStatement (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:13142:28)
+[2m22:14:49[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\coche\OneDrive\Desktop\my-program (1)\src\pages\Program.jsx: Missing catch or finally clause. (109:4)
+
+[0m [90m 107 |[31m   [36mconst[31m generateProgram [33m=[31m [36masync[31m ({ structure[33m,[31m weeks[33m,[31m phase }) [33m=>[31m {
+ [90m 108 |[31m     setGenerating([36mtrue[31m)[33m;[31m
+[31m[1m>[22m[31m[90m 109 |[31m     [36mtry[31m {
+ [90m     |[31m     [31m[1m^[22m[31m
+ [90m 110 |[31m
+ [90m 111 |[31m     [90m// Pré-calcul déterministe — zéro API[31m
+ [90m 112 |[31m     [36mconst[31m programCtx     [33m=[31m buildProgramContext(user[33m,[31m objectives)[33m;[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/coche/OneDrive/Desktop/my-program (1)/src/pages/Program.jsx[39m:109:4
+[33m  107|    const generateProgram = async ({ structure, weeks, phase }) => {
+  108|      setGenerating(true);
+  109|      try {
+     |      ^
+  110|  
+  111|      // Pré-calcul déterministe — zéro API[39m
+      at constructor (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:365:19)
+      at JSXParserMixin.raise (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:6599:19)
+      at JSXParserMixin.parseTryStatement (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:13224:12)
+      at JSXParserMixin.parseStatementContent (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12804:21)
+      at JSXParserMixin.parseStatementLike (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12767:17)
+      at JSXParserMixin.parseStatementListItem (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12747:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:13316:61)
+      at JSXParserMixin.parseBlockBody (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:13309:10)
+      at JSXParserMixin.parseBlock (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:13297:10)
+      at JSXParserMixin.parseFunctionBody (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12100:24)
+      at JSXParserMixin.parseArrowExpression (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12075:10)
+      at JSXParserMixin.parseAsyncArrowFromCallExpression (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11264:10)
+      at JSXParserMixin.parseCoverCallAndAsyncArrowHead (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11194:27)
+      at JSXParserMixin.parseSubscript (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11120:19)
+      at JSXParserMixin.parseSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11094:19)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11085:17)
+      at JSXParserMixin.parseUpdate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10899:61)
+      at JSXParserMixin.parseExprOps (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10831:21)
+      at C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10800:39
+      at JSXParserMixin.allowInAnd (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12421:16)
+      at JSXParserMixin.parseMaybeAssignAllowIn (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:10800:17)
+      at JSXParserMixin.parseVar (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:13384:91)
+      at JSXParserMixin.parseVarStatement (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:13230:10)
+      at JSXParserMixin.parseStatementContent (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12851:23)
+      at JSXParserMixin.parseStatementLike (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12767:17)
+      at JSXParserMixin.parseStatementListItem (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12747:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:13316:61)
+      at JSXParserMixin.parseBlockBody (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:13309:10)
+      at JSXParserMixin.parseBlock (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:13297:10)
+      at JSXParserMixin.parseFunctionBody (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12100:24)
+      at JSXParserMixin.parseFunctionBodyAndFinish (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12086:10)
+      at C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:13445:12
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12403:14)
+      at JSXParserMixin.parseFunction (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:13444:10)
+      at JSXParserMixin.parseExportDefaultExpression (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:13907:19)
+      at JSXParserMixin.parseExport (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:13828:25)
+      at JSXParserMixin.parseStatementContent (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12878:27)
+      at JSXParserMixin.parseStatementLike (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12767:17)
+      at JSXParserMixin.parseModuleItem (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12744:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:13316:36)
+      at JSXParserMixin.parseBlockBody (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:13309:10)
+      at JSXParserMixin.parseProgram (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12622:10)
+      at JSXParserMixin.parseTopLevel (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:12612:25)
+      at JSXParserMixin.parse (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:14488:25)
+      at parse (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\parser\lib\index.js:14522:38)
+      at parser (C:\Users\coche\OneDrive\Desktop\my-program (1)\node_modules\@babel\core\lib\parser\index.js:41:34)
+
+c:\Users\coche\OneDrive\Desktop\my-program (1)>

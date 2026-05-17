@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(cmd /c \"cd /d \"\"c:\\\\Users\\\\coche\\\\OneDrive\\\\Desktop\\\\my-program \\(1\\)\"\" && npm run build 2>&1\")"
+    ]
+  }
+}

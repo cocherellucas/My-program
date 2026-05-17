@@ -1,0 +1,71 @@
+{
+  "name": "SeriesLog",
+  "type": "object",
+  "properties": {
+    "session_id": {
+      "type": "string"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "exercise_name": {
+      "type": "string"
+    },
+    "exercise_variant": {
+      "type": "string",
+      "description": "Variante de l'exercice utilis\u00e9e"
+    },
+    "set_number": {
+      "type": "number"
+    },
+    "weight": {
+      "type": "number"
+    },
+    "reps_done": {
+      "type": "number"
+    },
+    "reps_target": {
+      "type": "string",
+      "description": "Cible de r\u00e9p\u00e9titions (ex: '8-12')"
+    },
+    "rest_seconds": {
+      "type": "number",
+      "description": "Temps de repos en secondes"
+    },
+    "tempo": {
+      "type": "string"
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "failure",
+        "RIR_0",
+        "RIR_1",
+        "RIR_2",
+        "RIR_3+"
+      ]
+    },
+    "execution_quality": {
+      "type": "string",
+      "enum": [
+        "good",
+        "degraded",
+        "bad"
+      ]
+    },
+    "feedback": {
+      "type": "string",
+      "enum": [
+        "liked",
+        "disliked",
+        "change"
+      ]
+    }
+  },
+  "required": [
+    "session_id",
+    "user_id",
+    "exercise_name",
+    "set_number"
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "name": "Session",
+  "type": "object",
+  "properties": {
+    "program_id": {
+      "type": "string"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "planned_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "actual_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "estimated_duration": {
+      "type": "number"
+    },
+    "actual_duration": {
+      "type": "number"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "strength",
+        "hypertrophy",
+        "endurance",
+        "mixed"
+      ]
+    },
+    "active_zones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "muscle_group": {
+            "type": "string"
+          },
+          "objective": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "exercises": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "muscle_group": {
+            "type": "string"
+          },
+          "sets": {
+            "type": "number"
+          },
+          "target_reps": {
+            "type": "string"
+          },
+          "target_weight": {
+            "type": "number"
+          },
+          "rest_seconds": {
+            "type": "number"
+          },
+          "block": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "global_fatigue": {
+      "type": "number"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "completed",
+        "missed",
+        "skipped"
+      ],
+      "default": "planned"
+    },
+    "week_number": {
+      "type": "number"
+    },
+    "day_label": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "program_id",
+    "user_id"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "name": "Objective",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "strength",
+        "hypertrophy",
+        "endurance"
+      ]
+    },
+    "zone": {
+      "type": "string",
+      "enum": [
+        "upper_body",
+        "lower_body",
+        "full_body",
+        "specific_group"
+      ]
+    },
+    "focus_group": {
+      "type": "string"
+    },
+    "focus_movement": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "primary",
+        "secondary"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "abandoned"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "user_id",
+    "type",
+    "zone",
+    "priority"
+  ]
+}

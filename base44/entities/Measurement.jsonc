@@ -1,0 +1,38 @@
+{
+  "name": "Measurement",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "shoulders": {
+      "type": "number"
+    },
+    "waist": {
+      "type": "number"
+    },
+    "hips": {
+      "type": "number"
+    },
+    "right_arm": {
+      "type": "number"
+    },
+    "left_arm": {
+      "type": "number"
+    },
+    "right_thigh": {
+      "type": "number"
+    },
+    "left_thigh": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "user_id",
+    "date"
+  ]
+}

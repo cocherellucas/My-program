@@ -1,0 +1,144 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "user"
+      ],
+      "default": "user"
+    },
+    "age": {
+      "type": "number"
+    },
+    "height": {
+      "type": "number",
+      "description": "Height in cm"
+    },
+    "weight": {
+      "type": "number",
+      "description": "Weight in kg"
+    },
+    "level": {
+      "type": "string",
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ]
+    },
+    "onboarding_completed": {
+      "type": "boolean",
+      "default": false
+    },
+    "onboarding_step": {
+      "type": "number",
+      "default": 0
+    },
+    "training_context": {
+      "type": "string",
+      "enum": [
+        "full_gym",
+        "home_barbell",
+        "home_dumbbells",
+        "bodyweight",
+        "custom"
+      ]
+    },
+    "equipment": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "morphology_arm_length": {
+      "type": "string",
+      "enum": [
+        "short",
+        "medium",
+        "long"
+      ]
+    },
+    "morphology_leg_length": {
+      "type": "string",
+      "enum": [
+        "short",
+        "medium",
+        "long"
+      ]
+    },
+    "morphology_silhouette": {
+      "type": "string",
+      "enum": [
+        "broad_shoulders",
+        "proportional",
+        "wide_hips"
+      ]
+    },
+    "morphology_posture": {
+      "type": "string",
+      "enum": [
+        "anterior",
+        "neutral",
+        "posterior"
+      ]
+    },
+    "available_days": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "duration_per_day": {
+      "type": "object",
+      "description": "Map of day to minutes"
+    },
+    "duration_flexible": {
+      "type": "boolean",
+      "default": true
+    },
+    "frequency_min": {
+      "type": "number"
+    },
+    "frequency_max": {
+      "type": "number"
+    },
+    "availability_constraints": {
+      "type": "string"
+    },
+    "preferred_exercises": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "disliked_exercises": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "accepts_advanced_techniques": {
+      "type": "boolean",
+      "default": false
+    },
+    "pref_volume": {
+      "type": "number",
+      "description": "Pr\u00e9f\u00e9rence de volume (1=faible, 2=mod\u00e9r\u00e9, 3=\u00e9lev\u00e9)",
+      "default": 2
+    },
+    "pref_intensity": {
+      "type": "number",
+      "description": "Pr\u00e9f\u00e9rence d'intensit\u00e9 / difficult\u00e9 per\u00e7ue (1=confort, 2=challenge, 3=maximal)",
+      "default": 2
+    },
+    "pref_frequency": {
+      "type": "number",
+      "description": "Pr\u00e9f\u00e9rence de fr\u00e9quence par muscle par semaine (1=1x, 2=2x, 3=3x+)",
+      "default": 2
+    }
+  },
+  "required": []
+}

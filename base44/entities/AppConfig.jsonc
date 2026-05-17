@@ -1,0 +1,17 @@
+{
+  "name": "AppConfig",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string",
+      "description": "Cl\u00e9 de configuration (ex: pricing_plans)"
+    },
+    "value": {
+      "type": "object",
+      "description": "Valeur de configuration (JSON libre)"
+    }
+  },
+  "required": [
+    "key"
+  ]
+}

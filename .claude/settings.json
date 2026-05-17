@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(node --input-type=module --eval \"const r = await fetch\\('https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/12/Dumbbell-Lateral-Raise.gif', { method: 'HEAD' }\\); console.log\\(r.status, r.headers.get\\('content-type'\\)\\);\" 2>&1)",
+      "PowerShell($env:PATH = [System.Environment]::GetEnvironmentVariable\\(\"PATH\", \"Machine\"\\) + \";\" + [System.Environment]::GetEnvironmentVariable\\(\"PATH\", \"User\"\\); cd \"c:\\\\Users\\\\coche\\\\OneDrive\\\\Desktop\\\\my-program \\(1\\)\"; git --version)"
+    ]
+  }
+}
