@@ -16,8 +16,30 @@ export default function CoachIA() {
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef(null);
 
-  useEffect(() => { base44.auth.me().then(setUser); }, []);
+  useEffect(() => {
+    base44.auth.me().then(u => {
+      setUser(u);
+      // Charger l'historique sauvegardé
+      if (u?.id) {
+        try {
+          const saved = localStorage.getItem(`coach_history_${u.id}`);
+          if (saved) setMessages(JSON.parse(saved));
+        } catch {}
+      }
+    });
+  }, []);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+
+  // Sauvegarder l'historique à chaque changement
+  useEffect(() => {
+    if (user?.id && messages.length > 0) {
+      try {
+        // Garder les 100 derniers messages max
+        const toSave = messages.slice(-100);
+        localStorage.setItem(`coach_history_${user.id}`, JSON.stringify(toSave));
+      } catch {}
+    }
+  }, [messages, user?.id]);
 
   // Verrouille le scroll du body sur iOS
   useEffect(() => {
@@ -80,9 +102,19 @@ export default function CoachIA() {
 
   return (
     <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100dvh - var(--coach-offset, 120px))' }}>
-      <div className="mb-4">
-        <h1 className="text-3xl font-heading font-bold text-white">Coach IA</h1>
-        <p className="text-white/70 mt-1">Demande-moi n'importe quoi sur ton entraînement</p>
+      <div className="mb-4 flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-heading font-bold text-white">Coach IA</h1>
+          <p className="text-white/70 mt-1 text-sm">Demande-moi n'importe quoi sur ton entraînement</p>
+        </div>
+        {messages.length > 0 && (
+          <button
+            onClick={() => { setMessages([]); if (user?.id) localStorage.removeItem(`coach_history_${user.id}`); }}
+            className="text-xs text-white/40 hover:text-white/70 mt-1 transition-colors"
+          >
+            Effacer
+          </button>
+        )}
       </div>
 
       {/* Messages */}
