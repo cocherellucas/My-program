@@ -30,10 +30,10 @@ const STRUCTURE_COLORS = {
 
 const TYPE_LABELS = { strength: 'Force', hypertrophy: 'Hypertrophie', endurance: 'Endurance', mixed: 'Mixte' };
 const TYPE_COLORS = {
-  strength: 'bg-chart-5/10 text-chart-5',
-  hypertrophy: 'bg-primary/10 text-primary',
-  endurance: 'bg-accent/10 text-accent',
-  mixed: 'bg-chart-4/10 text-chart-4',
+  strength: 'bg-white/20 text-white border-white/20',
+  hypertrophy: 'bg-white/20 text-white border-white/20',
+  endurance: 'bg-white/20 text-white border-white/20',
+  mixed: 'bg-white/20 text-white border-white/20',
 };
 
 function SavedProgramCard({ prog, onDelete, onReapply }) {
