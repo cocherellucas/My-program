@@ -553,32 +553,32 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
       )}
       {/* Gate régénération — si programme existant */}
       <AlertDialog open={showRegenGate} onOpenChange={setShowRegenGate}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-violet-800 border-violet-700 text-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>Tu as déjà un programme actif</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-white">Tu as déjà un programme actif</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/70">
               Pour régénérer, tu dois d'abord choisir ce que tu fais avec le programme actuel.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex flex-col gap-2 py-2">
             <button
               onClick={async () => { await saveProgram(); setShowRegenGate(false); setShowDialog(true); }}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-violet-50 border border-violet-200 hover:bg-violet-100 transition-colors text-left"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 transition-colors text-left"
             >
-              <Bookmark className="w-5 h-5 text-violet-600 flex-shrink-0" />
+              <Bookmark className="w-5 h-5 text-violet-300 flex-shrink-0" />
               <div>
-                <p className="font-semibold text-sm text-violet-900">Sauvegarder puis régénérer</p>
-                <p className="text-xs text-violet-600 mt-0.5">Le programme sera conservé dans Bibliothèque avant de régénérer</p>
+                <p className="font-semibold text-sm text-white">Sauvegarder puis régénérer</p>
+                <p className="text-xs text-white/60 mt-0.5">Le programme sera conservé dans Bibliothèque avant de régénérer</p>
               </div>
             </button>
             <button
               onClick={async () => { setShowRegenGate(false); await deleteProgram(); setShowDialog(true); }}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-50 border border-red-200 hover:bg-red-100 transition-colors text-left"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/20 border border-red-400/30 hover:bg-red-500/30 transition-colors text-left"
             >
-              <Trash2 className="w-5 h-5 text-red-500 flex-shrink-0" />
+              <Trash2 className="w-5 h-5 text-red-400 flex-shrink-0" />
               <div>
-                <p className="font-semibold text-sm text-red-700">Supprimer et régénérer</p>
-                <p className="text-xs text-red-500 mt-0.5">Le programme actuel sera définitivement supprimé</p>
+                <p className="font-semibold text-sm text-white">Supprimer et régénérer</p>
+                <p className="text-xs text-red-300 mt-0.5">Le programme actuel sera définitivement supprimé</p>
               </div>
             </button>
           </div>
