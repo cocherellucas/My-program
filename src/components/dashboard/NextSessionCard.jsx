@@ -37,15 +37,19 @@ export default function NextSessionCard({ session }) {
             <span className="text-white/60">· {session.estimated_duration || 60} min</span>
           </div>
           
-          {session.active_zones && (
+          {session.active_zones && session.active_zones.length > 0 && (
             <div className="flex items-center gap-2 text-sm">
               <Target className="w-4 h-4 text-white/80" />
               <div className="flex gap-1.5 flex-wrap">
-                {session.active_zones.map((z, i) => (
-                  <Badge key={i} variant="outline" className="text-xs text-white border-white/30">
-                    {z.muscle_group}
-                  </Badge>
-                ))}
+                {session.active_zones.length >= 6 ? (
+                  <Badge variant="outline" className="text-xs text-white border-white/30">Corps complet</Badge>
+                ) : (
+                  session.active_zones.map((z, i) => (
+                    <Badge key={i} variant="outline" className="text-xs text-white border-white/30">
+                      {z.muscle_group}
+                    </Badge>
+                  ))
+                )}
               </div>
             </div>
           )}
