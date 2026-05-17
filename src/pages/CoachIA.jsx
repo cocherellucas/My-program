@@ -19,6 +19,17 @@ export default function CoachIA() {
   useEffect(() => { base44.auth.me().then(setUser); }, []);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
+  // Verrouille le scroll du body sur iOS
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+      document.documentElement.style.overflow = '';
+    };
+  }, []);
+
   const inputRef = useRef(null);
   const handleInputFocus = () => {
     document.body.classList.add('keyboard-open');
