@@ -53,6 +53,16 @@ export default function CoachIA() {
   }, []);
 
   const inputRef = useRef(null);
+  const inputAreaRef = useRef(null);
+
+  // Bloque le scroll tactile sur la zone input (iOS)
+  useEffect(() => {
+    const el = inputAreaRef.current;
+    if (!el) return;
+    const block = (e) => e.preventDefault();
+    el.addEventListener('touchmove', block, { passive: false });
+    return () => el.removeEventListener('touchmove', block);
+  }, []);
   const handleInputFocus = () => {
     document.body.classList.add('keyboard-open');
     setTimeout(() => {
@@ -190,7 +200,7 @@ export default function CoachIA() {
       </div>
 
       {/* Input */}
-      <div className="border-t border-white/20 pt-4 flex-shrink-0 bg-violet-600 pb-2">
+      <div ref={inputAreaRef} className="border-t border-white/20 pt-4 flex-shrink-0 bg-violet-600 pb-2">
         <div className="flex gap-2">
           <Textarea
             ref={inputRef}
