@@ -51,7 +51,11 @@ function SavedProgramCard({ prog, onDelete, onReapply }) {
             {label && <Badge className={`text-xs ${color}`}>{label}</Badge>}
           </div>
           <div className="flex items-center gap-3 mt-1 text-xs text-white/60 flex-wrap">
-            {prog.planned_weeks && <span>{prog.planned_weeks} semaines</span>}
+            {(() => {
+              const actualWeeks = new Set((prog.sessions_templates || []).map(s => s.week_number).filter(Boolean)).size;
+              const displayWeeks = actualWeeks || prog.planned_weeks;
+              return displayWeeks ? <span>{displayWeeks} semaine{displayWeeks > 1 ? 's' : ''}</span> : null;
+            })()}
             {prog.active_phase && <span>Phase {prog.active_phase}</span>}
             {prog.weekly_structure && <span className="capitalize">{prog.weekly_structure.replace('_', ' ')}</span>}
             <span>Sauvegardé le {format(new Date(prog.created_date), 'd MMM yyyy', { locale: fr })}</span>
@@ -75,9 +79,9 @@ function SavedProgramCard({ prog, onDelete, onReapply }) {
           <p className="text-xs font-medium text-white/50 uppercase tracking-wide">Séances du programme</p>
           <div className="grid gap-1">
             {sessions.map((s, i) => {
-              const prevWeek = sessions[i - 1]?.week_number;
-              const curWeek = s.week_number || 1;
-              const showWeekHeader = curWeek !== prevWeek;
+              const prevWeek = sessions[i - 1]?.week_number ?? null;
+              const curWeek = s.week_number ?? null;
+              const showWeekHeader = curWeek !== null && curWeek !== prevWeek;
               return (
                 <React.Fragment key={i}>
                   {showWeekHeader && (
