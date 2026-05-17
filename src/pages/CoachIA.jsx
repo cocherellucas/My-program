@@ -206,12 +206,16 @@ export default function CoachIA() {
 
       {/* Input */}
       <div ref={inputAreaRef} className="border-t border-white/20 pt-3 flex-shrink-0 bg-violet-600 pb-2">
-        {/* PDF joint */}
+        {/* Fichier joint */}
         {attachedFile && (
           <div className="flex items-center gap-2 mb-2 px-1">
-            <FileText className="w-4 h-4 text-white/70" />
+            {attachedFile.type.startsWith('image/') ? (
+              <img src={URL.createObjectURL(attachedFile)} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+            ) : (
+              <FileText className="w-5 h-5 text-white/70 flex-shrink-0" />
+            )}
             <span className="text-xs text-white/70 flex-1 truncate">{attachedFile.name}</span>
-            <button onClick={() => setAttachedFile(null)} className="text-white/40 hover:text-white/70 text-xs">✕</button>
+            <button onClick={() => setAttachedFile(null)} className="text-white/40 hover:text-white/70 text-xs px-1">✕</button>
           </div>
         )}
         <div className="relative">
@@ -233,7 +237,7 @@ export default function CoachIA() {
           {/* Bouton PDF */}
           <label className="absolute left-3 bottom-3 cursor-pointer text-white/40 hover:text-white/70 transition-colors">
             <Paperclip className="w-5 h-5" />
-            <input type="file" accept=".pdf,.txt" className="hidden" onChange={(e) => setAttachedFile(e.target.files?.[0] || null)} />
+            <input type="file" accept=".pdf,.txt,image/*" className="hidden" onChange={(e) => setAttachedFile(e.target.files?.[0] || null)} />
           </label>
           {/* Bouton Envoyer */}
           <button
