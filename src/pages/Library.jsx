@@ -62,13 +62,13 @@ function SavedProgramCard({ prog, onDelete, onReapply }) {
           </div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <Button size="sm" variant="outline" onClick={() => setExpanded(!expanded)}>
+          <Button size="sm" variant="outline" onClick={() => setExpanded(!expanded)} className="border-white/30 text-white hover:bg-white/10 hover:text-white">
             {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </Button>
-          <Button size="sm" onClick={() => onReapply(prog)}>
+          <Button size="sm" onClick={() => onReapply(prog)} className="bg-white/20 text-white hover:bg-white/30 border-0">
             <Play className="w-3.5 h-3.5 mr-1" /> Relancer
           </Button>
-          <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => onDelete(prog.id)}>
+          <Button size="sm" variant="ghost" className="text-red-300 hover:text-red-200 hover:bg-red-500/20" onClick={() => onDelete(prog.id)}>
             <Trash2 className="w-4 h-4" />
           </Button>
         </div>
