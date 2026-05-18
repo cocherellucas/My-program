@@ -19,8 +19,8 @@ const GOALS = [
     label: 'Renforcer',
     icon:  Dumbbell,
     desc:  'Travailler cette zone pour la consolider',
-    color: 'border-blue-400 bg-blue-600 text-blue-200',
-    chip:  'border-blue-400 bg-blue-700 text-blue-200',
+    color: 'border-blue-300 bg-blue-500 text-white',
+    chip:  'border-blue-300 bg-blue-500 text-white',
   },
   {
     key:   'protect',
