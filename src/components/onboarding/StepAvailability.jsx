@@ -16,7 +16,7 @@ const DAYS = [
 ];
 
 export default function StepAvailability({ data, onChange }) {
-  const selectedDays = data.available_days || [];
+  const selectedDays = (() => { const r = data.available_days; if (!r) return []; if (Array.isArray(r)) return r; try { return JSON.parse(r) || []; } catch { return []; } })();
   const durations = data.duration_per_day || {};
 
   const [durationErrors, setDurationErrors] = React.useState({});

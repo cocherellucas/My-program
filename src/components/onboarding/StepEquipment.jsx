@@ -145,7 +145,12 @@ function LetterSection({ letter, items, equipment, onToggle, forceOpen }) {
 
 export default function StepEquipment({ data, onChange }) {
   const context = data.training_context || '';
-  const equipment = data.equipment || [];
+  const equipment = (() => {
+    const raw = data.equipment;
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+    try { return JSON.parse(raw) || []; } catch { return []; }
+  })();
 
   const [search, setSearch] = useState('');
   const [view, setView] = useState('material');

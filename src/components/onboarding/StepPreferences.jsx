@@ -43,7 +43,7 @@ const GOALS = [
 export default function StepPreferences({ data, onChange }) {
   const [selecting, setSelecting] = useState(null); // zone key en attente de goal
 
-  const zones = data.fragile_zones || [];
+  const zones = (() => { const r = data.fragile_zones; if (!r) return []; if (Array.isArray(r)) return r; try { return JSON.parse(r) || []; } catch { return []; } })();
 
   const getZone = (key) => zones.find(z => z.key === key);
 
@@ -166,7 +166,7 @@ export default function StepPreferences({ data, onChange }) {
           <p className="text-sm font-semibold text-white">Exercices que tu aimes</p>
           <Textarea
             placeholder="squat, tractions, développé..."
-            value={(data.preferred_exercises || []).join(', ')}
+            value={(Array.isArray(data.preferred_exercises) ? data.preferred_exercises : (() => { try { return JSON.parse(data.preferred_exercises || '[]'); } catch { return []; } })()).join(', ')}
             onChange={(e) => onChange({ preferred_exercises: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
             className="bg-white/10 border-white/20 text-white placeholder:text-white/25 resize-none text-sm"
             rows={3}
@@ -176,7 +176,7 @@ export default function StepPreferences({ data, onChange }) {
           <p className="text-sm font-semibold text-white">Exercices que tu évites</p>
           <Textarea
             placeholder="fentes, burpees, rowing barre..."
-            value={(data.disliked_exercises || []).join(', ')}
+            value={(Array.isArray(data.disliked_exercises) ? data.disliked_exercises : (() => { try { return JSON.parse(data.disliked_exercises || '[]'); } catch { return []; } })()).join(', ')}
             onChange={(e) => onChange({ disliked_exercises: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
             className="bg-white/10 border-white/20 text-white placeholder:text-white/25 resize-none text-sm"
             rows={3}
