@@ -219,7 +219,8 @@ export default function Library() {
       const dayMap = { monday: 0, tuesday: 1, wednesday: 2, thursday: 3, friday: 4, saturday: 5, sunday: 6 };
 
       for (const s of (prog.sessions_templates || [])) {
-        const dayOffset = dayMap[s.day] ?? 0;
+        const weekNumber = s.week_number || 1;
+        const dayOffset = (weekNumber - 1) * 7 + (dayMap[s.day] ?? 0);
         const date = addDays(monday, dayOffset);
         await base44.entities.Session.create({
           program_id: newProg.id,
@@ -230,7 +231,7 @@ export default function Library() {
           active_zones: s.active_zones || [],
           exercises: s.exercises || [],
           status: 'planned',
-          week_number: 1,
+          week_number: weekNumber,
           day_label: s.day_label || s.day,
         });
       }
