@@ -205,7 +205,13 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
         </div>
         {messages.length > 0 && (
           <button
-            onClick={() => { setMessages([]); if (user?.id) localStorage.removeItem(`coach_history_${user.id}`); }}
+            onClick={() => {
+              setMessages([]);
+              // Effacer toutes les clés coach_history dans localStorage
+              Object.keys(localStorage)
+                .filter(k => k.startsWith('coach_history_'))
+                .forEach(k => localStorage.removeItem(k));
+            }}
             className="text-xs text-white/40 hover:text-white/70 mt-1 transition-colors"
           >
             Effacer
