@@ -134,11 +134,28 @@ export function buildSystemPrompt(user, objectives, programs, memory, recentSess
 - Zones sensibles : ${zonesStr}
 - Objectifs actifs : ${objectives.map(o => `${o.type} ${o.zone}${o.focus_group ? ' (' + o.focus_group + ')' : ''} [${o.priority}]`).join(', ') || 'aucun'}`;
 
-  const exercicesAimes = mem?.exercise_preferences?.filter(e => e.status === 'liked').map(e => e.exercise).join(', ') || 'aucun';
-  const exercicesEvites = [
-    ...(mem?.exercise_preferences?.filter(e => e.status === 'disliked').map(e => e.exercise) || []),
-    ...(user.disliked_exercises || [])
+  const exercicesAimes = [
+    ...(user.preferred_exercises || []),
+    ...(mem?.exercise_preferences?.filter(e => e.status === 'liked').map(e => e.exercise) || [])
   ].join(', ') || 'aucun';
+  const exercicesEvites = [
+    ...(user.disliked_exercises || []),
+    ...(mem?.exercise_preferences?.filter(e => e.status === 'disliked').map(e => e.exercise) || [])
+  ].join(', ') || 'aucun';
+
+  // Exercices récemment pratiqués → détecter rotation nécessaire
+  const exercicesFrequents = (() => {
+    const counts = {};
+    (seriesLogs || []).forEach(s => {
+      if (s.exercise_name) counts[s.exercise_name] = (counts[s.exercise_name] || 0) + 1;
+    });
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([name, n]) => `${name} (×${n} séries récentes)`)
+      .join(', ') || 'aucun';
+  })();
+
   const structurePref = mem?.structure_preferences?.map(s => s.structure).join(', ') || 'aucune';
   const fatiguePref = mem?.fatigue_alerts?.slice(-4).map(f => `S${f.week}: ${f.average_fatigue}`).join(', ') || 'aucun';
   const programmeCourant = program ? JSON.stringify(program.program_data || {}) : 'aucun programme actif';
@@ -172,6 +189,7 @@ Raisonne TOUJOURS en croisant deux sources : le profil complet de l'utilisateur 
    - Contexte temporel : durée de séance disponible, fréquence réelle vs souhaitée
    - Contexte d'objectif : objectif primaire vs secondaire, muscles à prioriser vs à ne pas développer, peaking activé ou non
    - Contexte de niveau : ce qui est pertinent pour un débutant (maîtrise motrice) ne l'est pas pour un avancé (optimisation fine)
+   - Contexte exercices : ne recommande QUE des exercices réalisables avec l'équipement disponible ; tiens compte des exercices aimés (à prioriser), des exercices à éviter (jamais), des exercices récemment pratiqués (rotation si >4-6 semaines sur le même exercice d'isolation), des profils de tension (étirement vs pic contraction selon l'objectif), et des adaptations morphologiques (bras longs → modifier l'exercice ou choisir une variante)
    - Si deux spécificités se contredisent (ex: science dit X mais zone fragile interdit X) → la sécurité prime toujours
 
 Une réponse qui ignore une seule de ces spécificités est incomplète.
@@ -184,6 +202,17 @@ STYLE DE RÉPONSE — règles absolues :
 - Si tu dois développer, propose : "Tu veux que je détaille ?"
 - Ton : direct, bienveillant, comme un vrai coach qui te parle en face à face.
 - Le processus scientifique se passe dans ta tête, pas dans ta réponse.
+
+CONTEXTE COMPLET UTILISATEUR :
+${profil}
+- Exercices aimés (à prioriser) : ${exercicesAimes}
+- Exercices à éviter (jamais) : ${exercicesEvites}
+- Exercices récemment pratiqués : ${exercicesFrequents}
+- Phase actuelle : ${phaseCourante}
+- Historique fatigue : ${fatiguePref}
+- Séries récentes : ${seriesRecentes}
+- Programme actif : ${programmeCourant}
+${mem?.coach_notes ? `- Notes coach mémorisées : ${mem.coach_notes}` : ''}
 
 ${scienceContext ? `RÉFÉRENCES SCIENTIFIQUES (raisonnement interne, ne pas citer dans la réponse) :\n${scienceContext}\n` : ''}
 
