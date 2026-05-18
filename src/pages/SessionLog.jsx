@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Loader2, LayoutList, ChevronRight, ChevronLeft, Timer, Eye, HelpCircle, TrendingDown } from 'lucide-react';
+import { CheckCircle, Loader2, LayoutList, ChevronRight, ChevronLeft, Timer, Eye, HelpCircle, TrendingDown, Bot, MessageSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -438,8 +438,48 @@ function OverviewPanel({ exercises, logs, updateLog, onClose }) {
 }
 
 // ─── End of session panel ──────────────────────────────────────────────────────
-function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setNotes, onSave, saving, proposal, setProposal, generateProposal }) {
+function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setNotes, onSave, saving, proposal, setProposal, generateProposal, coachPainQuery, onDismissPain }) {
   const [showOverview, setShowOverview] = useState(false);
+  const navigate = useNavigate();
+
+  // Notification coach après douleur
+  if (coachPainQuery) {
+    return (
+      <div className="space-y-5">
+        <div>
+          <h2 className="font-heading font-bold text-2xl text-white">Séance validée ✅</h2>
+          <p className="text-white/70 text-sm mt-1">Les ajustements sont appliqués.</p>
+        </div>
+        <div className="bg-violet-800 rounded-2xl border border-violet-600 p-4 space-y-4">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-violet-600 flex items-center justify-center flex-shrink-0">
+              <Bot className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-violet-300 mb-1">Coach IA</p>
+              <p className="text-sm text-white leading-relaxed">{coachPainQuery.preMessage}</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => navigate('/coach')}
+              className="flex-1 bg-white text-violet-700 hover:bg-white/90 font-semibold"
+            >
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Répondre au coach
+            </Button>
+            <Button
+              onClick={onDismissPain}
+              variant="outline"
+              className="border-violet-500 text-violet-200 hover:bg-violet-700"
+            >
+              Plus tard
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (showOverview) {
     return <OverviewPanel exercises={exercises} logs={logs} updateLog={updateLog} onClose={() => setShowOverview(false)} />;
@@ -618,7 +658,8 @@ export default function SessionLog() {
   const [sessionExercises, setSessionExercises] = useState(null);
   const [editingObjectif, setEditingObjectif] = useState(false);
   const [previousLogs, setPreviousLogs] = useState({});
-  const [proposal, setProposal] = useState(null); // propositions IA après séance
+  const [proposal, setProposal] = useState(null);
+  const [coachPainQuery, setCoachPainQuery] = useState(null); // {zone, message} notification coach après douleur
 
   useEffect(() => {base44.auth.me().then(u => setUser(normalizeUser(u)));}, []);
 
@@ -977,7 +1018,16 @@ Réponds uniquement avec le JSON demandé.`,
     queryClient.invalidateQueries({ queryKey: ['sessions'] });
     queryClient.invalidateQueries({ queryKey: ['program-sessions'] });
     setSaving(false);
-    navigate('/program');
+
+    // Si douleur → afficher notification coach avant de naviguer
+    if (hasPain) {
+      setCoachPainQuery({
+        zone: painZone,
+        preMessage: `J'ai noté une douleur${painZone ? ` au ${painZone}` : ''} pendant ta séance. Pour mieux adapter tes prochains entraînements, dis-moi en plus : pendant quel exercice ? C'est apparu comment (gêne légère, vraie douleur, coup) ? Depuis quand ?`
+      });
+    } else {
+      navigate('/program');
+    }
   };
 
   if (!session) {
@@ -1033,7 +1083,9 @@ Réponds uniquement avec le JSON demandé.`,
             saving={saving}
             proposal={proposal}
             setProposal={setProposal}
-            generateProposal={generateProposal} />
+            generateProposal={generateProposal}
+            coachPainQuery={coachPainQuery}
+            onDismissPain={() => navigate('/program')} />
           
           </motion.div> :
         showOverview ?
