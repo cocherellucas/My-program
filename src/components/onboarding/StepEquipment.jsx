@@ -33,7 +33,7 @@ const EQUIPMENT_BY_TYPE = [
       'Développé épaules machine','Élévations latérales machine','Élévations frontales machine',
       'Curl biceps machine','Preacher curl machine',
       'Triceps machine','Dips triceps machine',
-      'Leg press','Hack squat machine','Leg extension',
+      'Leg press','Hack squat machine','Leg extension','Belt squat machine',
       'Leg curl allongé','Leg curl assis','Hip thrust machine','Fessier machine',
       'Abducteur machine','Adducteur machine',
       'Mollets debout machine','Mollets assis machine',

@@ -557,6 +557,13 @@ export const EXERCISES = [
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
   },
   {
+    id: 'belt_squat', name: 'Belt squat',
+    equipmentOptions: [['Belt squat machine'],['Ceinture de lest','Rack squat'],['Ceinture de lest','Rack demi-cage']],
+    muscles: { primary: ['Quadriceps','Fessiers'], secondary: ['Ischio-jambiers','Mollets'] },
+    type: 'compound', block: 'A', objectives: ['strength','hypertrophy'],
+    level: ['beginner','intermediate','advanced'], failureAllowed: true,
+  },
+  {
     id: 'step_up', name: 'Step-up haltères',
     equipmentOptions: [['Haltères','Banc plat'],['Haltères','Banc réglable']],
     muscles: { primary: ['Quadriceps','Fessiers'], secondary: ['Ischio-jambiers'] },
@@ -1166,6 +1173,7 @@ export const TENSION_PROFILES = {
   step_up:                  'stretch',
   front_squat_barbell:      'stretch',
   pistol_squat:             'stretch',
+  belt_squat:               'stretch',
 
   // ISCHIO-JAMBIERS & FESSIERS
   rdl_barbell:              'stretch',
