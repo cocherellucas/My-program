@@ -200,17 +200,17 @@ export default function StepEquipment({ data, onChange }) {
         <p className="text-white/70 mt-2">Où t'entraînes-tu ?</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         {CONTEXTS.map(({ key, label, icon: Icon, desc }) => (
           <button key={key} type="button" onClick={() => selectContext(key)}
-            className={cn('flex items-center gap-4 p-4 rounded-xl border-2 text-left transition-all',
+            className={cn('flex flex-col items-center gap-2 p-3 rounded-xl border-2 text-center transition-all',
               context === key ? 'border-white bg-white/20' : 'border-white/20 bg-white/10 hover:border-white/40')}>
-            <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center',
+            <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center',
               context === key ? 'bg-white text-violet-700' : 'bg-white/20 text-white')}>
               <Icon className="w-5 h-5" />
             </div>
             <div>
-              <span className="font-semibold text-sm text-white">{label}</span>
+              <span className="font-semibold text-sm text-white block">{label}</span>
               <p className="text-xs text-white/60">{desc}</p>
             </div>
           </button>
