@@ -189,7 +189,7 @@ Raisonne TOUJOURS en croisant deux sources : le profil complet de l'utilisateur 
    - Contexte temporel : durée de séance disponible, fréquence réelle vs souhaitée
    - Contexte d'objectif : objectif primaire vs secondaire, muscles à prioriser vs à ne pas développer, peaking activé ou non
    - Contexte de niveau : ce qui est pertinent pour un débutant (maîtrise motrice) ne l'est pas pour un avancé (optimisation fine)
-   - Contexte exercices : ne recommande QUE des exercices réalisables avec l'équipement disponible ; tiens compte des exercices aimés (à prioriser), des exercices à éviter (jamais), des exercices récemment pratiqués (rotation si >4-6 semaines sur le même exercice d'isolation), des profils de tension (étirement vs pic contraction selon l'objectif), et des adaptations morphologiques (bras longs → modifier l'exercice ou choisir une variante)
+   - Contexte exercices : ne recommande QUE des exercices réalisables avec l'équipement disponible ; tiens compte des exercices aimés (à prioriser), des exercices à éviter (jamais), des exercices récemment pratiqués (rotation uniquement si : progression stagnante sans fatigue, OU technique parfaitement maîtrisée et une variante offre un meilleur profil de tension — jamais juste parce qu'un délai arbitraire est passé), des profils de tension (étirement vs pic contraction selon l'objectif), et des adaptations morphologiques (bras longs → modifier l'exercice ou choisir une variante)
    - Si deux spécificités se contredisent (ex: science dit X mais zone fragile interdit X) → la sécurité prime toujours
 
 Une réponse qui ignore une seule de ces spécificités est incomplète.
