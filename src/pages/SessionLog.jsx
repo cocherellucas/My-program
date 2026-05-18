@@ -85,9 +85,9 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
       isIsometric,
     });
 
-    onStartRest(adaptedRest);
-    // Avancer à la série suivante
-    if (setIdx < sets - 1) setActiveSetIdx(setIdx + 1);
+    onStartRest(adaptedRest, () => {
+      if (setIdx < sets - 1) setActiveSetIdx(setIdx + 1);
+    });
   };
 
   return (
@@ -335,8 +335,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
             const isDone = isSetDone(setIdx);
             return (
           <div key={setIdx}
-            onClick={() => setActiveSetIdx(setIdx)}
-            className={`space-y-1 rounded-xl transition-all cursor-pointer border-2 ${
+            className={`space-y-1 rounded-xl transition-all border-2 ${
               isActive
                 ? 'border-white bg-white/15 shadow-lg shadow-white/10'
                 : isDone
@@ -695,6 +694,7 @@ export default function SessionLog() {
   const [showOverview, setShowOverview] = useState(false);
   const [showEnd, setShowEnd] = useState(false);
   const [restSeconds, setRestSeconds] = useState(null);
+  const [restCompleteCallback, setRestCompleteCallback] = useState(null);
   const [restTimeForEx, setRestTimeForEx] = useState({});
   const [regressingEx, setRegressingEx] = useState(null);
   const [sessionExercises, setSessionExercises] = useState(null);
@@ -1155,7 +1155,7 @@ Réponds uniquement avec le JSON demandé.`,
           totalExercises={exercises.length}
           onNext={handleNext}
           onPrev={() => setCurrentExIdx((i) => Math.max(0, i - 1))}
-          onStartRest={(secs) => setRestSeconds(secs)}
+          onStartRest={(secs, onDone) => { setRestSeconds(secs); if (onDone) setRestCompleteCallback(() => onDone); }}
           isLast={currentExIdx === exercises.length - 1}
           rirContext={rirContext}
           onRegressionRequest={handleRegressionRequest}
@@ -1179,7 +1179,7 @@ Réponds uniquement avec le JSON demandé.`,
       {restSeconds !== null &&
       <RestTimer
         seconds={restSeconds}
-        onComplete={() => setRestSeconds(null)} />
+        onComplete={() => { setRestSeconds(null); restCompleteCallback?.(); setRestCompleteCallback(null); }} />
 
       }
     </div>);
