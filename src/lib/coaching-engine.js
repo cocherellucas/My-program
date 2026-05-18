@@ -789,5 +789,18 @@ export function computeDashboardAlerts({ sessions = [], program = null, user = {
     alerts.push({ type: 'missed', message: `${missed.length} séances non complétées — adhérence à surveiller.` });
   }
 
+  // Fin de cycle — dernière séance planifiée dans les 7 prochains jours
+  const planned = sessions.filter(s => s.status === 'planned' && s.planned_date);
+  if (planned.length > 0 && program) {
+    const lastPlanned = planned.map(s => s.planned_date).sort().pop();
+    const daysLeft = Math.ceil((new Date(lastPlanned) - new Date(today)) / 86400000);
+    if (daysLeft >= 0 && daysLeft <= 7) {
+      alerts.push({
+        type: 'cycle_end',
+        message: `Ton cycle se termine dans ${daysLeft === 0 ? 'aujourd\'hui' : daysLeft + ' jour' + (daysLeft > 1 ? 's' : '')} — veux-tu repartir sur 4 nouvelles semaines ?`,
+      });
+    }
+  }
+
   return alerts;
 }

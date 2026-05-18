@@ -12,6 +12,7 @@ const ALERT_CONFIG = {
   missed:             { icon: SkipForward,    color: 'text-muted-foreground', bg: 'bg-muted' },
   imbalance:          { icon: AlertTriangle,  color: 'text-chart-5',          bg: 'bg-chart-5/10' },
   structural_plateau: { icon: Calendar,       color: 'text-orange-400',       bg: 'bg-orange-400/10' },
+  cycle_end:          { icon: Calendar,       color: 'text-violet-300',       bg: 'bg-violet-400/10' },
 };
 
 export default function AlertsCard({ alerts }) {
@@ -50,6 +51,7 @@ export default function AlertsCard({ alerts }) {
           const config = ALERT_CONFIG[alert.type] || ALERT_CONFIG.fatigue;
           const Icon = config.icon;
           const isStructural = alert.type === 'structural_plateau';
+          const isCycleEnd = alert.type === 'cycle_end';
           return (
             <div key={i} className={cn('p-3 rounded-xl border', isStructural ? 'bg-orange-400/10 border-orange-400/20' : 'bg-white/10 border-white/15')}>
               <div className="flex items-start gap-3">
@@ -60,6 +62,22 @@ export default function AlertsCard({ alerts }) {
                   <p className="text-sm text-white/90">{alert.message}</p>
                   {alert.detail && (
                     <p className="text-xs text-white/50 whitespace-pre-line">{alert.detail}</p>
+                  )}
+                  {isCycleEnd && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <button
+                        onClick={() => navigate('/program')}
+                        className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-violet-400/20 text-violet-200 border border-violet-400/30 hover:bg-violet-400/30 transition-colors">
+                        <Calendar className="w-3.5 h-3.5" />
+                        Renouveler le cycle
+                      </button>
+                      <button
+                        onClick={() => dismissAlert('cycle_end')}
+                        className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-white/5 text-white/50 border border-white/20 hover:bg-white/10 hover:text-white/70 transition-colors">
+                        <Check className="w-3.5 h-3.5" />
+                        Je vais décider plus tard
+                      </button>
+                    </div>
                   )}
                   {isStructural && (
                     <div className="mt-2 flex flex-wrap gap-2">
