@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { normalizeUser } from '@/lib/utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -582,7 +583,7 @@ export default function SessionLog() {
   const [editingObjectif, setEditingObjectif] = useState(false);
   const [previousLogs, setPreviousLogs] = useState({});
 
-  useEffect(() => {base44.auth.me().then(setUser);}, []);
+  useEffect(() => {base44.auth.me().then(u => setUser(normalizeUser(u)));}, []);
 
   const fragileZones = (() => {
     try { return JSON.parse(user?.fragile_zones || '[]'); } catch { return []; }

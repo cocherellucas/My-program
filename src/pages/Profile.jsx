@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Save, Loader2, User, Ruler, Dumbbell, Calendar, LogOut, Target, SlidersHorizontal, CheckCircle2, RefreshCw } from 'lucide-react';
+import { normalizeUser } from '@/lib/utils';
 
 // Champs dont le changement nécessite une régénération du programme
 const PROGRAM_IMPACTING_FIELDS = [
@@ -36,21 +37,7 @@ export default function Profile() {
 
   useEffect(() => {
     base44.auth.me().then(u => {
-      // Normaliser tous les champs tableau — peuvent arriver en JSON string depuis la DB
-      const parseArr = (v) => {
-        if (!v) return [];
-        if (Array.isArray(v)) return v;
-        try { const p = JSON.parse(v); return Array.isArray(p) ? p : []; } catch { return []; }
-      };
-      const normalized = {
-        ...u,
-        equipment:           parseArr(u.equipment),
-        available_days:      parseArr(u.available_days),
-        fragile_zones:       parseArr(u.fragile_zones),
-        preferred_exercises: parseArr(u.preferred_exercises),
-        disliked_exercises:  parseArr(u.disliked_exercises),
-        no_volume_muscles:   parseArr(u.no_volume_muscles),
-      };
+      const normalized = normalizeUser(u);
       setUser(normalized);
       setForm(normalized);
     });

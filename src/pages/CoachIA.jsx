@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 import { buildSystemPrompt } from '@/lib/coach-prompts';
 import { getContextualKnowledge, getMessageKnowledge } from '@/lib/scientific-knowledge-base';
 import { getAvailableExercises, getTensionProfile } from '@/lib/exercise-database';
+import { normalizeUser } from '@/lib/utils';
 
 export default function CoachIA() {
   const [user, setUser] = useState(null);
@@ -20,8 +21,8 @@ export default function CoachIA() {
 
   useEffect(() => {
     base44.auth.me().then(u => {
-      setUser(u);
-      // Charger l'historique sauvegardé
+      const normalized = normalizeUser(u);
+      setUser(normalized);
       if (u?.id) {
         try {
           const saved = localStorage.getItem(`coach_history_${u.id}`);
