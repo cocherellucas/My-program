@@ -956,6 +956,24 @@ Réponds uniquement avec le JSON demandé.`,
       global_fatigue: fatigue,
       notes
     });
+    // Si douleur signalée → mémoriser pour le coach IA
+    const noteText = (notes || '').toLowerCase();
+    const painZone = noteText.match(/coude|épaule|genou|dos|poignet|cervical/)?.[0];
+    const hasPain = /douleur|mal\b|gêne|pincement|blessure/.test(noteText) || painZone;
+    if (hasPain && user?.id) {
+      const today = new Date().toISOString().split('T')[0];
+      const painNote = `[${today}] Douleur signalée${painZone ? ` (${painZone})` : ''} — réduire charges sur exercices concernés, surveiller évolution.`;
+      const existing = await base44.entities.UserMemory.filter({ user_id: user.id });
+      if (existing.length > 0) {
+        const prev = existing[0].coach_notes || '';
+        await base44.entities.UserMemory.update(existing[0].id, {
+          coach_notes: prev ? `${prev}\n${painNote}` : painNote
+        });
+      } else {
+        await base44.entities.UserMemory.create({ user_id: user.id, coach_notes: painNote });
+      }
+    }
+
     queryClient.invalidateQueries({ queryKey: ['sessions'] });
     queryClient.invalidateQueries({ queryKey: ['program-sessions'] });
     setSaving(false);
