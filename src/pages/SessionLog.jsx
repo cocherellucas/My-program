@@ -60,6 +60,12 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
   const [editSets, setEditSets] = useState(Math.max(1, originalExercise?.sets || 3));
   const [editReps, setEditReps] = useState(originalExercise?.target_reps || '');
   const [editRest, setEditRest] = useState(originalExercise?.rest_seconds || 90);
+  const [activeSetIdx, setActiveSetIdx] = useState(0);
+  const [showSkipConfirm, setShowSkipConfirm] = useState(false);
+
+  const isSetDone = (idx) => !!(logs[idx]?.reps || logs[idx]?.skipped);
+  const allSetsDone = Array.from({ length: sets }, (_, i) => i).every(isSetDone);
+  const incompleteSets = Array.from({ length: sets }, (_, i) => i).filter(i => !isSetDone(i));
 
   const handleSetDone = (setIdx) => {
     const lastLog    = logs[setIdx];
@@ -77,6 +83,8 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
     });
 
     onStartRest(adaptedRest);
+    // Avancer à la série suivante
+    if (setIdx < sets - 1) setActiveSetIdx(setIdx + 1);
   };
 
   return (
@@ -319,8 +327,13 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
       <Card className="p-4 space-y-3 bg-white/15 backdrop-blur-sm border-white/20">
         <h3 className="font-semibold text-sm text-white">Tes séries</h3>
         <div className="space-y-2">
-          {Array.from({ length: sets }).map((_, setIdx) =>
-          <div key={setIdx} className="space-y-1">
+          {Array.from({ length: sets }).map((_, setIdx) => {
+            const isActive = setIdx === activeSetIdx;
+            const isDone = isSetDone(setIdx);
+            return (
+          <div key={setIdx}
+            onClick={() => setActiveSetIdx(setIdx)}
+            className={`space-y-1 rounded-xl transition-all cursor-pointer ${isActive ? 'ring-2 ring-white/60 ring-offset-1 ring-offset-transparent' : isDone ? 'opacity-60' : 'opacity-90'}`}>
               <SetRow
               setIdx={setIdx}
               totalSets={sets}
@@ -351,6 +364,9 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
               </div>
             </div>
           )}
+            </div>
+            );
+          })}
         </div>
 
         {/* Feedback */}
@@ -379,16 +395,35 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
       </Card>
 
       {/* Nav buttons */}
-      <div className="flex items-center justify-between gap-3">
-        {exIdx > 0 &&
-        <Button variant="outline" onClick={onPrev} className="flex-1 border-white/30 text-white hover:bg-white/10 hover:text-white">
-            <ChevronLeft className="w-4 h-4 mr-1" /> Précédent
+      {showSkipConfirm ? (
+        <div className="space-y-2">
+          <p className="text-xs text-white/70 text-center">
+            {incompleteSets.length} série{incompleteSets.length > 1 ? 's' : ''} non complétée{incompleteSets.length > 1 ? 's' : ''}. Continuer quand même ?
+          </p>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setShowSkipConfirm(false)} className="flex-1 border-white/30 text-white hover:bg-white/10">
+              Revenir
+            </Button>
+            <Button onClick={() => { setShowSkipConfirm(false); onNext(); }} className="flex-1">
+              Passer
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between gap-3">
+          {exIdx > 0 &&
+          <Button variant="outline" onClick={onPrev} className="flex-1 border-white/30 text-white hover:bg-white/10 hover:text-white">
+              <ChevronLeft className="w-4 h-4 mr-1" /> Précédent
+            </Button>
+          }
+          <Button
+            onClick={() => allSetsDone ? onNext() : setShowSkipConfirm(true)}
+            className={`flex-1 ${!allSetsDone ? 'opacity-70' : ''}`}
+          >
+            {isLast ? <><CheckCircle className="w-4 h-4 mr-1" /> Terminer</> : <>Suivant <ChevronRight className="w-4 h-4 ml-1" /></>}
           </Button>
-        }
-        <Button onClick={onNext} className="flex-1">
-          {isLast ? <><CheckCircle className="w-4 h-4 mr-1" /> Terminer</> : <>Suivant <ChevronRight className="w-4 h-4 ml-1" /></>}
-        </Button>
-      </div>
+        </div>
+      )}
     </motion.div>);
 
 }
