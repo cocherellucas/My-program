@@ -128,7 +128,7 @@ export default function StepPreferences({ data, onChange }) {
                   className={cn('flex flex-col items-start gap-1.5 p-2.5 rounded-lg border-2 text-left transition-all hover:scale-[1.02]', color)}>
                   <Icon className="w-3.5 h-3.5 flex-shrink-0" />
                   <p className="text-xs font-bold leading-tight">{label}</p>
-                  <p className="text-[9px] opacity-70 leading-tight">{desc}</p>
+                  <p className="text-[9px] opacity-90 leading-tight">{desc}</p>
                 </button>
               ))}
             </div>
