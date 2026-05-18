@@ -18,7 +18,8 @@ LOIS DE LA PERFORMANCE (référentiel de décision — à appliquer à CHAQUE ch
    - Si objectif = améliorer un mouvement spécifique → cet exercice est l'exercice principal, pas un similaire
 
 2. OVERLOAD — progresser en charge OU en volume, jamais les deux simultanément
-   - Double progression : si RIR réalisé ≥ 2 sur toutes les séries → +2,5kg semaine suivante
+   - Double progression : si RIR réalisé ≥ 2 sur toutes les séries → augmenter la charge à la séance suivante
+   - Incrément selon l'exercice : composés lourds (squat/deadlift/bench) → 2,5-5kg | composés légers (rowing, OHP) → 2,5kg | isolation → 1-2,5kg | avancé → microloading 0,5-1kg possible
    - Si RIR réalisé = 1 sur dernière série → maintenir charge
    - Si RIR réalisé = 0 ou échec → maintenir charge, réduire reps si nécessaire
    - Débutant : progression possible chaque séance | Intermédiaire : chaque semaine | Avancé : toutes 2-4 semaines

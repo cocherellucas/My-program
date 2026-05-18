@@ -690,6 +690,21 @@ export const KNOWLEDGE_BASE = [
     keywords: ['rythme progression', 'muscle mois', 'niveau', 'attentes', 'plateau', 'long terme'],
   },
 
+  {
+    id: 'prog_007',
+    topic: 'progression',
+    subtopics: ['incrément de charge', 'surcharge progressive', 'double progression'],
+    finding: 'L\'incrément de charge optimal lors de la double progression n\'est pas fixe : il dépend du type d\'exercice, du niveau et de la marge RIR disponible.',
+    detail: 'La contrainte principale est matérielle (plus petite plaque = 1,25kg par côté = 2,5kg total sur barre). Mais cette convention ne s\'applique pas uniformément. Sur les exercices d\'isolation ou avec petits haltères, 2,5kg représente souvent 10-20% de la charge totale — un incrément trop brutal pour maintenir la technique et le RIR cible. Le principe est : ajouter la plus petite charge qui permet de rester dans la plage RIR cible à la séance suivante. Si ce n\'est pas possible (pas de microplaques), mieux vaut ajouter une répétition que d\'augmenter la charge de façon trop importante.',
+    source: 'Israetel et al. — Renaissance Periodization (2019) ; Schoenfeld (2016) — Science and Development of Muscle Hypertrophy ; pratique clinique & disponibilité matérielle standard',
+    application: 'Composés lourds (squat, deadlift, bench barre, OHP barre) : +2,5 à 5kg quand RIR ≥ 2 sur toutes les séries. Composés intermédiaires (rowing barre, tirage vertical) : +2,5kg. Isolation (curl, élévation latérale, extension triceps) : +1 à 2,5kg — préférer +1 rep si pas de petites plaques. Avancé avec microplaques : +0,5 à 1kg possible. Si aucune progression de charge possible sur 3 semaines : augmenter le volume (1 série) avant de changer d\'exercice.',
+    example: 'Curl haltères 12kg × 3×10 à RIR 2 → passer à 14kg serait +17% en une séance (trop). Mieux : 12,5kg si disponible, sinon ajouter 1-2 reps à 12kg avant de sauter à 14kg. Squat barre 100kg × 4×6 à RIR 2 → 102,5kg est approprié (+2,5%).',
+    objectives: ['hypertrophy', 'strength'],
+    levels: ['beginner', 'intermediate', 'advanced'],
+    muscles: [],
+    keywords: ['incrément charge', 'surcharge progressive', 'double progression', '2.5kg', 'microloading', 'progression charge', 'augmenter charge'],
+  },
+
   // ══════════════════════════════════════════════════════════════════════════
   // NUTRITION
   // ══════════════════════════════════════════════════════════════════════════
