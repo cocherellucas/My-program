@@ -459,11 +459,13 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
               </AlertDialog>
             </>
           )}
-          <Button onClick={() => activeProgram ? setShowRegenGate(true) : setShowDialog(true)} disabled={generating}>
-            {generating ? <Loader2 className="w-4 h-4 sm:mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 sm:mr-2" />}
-            <span className="hidden sm:inline">{activeProgram ? 'Régénérer' : 'Générer le programme'}</span>
-            <span className="sm:hidden">{activeProgram ? 'Régénérer' : 'Générer'}</span>
-          </Button>
+          {activeProgram && (
+            <Button onClick={() => setShowRegenGate(true)} disabled={generating}>
+              {generating ? <Loader2 className="w-4 h-4 sm:mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 sm:mr-2" />}
+              <span className="hidden sm:inline">Régénérer</span>
+              <span className="sm:hidden">Régénérer</span>
+            </Button>
+          )}
         </div>
       </div>
 
