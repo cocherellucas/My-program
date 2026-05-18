@@ -8,7 +8,7 @@ import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
 import { buildSystemPrompt } from '@/lib/coach-prompts';
 import { getContextualKnowledge, getMessageKnowledge } from '@/lib/scientific-knowledge-base';
-import { getAvailableExercises } from '@/lib/exercise-database';
+import { getAvailableExercises, getTensionProfile } from '@/lib/exercise-database';
 
 export default function CoachIA() {
   const [user, setUser] = useState(null);
@@ -118,7 +118,9 @@ export default function CoachIA() {
       objectives.map(o => o.type),
       user.level || 'beginner'
     );
-    const exerciseListStr = availableExercises.map(e => e.name).join(', ');
+    const exerciseListStr = availableExercises
+      .map(e => `${e.name} [${getTensionProfile(e.id)}]`)
+      .join(', ');
 
     const systemContext  = buildSystemPrompt(user, objectives, programs, memory, recentSessions, seriesLogs, scienceContext, '', exerciseListStr);
     const history = messages.map(m => `${m.role === 'user' ? 'Utilisateur' : 'Coach'}: ${m.content}`).join('\n');

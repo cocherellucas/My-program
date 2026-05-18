@@ -1059,6 +1059,181 @@ export const EXERCISES = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
+// PROFILS DE TENSION
+// stretch = muscle maximalement chargé en position étirée (lengthened)
+// peak    = muscle maximalement chargé au pic de contraction (shortened)
+// neutral = tension relativement uniforme / isométrique
+// ─────────────────────────────────────────────────────────────────────────────
+export const TENSION_PROFILES = {
+  // POITRINE
+  bench_press_barbell:      'neutral',
+  bench_press_dumbbell:     'stretch',
+  incline_press_barbell:    'neutral',
+  incline_press_dumbbell:   'stretch',
+  decline_press_dumbbell:   'stretch',
+  bench_press_machine:      'peak',
+  incline_press_machine:    'peak',
+  pec_deck:                 'peak',
+  cable_crossover:          'peak',
+  cable_fly_low:            'stretch',
+  cable_fly_high:           'peak',
+  dumbbell_fly:             'stretch',
+  pushup:                   'stretch',
+  pushup_elevated:          'stretch',
+  dips_chest:               'stretch',
+  bench_smith:              'neutral',
+
+  // DOS
+  pullup:                   'stretch',
+  chinup:                   'stretch',
+  trx_row:                  'peak',
+  lat_pulldown_wide:        'stretch',
+  barbell_row:              'peak',
+  dumbbell_row:             'peak',
+  cable_row:                'peak',
+  machine_row:              'peak',
+  tbar_row:                 'peak',
+  pullover_dumbbell:        'stretch',
+  face_pull:                'peak',
+  straight_arm_pulldown:    'peak',
+  deadlift:                 'stretch',
+  hyperextension:           'stretch',
+  good_morning:             'stretch',
+  barbell_row_supinated:    'peak',
+  lat_pulldown_supinated:   'stretch',
+  cable_row_unilateral:     'peak',
+  seal_row:                 'peak',
+  rack_pull:                'neutral',
+  pullover_cable:           'stretch',
+
+  // ÉPAULES
+  ohp_barbell:              'stretch',
+  ohp_dumbbell:             'stretch',
+  ohp_machine:              'stretch',
+  lateral_raise_dumbbell:   'peak',
+  lateral_raise_cable:      'stretch',
+  front_raise_dumbbell:     'peak',
+  rear_delt_fly:            'stretch',
+  shrug_barbell:            'peak',
+  shrug_dumbbell:           'peak',
+  upright_row:              'peak',
+  reverse_fly_machine:      'stretch',
+
+  // BICEPS
+  curl_barbell:             'neutral',
+  curl_ez:                  'neutral',
+  curl_dumbbell:            'neutral',
+  hammer_curl:              'neutral',
+  concentration_curl:       'peak',
+  incline_curl:             'stretch',
+  curl_machine:             'peak',
+  preacher_curl:            'stretch',
+  cable_curl_low:           'stretch',
+  cable_curl_high:          'peak',
+  reverse_curl_ez:          'neutral',
+  zottman_curl:             'neutral',
+  bayesian_curl:            'stretch',
+
+  // TRICEPS
+  close_grip_bench:         'peak',
+  skull_crusher_ez:         'stretch',
+  skull_crusher_dumbbell:   'stretch',
+  triceps_pushdown_rope:    'peak',
+  triceps_pushdown_bar:     'peak',
+  triceps_cable_low:        'stretch',
+  kickback:                 'peak',
+  overhead_ext_dumbbell:    'stretch',
+  overhead_ext_unilateral:  'stretch',
+  triceps_machine:          'peak',
+  dips_triceps_machine:     'peak',
+  diamond_pushup:           'peak',
+  french_press_ez:          'stretch',
+  jm_press:                 'peak',
+
+  // QUADRICEPS
+  squat_barbell:            'stretch',
+  squat_dumbbell:           'stretch',
+  goblet_squat:             'stretch',
+  squat_bodyweight:         'stretch',
+  leg_press:                'stretch',
+  hack_squat:               'stretch',
+  leg_extension:            'peak',
+  lunge_barbell:            'stretch',
+  lunge_dumbbell:           'stretch',
+  bulgarian_split_squat:    'stretch',
+  squat_smith:              'stretch',
+  walking_lunge:            'stretch',
+  step_up:                  'stretch',
+  front_squat_barbell:      'stretch',
+  pistol_squat:             'stretch',
+
+  // ISCHIO-JAMBIERS & FESSIERS
+  rdl_barbell:              'stretch',
+  rdl_dumbbell:             'stretch',
+  leg_curl_lying:           'peak',
+  leg_curl_seated:          'stretch',
+  hip_thrust_barbell:       'peak',
+  hip_thrust_machine:       'peak',
+  hip_thrust_dumbbell:      'peak',
+  glute_kickback_cable:     'peak',
+  fessier_machine:          'peak',
+  glute_bridge:             'peak',
+  nordic_curl:              'stretch',
+  kettlebell_swing:         'stretch',
+  trap_bar_deadlift:        'stretch',
+
+  // ADDUCTEURS & ABDUCTEURS
+  abductor_machine:         'peak',
+  adductor_machine:         'peak',
+  sumo_squat:               'stretch',
+  miniband_abduction:       'peak',
+  copenhagen_plank:         'neutral',
+
+  // MOLLETS
+  calf_raise_machine:       'stretch',
+  seated_calf_raise:        'stretch',
+  leg_press_calf:           'stretch',
+  calf_raise_barbell:       'stretch',
+  calf_raise_dumbbell:      'stretch',
+  calf_raise_bodyweight:    'stretch',
+
+  // ABDOS & CORE
+  crunch_machine:           'peak',
+  rotation_machine:         'peak',
+  hanging_leg_raise:        'stretch',
+  captain_chair:            'stretch',
+  cable_crunch:             'peak',
+  plank:                    'neutral',
+  side_plank:               'neutral',
+  russian_twist:            'peak',
+  crunch:                   'peak',
+  swiss_ball_crunch:        'stretch',
+  pallof_press:             'neutral',
+  dead_bug:                 'neutral',
+  dragon_flag:              'stretch',
+  hollow_body_hold:         'neutral',
+  l_sit:                    'neutral',
+  ab_wheel_rollout:         'stretch',
+
+  // FONCTIONNEL / MÉTABOLIQUE
+  burpees:                  'neutral',
+  mountain_climbers:        'neutral',
+  thruster_dumbbell:        'stretch',
+  renegade_row:             'peak',
+  farmers_carry:            'neutral',
+  jump_rope:                'neutral',
+  box_jump:                 'stretch',
+  wall_sit:                 'neutral',
+
+  // DIVERS
+  wrist_curl:               'peak',
+};
+
+export function getTensionProfile(exerciseId) {
+  return TENSION_PROFILES[exerciseId] || 'neutral';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────────────────────────────────────
 
