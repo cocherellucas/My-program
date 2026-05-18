@@ -35,8 +35,8 @@ const GOALS = [
     label: 'Note pour l\'IA',
     icon:  Minus,
     desc:  'Le Coach IA en tiendra compte dans ses conseils',
-    color: 'border-violet-300 bg-violet-700 text-white',
-    chip:  'border-violet-300 bg-violet-800 text-white/70',
+    color: 'border-violet-300 bg-violet-500 text-white',
+    chip:  'border-violet-300 bg-violet-500 text-white',
   },
 ];
 
