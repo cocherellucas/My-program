@@ -76,18 +76,18 @@ export default function Profile() {
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-3 flex-wrap">
+      <div className="space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <div>
             <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white">Profil</h1>
-            <SubscriptionBadge />
+            <p className="text-white/70 mt-0.5 text-sm">{user.email}</p>
           </div>
-          <p className="text-white/70 mt-1 text-sm">{user.email}</p>
+          <Button variant="outline" size="sm" onClick={() => base44.auth.logout()} className="border-white/30 text-white hover:bg-white/10 hover:text-white flex-shrink-0">
+            <LogOut className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Déconnexion</span>
+          </Button>
         </div>
-        <Button variant="outline" size="sm" onClick={() => base44.auth.logout()} className="border-white/30 text-white hover:bg-white/10 hover:text-white flex-shrink-0">
-          <LogOut className="w-4 h-4 sm:mr-2" />
-          <span className="hidden sm:inline">Déconnexion</span>
-        </Button>
+        <SubscriptionBadge fullWidth />
       </div>
 
       <Tabs defaultValue={searchParams.get('tab') || 'basics'} onValueChange={setActiveTab}>

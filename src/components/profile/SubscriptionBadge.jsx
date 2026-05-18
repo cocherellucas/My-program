@@ -31,7 +31,7 @@ const PLAN_CONFIG = {
   },
 };
 
-export default function SubscriptionBadge() {
+export default function SubscriptionBadge({ fullWidth = false }) {
   const [planId, setPlanId] = useState(null);
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export default function SubscriptionBadge() {
   const isUpgradable = planId !== 'elite';
 
   return (
-    <Link to="/pricing" className="group relative flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/10 backdrop-blur-sm ring-1 ring-white/20 hover:ring-white/40 transition-all duration-300 hover:bg-white/15">
+    <Link to="/pricing" className={`group relative flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/10 backdrop-blur-sm ring-1 ring-white/20 hover:ring-white/40 transition-all duration-300 hover:bg-white/15 ${fullWidth ? 'w-full' : ''}`}>
       {/* Icon circle */}
       <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${config.gradient} flex items-center justify-center shadow-lg ${config.glow} ring-2 ${config.ring} flex-shrink-0`}>
         <Icon className="w-5 h-5 text-white" />
