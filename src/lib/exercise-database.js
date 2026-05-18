@@ -903,6 +903,159 @@ export const EXERCISES = [
     type: 'compound', block: 'C', objectives: ['strength'],
     level: ['advanced'], failureAllowed: true,
   },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // NOUVEAUX EXERCICES — GAINAGE / FONCTIONNEL / MÉTABOLIQUE
+  // ══════════════════════════════════════════════════════════════════════════
+  {
+    id: 'hollow_body_hold', name: 'Hollow body hold',
+    equipmentOptions: [[]],
+    muscles: { primary: ['Abdominaux'], secondary: ['Fessiers','Quadriceps'] },
+    type: 'isolation', block: 'C', objectives: ['strength','hypertrophy'],
+    level: ['intermediate','advanced'], failureAllowed: true,
+  },
+  {
+    id: 'copenhagen_plank', name: 'Copenhagen plank',
+    equipmentOptions: [[]],
+    muscles: { primary: ['Adducteurs'], secondary: ['Abdominaux','Fessiers'] },
+    type: 'isolation', block: 'C', objectives: ['strength','hypertrophy'],
+    level: ['intermediate','advanced'], failureAllowed: true,
+  },
+  {
+    id: 'pistol_squat', name: 'Pistol squat',
+    equipmentOptions: [[]],
+    muscles: { primary: ['Quadriceps','Fessiers'], secondary: ['Ischio-jambiers','Mollets','Abdominaux'] },
+    type: 'compound', block: 'B', objectives: ['strength','hypertrophy'],
+    level: ['advanced'], failureAllowed: true,
+  },
+  {
+    id: 'ab_wheel_rollout', name: 'Roulette abdominale',
+    equipmentOptions: [['Roulette abdominale']],
+    muscles: { primary: ['Abdominaux'], secondary: ['Épaules','Dos'] },
+    type: 'compound', block: 'C', objectives: ['strength','hypertrophy'],
+    level: ['intermediate','advanced'], failureAllowed: true,
+  },
+  {
+    id: 'burpees', name: 'Burpees',
+    equipmentOptions: [[]],
+    muscles: { primary: ['Quadriceps','Pectoraux','Épaules'], secondary: ['Fessiers','Abdominaux','Triceps'] },
+    type: 'compound', block: 'B', objectives: ['endurance'],
+    level: ['beginner','intermediate','advanced'], failureAllowed: true,
+  },
+  {
+    id: 'mountain_climbers', name: 'Mountain climbers',
+    equipmentOptions: [[]],
+    muscles: { primary: ['Abdominaux'], secondary: ['Épaules','Quadriceps','Fessiers'] },
+    type: 'compound', block: 'C', objectives: ['endurance'],
+    level: ['beginner','intermediate','advanced'], failureAllowed: true,
+  },
+  {
+    id: 'thruster_dumbbell', name: 'Thruster haltères',
+    equipmentOptions: [['Haltères']],
+    muscles: { primary: ['Quadriceps','Épaules','Fessiers'], secondary: ['Triceps','Abdominaux','Ischio-jambiers'] },
+    type: 'compound', block: 'A', objectives: ['strength','hypertrophy','endurance'],
+    level: ['intermediate','advanced'], failureAllowed: false,
+  },
+  {
+    id: 'renegade_row', name: 'Renegade row',
+    equipmentOptions: [['Haltères']],
+    muscles: { primary: ['Dos','Abdominaux'], secondary: ['Épaules','Biceps'] },
+    type: 'compound', block: 'B', objectives: ['strength','hypertrophy'],
+    level: ['intermediate','advanced'], failureAllowed: true,
+  },
+  {
+    id: 'farmers_carry', name: 'Marche du fermier',
+    equipmentOptions: [['Haltères'],['Kettlebell'],['Barre olympique']],
+    muscles: { primary: ['Avant-bras','Trapèzes','Abdominaux'], secondary: ['Épaules','Quadriceps','Mollets'] },
+    type: 'compound', block: 'B', objectives: ['strength','hypertrophy','endurance'],
+    level: ['beginner','intermediate','advanced'], failureAllowed: true,
+  },
+  {
+    id: 'jump_rope', name: 'Corde à sauter',
+    equipmentOptions: [['Corde à sauter']],
+    muscles: { primary: ['Mollets'], secondary: ['Épaules','Abdominaux'] },
+    type: 'compound', block: 'C', objectives: ['endurance'],
+    level: ['beginner','intermediate','advanced'], failureAllowed: true,
+  },
+  {
+    id: 'box_jump', name: 'Box jump',
+    equipmentOptions: [['Boîte pliométrique']],
+    muscles: { primary: ['Quadriceps','Fessiers'], secondary: ['Mollets','Ischio-jambiers'] },
+    type: 'compound', block: 'A', objectives: ['strength','endurance'],
+    level: ['intermediate','advanced'], failureAllowed: true,
+  },
+  {
+    id: 'wall_sit', name: 'Wall sit',
+    equipmentOptions: [[]],
+    muscles: { primary: ['Quadriceps'], secondary: ['Fessiers','Ischio-jambiers'] },
+    type: 'isolation', block: 'C', objectives: ['endurance'],
+    level: ['beginner','intermediate','advanced'], failureAllowed: true,
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // NOUVEAUX EXERCICES — POULIE / CÂBLE
+  // ══════════════════════════════════════════════════════════════════════════
+  {
+    id: 'pullover_cable', name: 'Pull-over poulie',
+    equipmentOptions: [['Câble poulie haute']],
+    muscles: { primary: ['Dos','Pectoraux'], secondary: ['Triceps','Abdominaux'] },
+    type: 'isolation', block: 'C', objectives: ['hypertrophy'],
+    level: ['intermediate','advanced'], failureAllowed: true,
+  },
+  {
+    id: 'bayesian_curl', name: 'Curl câble bayésien',
+    equipmentOptions: [['Câble poulie basse']],
+    muscles: { primary: ['Biceps'], secondary: [] },
+    type: 'isolation', block: 'C', objectives: ['hypertrophy'],
+    level: ['intermediate','advanced'], failureAllowed: true,
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // NOUVEAUX EXERCICES — DOS
+  // ══════════════════════════════════════════════════════════════════════════
+  {
+    id: 'seal_row', name: 'Seal row',
+    equipmentOptions: [['Barre olympique','Banc plat'],['Haltères','Banc plat']],
+    muscles: { primary: ['Dos'], secondary: ['Biceps','Arrière épaule'] },
+    type: 'compound', block: 'B', objectives: ['hypertrophy','strength'],
+    level: ['intermediate','advanced'], failureAllowed: true,
+  },
+  {
+    id: 'rack_pull', name: 'Rack pull',
+    equipmentOptions: [['Barre olympique','Rack squat'],['Barre olympique','Rack demi-cage']],
+    muscles: { primary: ['Dos','Ischio-jambiers','Fessiers'], secondary: ['Avant-bras','Trapèzes'] },
+    type: 'compound', block: 'A', objectives: ['strength','hypertrophy'],
+    level: ['intermediate','advanced'], failureAllowed: false,
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // NOUVEAUX EXERCICES — TRICEPS
+  // ══════════════════════════════════════════════════════════════════════════
+  {
+    id: 'jm_press', name: 'JM press',
+    equipmentOptions: [['Barre olympique','Banc plat'],['Barre EZ','Banc plat']],
+    muscles: { primary: ['Triceps'], secondary: ['Épaules'] },
+    type: 'compound', block: 'B', objectives: ['strength','hypertrophy'],
+    level: ['intermediate','advanced'], failureAllowed: false,
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // NOUVEAUX EXERCICES — QUADRICEPS / FULL BODY
+  // ══════════════════════════════════════════════════════════════════════════
+  {
+    id: 'front_squat_barbell', name: 'Front squat barre',
+    equipmentOptions: [['Barre olympique','Rack squat'],['Barre olympique','Rack demi-cage']],
+    muscles: { primary: ['Quadriceps'], secondary: ['Fessiers','Abdominaux','Dos'] },
+    type: 'compound', block: 'A', objectives: ['strength','hypertrophy'],
+    level: ['intermediate','advanced'], failureAllowed: false,
+  },
+  {
+    id: 'trap_bar_deadlift', name: 'Soulevé de terre trap bar',
+    equipmentOptions: [['Trap bar']],
+    muscles: { primary: ['Quadriceps','Fessiers','Dos'], secondary: ['Ischio-jambiers','Avant-bras','Trapèzes'] },
+    type: 'compound', block: 'A', objectives: ['strength','hypertrophy'],
+    level: ['beginner','intermediate','advanced'], failureAllowed: false,
+  },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────

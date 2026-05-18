@@ -15,7 +15,7 @@ const CONTEXTS = [
 const EQUIPMENT_BY_TYPE = [
   {
     group: 'Barres & Racks',
-    items: ['Barre olympique','Barre EZ','Barre trap/hex','Rack squat','Rack demi-cage','Smith machine','Banc plat','Banc réglable','Banc décliné'],
+    items: ['Barre olympique','Barre EZ','Barre trap/hex','Trap bar','Rack squat','Rack demi-cage','Smith machine','Banc plat','Banc réglable','Banc décliné'],
   },
   {
     group: 'Poids libres',
@@ -46,7 +46,7 @@ const EQUIPMENT_BY_TYPE = [
   },
   {
     group: 'Accessoires & Lestage',
-    items: ['Élastiques de résistance','Mini-bands','Swiss ball','Gilet lesté','Ceinture de lest','Sac à dos lesté'],
+    items: ['Élastiques de résistance','Mini-bands','Swiss ball','Gilet lesté','Ceinture de lest','Sac à dos lesté','Roulette abdominale','Corde à sauter','Boîte pliométrique','Kettlebell'],
   },
 ];
 

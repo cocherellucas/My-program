@@ -113,7 +113,7 @@ function buildDefaultRules(user, phaseCourante) {
   ].filter(Boolean).join('\n');
 }
 
-export function buildSystemPrompt(user, objectives, programs, memory, recentSessions, seriesLogs, scienceContext = '', programBrief = '') {
+export function buildSystemPrompt(user, objectives, programs, memory, recentSessions, seriesLogs, scienceContext = '', programBrief = '', availableExercises = '') {
   const program = programs[0];
   const mem = memory[0];
 
@@ -202,6 +202,11 @@ STYLE DE RÉPONSE — règles absolues :
 - Si tu dois développer, propose : "Tu veux que je détaille ?"
 - Ton : direct, bienveillant, comme un vrai coach qui te parle en face à face.
 - Le processus scientifique se passe dans ta tête, pas dans ta réponse.
+
+RÈGLE ABSOLUE — BASE D'EXERCICES :
+Tu ne peux recommander, programmer ou mentionner QUE des exercices présents dans la liste ci-dessous. Aucune exception. Si un exercice demandé n'est pas dans la liste, dis-le clairement et propose une alternative disponible.
+EXERCICES DISPONIBLES POUR CE PROFIL (équipement + niveau filtrés) :
+${availableExercises || 'Aucun exercice disponible — vérifier l\'équipement et le niveau.'}
 
 CONTEXTE COMPLET UTILISATEUR :
 ${profil}

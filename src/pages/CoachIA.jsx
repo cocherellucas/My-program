@@ -8,6 +8,7 @@ import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
 import { buildSystemPrompt } from '@/lib/coach-prompts';
 import { getContextualKnowledge, getMessageKnowledge } from '@/lib/scientific-knowledge-base';
+import { getAvailableExercises } from '@/lib/exercise-database';
 
 export default function CoachIA() {
   const [user, setUser] = useState(null);
@@ -110,7 +111,16 @@ export default function CoachIA() {
     const baseScience    = getContextualKnowledge(user, objectives);
     const messageScience = getMessageKnowledge(userMsg, { user, objectives });
     const scienceContext = [baseScience, messageScience].filter(Boolean).join('\n');
-    const systemContext  = buildSystemPrompt(user, objectives, programs, memory, recentSessions, seriesLogs, scienceContext);
+
+    // Exercices disponibles pour cet utilisateur (filtrés par équipement + niveau)
+    const availableExercises = getAvailableExercises(
+      user.equipment || [],
+      objectives.map(o => o.type),
+      user.level || 'beginner'
+    );
+    const exerciseListStr = availableExercises.map(e => e.name).join(', ');
+
+    const systemContext  = buildSystemPrompt(user, objectives, programs, memory, recentSessions, seriesLogs, scienceContext, '', exerciseListStr);
     const history = messages.map(m => `${m.role === 'user' ? 'Utilisateur' : 'Coach'}: ${m.content}`).join('\n');
 
     // Instruction spéciale pour l'import de programme
