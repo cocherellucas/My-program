@@ -180,7 +180,6 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
           program_id: program.id,
           week_number: s.week_number || 1,
           day_label: s.day_label || s.day,
-          day: s.day?.toLowerCase(),
           type: s.type || 'hypertrophy',
           status: 'planned',
           planned_date: d.toISOString().split('T')[0],
