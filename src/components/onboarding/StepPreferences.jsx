@@ -19,24 +19,24 @@ const GOALS = [
     label: 'Renforcer',
     icon:  Dumbbell,
     desc:  'Travailler cette zone pour la consolider',
-    color: 'border-blue-400/60 bg-blue-400/15 text-blue-300',
-    chip:  'border-blue-400/40 bg-blue-400/10 text-blue-300',
+    color: 'border-blue-400 bg-blue-600 text-blue-200',
+    chip:  'border-blue-400 bg-blue-700 text-blue-200',
   },
   {
     key:   'protect',
     label: 'Protéger',
     icon:  Shield,
     desc:  'Supprime les poids libres, remplace par machines et câbles',
-    color: 'border-orange-400/60 bg-orange-400/15 text-orange-300',
-    chip:  'border-orange-400/40 bg-orange-400/10 text-orange-300',
+    color: 'border-orange-400 bg-orange-700 text-orange-200',
+    chip:  'border-orange-400 bg-orange-800 text-orange-200',
   },
   {
     key:   'info',
     label: 'Note pour l\'IA',
     icon:  Minus,
     desc:  'Le Coach IA en tiendra compte dans ses conseils',
-    color: 'border-white/30 bg-white/10 text-white/60',
-    chip:  'border-white/20 bg-white/5 text-white/40',
+    color: 'border-violet-300 bg-violet-700 text-white',
+    chip:  'border-violet-300 bg-violet-800 text-white/70',
   },
 ];
 
@@ -90,8 +90,8 @@ export default function StepPreferences({ data, onChange }) {
                   zone
                     ? goal?.chip
                     : waiting
-                    ? 'border-white/60 bg-white/15 text-white'
-                    : 'border-white/20 bg-white/5 text-white/50 hover:border-white/30 hover:text-white/70'
+                    ? 'border-white bg-violet-500 text-white'
+                    : 'border-violet-400 bg-[#8b45f8] text-white/80 hover:border-white hover:text-white'
                 )}>
                 {zone && goal && <goal.icon className="w-3 h-3" />}
                 {label}
