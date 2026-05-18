@@ -510,7 +510,7 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
             map(({ value, label, bg, ring }) =>
             <button
               key={value}
-              onClick={() => setFatigue(value)}
+              onClick={() => { setFatigue(value); setProposal(null); }}
               className={`flex-1 flex flex-col items-center gap-2 py-3 rounded-xl transition-all
                   ${fatigue === value ? `${bg}/20 ring-2 ${ring}` : 'bg-white/10 hover:bg-white/20'}`}>
               
@@ -550,7 +550,7 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
               </PopoverContent>
             </Popover>
           </div>
-          <Textarea placeholder="Comment tu te sens ? Quelque chose à signaler ?" value={notes} onChange={(e) => setNotes(e.target.value)} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
+          <Textarea placeholder="Comment tu te sens ? Quelque chose à signaler ?" value={notes} onChange={(e) => { setNotes(e.target.value); setProposal(null); }} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
         </div>
         {/* Propositions IA */}
         {proposal === null ? (
