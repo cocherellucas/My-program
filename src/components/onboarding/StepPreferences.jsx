@@ -27,8 +27,8 @@ const GOALS = [
     label: 'Protéger',
     icon:  Shield,
     desc:  'Supprime les poids libres, remplace par machines et câbles',
-    color: 'border-orange-400 bg-orange-700 text-orange-200',
-    chip:  'border-orange-400 bg-orange-800 text-orange-200',
+    color: 'border-orange-300 bg-orange-500 text-white',
+    chip:  'border-orange-300 bg-orange-500 text-white',
   },
   {
     key:   'info',
