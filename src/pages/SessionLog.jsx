@@ -438,7 +438,7 @@ function OverviewPanel({ exercises, logs, updateLog, onClose }) {
 }
 
 // ─── End of session panel ──────────────────────────────────────────────────────
-function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setNotes, onSave, saving }) {
+function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setNotes, onSave, saving, proposal, setProposal, generateProposal }) {
   const [showOverview, setShowOverview] = useState(false);
 
   if (showOverview) {
@@ -552,10 +552,46 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
           </div>
           <Textarea placeholder="Comment tu te sens ? Quelque chose à signaler ?" value={notes} onChange={(e) => setNotes(e.target.value)} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
         </div>
-        <Button onClick={onSave} disabled={saving} className="w-full" size="lg">
-          {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
-          Valider la séance
-        </Button>
+        {/* Propositions IA */}
+        {proposal === null ? (
+          <Button onClick={() => setProposal(generateProposal())} variant="outline" className="w-full border-white/30 text-white hover:bg-white/10" size="lg">
+            <TrendingDown className="w-4 h-4 mr-2" />
+            Voir les recommandations pour la suite
+          </Button>
+        ) : proposal.length === 0 ? (
+          <p className="text-xs text-white/50 text-center">Aucun ajustement nécessaire — continue comme ça 💪</p>
+        ) : (
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-white/70 uppercase tracking-wide">Recommandations pour tes prochaines séances</p>
+            {proposal.map((p, i) => (
+              <div key={i} className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs ${p.type === 'increase' ? 'bg-green-500/20 text-green-200' : p.type === 'reduce' ? 'bg-red-500/20 text-red-200' : 'bg-white/10 text-white/70'}`}>
+                <span className="text-base">{p.type === 'increase' ? '↑' : p.type === 'reduce' ? '↓' : '→'}</span>
+                <div className="flex-1">
+                  <span className="font-semibold">{p.exercise}</span>
+                  <span className="ml-1">→ {p.newWeight}kg</span>
+                  <span className="text-white/50 ml-1">({p.reason})</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {proposal !== null && proposal.length > 0 ? (
+          <div className="flex gap-2">
+            <Button onClick={() => onSave(true)} disabled={saving} className="flex-1 bg-green-600 hover:bg-green-700" size="lg">
+              {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
+              Appliquer et valider
+            </Button>
+            <Button onClick={() => onSave(false)} disabled={saving} variant="outline" className="border-white/30 text-white hover:bg-white/10" size="lg">
+              Ignorer
+            </Button>
+          </div>
+        ) : (
+          <Button onClick={() => onSave(false)} disabled={saving} className="w-full" size="lg">
+            {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
+            Valider la séance
+          </Button>
+        )}
       </Card>
     </div>);
 
@@ -582,6 +618,7 @@ export default function SessionLog() {
   const [sessionExercises, setSessionExercises] = useState(null);
   const [editingObjectif, setEditingObjectif] = useState(false);
   const [previousLogs, setPreviousLogs] = useState({});
+  const [proposal, setProposal] = useState(null); // propositions IA après séance
 
   useEffect(() => {base44.auth.me().then(u => setUser(normalizeUser(u)));}, []);
 
@@ -819,8 +856,67 @@ Réponds uniquement avec le JSON demandé.`,
     }
   };
 
-  const saveSession = async () => {
+  // Génère les propositions d'adaptation basées sur les logs + fatigue + notes
+  const generateProposal = () => {
+    const perEx = {};
+    for (const [key, log] of Object.entries(logs)) {
+      const [exIdx] = key.split('-').map(Number);
+      const ex = exercises[exIdx];
+      if (!ex) continue;
+      if (!perEx[ex.name]) perEx[ex.name] = { weights: [], modes: [], qualities: [], name: ex.name, originalWeight: ex.target_weight };
+      if (log.weight) perEx[ex.name].weights.push(log.weight);
+      if (log.mode) perEx[ex.name].modes.push(log.mode);
+      if (log.quality) perEx[ex.name].qualities.push(log.quality);
+    }
+    const noteText = (notes || '').toLowerCase();
+    const notePain = /douleur|mal |gêne|pincement/.test(noteText);
+    const noteEasy = /trop facile|trop léger|pas assez/.test(noteText);
+    const noteHard = /trop dur|très dur|épuisant/.test(noteText);
+
+    const RIR_SCORE = { failure: -1, RIR_0: 0, RIR_1: 1, RIR_2: 2, 'RIR_3+': 3 };
+    const props = [];
+
+    for (const ex of Object.values(perEx)) {
+      if (!ex.weights.length) continue;
+      const avgW = Math.round(ex.weights.reduce((a, b) => a + b, 0) / ex.weights.length * 10) / 10;
+      const avgRIR = ex.modes.length ? ex.modes.reduce((a, m) => a + (RIR_SCORE[m] ?? 2), 0) / ex.modes.length : 2;
+      const qualityOk = ex.qualities.length === 0 || ex.qualities.filter(q => q === 'good').length / ex.qualities.length > 0.6;
+      const qualityBad = ex.qualities.filter(q => q === 'bad').length > 0;
+
+      if (notePain || qualityBad || fatigue >= 5) {
+        props.push({ exercise: ex.name, newWeight: Math.round(avgW * 0.92 * 2) / 2, reason: notePain ? 'douleur signalée' : fatigue >= 5 ? 'fatigue maximale' : 'qualité dégradée', type: 'reduce' });
+      } else if (fatigue >= 4) {
+        props.push({ exercise: ex.name, newWeight: avgW, reason: 'fatigue élevée — maintien', type: 'maintain' });
+      } else if ((noteEasy || avgRIR >= 2) && qualityOk) {
+        const inc = avgW >= 60 ? 2.5 : avgW >= 20 ? 1.25 : 1;
+        props.push({ exercise: ex.name, newWeight: Math.round((avgW + inc) * 2) / 2, reason: noteEasy ? 'tu as trouvé ça facile' : `reps en réserve suffisantes (RIR ~${Math.round(avgRIR)})`, type: 'increase' });
+      } else if (noteHard) {
+        props.push({ exercise: ex.name, newWeight: Math.round(avgW * 0.95 * 2) / 2, reason: 'séance difficile', type: 'reduce' });
+      }
+    }
+    return props.filter(p => p.type !== 'maintain' || props.length <= 2);
+  };
+
+  const saveSession = async (acceptProposal = false) => {
     setSaving(true);
+
+    // Appliquer les propositions aux prochaines séances si acceptées
+    if (acceptProposal && proposal?.length) {
+      const allSessions = await base44.entities.Session.filter({ program_id: session.program_id });
+      const future = allSessions
+        .filter(s => s.status === 'planned' && s.planned_date > new Date().toISOString().split('T')[0])
+        .sort((a, b) => new Date(a.planned_date) - new Date(b.planned_date))
+        .slice(0, 5);
+      for (const fs of future) {
+        if (!fs.exercises?.length) continue;
+        const updated = fs.exercises.map(ex => {
+          const p = proposal.find(p => p.exercise === ex.name);
+          return p ? { ...ex, target_weight: p.newWeight } : ex;
+        });
+        await base44.entities.Session.update(fs.id, { exercises: updated });
+      }
+    }
+
     for (const [key, log] of Object.entries(logs)) {
       const [exIdx, setIdx] = key.split('-').map(Number);
       const exercise = exercises[exIdx];
@@ -904,7 +1000,10 @@ Réponds uniquement avec le JSON demandé.`,
             notes={notes}
             setNotes={setNotes}
             onSave={saveSession}
-            saving={saving} />
+            saving={saving}
+            proposal={proposal}
+            setProposal={setProposal}
+            generateProposal={generateProposal} />
           
           </motion.div> :
         showOverview ?
