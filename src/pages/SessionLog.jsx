@@ -960,21 +960,21 @@ Réponds uniquement avec le JSON demandé.`,
         .filter(s => s.status === 'planned' && s.planned_date > new Date().toISOString().split('T')[0])
         .sort((a, b) => new Date(a.planned_date) - new Date(b.planned_date))
         .slice(0, 5);
-      for (const fs of future) {
-        if (!fs.exercises?.length) continue;
+      await Promise.all(future.map(fs => {
+        if (!fs.exercises?.length) return Promise.resolve();
         const updated = fs.exercises.map(ex => {
           const p = proposal.find(p => p.exercise === ex.name);
           return p ? { ...ex, target_weight: p.newWeight } : ex;
         });
-        await base44.entities.Session.update(fs.id, { exercises: updated });
-      }
+        return base44.entities.Session.update(fs.id, { exercises: updated });
+      }));
     }
 
-    for (const [key, log] of Object.entries(logs)) {
+    await Promise.all(Object.entries(logs).map(([key, log]) => {
       const [exIdx, setIdx] = key.split('-').map(Number);
       const exercise = exercises[exIdx];
-      if (!exercise) continue;
-      await base44.entities.SeriesLog.create({
+      if (!exercise) return Promise.resolve();
+      return base44.entities.SeriesLog.create({
         session_id: session.id,
         user_id: user.id,
         exercise_name: exercise.name,
@@ -989,7 +989,7 @@ Réponds uniquement avec le JSON demandé.`,
         feedback: log.feedback || null,
         tempo: log.tempo || null
       });
-    }
+    }));
     await base44.entities.Session.update(session.id, {
       status: 'completed',
       actual_date: new Date().toISOString().split('T')[0],
