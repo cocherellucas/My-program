@@ -333,7 +333,13 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
             return (
           <div key={setIdx}
             onClick={() => setActiveSetIdx(setIdx)}
-            className={`space-y-1 rounded-xl transition-all cursor-pointer ${isActive ? 'ring-2 ring-white/60 ring-offset-1 ring-offset-transparent' : isDone ? 'opacity-60' : 'opacity-90'}`}>
+            className={`space-y-1 rounded-xl transition-all cursor-pointer border-2 ${
+              isActive
+                ? 'border-white bg-white/15 shadow-lg shadow-white/10'
+                : isDone
+                ? 'border-transparent opacity-50'
+                : 'border-transparent opacity-80'
+            }`}>
               <SetRow
               setIdx={setIdx}
               totalSets={sets}
