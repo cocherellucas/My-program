@@ -72,18 +72,33 @@ export default function CoachIA() {
   };
   const handleInputBlur = () => document.body.classList.remove('keyboard-open');
 
+  // Lit le contenu d'un fichier (texte ou image base64)
+  const readFileContent = (file) => new Promise((resolve) => {
+    const reader = new FileReader();
+    if (file.type.startsWith('image/')) {
+      reader.onload = (e) => resolve(`[Image partagée : ${file.name}]\nContenu base64 disponible pour analyse visuelle.`);
+      reader.readAsDataURL(file);
+    } else {
+      reader.onload = (e) => resolve(`[Fichier : ${file.name}]\n${e.target.result}`);
+      reader.readAsText(file);
+    }
+  });
+
   const sendMessage = async () => {
     if ((!input.trim() && !attachedFile) || loading) return;
     let userMsg = input.trim();
+
+    // Lire le contenu du fichier si joint
     if (attachedFile) {
-      userMsg = userMsg ? `${userMsg}\n\n[Fichier joint : ${attachedFile.name}]` : `[Fichier joint : ${attachedFile.name}]`;
+      const fileContent = await readFileContent(attachedFile);
+      userMsg = userMsg ? `${userMsg}\n\n${fileContent}` : fileContent;
       setAttachedFile(null);
     }
+
     setInput('');
     setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
     setLoading(true);
 
-    // Load context
     const [objectives, programs, memory, recentSessions, seriesLogs] = await Promise.all([
       base44.entities.Objective.filter({ status: 'active' }),
       base44.entities.Program.filter({ status: 'active' }, '-created_date', 1),
@@ -92,20 +107,74 @@ export default function CoachIA() {
       base44.entities.SeriesLog.filter({ user_id: user.id }, '-created_date', 20),
     ]);
 
-    // Contexte de base (profil) + contexte dynamique (message)
     const baseScience    = getContextualKnowledge(user, objectives);
     const messageScience = getMessageKnowledge(userMsg, { user, objectives });
     const scienceContext = [baseScience, messageScience].filter(Boolean).join('\n');
     const systemContext  = buildSystemPrompt(user, objectives, programs, memory, recentSessions, seriesLogs, scienceContext);
     const history = messages.map(m => `${m.role === 'user' ? 'Utilisateur' : 'Coach'}: ${m.content}`).join('\n');
 
+    // Instruction spéciale pour l'import de programme
+    const importInstruction = `\n\nINSTRUCTION IMPORT : Si l'utilisateur partage un programme d'entraînement (texte, liste d'exercices, photo, PDF) ou demande de l'importer dans l'app, analyse-le, propose des optimisations selon la science, puis termine ta réponse avec exactement ce bloc JSON (remplace les valeurs) :
+IMPORT_READY:{"sessions":[{"day_label":"Lundi - Pectoraux","day":"monday","week_number":1,"type":"hypertrophy","estimated_duration":60,"exercises":[{"name":"Développé couché barre","sets":4,"target_reps":"8-10","rest_seconds":90,"muscle_group":"Pectoraux"}]}]}
+Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme structuré.`;
+
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `${systemContext}${history}\n\nUtilisateur: ${userMsg}`,
+      prompt: `${systemContext}${importInstruction}\n\n${history}\n\nUtilisateur: ${userMsg}`,
       model: 'claude_sonnet_4_6',
     });
 
     setMessages(prev => [...prev, { role: 'assistant', content: result }]);
     setLoading(false);
+  };
+
+  // Importe le programme détecté dans la DB
+  const importProgramFromCoach = async (jsonStr) => {
+    try {
+      const data = JSON.parse(jsonStr);
+      const sessions = data.sessions || [];
+      if (!sessions.length) return;
+
+      const program = await base44.entities.Program.create({
+        user_id: user.id,
+        version: 1,
+        objective_ids: [],
+        weekly_structure: 'custom',
+        planned_weeks: Math.max(...sessions.map(s => s.week_number || 1)),
+        active_phase: 'MEV',
+        status: 'active',
+        program_data: data,
+      });
+
+      const monday = new Date();
+      monday.setDate(monday.getDate() - monday.getDay() + 1);
+      const dayMap = { monday:0, tuesday:1, wednesday:2, thursday:3, friday:4, saturday:5, sunday:6 };
+
+      for (const s of sessions) {
+        const offset = ((s.week_number || 1) - 1) * 7 + (dayMap[s.day] || 0);
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + offset);
+        await base44.entities.Session.create({
+          user_id: user.id,
+          program_id: program.id,
+          week_number: s.week_number || 1,
+          day_label: s.day_label || s.day,
+          day: s.day,
+          type: s.type || 'hypertrophy',
+          status: 'planned',
+          planned_date: d.toISOString().split('T')[0],
+          estimated_duration: s.estimated_duration || 60,
+          exercises: s.exercises || [],
+          active_zones: (s.exercises || []).map(e => ({ muscle_group: e.muscle_group })),
+        });
+      }
+
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: `✅ Programme importé avec succès ! ${sessions.length} séances créées. Rends-toi dans l'onglet **Programme** pour le voir.`
+      }]);
+    } catch (e) {
+      setMessages(prev => [...prev, { role: 'assistant', content: '❌ Erreur lors de l\'import du programme. Réessaie.' }]);
+    }
   };
 
   const suggestions = [
@@ -177,11 +246,26 @@ export default function CoachIA() {
             }`}>
               {msg.role === 'user' ? (
                 <p className="text-sm">{msg.content}</p>
-              ) : (
-                <ReactMarkdown className="text-sm prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
-                  {msg.content}
-                </ReactMarkdown>
-              )}
+              ) : (() => {
+                const importMatch = msg.content.match(/IMPORT_READY:(\{[\s\S]*\})/);
+                const cleanContent = msg.content.replace(/IMPORT_READY:\{[\s\S]*\}/, '').trim();
+                return (
+                  <>
+                    <ReactMarkdown className="text-sm prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                      {cleanContent}
+                    </ReactMarkdown>
+                    {importMatch && (
+                      <button
+                        onClick={() => importProgramFromCoach(importMatch[1])}
+                        className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-violet-700 font-semibold text-sm hover:bg-white/90 transition-colors"
+                      >
+                        <Sparkles className="w-4 h-4" />
+                        Importer ce programme dans l'app
+                      </button>
+                    )}
+                  </>
+                );
+              })()}
             </div>
             {msg.role === 'user' && (
               <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
