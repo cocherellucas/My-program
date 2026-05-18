@@ -72,7 +72,7 @@ CONFLITS ET RÉSOLUTIONS :
 - SRA vs Disponibilités → si 2 jours consécutifs même groupe : séance 1 MEV léger, séance 2 MAV modéré (jamais 2 lourdes)
 
 8. ORDRE DES EXERCICES DANS LA SÉANCE — hiérarchie non négociable
-   - Skills neurologiques (planche, handstand, front lever) → toujours en 1er (SNC frais)
+   - Skills neurologiques de haute coordination (mouvements isométriques avancés, sauts, skills calisthenics présents dans la base) → toujours en 1er (SNC frais)
    - Composés lourds bloc A (squat, DL, bench, OHP barre) → avant toute fatigue significative
    - Composés accessoires bloc B → dans l'ordre de priorité de l'objectif du jour
    - Isolations bloc C → en fin de séance

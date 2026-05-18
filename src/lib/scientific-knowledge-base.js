@@ -2467,7 +2467,7 @@ export const KNOWLEDGE_BASE = [
     subtopics: ['ordre exercices', 'séquence séance', 'organisation intra-séance'],
     finding: 'L\'ordre des exercices dans une séance suit une hiérarchie déterministe basée sur la demande neuromusculaire, la fatigue et la priorité de l\'objectif.',
     detail: `Ordre optimal :
-1. Skills neurologiques (planche, handstand, front lever, muscle-up) — SNC frais, coordination maximale requise
+1. Skills neurologiques (mouvements de haute coordination, isométriques avancés, sauts) — SNC frais, coordination maximale requise
 2. Composés lourds bloc A (squat, deadlift, bench barre, OHP barre) — force maximale, CNS frais
 3. Composés accessoires bloc B (rowing, tirage, développé haltères) — dans l'ordre de priorité de l'objectif du jour
 4. Isolation bloc C (curl, élévations, extension triceps) — fatigue générale ne compromet pas la technique
