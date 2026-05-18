@@ -209,9 +209,9 @@ export default function StepEquipment({ data, onChange }) {
         {CONTEXTS.map(({ key, label, icon: Icon, desc }) => (
           <button key={key} type="button" onClick={() => selectContext(key)}
             className={cn('flex flex-col items-center gap-2 p-3 rounded-xl border-2 text-center transition-all',
-              context === key ? 'border-white bg-violet-600' : 'border-violet-400 bg-violet-700 hover:border-white')}>
+              context === key ? 'border-white bg-violet-500' : 'border-violet-600 bg-violet-900 hover:border-violet-400')}>
             <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center',
-              context === key ? 'bg-white text-violet-700' : 'bg-violet-600 text-white')}>
+              context === key ? 'bg-white text-violet-600' : 'bg-violet-700 text-violet-200')}>
               <Icon className="w-5 h-5" />
             </div>
             <div>
