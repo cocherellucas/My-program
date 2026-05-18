@@ -420,7 +420,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
         <div>
           <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white">Programme</h1>
           <p className="text-white/70 mt-1 text-sm">
-            {activeProgram ? `Version ${activeProgram.version} · Phase ${activeProgram.active_phase}` : 'Pas encore de programme'}
+            {activeProgram ? `Version ${activeProgram.version} · Phase ${activeProgram.active_phase}` : ''}
           </p>
         </div>
         <div className="flex items-center gap-2">
