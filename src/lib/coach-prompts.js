@@ -71,6 +71,17 @@ CONFLITS ET RÉSOLUTIONS :
 - Variation vs Spécificité → variation niveau 1 uniquement sur exercices de force principaux
 - SRA vs Disponibilités → si 2 jours consécutifs même groupe : séance 1 MEV léger, séance 2 MAV modéré (jamais 2 lourdes)
 
+8. ORDRE DES EXERCICES DANS LA SÉANCE — hiérarchie non négociable
+   - Skills neurologiques (planche, handstand, front lever) → toujours en 1er (SNC frais)
+   - Composés lourds bloc A (squat, DL, bench, OHP barre) → avant toute fatigue significative
+   - Composés accessoires bloc B → dans l'ordre de priorité de l'objectif du jour
+   - Isolations bloc C → en fin de séance
+   - Exercices métaboliques (burpees, thruster, box jump, corde) → toujours en dernier
+   - Gainage → fin de séance OU entre séries comme repos actif
+   - NE JAMAIS pré-fatiguer un muscle synergiste d'un composé suivant (curl avant tirage = moins de dos)
+   - Antagonistes → peuvent être supersetés (bench + rowing, curl + triceps)
+   - Exercice le plus important pour l'objectif → en 1er dans son bloc
+
 SYSTÈME PROGRESSION POIDS DE CORPS (Bloc I) :
 - 5 vecteurs avant de changer de variante (dans l'ordre) : 1. Reps → 2. Tempo (2-0-1 → 4-1-1) → 3. ROM/amplitude → 4. Bilatéral→Unilatéral → 5. Lestage
 - Régression immédiate si reps < cible basse OU qualité = mauvaise/dégradée sur 2+ séries

@@ -2462,6 +2462,33 @@ export const KNOWLEDGE_BASE = [
   },
 
   {
+    id: 'exercise_order_001',
+    topic: 'exercise',
+    subtopics: ['ordre exercices', 'séquence séance', 'organisation intra-séance'],
+    finding: 'L\'ordre des exercices dans une séance suit une hiérarchie déterministe basée sur la demande neuromusculaire, la fatigue et la priorité de l\'objectif.',
+    detail: `Ordre optimal :
+1. Skills neurologiques (planche, handstand, front lever, muscle-up) — SNC frais, coordination maximale requise
+2. Composés lourds bloc A (squat, deadlift, bench barre, OHP barre) — force maximale, CNS frais
+3. Composés accessoires bloc B (rowing, tirage, développé haltères) — dans l'ordre de priorité de l'objectif du jour
+4. Isolation bloc C (curl, élévations, extension triceps) — fatigue générale ne compromet pas la technique
+5. Exercices métaboliques / conditionnement (burpees, thruster, box jump, corde) — en dernier, impact négatif sur la technique des composés si placés avant
+6. Gainage et abdos — fin de séance OU entre les séries comme repos actif
+
+Règles croisées :
+— Muscles synergiques : ne pas pré-fatiguer un muscle qui sera synergiste d'un composé suivant (ex: curl avant tirage vertical = biceps fatigués = moins de dos travaillé)
+— Antagonistes : peuvent être supersetés sans perte de performance (bench + rowing horizontal, curl + extension triceps)
+— Priorité de l'objectif : l'exercice le plus important pour l'objectif du jour va en premier dans son bloc
+— Pré-exhaustion (isolation avant composé) : utilisation intentionnelle pour améliorer la connexion neuromusculaire sur des muscles difficiles à recruter — réservé à l'intermédiaire/avancé, réduit la charge possible sur le composé`,
+    source: 'Robbins et al. (2010) — exercise order and strength ; Simão et al. (2012) — exercise order for hypertrophy ; Comana (2008) — resistance training order ; Israetel RP — program design principles',
+    application: 'Construire chaque séance dans l\'ordre : skills → bloc A → bloc B → bloc C → métabolique → gainage. Ne jamais placer un exercice métabolique ou un isolant synergiste avant un composé lourd. Le respect de cet ordre est non-négociable — une séance mal ordonnée réduit le stimulus utile sur les composés principaux.',
+    example: 'Séance jambes : 1) Pistol squat technique (skill) 2) Squat barre (bloc A) 3) Romanian deadlift (bloc B) 4) Leg extension (bloc C) 5) Wall sit (endurance) 6) Gainage. PAS: wall sit → squat barre (pré-fatigue quadri = moins de charge et technique dégradée).',
+    objectives: ['hypertrophy', 'strength', 'endurance'],
+    levels: ['beginner', 'intermediate', 'advanced'],
+    muscles: [],
+    keywords: ['ordre exercices', 'séquence séance', 'organisation séance', 'bloc A B C', 'composé avant isolation', 'skills', 'métabolique', 'pré-exhaustion', 'antagoniste superset'],
+  },
+
+  {
     id: 'exercise_unlisted_001',
     topic: 'exercise',
     subtopics: ['exercices non listés', 'variantes utilisateur', 'coach ia réponse'],
