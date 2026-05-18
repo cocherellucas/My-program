@@ -143,27 +143,36 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
   // Importe le programme détecté dans la DB
   const importProgramFromCoach = async (jsonStr) => {
     try {
-      const data = JSON.parse(jsonStr);
+      // Nettoyage du JSON — l'IA peut ajouter du texte après le bloc
+      const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('JSON introuvable');
+      const data = JSON.parse(jsonMatch[0]);
       const sessions = data.sessions || [];
-      if (!sessions.length) return;
+      if (!sessions.length) throw new Error('Aucune séance dans le programme');
+
+      // Désactiver les programmes actifs existants
+      const active = await base44.entities.Program.filter({ user_id: user.id, status: 'active' });
+      for (const p of active) {
+        await base44.entities.Program.update(p.id, { status: 'suspended' });
+      }
 
       const program = await base44.entities.Program.create({
         user_id: user.id,
         version: 1,
         objective_ids: [],
         weekly_structure: 'custom',
-        planned_weeks: Math.max(...sessions.map(s => s.week_number || 1)),
+        planned_weeks: Math.max(...sessions.map(s => s.week_number || 1), 1),
         active_phase: 'MEV',
         status: 'active',
         program_data: data,
       });
 
       const monday = new Date();
-      monday.setDate(monday.getDate() - monday.getDay() + 1);
+      monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
       const dayMap = { monday:0, tuesday:1, wednesday:2, thursday:3, friday:4, saturday:5, sunday:6 };
 
       for (const s of sessions) {
-        const offset = ((s.week_number || 1) - 1) * 7 + (dayMap[s.day] || 0);
+        const offset = ((s.week_number || 1) - 1) * 7 + (dayMap[s.day?.toLowerCase()] ?? 0);
         const d = new Date(monday);
         d.setDate(monday.getDate() + offset);
         await base44.entities.Session.create({
@@ -171,22 +180,22 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
           program_id: program.id,
           week_number: s.week_number || 1,
           day_label: s.day_label || s.day,
-          day: s.day,
+          day: s.day?.toLowerCase(),
           type: s.type || 'hypertrophy',
           status: 'planned',
           planned_date: d.toISOString().split('T')[0],
           estimated_duration: s.estimated_duration || 60,
           exercises: s.exercises || [],
-          active_zones: (s.exercises || []).map(e => ({ muscle_group: e.muscle_group })),
+          active_zones: [...new Set((s.exercises || []).map(e => e.muscle_group).filter(Boolean))].map(m => ({ muscle_group: m })),
         });
       }
 
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: `✅ Programme importé avec succès ! ${sessions.length} séances créées. Rends-toi dans l'onglet **Programme** pour le voir.`
+        content: `✅ Programme importé ! ${sessions.length} séances créées. Va dans l'onglet **Programme** pour le voir.`
       }]);
     } catch (e) {
-      setMessages(prev => [...prev, { role: 'assistant', content: '❌ Erreur lors de l\'import du programme. Réessaie.' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: `❌ Erreur lors de l'import : ${e.message}. Réessaie.` }]);
     }
   };
 
