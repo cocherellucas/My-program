@@ -564,12 +564,12 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
           <div className="space-y-2">
             <p className="text-xs font-semibold text-white/70 uppercase tracking-wide">Recommandations pour tes prochaines séances</p>
             {proposal.map((p, i) => (
-              <div key={i} className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs ${p.type === 'increase' ? 'bg-green-500/20 text-green-200' : p.type === 'reduce' ? 'bg-red-500/20 text-red-200' : 'bg-white/10 text-white/70'}`}>
-                <span className="text-base">{p.type === 'increase' ? '↑' : p.type === 'reduce' ? '↓' : '→'}</span>
+              <div key={i} className={`flex items-start gap-3 px-3 py-2 rounded-lg text-xs ${p.type === 'increase' ? 'bg-green-500/20 text-green-200' : p.type === 'reduce' ? 'bg-red-500/20 text-red-200' : 'bg-white/10 text-white/70'}`}>
+                <span className="text-base mt-0.5">{p.type === 'increase' ? '↑' : p.type === 'reduce' ? '↓' : '→'}</span>
                 <div className="flex-1">
                   <span className="font-semibold">{p.exercise}</span>
-                  <span className="ml-1">→ {p.newWeight}kg</span>
-                  <span className="text-white/50 ml-1">({p.reason})</span>
+                  {p.newWeight && <span className="ml-1">→ {p.newWeight}kg</span>}
+                  <p className="text-white/60 mt-0.5">{p.reason}</p>
                 </div>
               </div>
             ))}
@@ -869,12 +869,24 @@ Réponds uniquement avec le JSON demandé.`,
       if (log.quality) perEx[ex.name].qualities.push(log.quality);
     }
     const noteText = (notes || '').toLowerCase();
-    const notePain = /douleur|mal |gêne|pincement/.test(noteText);
+    const notePain = /douleur|mal\b|gêne|pincement|blessure|douloureux|coude|épaule|genou|dos|poignet|cervical/.test(noteText);
     const noteEasy = /trop facile|trop léger|pas assez/.test(noteText);
     const noteHard = /trop dur|très dur|épuisant/.test(noteText);
 
     const RIR_SCORE = { failure: -1, RIR_0: 0, RIR_1: 1, RIR_2: 2, 'RIR_3+': 3 };
     const props = [];
+
+    // Recommandation générale si douleur signalée (même sans logs de poids)
+    if (notePain) {
+      const painZone = noteText.match(/coude|épaule|genou|dos|poignet|cervical/)?.[0];
+      props.push({
+        exercise: '⚠️ Douleur signalée',
+        newWeight: null,
+        reason: painZone ? `douleur au ${painZone} — réduis la charge sur les exercices concernés et signale-le au coach IA` : 'douleur signalée — réduis la charge et surveille à la prochaine séance',
+        type: 'reduce',
+        general: true,
+      });
+    }
 
     for (const ex of Object.values(perEx)) {
       if (!ex.weights.length) continue;
