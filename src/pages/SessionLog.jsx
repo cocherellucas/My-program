@@ -63,7 +63,10 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
   const [activeSetIdx, setActiveSetIdx] = useState(0);
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
 
-  const isSetDone = (idx) => !!(logs[idx]?.reps || logs[idx]?.skipped);
+  const isSetDone = (idx) => {
+    const key = `${exIdx}-${idx}`;
+    return !!(logs[key]?.reps || logs[key]?.skipped);
+  };
   const allSetsDone = Array.from({ length: sets }, (_, i) => i).every(isSetDone);
   const incompleteSets = Array.from({ length: sets }, (_, i) => i).filter(i => !isSetDone(i));
 
@@ -368,8 +371,6 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 
               }
               </div>
-            </div>
-          )}
             </div>
             );
           })}
