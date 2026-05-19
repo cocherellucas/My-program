@@ -45,7 +45,6 @@ const shouldShowPropagate =
         <div>
           <Input
            type="number"
-           disabled={locked}
            placeholder={previousWeight ? `${previousWeight} kg` : 'kg'}
            value={log.weight || ''}
            onChange={(e) => {
