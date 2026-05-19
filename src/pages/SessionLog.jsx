@@ -537,14 +537,16 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 
     {/* Bannière objectifs dépassés — hors motion.div pour fixed positioning correct */}
     {showObjectifBanner && (
-      <div className="fixed bottom-20 left-4 right-4 z-40 flex items-center gap-3 p-3 rounded-xl bg-violet-950/95 backdrop-blur-sm border border-accent/40 shadow-xl">
-        <div className="relative flex-shrink-0 w-10 h-10 flex items-center justify-center">
-          <Bot className="w-7 h-7 text-accent" />
-          <TrendingUp className="w-3.5 h-3.5 text-accent absolute bottom-0 right-0" />
+      <div className="fixed bottom-20 left-4 right-4 z-40 flex items-center gap-3 p-4 rounded-2xl shadow-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #1e0050 0%, #3b0764 50%, #1e0050 100%)', border: '1px solid rgba(139,92,246,0.5)', boxShadow: '0 0 30px rgba(139,92,246,0.3), 0 8px 32px rgba(0,0,0,0.4)' }}>
+        {/* Shimmer */}
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.04) 50%, transparent 60%)', animation: 'shimmer 3s infinite' }} />
+        <div className="relative flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-violet-500/20">
+          <Bot className="w-6 h-6 text-violet-300" />
+          <TrendingUp className="w-3 h-3 text-green-400 absolute bottom-0.5 right-0.5" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-white">Objectifs dépassés</p>
-          <p className="text-xs text-white/60">Réduis le repos ou augmente le poids.</p>
+          <p className="text-sm font-bold text-white tracking-wide">Objectifs dépassés</p>
+          <p className="text-xs text-violet-300/80">Réduis le repos ou augmente le poids.</p>
         </div>
         <div className="flex-shrink-0 flex items-center gap-1.5">
           <Popover>
