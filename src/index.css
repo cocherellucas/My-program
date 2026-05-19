@@ -9,6 +9,11 @@
   -ms-overflow-style: none;
   touch-action: manipulation;
 }
+
+button, a, input, select, textarea, [tabindex] {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
 *::-webkit-scrollbar {
   display: none;
 }
