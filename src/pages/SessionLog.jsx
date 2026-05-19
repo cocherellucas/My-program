@@ -177,7 +177,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                     className="w-full text-center bg-white/10 border border-white/20 text-white font-black text-2xl rounded mt-1 px-1 py-1"
                   />
                 ) : (
-                  <span className="text-white font-black text-2xl block mt-1">{sets}</span>
+                  <span className="text-white font-black text-xl block mt-1">{sets}</span>
                 )}
               </div>
               <div className="text-center py-3 bg-white/10 rounded-md border border-white/30 min-w-0">
@@ -190,7 +190,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                     className="w-full text-center bg-white/10 border border-white/20 text-white font-black text-2xl rounded mt-1 px-1 py-1"
                   />
                 ) : (
-                  <span className="text-white font-black text-2xl block mt-1">{exercise.target_reps}</span>
+                  <span className="text-white font-black text-xl block mt-1">{exercise.target_reps}</span>
                 )}
               </div>
               <div className="text-center py-3 bg-white/10 rounded-md border border-white/30 min-w-0">
