@@ -497,9 +497,9 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
         <div className="flex items-center gap-2 pt-2 border-t border-white/20 flex-wrap">
           <span className="text-xs text-white/60">Retour :</span>
           {[
-          { value: 'liked', label: 'J\'aime', bg: 'bg-emerald-600/70', text: 'text-white' },
-          { value: 'disliked', label: 'Pas fan', bg: 'bg-red-700/60', text: 'text-white' },
-          { value: 'change', label: 'Remplacer', bg: 'bg-orange-700/60', text: 'text-white' }].
+          { value: 'liked', label: 'J\'aime', bg: 'bg-white/30', text: 'text-white' },
+          { value: 'disliked', label: 'Pas fan', bg: 'bg-white/30', text: 'text-white' },
+          { value: 'change', label: 'Remplacer', bg: 'bg-white/30', text: 'text-white' }].
           map(({ value, label, bg, text }) => {
             const key = `${exIdx}-0`;
             const isSelected = logs[key]?.feedback === value;
