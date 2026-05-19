@@ -518,19 +518,28 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
       </Card>
 
       {/* Nav buttons */}
-      <div className="flex items-center justify-between gap-3">
-        {exIdx > 0 &&
-        <Button variant="outline" onClick={onPrev} className="flex-1 border-white/30 text-white hover:bg-white/10 hover:text-white">
-            <ChevronLeft className="w-4 h-4 mr-1" /> Précédent
+      <div className="space-y-2">
+        <div className="flex items-center justify-between gap-3">
+          {exIdx > 0 &&
+          <Button variant="outline" onClick={onPrev} className="flex-1 border-white/30 text-white hover:bg-white/10 hover:text-white">
+              <ChevronLeft className="w-4 h-4 mr-1" /> Précédent
+            </Button>
+          }
+          <Button
+            onClick={onNext}
+            disabled={!allSetsDone}
+            className="flex-1 disabled:opacity-40"
+          >
+            {isLast ? <><CheckCircle className="w-4 h-4 mr-1" /> Terminer</> : <>Suivant <ChevronRight className="w-4 h-4 ml-1" /></>}
           </Button>
-        }
-        <Button
-          onClick={onNext}
-          disabled={!allSetsDone}
-          className="flex-1 disabled:opacity-40"
-        >
-          {isLast ? <><CheckCircle className="w-4 h-4 mr-1" /> Terminer</> : <>Suivant <ChevronRight className="w-4 h-4 ml-1" /></>}
-        </Button>
+        </div>
+        {!allSetsDone && (
+          <button
+            onClick={onNext}
+            className="w-full text-xs text-white/40 hover:text-white/60 transition-colors py-1 underline underline-offset-2">
+            Passer l'exercice quand même
+          </button>
+        )}
       </div>
     </motion.div>);
 
