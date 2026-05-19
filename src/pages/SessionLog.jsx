@@ -441,7 +441,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 }
 
 // ─── Overview Panel ────────────────────────────────────────────────────────────
-function OverviewPanel({ exercises, logs, updateLog, onClose }) {
+function OverviewPanel({ exercises, logs, updateLog, onClose, fragileZones = [] }) {
   const getLogKey = (exIdx, setIdx) => `${exIdx}-${setIdx}`;
 
   return (
@@ -529,7 +529,7 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
   }
 
   if (showOverview) {
-    return <OverviewPanel exercises={exercises} logs={logs} updateLog={updateLog} onClose={() => setShowOverview(false)} />;
+    return <OverviewPanel exercises={exercises} logs={logs} updateLog={updateLog} onClose={() => setShowOverview(false)} fragileZones={fragileZones} />;
   }
 
   return (
@@ -1142,7 +1142,8 @@ Réponds uniquement avec le JSON demandé.`,
             exercises={exercises}
             logs={logs}
             updateLog={updateLog}
-            onClose={() => setShowOverview(false)} />
+            onClose={() => setShowOverview(false)}
+            fragileZones={fragileZones} />
           
             <div className="mt-4">
               <Button className="w-full" onClick={() => {setShowOverview(false);setShowEnd(true);}}>
