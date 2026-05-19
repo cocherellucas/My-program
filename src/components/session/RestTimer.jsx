@@ -76,12 +76,36 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange }
     setRemaining(Math.round(pct * total));
   };
 
-  const handleBarMouseDown = (e) => { dragging.current = true; scrubTo(e.clientX); setRunning(false); };
-  const handleBarMouseMove = (e) => { if (dragging.current) scrubTo(e.clientX); };
-  const handleBarMouseUp   = ()  => { if (dragging.current) { dragging.current = false; setRunning(true); } };
-  const handleBarTouchStart = (e) => { dragging.current = true; scrubTo(e.touches[0].clientX); setRunning(false); };
-  const handleBarTouchMove  = (e) => { if (dragging.current) scrubTo(e.touches[0].clientX); };
-  const handleBarTouchEnd   = ()  => { if (dragging.current) { dragging.current = false; setRunning(true); } };
+  const stopDrag = () => {
+    if (!dragging.current) return;
+    dragging.current = false;
+    setRunning(true);
+    window.removeEventListener('mousemove', onWindowMouseMove);
+    window.removeEventListener('mouseup', onWindowMouseUp);
+    window.removeEventListener('touchmove', onWindowTouchMove);
+    window.removeEventListener('touchend', onWindowTouchEnd);
+  };
+
+  const onWindowMouseMove = (e) => scrubTo(e.clientX);
+  const onWindowMouseUp   = ()  => stopDrag();
+  const onWindowTouchMove = (e) => scrubTo(e.touches[0].clientX);
+  const onWindowTouchEnd  = ()  => stopDrag();
+
+  const handleBarMouseDown = (e) => {
+    dragging.current = true;
+    scrubTo(e.clientX);
+    setRunning(false);
+    window.addEventListener('mousemove', onWindowMouseMove);
+    window.addEventListener('mouseup', onWindowMouseUp);
+  };
+
+  const handleBarTouchStart = (e) => {
+    dragging.current = true;
+    scrubTo(e.touches[0].clientX);
+    setRunning(false);
+    window.addEventListener('touchmove', onWindowTouchMove);
+    window.addEventListener('touchend', onWindowTouchEnd);
+  };
   const circumference = 2 * Math.PI * radius;
   const strokeDash = circumference * progress;
 
@@ -141,12 +165,7 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange }
           ref={barRef}
           className="absolute bottom-0 left-0 right-0 h-2 bg-white/10 cursor-pointer select-none"
           onMouseDown={handleBarMouseDown}
-          onMouseMove={handleBarMouseMove}
-          onMouseUp={handleBarMouseUp}
-          onMouseLeave={handleBarMouseUp}
-          onTouchStart={handleBarTouchStart}
-          onTouchMove={handleBarTouchMove}
-          onTouchEnd={handleBarTouchEnd}>
+          onTouchStart={handleBarTouchStart}>
           <div className="h-full transition-none relative" style={{ width: `${progress * 100}%`, backgroundColor: urgentColor }}>
             <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-md" />
           </div>
