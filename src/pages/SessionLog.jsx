@@ -157,6 +157,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
   }, [currentRestSeconds]);
   const [activeSetIdx, setActiveSetIdx] = useState(0);
   const [completedSets, setCompletedSets] = useState(new Set());
+  const [objectifActed, setObjectifActed] = useState(false);
 
   const markSetComplete = (idx) => setCompletedSets(prev => new Set([...prev, idx]));
   const isSetDone = (idx) => completedSets.has(idx);
@@ -393,18 +394,18 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 
         }
 
-        if (goodAboveSeries >= 2) return (
+        if (goodAboveSeries >= 2 && !objectifActed) return (
           <div className="flex items-start gap-3 p-3 rounded-xl bg-accent/20 border border-accent/40">
             <TrendingDown className="w-4 h-4 text-accent mt-0.5 flex-shrink-0 rotate-180" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-white">Objectifs dépassés 💪</p>
-              <p className="text-xs text-white/70 mt-0.5">Réduis le repos ou augmente le poids maintenant.</p>
+              <p className="text-xs text-white/70 mt-0.5">Réduis le repos ou augmente le poids.</p>
             </div>
             <div className="flex-shrink-0 flex items-center gap-1.5">
               <Popover>
                 <PopoverTrigger asChild>
                   <button
-                    onClick={() => onExtendRest(exIdx, Math.max((currentRestSeconds ?? exercise.rest_seconds ?? 90) - 30, 30))}
+                    onClick={() => { onExtendRest(exIdx, Math.max((currentRestSeconds ?? exercise.rest_seconds ?? 90) - 30, 30)); setObjectifActed(true); }}
                     className="text-xs px-3 py-1.5 rounded-lg bg-white/20 text-white font-medium hover:bg-white/30 transition-colors flex items-center gap-1">
                     
                     −30s repos <HelpCircle className="w-3 h-3 opacity-60" />
@@ -423,6 +424,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                       const current = logs[key]?.weight || 0;
                       if (current > 0) updateLog(exIdx, s, 'weight', current + 2.5);
                     }
+                    setObjectifActed(true);
                   }}
                   className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors flex items-center gap-1">
                   +2.5 kg
