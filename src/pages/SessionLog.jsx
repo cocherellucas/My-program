@@ -33,7 +33,7 @@ function formatSeconds(s) {
   if (s < 60) return `${s}s`;
   const m = Math.floor(s / 60);
   const sec = s % 60;
-  return sec > 0 ? `${m}min${sec}s` : `${m}min`;
+  return sec > 0 ? `${m}min${sec}` : `${m}min`;
 }
 
 // ─── Helper niveau module — accessible depuis tous les composants ────────────
