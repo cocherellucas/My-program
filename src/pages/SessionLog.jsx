@@ -334,7 +334,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
             const isDone = isSetDone(setIdx);
             return (
           <div key={setIdx}
-            className={`relative space-y-1 rounded-xl transition-all border-2 ${
+            className={`space-y-1 rounded-xl transition-all border-2 ${
               isActive
                 ? 'border-white bg-white/15 shadow-lg shadow-white/10'
                 : isDone
@@ -342,24 +342,27 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                 : 'border-transparent opacity-80'
             }`}>
               {isActive && (
-                <div className="absolute top-2 right-2 flex items-center gap-3 z-10">
-                  {setIdx > 0 && (
-                    <button
-                      onClick={() => setActiveSetIdx(setIdx - 1)}
-                      className="text-xs text-white/40 hover:text-white/70 transition-colors">
-                      Précédent
-                    </button>
-                  )}
-                  {setIdx < sets - 1 && (
-                    <button
-                      onClick={() => {
-                        updateLog(exIdx, setIdx, 'skipped', true);
-                        setActiveSetIdx(setIdx + 1);
-                      }}
-                      className="text-xs text-white/40 hover:text-white/70 transition-colors">
-                      Passer
-                    </button>
-                  )}
+                <div className="flex items-center justify-between px-3 pt-2">
+                  <span className="text-xs font-semibold text-white/60">Série {setIdx + 1}</span>
+                  <div className="flex items-center gap-3">
+                    {setIdx > 0 && (
+                      <button
+                        onClick={() => setActiveSetIdx(setIdx - 1)}
+                        className="text-xs text-white/40 hover:text-white/70 transition-colors">
+                        ← Précédent
+                      </button>
+                    )}
+                    {setIdx < sets - 1 && (
+                      <button
+                        onClick={() => {
+                          updateLog(exIdx, setIdx, 'skipped', true);
+                          setActiveSetIdx(setIdx + 1);
+                        }}
+                        className="text-xs text-white/40 hover:text-white/70 transition-colors">
+                        Passer →
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
               <SetRow
