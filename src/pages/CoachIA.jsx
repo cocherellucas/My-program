@@ -258,18 +258,16 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
 
   return (
     <div className="flex flex-col overflow-hidden" style={{ height: `${viewportHeight - 80}px`, marginTop: '-16px', marginBottom: '-16px' }}>
-      <div className="mb-2 flex items-center justify-between">
-        <div>
+      <div className="mb-2 flex items-center justify-end">
         {messages.length > 0 && (
           <button
             onClick={() => {
               setMessages([]);
-              // Effacer toutes les clés coach_history dans localStorage
               Object.keys(localStorage)
                 .filter(k => k.startsWith('coach_history_'))
                 .forEach(k => localStorage.removeItem(k));
             }}
-            className="text-xs text-white/40 hover:text-white/70 mt-1 transition-colors"
+            className="text-xs text-white/40 hover:text-white/70 transition-colors"
           >
             Effacer
           </button>
