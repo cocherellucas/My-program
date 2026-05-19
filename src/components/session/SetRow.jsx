@@ -134,11 +134,6 @@ onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
               <SelectItem value="RIR_3+">RIR 3+</SelectItem>
             </SelectContent>
           </Select>
-          {rirContext && (
-            <div className={`text-xs text-center mt-1 font-semibold ${targetInfo.color}`}>
-              Cible : {targetInfo.short}
-            </div>
-          )}
           <div className="flex items-center justify-center gap-1 mt-1">
             <span className="text-xs text-white/50">RIR</span>
             <Popover>
