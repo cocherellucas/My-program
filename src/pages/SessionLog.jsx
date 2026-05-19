@@ -175,6 +175,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                     value={editSets}
                     onChange={(e) => setEditSets(e.target.value)}
                     onBlur={(e) => setEditSets(Math.max(1, parseInt(e.target.value) || 1))}
+                    onKeyDown={(e) => ['-', '+', 'e', 'E'].includes(e.key) && e.preventDefault()}
                     className="w-full text-center bg-white/10 border border-white/20 text-white font-black text-xl rounded mt-1 px-1 py-1"
                   />
                 ) : (
@@ -201,11 +202,10 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                     type="number"
                     min="1"
                     value={editRest}
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value);
-                      setEditRest(isNaN(val) ? '' : Math.max(1, val));
-                    }}
-                    className="w-full text-center bg-white/10 border border-white/20 text-white font-black text-2xl rounded mt-1 px-1 py-1"
+                    onChange={(e) => setEditRest(e.target.value)}
+                    onBlur={(e) => { const val = parseInt(e.target.value); setEditRest(isNaN(val) || val < 1 ? 30 : val); }}
+                    onKeyDown={(e) => ['-', '+', 'e', 'E'].includes(e.key) && e.preventDefault()}
+                    className="w-full text-center bg-white/10 border border-white/20 text-white font-black text-xl rounded mt-1 px-1 py-1"
                   />
                 ) : (
                   <span className="text-white font-black text-xl block mt-1 truncate px-1">{formatSeconds(currentRestSeconds ?? exercise.rest_seconds)}</span>
