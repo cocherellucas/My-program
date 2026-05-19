@@ -163,6 +163,23 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
   const isSetDone = (idx) => completedSets.has(idx);
   const allSetsDone = Array.from({ length: sets }, (_, i) => i).every(isSetDone);
 
+  // Calcul objectifs dépassés (hors motion.div pour fixed positioning)
+  const goodAboveSeries = (() => {
+    const targetRepsStr = exercise.target_reps || '';
+    const parts = targetRepsStr.split('-');
+    const targetLow = parseInt(parts[0]) || 0;
+    const targetHigh = parseInt(parts[1]) || targetLow;
+    let count = 0;
+    for (let s = 0; s < sets; s++) {
+      const l = logs[`${exIdx}-${s}`] || {};
+      const reps = parseInt(l.reps) || 0;
+      const quality = l.quality || 'good';
+      if (reps > targetHigh && quality === 'good') count++;
+    }
+    return count;
+  })();
+  const showObjectifBanner = goodAboveSeries >= 2 && !objectifActed;
+
   const handleSetDone = (setIdx) => {
     const key = `${exIdx}-${setIdx}`;
     const lastLog    = logs[key];
@@ -179,6 +196,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
   };
 
   return (
+    <>
     <motion.div
       key={exIdx}
       initial={{ opacity: 0, x: 30 }}
@@ -393,67 +411,6 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 
         }
 
-        if (goodAboveSeries >= 2 && !objectifActed) return (
-          <div className="fixed bottom-20 left-4 right-4 z-40 flex items-center gap-3 p-3 rounded-xl bg-violet-950/95 backdrop-blur-sm border border-accent/40 shadow-xl">
-            <div className="relative flex-shrink-0 w-10 h-10 flex items-center justify-center">
-              <Bot className="w-7 h-7 text-accent" />
-              <TrendingUp className="w-3.5 h-3.5 text-accent absolute bottom-0 right-0" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-white">Objectifs dépassés</p>
-              <p className="text-xs text-white/60">Réduis le repos ou augmente le poids.</p>
-            </div>
-            <div className="flex-shrink-0 flex items-center gap-1.5">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button
-                    onClick={() => {
-                      onExtendRest(exIdx, Math.max((currentRestSeconds ?? exercise.rest_seconds ?? 90) - 30, 30));
-                      setObjectifActed(true);
-                    }}
-                    className="text-xs px-3 py-1.5 rounded-lg bg-white/20 text-white font-medium hover:bg-white/30 transition-colors flex items-center gap-1">
-                    
-                    −30s repos <HelpCircle className="w-3 h-3 opacity-60" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-48 text-xs space-y-2 ">
-                  <p className="text-violet-400 font-semibold">Réduire le repos</p>
-                  <p className="text-white/70">Retirer 30s de repos par série va réduire la durée totale de ta séance.</p>
-                </PopoverContent>
-              </Popover>
-              {!isBodyweightExercise(exercise.name) && (
-                <button
-                  onClick={() => {
-                    let newWeight = 0;
-                    for (let s = activeSetIdx + 1; s < sets; s++) {
-                      const key = `${exIdx}-${s}`;
-                      const current = logs[key]?.weight || 0;
-                      if (current > 0) { updateLog(exIdx, s, 'weight', current + 2.5); newWeight = current + 2.5; }
-                    }
-                    setObjectifActed(true);
-                  }}
-                  className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors flex items-center gap-1">
-                  +2.5 kg
-                </button>
-              )}
-              {isBodyweightExercise(exercise.name) && (
-                <button
-                  onClick={() => onProgressionRequest(exIdx)}
-                  disabled={regressingEx === exIdx}
-                  className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors disabled:opacity-60 flex items-center gap-1">
-                  {regressingEx === exIdx && <Loader2 className="w-3 h-3 animate-spin" />}
-                  Variante plus dure
-                </button>
-              )}
-              <button
-                onClick={() => setObjectifActed(true)}
-                className="text-xs px-2 py-1.5 text-white/40 hover:text-white/70 transition-colors">
-                ✕
-              </button>
-            </div>
-          </div>);
-
-
         return null;
       })()}
 
@@ -573,7 +530,61 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
           }
         </Button>
       </div>
-    </motion.div>);
+    </motion.div>
+
+    {/* Bannière objectifs dépassés — hors motion.div pour fixed positioning correct */}
+    {showObjectifBanner && (
+      <div className="fixed bottom-20 left-4 right-4 z-40 flex items-center gap-3 p-3 rounded-xl bg-violet-950/95 backdrop-blur-sm border border-accent/40 shadow-xl">
+        <div className="relative flex-shrink-0 w-10 h-10 flex items-center justify-center">
+          <Bot className="w-7 h-7 text-accent" />
+          <TrendingUp className="w-3.5 h-3.5 text-accent absolute bottom-0 right-0" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-white">Objectifs dépassés</p>
+          <p className="text-xs text-white/60">Réduis le repos ou augmente le poids.</p>
+        </div>
+        <div className="flex-shrink-0 flex items-center gap-1.5">
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                onClick={() => { onExtendRest(exIdx, Math.max((currentRestSeconds ?? exercise.rest_seconds ?? 90) - 30, 30)); setObjectifActed(true); }}
+                className="text-xs px-3 py-1.5 rounded-lg bg-white/20 text-white font-medium hover:bg-white/30 transition-colors flex items-center gap-1">
+                −30s repos <HelpCircle className="w-3 h-3 opacity-60" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48 text-xs space-y-2">
+              <p className="text-violet-400 font-semibold">Réduire le repos</p>
+              <p className="text-white/70">Retirer 30s de repos par série va réduire la durée totale de ta séance.</p>
+            </PopoverContent>
+          </Popover>
+          {!isBodyweightExercise(exercise.name) ? (
+            <button
+              onClick={() => {
+                for (let s = activeSetIdx + 1; s < sets; s++) {
+                  const key = `${exIdx}-${s}`;
+                  const current = logs[key]?.weight || 0;
+                  if (current > 0) updateLog(exIdx, s, 'weight', current + 2.5);
+                }
+                setObjectifActed(true);
+              }}
+              className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors">
+              +2.5 kg
+            </button>
+          ) : (
+            <button
+              onClick={() => onProgressionRequest(exIdx)}
+              disabled={regressingEx === exIdx}
+              className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors disabled:opacity-60 flex items-center gap-1">
+              {regressingEx === exIdx && <Loader2 className="w-3 h-3 animate-spin" />}
+              Variante plus dure
+            </button>
+          )}
+          <button onClick={() => setObjectifActed(true)} className="text-xs px-2 py-1.5 text-white/40 hover:text-white/70 transition-colors">✕</button>
+        </div>
+      </div>
+    )}
+    </>
+  );
 
 }
 
