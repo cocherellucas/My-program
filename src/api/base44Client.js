@@ -134,8 +134,11 @@ const auth = {
 
 const integrations = {
   Core: {
-    async InvokeLLM({ prompt, response_json_schema, model }) {
-      return base44SDK.integrations.Core.InvokeLLM({ prompt, response_json_schema, model });
+    async InvokeLLM({ prompt, response_json_schema, model, add_context_from_images }) {
+      // @ts-ignore
+      return base44SDK.integrations.Core.InvokeLLM(
+        Object.assign({ prompt, response_json_schema, model }, add_context_from_images ? { add_context_from_images } : {})
+      );
     },
   },
 };

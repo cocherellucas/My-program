@@ -74,11 +74,16 @@ export default function CoachIA() {
   };
   const handleInputBlur = () => document.body.classList.remove('keyboard-open');
 
+  const [attachedImageBase64, setAttachedImageBase64] = useState(null);
+
   // Lit le contenu d'un fichier (texte ou image base64)
   const readFileContent = (file) => new Promise((resolve) => {
     const reader = new FileReader();
     if (file.type.startsWith('image/')) {
-      reader.onload = (e) => resolve(`[Image partagée : ${file.name}]\nContenu base64 disponible pour analyse visuelle.`);
+      reader.onload = (e) => {
+        setAttachedImageBase64(e.target.result); // stocker la base64 complète
+        resolve(`[Image jointe : ${file.name}]`);
+      };
       reader.readAsDataURL(file);
     } else {
       reader.onload = (e) => resolve(`[Fichier : ${file.name}]\n${e.target.result}`);
@@ -131,10 +136,15 @@ export default function CoachIA() {
 IMPORT_READY:{"sessions":[{"day_label":"Lundi - Pectoraux","day":"monday","week_number":1,"type":"hypertrophy","estimated_duration":60,"exercises":[{"name":"Développé couché barre","sets":4,"target_reps":"8-10","rest_seconds":90,"muscle_group":"Pectoraux"}]}]}
 Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme structuré.`;
 
-    const result = await base44.integrations.Core.InvokeLLM({
+    const llmParams = {
       prompt: `${systemContext}${importInstruction}\n\n${history}\n\nUtilisateur: ${userMsg}`,
       model: 'claude_sonnet_4_6',
-    });
+    };
+    if (attachedImageBase64) {
+      llmParams.add_context_from_images = [attachedImageBase64];
+      setAttachedImageBase64(null);
+    }
+    const result = await base44.integrations.Core.InvokeLLM(llmParams);
 
     setMessages(prev => [...prev, { role: 'assistant', content: result }]);
     setLoading(false);
