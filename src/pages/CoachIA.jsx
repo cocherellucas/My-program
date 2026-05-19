@@ -372,13 +372,8 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
         <div ref={bottomRef} />
       </div>
 
-      {/* Label Coach IA entre input et nav */}
-      <div className="flex items-center justify-between px-1 pt-2 pb-0 flex-shrink-0">
-        <div>
-          <span className="text-sm font-bold text-white">Coach IA</span>
-          <span className="text-xs text-white/50 ml-2">Demande-moi n'importe quoi</span>
-        </div>
-      </div>
+      {/* Label Coach IA */}
+      <p className="text-xs text-white/50 px-1 pt-2 flex-shrink-0"><span className="font-bold text-white">Coach IA</span> · Demande-moi n'importe quoi</p>
 
       {/* Input */}
       <div ref={inputAreaRef} className="flex-shrink-0 bg-white/10 rounded-2xl border border-white/20 mx-0 mt-1">
