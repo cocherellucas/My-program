@@ -82,7 +82,7 @@ function getWarmupAdvice(exercise) {
   const mobility = [];
   if (isLower) mobility.push('mobilité des hanches et chevilles', 'activation des fessiers (pont fessier ou abduction)');
   if (isUpperPush) mobility.push('rotation des épaules', 'échauffement de la coiffe des rotateurs');
-  if (isUpperPull) mobility.push('rétraction des omoplates', 'rotation interne/externe des épaules', 'mobilité des poignets');
+  if (isUpperPull) mobility.push('rétraction des omoplates', 'rotation interne/externe des épaules', 'mobilité thoracique (rotations du buste)');
   if (!isLower && !isUpperPush && !isUpperPull) mobility.push('mobilité articulaire générale', 'élévation du rythme cardiaque 2-3 min');
 
   return { sets, mobility, isCompound };
