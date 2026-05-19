@@ -348,8 +348,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
           if (reps > targetHigh && quality === 'good') goodAboveSeries++;
         }
 
-        // Ne pas afficher de bannière si moins de 2 séries ont été remplies
-        if (filledSeries < 2) return null;
+        if (filledSeries < 1) return null;
 
         if (badSeries >= 2) {
           const atBottom = isAtChainBottom(exercise.name);
@@ -394,7 +393,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 
         }
 
-        if (goodAboveSeries >= 2 && !objectifActed) return (
+        if (goodAboveSeries >= 1 && !objectifActed) return (
           <div className="fixed bottom-20 left-4 right-4 z-40 flex items-center gap-3 p-3 rounded-xl bg-violet-950/95 backdrop-blur-sm border border-accent/40 shadow-xl">
             <div className="relative flex-shrink-0 w-10 h-10 flex items-center justify-center">
               <Bot className="w-7 h-7 text-accent" />
