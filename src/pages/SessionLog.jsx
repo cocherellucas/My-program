@@ -342,14 +342,25 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                 : 'border-transparent opacity-80'
             }`}>
               {isActive && (
-                <button
-                  onClick={() => {
-                    updateLog(exIdx, setIdx, 'skipped', true);
-                    if (setIdx < sets - 1) setActiveSetIdx(setIdx + 1);
-                  }}
-                  className="absolute top-2 right-2 text-xs text-white/40 hover:text-white/70 transition-colors z-10">
-                  Passer
-                </button>
+                <div className="absolute top-2 right-2 flex items-center gap-3 z-10">
+                  {setIdx > 0 && (
+                    <button
+                      onClick={() => setActiveSetIdx(setIdx - 1)}
+                      className="text-xs text-white/40 hover:text-white/70 transition-colors">
+                      Précédent
+                    </button>
+                  )}
+                  {setIdx < sets - 1 && (
+                    <button
+                      onClick={() => {
+                        updateLog(exIdx, setIdx, 'skipped', true);
+                        setActiveSetIdx(setIdx + 1);
+                      }}
+                      className="text-xs text-white/40 hover:text-white/70 transition-colors">
+                      Passer
+                    </button>
+                  )}
+                </div>
               )}
               <SetRow
               setIdx={setIdx}
