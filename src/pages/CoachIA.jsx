@@ -383,11 +383,10 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
             ref={fileInputRef}
             type="file"
             accept="image/*,.pdf,.txt"
-            className="hidden"
+            style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
             onChange={(e) => {
               const file = e.target.files?.[0];
               if (file) setAttachedFile(file);
-              e.target.value = '';
             }}
           />
           <button
