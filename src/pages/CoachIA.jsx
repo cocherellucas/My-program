@@ -67,13 +67,23 @@ export default function CoachIA() {
     el.addEventListener('touchmove', block, { passive: false });
     return () => el.removeEventListener('touchmove', block);
   }, []);
+  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
+
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => setViewportHeight(vv.height);
+    vv.addEventListener('resize', update);
+    vv.addEventListener('scroll', update);
+    return () => { vv.removeEventListener('resize', update); vv.removeEventListener('scroll', update); };
+  }, []);
+
   const handleInputFocus = () => {
-    document.body.classList.add('keyboard-open');
     setTimeout(() => {
       inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 350);
+    }, 100);
   };
-  const handleInputBlur = () => document.body.classList.remove('keyboard-open');
+  const handleInputBlur = () => {};
 
   // Redimensionne et compresse une image avant envoi
   const compressImage = (dataUrl) => new Promise((resolve) => {
@@ -245,7 +255,7 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
   ];
 
   return (
-    <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100dvh - var(--coach-offset, 120px))' }}>
+    <div className="flex flex-col overflow-hidden" style={{ height: `${viewportHeight - 80}px` }}>
       <div className="mb-4 flex items-start justify-between">
         <div>
           <h1 className="text-3xl font-heading font-bold text-white">Coach IA</h1>
