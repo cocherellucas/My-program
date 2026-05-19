@@ -1060,14 +1060,18 @@ Réponds uniquement avec le JSON demandé.`,
 
   const handleApplyToFuture = async (exerciseName, updates) => {
     try {
+      const currentDayOfWeek = new Date(session.planned_date).getDay();
+      const exerciseIdx = exercises.findIndex(e => e.name === exerciseName);
       const allSessions = await base44.entities.Session.filter({ program_id: session.program_id });
-      const future = allSessions
-        .filter(s => s.status === 'planned' && s.planned_date > new Date().toISOString().split('T')[0])
-        .slice(0, 8);
+      const future = allSessions.filter(s =>
+        s.status === 'planned' &&
+        s.planned_date > new Date().toISOString().split('T')[0] &&
+        new Date(s.planned_date).getDay() === currentDayOfWeek
+      ).slice(0, 8);
       await Promise.all(future.map(fs => {
         if (!fs.exercises?.length) return Promise.resolve();
-        const updated = fs.exercises.map(ex =>
-          ex.name === exerciseName ? { ...ex, ...updates } : ex
+        const updated = fs.exercises.map((ex, i) =>
+          i === exerciseIdx && ex.name === exerciseName ? { ...ex, ...updates } : ex
         );
         return base44.entities.Session.update(fs.id, { exercises: updated });
       }));
