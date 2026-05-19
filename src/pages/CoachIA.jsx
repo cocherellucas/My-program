@@ -261,7 +261,7 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
   ];
 
   return (
-    <div className="flex flex-col" style={{ height: 'calc(100dvh - 96px)', marginBottom: '-16px' }}>
+    <div className="flex flex-col" style={{ height: 'calc(100dvh - 16px)', marginBottom: '-96px', paddingBottom: '84px' }}>
       <div className="mb-2 flex items-center justify-end">
         {messages.length > 0 && (
           <button
