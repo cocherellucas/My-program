@@ -14,6 +14,7 @@ export default function SetRow({ setIdx, totalSets, log, onUpdate, onWeightBlur,
   const [manuallyEdited, setManuallyEdited] = useState(false);
   const [propagated, setPropagated] = useState(false);
   const blurFromEnter = useRef(false);
+  const propagateTimer = useRef(null);
   // rirContext = { phase, sessionType, block, weekNumber, plannedWeeks }
   const targetRIR = rirContext
     ? computeTargetRIR({
@@ -51,9 +52,10 @@ const shouldShowPropagate =
   const v = parseFloat(e.target.value);
   if (!isNaN(v) && v >= 0) {
     onUpdate('weight', v);
-    onWeightBlur?.(v);
     setPropagated(false);
     setManuallyEdited(true);
+    clearTimeout(propagateTimer.current);
+    propagateTimer.current = setTimeout(() => onWeightBlur?.(v), 600);
   } else if (e.target.value === '') {
     onUpdate('weight', '');
   }
