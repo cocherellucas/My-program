@@ -172,9 +172,10 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                   <input
                     type="number"
                     min="1"
+                    max="20"
                     value={editSets}
                     onChange={(e) => setEditSets(e.target.value)}
-                    onBlur={(e) => setEditSets(Math.max(1, parseInt(e.target.value) || 1))}
+                    onBlur={(e) => setEditSets(Math.min(20, Math.max(1, parseInt(e.target.value) || 1)))}
                     onKeyDown={(e) => ['-', '+', 'e', 'E'].includes(e.key) && e.preventDefault()}
                     className="w-full text-center bg-white/10 border border-white/20 text-white font-black text-xl rounded mt-1 px-1 py-1"
                   />
@@ -189,7 +190,11 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                     type="text"
                     value={editReps}
                     onChange={(e) => setEditReps(e.target.value)}
-                    className="w-full text-center bg-white/10 border border-white/20 text-white font-black text-2xl rounded mt-1 px-1 py-1"
+                    onBlur={(e) => {
+                      const v = parseInt(e.target.value);
+                      if (!isNaN(v) && !e.target.value.includes('-')) setEditReps(String(Math.min(1000, Math.max(1, v))));
+                    }}
+                    className="w-full text-center bg-white/10 border border-white/20 text-white font-black text-xl rounded mt-1 px-1 py-1"
                   />
                 ) : (
                   <span className="text-white font-black text-xl block mt-1">{exercise.target_reps}</span>
