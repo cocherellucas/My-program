@@ -396,9 +396,9 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 
         if (goodAboveSeries >= 2 && !objectifActed) return (
           <div className="flex items-start gap-3 p-3 rounded-xl bg-accent/20 border border-accent/40">
-            <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
+            <div className="relative flex-shrink-0 w-8 h-8 flex items-center justify-center">
               <Bot className="w-6 h-6 text-accent" />
-              <TrendingUp className="w-3 h-3 text-accent" />
+              <TrendingUp className="w-3 h-3 text-accent absolute bottom-0 right-0" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-white">Objectifs dépassés</p>
