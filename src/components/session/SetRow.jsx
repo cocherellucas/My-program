@@ -13,6 +13,7 @@ const ZONE_LABELS = {
 export default function SetRow({ setIdx, totalSets, log, onUpdate, onWeightBlur, onWeightPropagate, rirContext, previousWeight, previousReps, previousMode, nextWeights, exerciseFragileZones = [] }) {
   const [manuallyEdited, setManuallyEdited] = useState(false);
   const [propagated, setPropagated] = useState(false);
+  const blurFromEnter = useRef(false);
   // rirContext = { phase, sessionType, block, weekNumber, plannedWeeks }
   const targetRIR = rirContext
     ? computeTargetRIR({
@@ -59,15 +60,18 @@ const shouldShowPropagate =
 }}
 onKeyDown={(e) => {
   if (e.key === 'Enter') {
+    blurFromEnter.current = true;
     e.target.blur();
     setManuallyEdited(false);
   }
 }}
 
 onBlur={(e) => {
-  const v = parseFloat(e.target.value);
-  if (v) onWeightBlur?.(v);
-
+  if (!blurFromEnter.current) {
+    const v = parseFloat(e.target.value);
+    if (v) onWeightBlur?.(v);
+  }
+  blurFromEnter.current = false;
   setManuallyEdited(false);
 }}
            className="w-full h-10 text-center bg-white/10 border-white/20 text-white placeholder:text-white/40 text-sm"
