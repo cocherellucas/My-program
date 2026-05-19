@@ -156,12 +156,13 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
     setEditRest(currentRestSeconds ?? originalExercise?.rest_seconds ?? 90);
   }, [currentRestSeconds]);
 
-  useEffect(() => {
-    setObjectifActed(false);
-  }, [activeSetIdx]);
   const [activeSetIdx, setActiveSetIdx] = useState(0);
   const [completedSets, setCompletedSets] = useState(new Set());
   const [objectifActed, setObjectifActed] = useState(false);
+
+  useEffect(() => {
+    setObjectifActed(false);
+  }, [activeSetIdx]);
 
   const markSetComplete = (idx) => setCompletedSets(prev => new Set([...prev, idx]));
   const isSetDone = (idx) => completedSets.has(idx);
