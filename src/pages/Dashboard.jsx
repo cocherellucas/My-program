@@ -65,8 +65,10 @@ export default function Dashboard() {
     enabled: !!user?.id,
   });
 
-  const today       = new Date().toISOString().split('T')[0];
-  const nextSession = sessions.find(s => s.status === 'planned' && s.planned_date >= today);
+  const today        = new Date().toISOString().split('T')[0];
+  const todaySession = sessions.find(s => s.status === 'planned' && s.planned_date === today);
+  const nextSession  = sessions.find(s => s.status === 'planned' && s.planned_date > today);
+  const hasSessions  = sessions.length > 0;
 
   const alerts = useMemo(() =>
     computeDashboardAlerts({ sessions, program: activeProgram, user: user || {}, checkins, seriesLogs }),
@@ -101,7 +103,7 @@ export default function Dashboard() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <NextSessionCard session={nextSession} />
+        <NextSessionCard todaySession={todaySession} nextSession={nextSession} hasSessions={hasSessions} />
         <ProgramSummaryCard program={activeProgram} objectives={objectives} />
       </div>
 
