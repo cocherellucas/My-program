@@ -446,6 +446,11 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                   Variante plus dure
                 </button>
               )}
+              <button
+                onClick={() => setObjectifActed(true)}
+                className="text-xs px-2 py-1.5 text-white/40 hover:text-white/70 transition-colors">
+                ✕
+              </button>
             </div>
           </div>);
 
