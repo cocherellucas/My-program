@@ -398,7 +398,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
             <TrendingDown className="w-4 h-4 text-accent mt-0.5 flex-shrink-0 rotate-180" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-white">Objectifs dépassés 💪</p>
-              <p className="text-xs text-white/70 mt-0.5">Réduis le repos ou ajoute du poids à la prochaine séance.</p>
+              <p className="text-xs text-white/70 mt-0.5">Réduis le repos ou augmente le poids maintenant.</p>
             </div>
             <div className="flex-shrink-0 flex items-center gap-1.5">
               <Popover>
@@ -415,6 +415,19 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                   <p className="text-white/70">Retirer 30s de repos par série va réduire la durée totale de ta séance.</p>
                 </PopoverContent>
               </Popover>
+              {!isBodyweightExercise(exercise.name) && (
+                <button
+                  onClick={() => {
+                    for (let s = activeSetIdx; s < sets; s++) {
+                      const key = `${exIdx}-${s}`;
+                      const current = logs[key]?.weight || 0;
+                      if (current > 0) updateLog(exIdx, s, 'weight', current + 2.5);
+                    }
+                  }}
+                  className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors flex items-center gap-1">
+                  +2.5 kg
+                </button>
+              )}
               {isBodyweightExercise(exercise.name) && (
                 <button
                   onClick={() => onProgressionRequest(exIdx)}
