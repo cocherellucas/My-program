@@ -409,9 +409,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                 <PopoverTrigger asChild>
                   <button
                     onClick={() => {
-                      const newRest = Math.max((currentRestSeconds ?? exercise.rest_seconds ?? 90) - 30, 30);
-                      onExtendRest(exIdx, newRest);
-                      onApplyToFuture?.(exercise.name, { rest_seconds: newRest });
+                      onExtendRest(exIdx, Math.max((currentRestSeconds ?? exercise.rest_seconds ?? 90) - 30, 30));
                       setObjectifActed(true);
                     }}
                     className="text-xs px-3 py-1.5 rounded-lg bg-white/20 text-white font-medium hover:bg-white/30 transition-colors flex items-center gap-1">
@@ -433,7 +431,6 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                       const current = logs[key]?.weight || 0;
                       if (current > 0) { updateLog(exIdx, s, 'weight', current + 2.5); newWeight = current + 2.5; }
                     }
-                    if (newWeight > 0) onApplyToFuture?.(exercise.name, { target_weight: newWeight });
                     setObjectifActed(true);
                   }}
                   className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors flex items-center gap-1">
@@ -500,7 +497,10 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
               log={logs[`${exIdx}-${setIdx}`] || {}}
               onUpdate={(field, value) => updateLog(exIdx, setIdx, field, value)}
               onWeightBlur={(value) => propagateWeight(exIdx, setIdx, value, sets)}
-              onWeightPropagate={(value) => forcePropagateWeight(exIdx, setIdx, value, sets)}
+              onWeightPropagate={(value) => {
+                forcePropagateWeight(exIdx, setIdx, value, sets);
+                handleApplyToFuture(exercise.name, { target_weight: Number(value) });
+              }}
               nextWeights={Array.from({ length: sets - setIdx - 1 }, (_, i) => logs[`${exIdx}-${setIdx + 1 + i}`]?.weight)}
               rirContext={rirContext ? { ...rirContext, block: exercise.block } : null}
               exerciseFragileZones={getExerciseFragileZones(exercise, fragileZones)}
@@ -1038,6 +1038,8 @@ Réponds uniquement avec le JSON demandé.`,
     );
     setSessionExercises(updatedExercises);
     setRestTimeForEx((prev) => ({ ...prev, [exIdx]: newRestSecs }));
+    const exerciseName = exercises[exIdx]?.name;
+    if (exerciseName) handleApplyToFuture(exerciseName, { rest_seconds: newRestSecs });
   };
 
   const handleUpdateExercise = (exIdx, updates) => {
