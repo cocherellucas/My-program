@@ -158,11 +158,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 
   const [activeSetIdx, setActiveSetIdx] = useState(0);
   const [completedSets, setCompletedSets] = useState(new Set());
-  const [objectifActed, setObjectifActed] = useState(false);
-
-  useEffect(() => {
-    setObjectifActed(false);
-  }, [activeSetIdx]);
+  const [ackedGoodSeries, setAckedGoodSeries] = useState(0);
 
   const markSetComplete = (idx) => setCompletedSets(prev => new Set([...prev, idx]));
   const isSetDone = (idx) => completedSets.has(idx);
@@ -183,7 +179,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
     }
     return count;
   })();
-  const showObjectifBanner = goodAboveSeries >= 2 && !objectifActed;
+  const showObjectifBanner = goodAboveSeries >= 2 && goodAboveSeries > ackedGoodSeries + 1;
 
   const handleSetDone = (setIdx) => {
     const key = `${exIdx}-${setIdx}`;
@@ -552,7 +548,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
           <Popover>
             <PopoverTrigger asChild>
               <button
-                onClick={() => { onExtendRest(exIdx, Math.max((currentRestSeconds ?? exercise.rest_seconds ?? 90) - 30, 30)); setObjectifActed(true); }}
+                onClick={() => { onExtendRest(exIdx, Math.max((currentRestSeconds ?? exercise.rest_seconds ?? 90) - 30, 30)); setAckedGoodSeries(goodAboveSeries); }}
                 className="text-xs px-3 py-1.5 rounded-lg bg-white/20 text-white font-medium hover:bg-white/30 transition-colors flex items-center gap-1">
                 −30s repos <HelpCircle className="w-3 h-3 opacity-60" />
               </button>
@@ -570,7 +566,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                   const current = logs[key]?.weight || 0;
                   updateLog(exIdx, s, 'weight', current > 0 ? current + 2.5 : 2.5);
                 }
-                setObjectifActed(true);
+                setAckedGoodSeries(goodAboveSeries);
               }}
               className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors">
               +2.5 kg
@@ -584,7 +580,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
               Variante plus dure
             </button>
           )}
-          <button onClick={() => setObjectifActed(true)} className="text-xs px-2 py-1.5 text-white/40 hover:text-white/70 transition-colors">✕</button>
+          <button onClick={() => setAckedGoodSeries(goodAboveSeries)} className="text-xs px-2 py-1.5 text-white/40 hover:text-white/70 transition-colors">✕</button>
         </div>
       </div>
     )}
