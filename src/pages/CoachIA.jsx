@@ -156,14 +156,13 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
         await base44.entities.Program.update(p.id, { status: 'suspended' });
       }
 
-      // Si le programme ne couvre qu'une seule semaine, l'étendre sur 4 semaines
+      // Toujours étendre sur 4 semaines en répétant le pattern
       const maxWeek = Math.max(...sessions.map(s => s.week_number || 1), 1);
       const CYCLE_WEEKS = 4;
-      const expandedSessions = maxWeek === 1
-        ? Array.from({ length: CYCLE_WEEKS }, (_, i) =>
-            sessions.map(s => ({ ...s, week_number: i + 1 }))
-          ).flat()
-        : sessions;
+      const expandedSessions = maxWeek >= CYCLE_WEEKS ? sessions :
+        Array.from({ length: Math.ceil(CYCLE_WEEKS / maxWeek) }, (_, i) =>
+          sessions.map(s => ({ ...s, week_number: (s.week_number || 1) + i * maxWeek }))
+        ).flat().filter(s => s.week_number <= CYCLE_WEEKS);
 
       const program = await base44.entities.Program.create({
         user_id: user.id,
