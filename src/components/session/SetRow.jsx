@@ -142,7 +142,7 @@ onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
                   <HelpCircle className="w-3 h-3" />
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-48 text-xs space-y-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white">
+              <PopoverContent side="top" className="w-48 text-xs space-y-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white">
                 <p className="font-semibold text-violet-400">RIR (Reps In Reserve)</p>
                 <p>Le nombre de répétitions que tu aurais pu faire avant d'atteindre l'échec.</p>
                 <div className="space-y-1 pt-2 border-t border-white/20">
