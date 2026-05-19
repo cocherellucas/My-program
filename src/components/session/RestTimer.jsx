@@ -78,44 +78,55 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange }
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0, y: -60 }}
+        initial={{ opacity: 0, y: -80 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -60 }}
-        style={{ paddingTop: 'max(12px, env(safe-area-inset-top))' }}
-        className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border shadow-lg px-6 pb-3 flex items-center justify-between">
+        exit={{ opacity: 0, y: -80 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        style={{ paddingTop: 'max(14px, env(safe-area-inset-top))' }}
+        className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-violet-950 to-violet-900 shadow-xl px-5 pb-4 flex items-center justify-between gap-4">
 
-        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-          <Timer className="w-4 h-4" /> Repos
-        </div>
-
-        {/* Barre de progression */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted rounded-full overflow-hidden">
-          <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${progress * 100}%`, backgroundColor: urgentColor }} />
-        </div>
-
-        {/* Chrono + actions */}
-        <div className="flex items-center gap-4">
+        {/* Label + timer */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 text-violet-300/70 text-xs font-semibold uppercase tracking-widest">
+            <Timer className="w-3.5 h-3.5" /> Repos
+          </div>
           {editing ? (
             <div className="flex items-center gap-2">
-              <Input type="number" value={editValue} onChange={(e) => setEditValue(e.target.value)} className="h-8 w-20 text-center text-sm" autoFocus />
-              <span className="text-xs text-muted-foreground">s</span>
-              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={handleEditSave}><Check className="w-3.5 h-3.5" /></Button>
+              <Input type="number" value={editValue} onChange={(e) => setEditValue(e.target.value)} className="h-8 w-20 text-center text-sm bg-white/10 border-white/20 text-white" autoFocus />
+              <Button size="icon" variant="ghost" className="h-7 w-7 text-violet-300 hover:text-white" onClick={handleEditSave}><Check className="w-4 h-4" /></Button>
             </div>
           ) : (
-            <span className="text-2xl font-bold font-heading cursor-pointer hover:opacity-75" style={{ color: urgentColor }} onClick={() => { setEditing(true); setEditValue(String(remaining)); }}>
+            <span
+              className="text-3xl font-black font-heading cursor-pointer tracking-tight"
+              style={{ color: urgentColor }}
+              onClick={() => { setEditing(true); setEditValue(String(remaining)); }}>
               {timeStr}
             </span>
           )}
-          {remaining === 0 && <span className="text-sm font-semibold text-accent">C'est parti !</span>}
+          {remaining === 0 && <span className="text-sm font-bold text-white animate-pulse">C'est parti !</span>}
         </div>
 
+        {/* Boutons */}
         <div className="flex items-center gap-1">
-          <Button size="icon" variant="ghost" className="h-11 w-11 text-violet-500 hover:text-violet-400 hover:bg-violet-400/10" onClick={() => setRunning((r) => !r)}>
-            {running ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
-          </Button>
-          <Button size="icon" variant="ghost" className="h-11 w-11 text-violet-500 hover:text-violet-400 hover:bg-violet-400/10" onClick={() => onComplete?.()}>
-            <X className="w-6 h-6" />
-          </Button>
+          <button
+            onClick={() => setRunning((r) => !r)}
+            className="h-10 w-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+            {running ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+          </button>
+          <button
+            onClick={() => onComplete?.()}
+            className="h-10 w-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Barre de progression */}
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
+          <motion.div
+            className="h-full"
+            style={{ backgroundColor: urgentColor }}
+            animate={{ width: `${progress * 100}%` }}
+            transition={{ duration: 1, ease: 'linear' }} />
         </div>
       </motion.div>
     </AnimatePresence>);
