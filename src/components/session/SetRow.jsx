@@ -79,14 +79,10 @@ onBlur={(e) => {
             {shouldShowPropagate ? (
   <button
     onClick={() => {
-  console.log("PROPAGATION DATA", {
-    weight: log.weight,
-    setIdx,
-    totalSets
-  });
-
-  onWeightPropagate?.(Number(log.weight));
-}}
+      onWeightPropagate?.(Number(log.weight));
+      setPropagated(true);
+      setManuallyEdited(false);
+    }}
     className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary text-white text-[11px] font-semibold shadow-md hover:bg-primary/90 active:scale-95 transition-all"
   >
     ↓ Propager
