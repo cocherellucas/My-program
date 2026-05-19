@@ -173,8 +173,9 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                     type="number"
                     min="1"
                     value={editSets}
-                    onChange={(e) => setEditSets(Math.max(1, parseInt(e.target.value) || 1))}
-                    className="w-full text-center bg-white/10 border border-white/20 text-white font-black text-2xl rounded mt-1 px-1 py-1"
+                    onChange={(e) => setEditSets(e.target.value)}
+                    onBlur={(e) => setEditSets(Math.max(1, parseInt(e.target.value) || 1))}
+                    className="w-full text-center bg-white/10 border border-white/20 text-white font-black text-xl rounded mt-1 px-1 py-1"
                   />
                 ) : (
                   <span className="text-white font-black text-xl block mt-1">{sets}</span>
