@@ -59,13 +59,15 @@ export default function CoachIA() {
   const inputAreaRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Bloque le scroll tactile sur la zone input (iOS)
+  // Bloque tout scroll tactile sauf dans la zone messages
+  const messagesRef = useRef(null);
   useEffect(() => {
-    const el = inputAreaRef.current;
-    if (!el) return;
-    const block = (e) => e.preventDefault();
-    el.addEventListener('touchmove', block, { passive: false });
-    return () => el.removeEventListener('touchmove', block);
+    const block = (e) => {
+      if (messagesRef.current?.contains(e.target)) return;
+      e.preventDefault();
+    };
+    document.addEventListener('touchmove', block, { passive: false });
+    return () => document.removeEventListener('touchmove', block);
   }, []);
   const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
 
@@ -278,7 +280,7 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto space-y-4 pb-4 overscroll-contain" style={{ touchAction: 'pan-y' }}>
+      <div ref={messagesRef} className="flex-1 overflow-y-auto space-y-4 pb-4 overscroll-contain" style={{ touchAction: 'pan-y' }}>
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mb-4">
