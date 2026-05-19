@@ -146,9 +146,9 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange }
             </span>
           )}
           {remaining === 0
-            ? <span className="text-sm font-bold text-white animate-pulse">C'est parti !</span>
+            ? <span className="text-base font-bold text-white animate-pulse">C'est parti !</span>
             : remaining <= 15
-            ? <span className="text-xs font-semibold text-orange-300 animate-pulse">Prépare-toi !</span>
+            ? <span className="text-sm font-semibold text-orange-300 animate-pulse">Prépare-toi !</span>
             : null}
         </div>
 
