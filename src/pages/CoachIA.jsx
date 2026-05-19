@@ -44,12 +44,15 @@ export default function CoachIA() {
     }
   }, [messages, user?.id]);
 
-  // Verrouille le scroll du body sur iOS
+  // Supprime pb-20 du layout main pour CoachIA
   useEffect(() => {
+    const main = document.querySelector('main');
+    if (main) { main.style.paddingBottom = '0px'; }
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
     return () => {
+      if (main) main.style.paddingBottom = '';
       document.body.style.overflow = prev;
       document.documentElement.style.overflow = '';
     };
@@ -261,7 +264,7 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
   ];
 
   return (
-    <div className="flex flex-col" style={{ height: 'calc(100dvh - 16px)', marginBottom: '-150px', paddingBottom: '84px' }}>
+    <div className="flex flex-col" style={{ height: 'calc(100dvh - 96px)' }}>
       <div className="mb-2 flex items-center justify-end">
         {messages.length > 0 && (
           <button
