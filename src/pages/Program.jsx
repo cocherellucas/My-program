@@ -501,7 +501,15 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                    const isToday = sessionDate && sessionDate.getTime() === today.getTime();
 
                    const card = (
-                     <Card className={`p-4 transition-colors bg-white/15 backdrop-blur-sm border-white/20 ${past ? 'opacity-40 cursor-not-allowed' : isPastDay ? 'opacity-50 cursor-pointer hover:opacity-70' : 'hover:bg-white/20 cursor-pointer'} ${isToday ? 'border-white/50 bg-white/25' : ''}`}>
+                     <Card className={`p-4 transition-colors backdrop-blur-sm ${
+                       isToday
+                         ? 'bg-white/30 border-2 border-white shadow-lg shadow-white/20 cursor-pointer hover:bg-white/35'
+                         : past
+                         ? 'bg-white/15 border-white/20 opacity-40 cursor-not-allowed'
+                         : isPastDay
+                         ? 'bg-white/15 border-white/20 opacity-50 cursor-pointer hover:opacity-70'
+                         : 'bg-white/15 border-white/20 hover:bg-white/20 cursor-pointer'
+                     }`}>
                        <div className="flex items-center justify-between">
                          <div className="flex items-center gap-4">
                            <div className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center ${isToday ? 'bg-violet-600 border-2 border-white' : 'bg-white/20'}`}>
