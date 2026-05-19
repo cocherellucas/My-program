@@ -140,7 +140,7 @@ function WarmupAccordion({ exercise, logs, exIdx, sets: totalSets }) {
 }
 
 // ─── Single Exercise Focus View ───────────────────────────────────────────────
-function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, regressingEx, onExtendRest, currentRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones }) {
+function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, regressingEx, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones }) {
   const sets = Math.max(1, exercise.sets || 3);
   const [editSets, setEditSets] = useState(Math.max(1, originalExercise?.sets || 3));
   const [editReps, setEditReps] = useState(originalExercise?.target_reps || '');
@@ -156,7 +156,8 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
     const key = `${exIdx}-${setIdx}`;
     const lastLog    = logs[key];
     const mode       = lastLog?.mode || 'RIR_2';
-    const baseRest   = currentRestSeconds ?? exercise.rest_seconds ?? 90;
+    const isLastSet  = setIdx === sets - 1;
+    const baseRest   = isLastSet && nextExRestSeconds ? nextExRestSeconds : (currentRestSeconds ?? exercise.rest_seconds ?? 90);
     const isBodyweight = !lastLog?.weight || lastLog?.weight === 0;
     const isIsometric  = /planche|gainage|isométr/i.test(exercise.name || '');
 
@@ -1265,6 +1266,7 @@ Réponds uniquement avec le JSON demandé.`,
           regressingEx={regressingEx}
           onExtendRest={handleExtendRest}
           currentRestSeconds={exercises[currentExIdx]?.rest_seconds}
+          nextExRestSeconds={exercises[currentExIdx + 1]?.rest_seconds}
           onRestTimeSave={handleRestTimeSave}
           editingObjectif={editingObjectif}
           setEditingObjectif={setEditingObjectif}
