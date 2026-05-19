@@ -85,7 +85,7 @@ onBlur={(e) => {
     totalSets
   });
 
-  forcePropagateWeight?.(0, setIdx, Number(log.weight), totalSets);
+  onWeightPropagate?.(Number(log.weight));
 }}
     className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary text-white text-[11px] font-semibold shadow-md hover:bg-primary/90 active:scale-95 transition-all"
   >
