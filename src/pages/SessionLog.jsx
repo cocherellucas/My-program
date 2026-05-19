@@ -342,8 +342,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                 : 'border-transparent opacity-80'
             }`}>
               {isActive && (
-                <div className="flex items-center justify-between px-3 pt-2">
-                  <span className="text-xs font-semibold text-white/60">Série {setIdx + 1}</span>
+                <div className="flex items-center justify-end gap-3 px-3 pt-2">
                   <div className="flex items-center gap-3">
                     {setIdx > 0 && (
                       <button
