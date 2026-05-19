@@ -165,8 +165,8 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="grid grid-cols-3 gap-2 p-3 bg-gradient-to-r from-white/20 to-white/10 rounded-lg border border-white/40">
-              <div className="text-center py-3 bg-white/10 rounded-md border border-white/30">
+            <div className="grid grid-cols-3 gap-2 p-3 bg-gradient-to-r from-white/20 to-white/10 rounded-lg border border-white/40 overflow-hidden">
+              <div className="text-center py-3 bg-white/10 rounded-md border border-white/30 min-w-0">
                 <span className="text-white/80 text-[11px] block font-bold uppercase tracking-wide">Séries</span>
                 {editingObjectif ? (
                   <input
@@ -180,7 +180,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                   <span className="text-white font-black text-2xl block mt-1">{sets}</span>
                 )}
               </div>
-              <div className="text-center py-3 bg-white/10 rounded-md border border-white/30">
+              <div className="text-center py-3 bg-white/10 rounded-md border border-white/30 min-w-0">
                 <span className="text-white/80 text-[11px] block font-bold uppercase tracking-wide">Reps</span>
                 {editingObjectif ? (
                   <input
@@ -193,7 +193,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                   <span className="text-white font-black text-2xl block mt-1">{exercise.target_reps}</span>
                 )}
               </div>
-              <div className="text-center py-3 bg-white/10 rounded-md border border-white/30">
+              <div className="text-center py-3 bg-white/10 rounded-md border border-white/30 min-w-0">
                 <span className="text-white/80 text-[11px] block font-bold uppercase tracking-wide">Repos</span>
                 {editingObjectif ? (
                   <input
@@ -207,13 +207,13 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                     className="w-full text-center bg-white/10 border border-white/20 text-white font-black text-2xl rounded mt-1 px-1 py-1"
                   />
                 ) : (
-                  <span className="text-white font-black text-2xl block mt-1">{formatSeconds(currentRestSeconds ?? exercise.rest_seconds)}</span>
+                  <span className="text-white font-black text-xl block mt-1 truncate px-1">{formatSeconds(currentRestSeconds ?? exercise.rest_seconds)}</span>
                 )}
               </div>
             </div>
           </div>
           {(exercise.notes || (logs[`${exIdx}-0`]?.quality || 'good') !== 'bad') && (
-            <p className="text-xs text-white/60 mt-2 italic">
+            <p className="text-xs text-white/60 mt-2 italic w-full break-words">
               {exercise.notes}
               {exercise.notes && (logs[`${exIdx}-0`]?.quality || 'good') !== 'bad' && ' · '}
               {(logs[`${exIdx}-0`]?.quality || 'good') !== 'bad' && 'RIR 0 sur la dernière série si ce n\'est pas dangereux'}
