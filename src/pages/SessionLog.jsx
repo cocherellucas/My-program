@@ -221,7 +221,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                 const minRir = Math.min(...earlyTargets);
                 const maxRir = Math.max(...earlyTargets);
                 const rangeStr = minRir === maxRir ? `RIR ${minRir}` : `RIR ${maxRir}-${minRir}`;
-                return <>{sets > 1 ? `Premières séries : ${rangeStr} · ` : ''}Dernière série à l'échec si ce n'est pas dangereux</>;
+                return <>{sets > 1 && <>{`Premières séries : ${rangeStr}`}<br /></>}Dernière série à l'échec si ce n'est pas dangereux</>;
               })() : (logs[`${exIdx}-0`]?.quality || 'good') !== 'bad' && <>RIR 0 sur la dernière série si ce n'est pas dangereux</>}
             </p>
           )}
