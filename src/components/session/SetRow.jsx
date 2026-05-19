@@ -30,11 +30,13 @@ export default function SetRow({ setIdx, totalSets, log, onUpdate, onWeightBlur,
 
   const targetInfo = ririLabel(targetRIR);
   const defaultMode = rirToMode(targetRIR);
+const hasFilledNextSets = nextWeights?.some(w => !!w);
 const shouldShowPropagate =
   manuallyEdited &&
   !propagated &&
   log.weight &&
   setIdx < totalSets - 1 &&
+  hasFilledNextSets &&
   nextWeights?.some(w => w && w !== log.weight);
   return (
     <div className="space-y-2 p-3 bg-white/10 rounded-lg border border-white/20">
