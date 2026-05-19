@@ -10,9 +10,21 @@
   touch-action: manipulation;
 }
 
-button, a, input, select, textarea, [tabindex] {
+* {
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+*:focus, *:focus-visible {
   outline: none !important;
-  -webkit-tap-highlight-color: transparent;
+}
+
+input:focus, input:focus-visible,
+select:focus, select:focus-visible,
+textarea:focus, textarea:focus-visible,
+button:focus, button:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  ring: 0 !important;
 }
 *::-webkit-scrollbar {
   display: none;
