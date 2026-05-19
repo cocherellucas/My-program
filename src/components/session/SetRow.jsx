@@ -78,7 +78,8 @@ onBlur={(e) => {
           <div className="text-xs text-center mt-1.5 min-h-[24px] flex items-center justify-center">
             {shouldShowPropagate ? (
   <button
-    onClick={() => {
+    onPointerDown={(e) => {
+      e.preventDefault();
       onWeightPropagate?.(Number(log.weight));
       setPropagated(true);
       setManuallyEdited(false);
