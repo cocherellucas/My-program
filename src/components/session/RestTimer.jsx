@@ -127,18 +127,18 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange }
           <Button
             size="icon"
             variant="ghost"
-            className="h-7 w-7"
+            className="h-7 w-7 hover:text-violet-400 hover:bg-violet-400/10"
             onClick={() => setRunning((r) => !r)}>
-            
+
             {running ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
           </Button>
 
           <Button
             size="icon"
             variant="ghost"
-            className="h-7 w-7 text-muted-foreground hover:text-foreground"
+            className="h-7 w-7 text-muted-foreground hover:text-violet-400 hover:bg-violet-400/10"
             onClick={() => onComplete?.()}>
-            
+
             <X className="w-3.5 h-3.5" />
           </Button>
         </div>
