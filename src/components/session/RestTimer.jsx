@@ -122,7 +122,7 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange }
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -80 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        style={{ top: '-2px', paddingTop: 'calc(2px + max(44px, env(safe-area-inset-top)))', background: 'linear-gradient(to right, #1e0050, #2e1065)' }}
+        style={{ top: '-60px', paddingTop: 'calc(60px + max(16px, env(safe-area-inset-top)))', background: 'linear-gradient(to right, #1e0050, #2e1065)' }}
         className="fixed left-0 right-0 z-50 shadow-xl">
 
         <div className="px-5 pb-4 flex items-center justify-between gap-4">
