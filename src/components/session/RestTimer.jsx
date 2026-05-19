@@ -11,6 +11,8 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange }
   const [editValue, setEditValue] = useState(String(seconds));
   const intervalRef = useRef(null);
   const audioRef = useRef(null);
+  const barRef = useRef(null);
+  const dragging = useRef(false);
 
   useEffect(() => {
     setRemaining(seconds);
@@ -66,6 +68,20 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange }
   const total = seconds;
   const progress = remaining / total;
   const radius = 42;
+
+  const scrubTo = (clientX) => {
+    if (!barRef.current) return;
+    const { left, width } = barRef.current.getBoundingClientRect();
+    const pct = Math.min(1, Math.max(0, (clientX - left) / width));
+    setRemaining(Math.round(pct * total));
+  };
+
+  const handleBarMouseDown = (e) => { dragging.current = true; scrubTo(e.clientX); setRunning(false); };
+  const handleBarMouseMove = (e) => { if (dragging.current) scrubTo(e.clientX); };
+  const handleBarMouseUp   = ()  => { if (dragging.current) { dragging.current = false; setRunning(true); } };
+  const handleBarTouchStart = (e) => { dragging.current = true; scrubTo(e.touches[0].clientX); setRunning(false); };
+  const handleBarTouchMove  = (e) => { if (dragging.current) scrubTo(e.touches[0].clientX); };
+  const handleBarTouchEnd   = ()  => { if (dragging.current) { dragging.current = false; setRunning(true); } };
   const circumference = 2 * Math.PI * radius;
   const strokeDash = circumference * progress;
 
@@ -120,13 +136,20 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange }
           </button>
         </div>
 
-        {/* Barre de progression */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
-          <motion.div
-            className="h-full"
-            style={{ backgroundColor: urgentColor }}
-            animate={{ width: `${progress * 100}%` }}
-            transition={{ duration: 1, ease: 'linear' }} />
+        {/* Barre de progression / scrub */}
+        <div
+          ref={barRef}
+          className="absolute bottom-0 left-0 right-0 h-2 bg-white/10 cursor-pointer select-none"
+          onMouseDown={handleBarMouseDown}
+          onMouseMove={handleBarMouseMove}
+          onMouseUp={handleBarMouseUp}
+          onMouseLeave={handleBarMouseUp}
+          onTouchStart={handleBarTouchStart}
+          onTouchMove={handleBarTouchMove}
+          onTouchEnd={handleBarTouchEnd}>
+          <div className="h-full transition-none relative" style={{ width: `${progress * 100}%`, backgroundColor: urgentColor }}>
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-md" />
+          </div>
         </div>
       </motion.div>
     </AnimatePresence>);
