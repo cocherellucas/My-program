@@ -83,7 +83,7 @@ function getWarmupAdvice(exercise) {
   if (isLower) mobility.push('mobilité des hanches et chevilles', 'activation des fessiers (pont fessier ou abduction)');
   if (isUpperPush) mobility.push('rotation des épaules', 'échauffement de la coiffe des rotateurs');
   if (isUpperPull) mobility.push('rotations des épaules × 10 dans chaque sens', 'échauffement léger des biceps (curl à vide ou élastique)');
-  if (!isLower && !isUpperPush && !isUpperPull) mobility.push('mobilité articulaire générale', 'élévation du rythme cardiaque 2-3 min');
+  if (!isLower && !isUpperPush && !isUpperPull) mobility.push('activation du gainage profond (respiration abdominale × 5)', 'mobilité du bas du dos (chat-vache × 10)');
 
   return { sets, mobility, isCompound };
 }
