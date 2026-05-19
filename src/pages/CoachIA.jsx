@@ -57,6 +57,7 @@ export default function CoachIA() {
 
   const inputRef = useRef(null);
   const inputAreaRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   // Bloque le scroll tactile sur la zone input (iOS)
   useEffect(() => {
@@ -372,10 +373,23 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
 
         {/* Toolbar bas */}
         <div className="flex items-center justify-between px-3 pb-2 pt-1">
-          <label className="cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors" style={{ touchAction: 'auto' }}>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors">
             <Paperclip className="w-5 h-5" />
-            <input type="file" accept="image/*,.pdf,.txt" className="hidden" onChange={(e) => setAttachedFile(e.target.files?.[0] || null)} />
-          </label>
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,.pdf,.txt"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) setAttachedFile(file);
+              e.target.value = '';
+            }}
+          />
           <button
             onClick={sendMessage}
             disabled={loading || (!input.trim() && !attachedFile)}
