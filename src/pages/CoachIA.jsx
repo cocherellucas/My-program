@@ -69,16 +69,6 @@ export default function CoachIA() {
     document.addEventListener('touchmove', block, { passive: false });
     return () => document.removeEventListener('touchmove', block);
   }, []);
-  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
-
-  useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
-    const update = () => setViewportHeight(vv.height);
-    vv.addEventListener('resize', update);
-    vv.addEventListener('scroll', update);
-    return () => { vv.removeEventListener('resize', update); vv.removeEventListener('scroll', update); };
-  }, []);
 
   const handleInputFocus = () => {
     setTimeout(() => {
@@ -257,19 +247,7 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
   ];
 
   return (
-    <div className="flex flex-col overflow-hidden" style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      height: `${viewportHeight}px`,
-      paddingTop: 'max(8px, env(safe-area-inset-top))',
-      paddingBottom: viewportHeight < window.innerHeight - 100 ? '4px' : '80px',
-      paddingLeft: '16px',
-      paddingRight: '16px',
-      background: 'hsl(262 83% 58%)',
-      zIndex: 10
-    }}>
+    <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100dvh - 96px)' }}>
       <div className="mb-2 flex items-center justify-end">
         {messages.length > 0 && (
           <button
