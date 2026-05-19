@@ -16,6 +16,12 @@ import RestTimer, { RestTimerControl } from '@/components/session/RestTimer';
 import { computeTargetRIR, ririLabel, computeAdaptedRestTime } from '@/lib/rir-optimizer';
 import { buildProgressionContext, isAtChainBottom } from '@/lib/progression-chains';
 import { FRAGILE_ZONE_MUSCLES } from '@/lib/coaching-engine';
+import { EXERCISES } from '@/lib/exercise-database';
+
+const isBodyweightExercise = (name) => {
+  const ex = EXERCISES.find(e => e.name?.toLowerCase() === name?.toLowerCase());
+  return ex ? ex.equipmentOptions?.every(opt => opt.length === 0) : false;
+};
 
 // Noms d'affichage des zones fragiles
 const ZONE_LABELS = {
@@ -405,14 +411,15 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                   <p className="text-white/70">Retirer 30s de repos par série va réduire la durée totale de ta séance.</p>
                 </PopoverContent>
               </Popover>
-              <button
-                onClick={() => onProgressionRequest(exIdx)}
-                disabled={regressingEx === exIdx}
-                className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors disabled:opacity-60 flex items-center gap-1">
-                
-                {regressingEx === exIdx && <Loader2 className="w-3 h-3 animate-spin" />}
-                Variante plus dure
-              </button>
+              {isBodyweightExercise(exercise.name) && (
+                <button
+                  onClick={() => onProgressionRequest(exIdx)}
+                  disabled={regressingEx === exIdx}
+                  className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors disabled:opacity-60 flex items-center gap-1">
+                  {regressingEx === exIdx && <Loader2 className="w-3 h-3 animate-spin" />}
+                  Variante plus dure
+                </button>
+              )}
             </div>
           </div>);
 
