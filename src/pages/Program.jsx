@@ -494,13 +494,14 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                    }
                    return true;
                  }).map((session, i) => {
-                   const past = isPast(session) && session.status !== 'completed';
+                   const isPastDay = isPast(session);
+                   const past = isPastDay && session.status !== 'completed';
                    const sessionDate = session.planned_date ? new Date(session.planned_date) : null;
                    if (sessionDate) sessionDate.setHours(0, 0, 0, 0);
                    const isToday = sessionDate && sessionDate.getTime() === today.getTime();
 
                    const card = (
-                     <Card className={`p-4 transition-colors bg-white/15 backdrop-blur-sm border-white/20 ${past ? 'opacity-40 cursor-not-allowed' : 'hover:bg-white/20 cursor-pointer'} ${isToday ? 'border-white/50 bg-white/25' : ''}`}>
+                     <Card className={`p-4 transition-colors bg-white/15 backdrop-blur-sm border-white/20 ${past ? 'opacity-40 cursor-not-allowed' : isPastDay ? 'opacity-50 cursor-pointer hover:opacity-70' : 'hover:bg-white/20 cursor-pointer'} ${isToday ? 'border-white/50 bg-white/25' : ''}`}>
                        <div className="flex items-center justify-between">
                          <div className="flex items-center gap-4">
                            <div className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center ${isToday ? 'bg-violet-600 border-2 border-white' : 'bg-white/20'}`}>
