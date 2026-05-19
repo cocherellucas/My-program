@@ -4,6 +4,7 @@
   "description": "Ton coach fitness personnalisé",
   "start_url": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#7c3aed",
   "theme_color": "#7c3aed",
   "icons": [
