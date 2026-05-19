@@ -507,7 +507,8 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
               <button
                 key={value}
                 onClick={() => {
-                  for (let s = 0; s < sets; s++) updateLog(exIdx, s, 'feedback', value);
+                  const newVal = isSelected ? null : value;
+                  for (let s = 0; s < sets; s++) updateLog(exIdx, s, 'feedback', newVal);
                 }}
                 className={`text-xs px-3 py-1 rounded-full transition-all font-medium ${isSelected ? `${bg} ${text}` : 'bg-white/10 text-white/60 hover:bg-white/20'}`}>
                 
