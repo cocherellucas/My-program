@@ -75,16 +75,8 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
     const isBodyweight = !lastLog?.weight || lastLog?.weight === 0;
     const isIsometric  = /planche|gainage|isométr/i.test(exercise.name || '');
 
-    const adaptedRest = computeAdaptedRestTime({
-      baseRest,
-      mode,
-      block:       exercise.block || 'B',
-      isBodyweight,
-      isIsometric,
-    });
-
     markSetComplete(setIdx);
-    onStartRest(adaptedRest, () => {
+    onStartRest(baseRest, () => {
       if (setIdx < sets - 1) setActiveSetIdx(setIdx + 1);
     });
   };
