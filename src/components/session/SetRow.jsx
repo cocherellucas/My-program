@@ -54,26 +54,21 @@ const shouldShowPropagate =
     onUpdate('weight', v);
     setPropagated(false);
     setManuallyEdited(true);
-    clearTimeout(propagateTimer.current);
-    propagateTimer.current = setTimeout(() => onWeightBlur?.(v), 600);
   } else if (e.target.value === '') {
     onUpdate('weight', '');
   }
 }}
 onKeyDown={(e) => {
   if (e.key === 'Enter') {
-    blurFromEnter.current = true;
+    const v = parseFloat(e.target.value);
+    if (v) onWeightBlur?.(v);
     e.target.blur();
     setManuallyEdited(false);
   }
 }}
-
 onBlur={(e) => {
-  if (!blurFromEnter.current) {
-    const v = parseFloat(e.target.value);
-    if (v) onWeightBlur?.(v);
-  }
-  blurFromEnter.current = false;
+  const v = parseFloat(e.target.value);
+  if (v) onWeightBlur?.(v);
   setManuallyEdited(false);
 }}
            className="w-full h-10 text-center bg-white/10 border-white/20 text-white placeholder:text-white/40 text-sm"
