@@ -10,7 +10,7 @@ const ZONE_LABELS = {
   knees: 'Genoux', lower_back: 'Bas du dos', neck: 'Cervicales',
 };
 
-export default function SetRow({ setIdx, totalSets, log, onUpdate, onWeightBlur, onWeightPropagate, rirContext, previousWeight, previousReps, previousMode, nextWeights, exerciseFragileZones = [] }) {
+export default function SetRow({ setIdx, totalSets, log, onUpdate, onWeightBlur, onWeightPropagate, rirContext, previousWeight, previousReps, previousMode, nextWeights, exerciseFragileZones = [], locked = false }) {
   const [manuallyEdited, setManuallyEdited] = useState(false);
   const [propagated, setPropagated] = useState(false);
   const blurFromEnter = useRef(false);
@@ -45,6 +45,7 @@ const shouldShowPropagate =
         <div>
           <Input
            type="number"
+           disabled={locked}
            placeholder={previousWeight ? `${previousWeight} kg` : 'kg'}
            value={log.weight || ''}
            onChange={(e) => {
@@ -100,6 +101,7 @@ onBlur={(e) => {
         <div>
           <Input
            type="number"
+           disabled={locked}
            placeholder={previousReps ? `${previousReps}` : 'reps'}
            value={log.reps || ''}
            onChange={(e) => {
@@ -122,7 +124,7 @@ onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
 
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <Select value={log.mode || previousMode || defaultMode} onValueChange={(v) => onUpdate('mode', v)}>
+          <Select value={log.mode || previousMode || defaultMode} onValueChange={(v) => onUpdate('mode', v)} disabled={locked}>
             <SelectTrigger className="w-full h-10 text-xs bg-white/10 border-white/20 text-white">
               <SelectValue />
             </SelectTrigger>
@@ -155,7 +157,7 @@ onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
           </div>
         </div>
         <div>
-          <Select value={log.quality || 'good'} onValueChange={(v) => onUpdate('quality', v)}>
+          <Select value={log.quality || 'good'} onValueChange={(v) => onUpdate('quality', v)} disabled={locked}>
             <SelectTrigger className="w-full h-10 text-xs bg-white/10 border-white/20 text-white">
               <SelectValue />
             </SelectTrigger>

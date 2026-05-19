@@ -61,16 +61,15 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
   const [editReps, setEditReps] = useState(originalExercise?.target_reps || '');
   const [editRest, setEditRest] = useState(originalExercise?.rest_seconds || 90);
   const [activeSetIdx, setActiveSetIdx] = useState(0);
+  const [completedSets, setCompletedSets] = useState(new Set());
 
-  const isSetDone = (idx) => {
-    const key = `${exIdx}-${idx}`;
-    return !!(logs[key]?.reps || logs[key]?.skipped);
-  };
+  const markSetComplete = (idx) => setCompletedSets(prev => new Set([...prev, idx]));
+  const isSetDone = (idx) => completedSets.has(idx);
   const allSetsDone = Array.from({ length: sets }, (_, i) => i).every(isSetDone);
-  const incompleteSets = Array.from({ length: sets }, (_, i) => i).filter(i => !isSetDone(i));
 
   const handleSetDone = (setIdx) => {
-    const lastLog    = logs[setIdx];
+    const key = `${exIdx}-${setIdx}`;
+    const lastLog    = logs[key];
     const mode       = lastLog?.mode || 'RIR_2';
     const baseRest   = currentRestSeconds ?? exercise.rest_seconds ?? 90;
     const isBodyweight = !lastLog?.weight || lastLog?.weight === 0;
@@ -84,6 +83,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
       isIsometric,
     });
 
+    markSetComplete(setIdx);
     onStartRest(adaptedRest, () => {
       if (setIdx < sets - 1) setActiveSetIdx(setIdx + 1);
     });
@@ -354,6 +354,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                     <button
                       onClick={() => {
                         updateLog(exIdx, setIdx, 'skipped', true);
+                        markSetComplete(setIdx);
                         setActiveSetIdx(setIdx + 1);
                       }}
                       className="text-xs text-white/40 hover:text-white/70 transition-colors">
@@ -374,7 +375,8 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
               exerciseFragileZones={getExerciseFragileZones(exercise, fragileZones)}
               previousWeight={previousLogs?.[exercise.name]?.[setIdx + 1]?.weight}
               previousReps={previousLogs?.[exercise.name]?.[setIdx + 1]?.reps}
-              previousMode={previousLogs?.[exercise.name]?.[setIdx + 1]?.mode} />
+              previousMode={previousLogs?.[exercise.name]?.[setIdx + 1]?.mode}
+              locked={setIdx > activeSetIdx} />
             
               <div className="space-y-2">
                 <button
