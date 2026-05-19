@@ -257,7 +257,7 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
   ];
 
   return (
-    <div className="flex flex-col overflow-hidden" style={{ height: '100dvh', marginTop: '-16px', marginLeft: '-16px', marginRight: '-16px', paddingLeft: '16px', paddingRight: '16px', paddingBottom: '80px' }}>
+    <div className="flex flex-col overflow-hidden" style={{ height: '100dvh', marginTop: '-16px', marginBottom: '-16px', marginLeft: '-16px', marginRight: '-16px', paddingLeft: '16px', paddingRight: '16px', paddingBottom: '96px' }}>
       <div className="mb-2 flex items-center justify-end">
         {messages.length > 0 && (
           <button
