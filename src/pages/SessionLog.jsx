@@ -213,22 +213,16 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
           {(exercise.notes || (logs[`${exIdx}-0`]?.quality || 'good') !== 'bad') && (
             <p className="text-xs text-white/60 mt-2 italic w-full break-words">
               {exercise.notes && <>{exercise.notes} · </>}
-              {(logs[`${exIdx}-0`]?.quality || 'good') !== 'bad' && <>RIR 0 sur la dernière série si ce n'est pas dangereux</>}
-              {rirContext && (() => {
+              {rirContext ? (() => {
                 const targets = Array.from({ length: sets }).map((_, i) =>
                   computeTargetRIR({ phase: rirContext.phase || 'MAV', sessionType: rirContext.sessionType || 'hypertrophy', block: exercise.block, setIndex: i, totalSets: sets, weekNumber: rirContext.weekNumber || 1, plannedWeeks: rirContext.plannedWeeks || 8 })
                 );
-                const groups = [];
-                let start = 0;
-                for (let i = 1; i <= targets.length; i++) {
-                  if (i === targets.length || targets[i] !== targets[start]) {
-                    const label = start + 1 === i ? `S${start + 1}` : `S${start + 1}-${i}`;
-                    groups.push(`${label} : ${ririLabel(targets[start]).short}`);
-                    start = i;
-                  }
-                }
-                return <> · {groups.join(' · ')}</>;
-              })()}
+                const earlyTargets = targets.slice(0, -1);
+                const minRir = Math.min(...earlyTargets);
+                const maxRir = Math.max(...earlyTargets);
+                const rangeStr = minRir === maxRir ? `RIR ${minRir}` : `RIR ${maxRir}-${minRir}`;
+                return <>{sets > 1 ? `Premières séries : ${rangeStr} · ` : ''}Dernière série à l'échec si ce n'est pas dangereux</>;
+              })() : (logs[`${exIdx}-0`]?.quality || 'good') !== 'bad' && <>RIR 0 sur la dernière série si ce n'est pas dangereux</>}
             </p>
           )}
         </div>
