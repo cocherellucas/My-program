@@ -78,74 +78,44 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange }
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="fixed bottom-24 right-6 z-50 bg-card border border-border rounded-2xl shadow-2xl p-4 flex flex-col items-center gap-3 w-40">
-        
-        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
-          <Timer className="w-3 h-3" /> Repos
+        initial={{ opacity: 0, y: -60 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -60 }}
+        className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border shadow-lg px-6 py-3 flex items-center justify-between">
+
+        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+          <Timer className="w-4 h-4" /> Repos
         </div>
 
-        {editing ?
-        <div className="flex items-center gap-2 w-full">
-            <Input
-            type="number"
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            className="h-8 text-center text-sm"
-            autoFocus />
-          
-            <span className="text-xs text-muted-foreground">s</span>
-            <Button
-            size="icon"
-            variant="ghost"
-            className="h-7 w-7"
-            onClick={handleEditSave}>
-            
-              <Check className="w-3.5 h-3.5" />
-            </Button>
-          </div> :
+        {/* Barre de progression */}
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted rounded-full overflow-hidden">
+          <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${progress * 100}%`, backgroundColor: urgentColor }} />
+        </div>
 
-        <div className="relative w-24 h-24 flex items-center justify-center">
-            <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="8" />
-              <circle
-              cx="50" cy="50" r={radius} fill="none"
-              stroke={urgentColor}
-              strokeWidth="8"
-              strokeLinecap="round"
-              strokeDasharray={`${strokeDash} ${circumference}`}
-              style={{ transition: 'stroke-dasharray 1s linear, stroke 0.3s' }} />
-            
-            </svg>
-            <span className="text-xl font-bold font-heading z-10 cursor-pointer hover:opacity-75" style={{ color: urgentColor }} onClick={() => {setEditing(true);setEditValue(String(remaining));}}>{timeStr}</span>
-          </div>
-        }
+        {/* Chrono + actions */}
+        <div className="flex items-center gap-4">
+          {editing ? (
+            <div className="flex items-center gap-2">
+              <Input type="number" value={editValue} onChange={(e) => setEditValue(e.target.value)} className="h-8 w-20 text-center text-sm" autoFocus />
+              <span className="text-xs text-muted-foreground">s</span>
+              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={handleEditSave}><Check className="w-3.5 h-3.5" /></Button>
+            </div>
+          ) : (
+            <span className="text-2xl font-bold font-heading cursor-pointer hover:opacity-75" style={{ color: urgentColor }} onClick={() => { setEditing(true); setEditValue(String(remaining)); }}>
+              {timeStr}
+            </span>
+          )}
+          {remaining === 0 && <span className="text-sm font-semibold text-accent">C'est parti !</span>}
+        </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            size="icon"
-            variant="ghost"
-            className="h-9 w-9 text-violet-500 hover:text-violet-400 hover:bg-violet-400/10"
-            onClick={() => setRunning((r) => !r)}>
-
+        <div className="flex items-center gap-1">
+          <Button size="icon" variant="ghost" className="h-9 w-9 text-violet-500 hover:text-violet-400 hover:bg-violet-400/10" onClick={() => setRunning((r) => !r)}>
             {running ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
           </Button>
-
-          <Button
-            size="icon"
-            variant="ghost"
-            className="h-9 w-9 text-violet-500 hover:text-violet-400 hover:bg-violet-400/10"
-            onClick={() => onComplete?.()}>
-
+          <Button size="icon" variant="ghost" className="h-9 w-9 text-violet-500 hover:text-violet-400 hover:bg-violet-400/10" onClick={() => onComplete?.()}>
             <X className="w-5 h-5" />
           </Button>
         </div>
-
-        {remaining === 0 &&
-        <span className="text-xs font-semibold text-accent">C'est parti !</span>
-        }
       </motion.div>
     </AnimatePresence>);
 
