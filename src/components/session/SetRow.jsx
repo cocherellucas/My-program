@@ -47,7 +47,8 @@ const shouldShowPropagate =
       <div className="grid grid-cols-2 gap-2">
         <div>
           <Input
-           type="number"
+           type="text"
+           inputMode="decimal"
            placeholder={previousWeight ? `${previousWeight} kg` : 'kg'}
            value={log.weight || ''}
            onChange={(e) => {
@@ -95,7 +96,8 @@ onBlur={(e) => {
         </div>
         <div>
           <Input
-           type="number"
+           type="text"
+           inputMode="numeric"
            placeholder={previousReps ? `${previousReps}` : 'reps'}
            value={log.reps || ''}
            readOnly={locked}

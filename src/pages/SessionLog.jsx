@@ -278,7 +278,8 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                 <span className="text-white/80 text-[11px] block font-bold uppercase tracking-wide">Séries</span>
                 {editingObjectif ? (
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     min="1"
                     max="20"
                     value={editSets}
@@ -312,7 +313,8 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                 <span className="text-white/80 text-[11px] block font-bold uppercase tracking-wide">Repos</span>
                 {editingObjectif ? (
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     min="1"
                     value={editRest}
                     onChange={(e) => setEditRest(e.target.value)}
