@@ -75,11 +75,29 @@ export default function CoachIA() {
   };
   const handleInputBlur = () => document.body.classList.remove('keyboard-open');
 
+  // Redimensionne et compresse une image avant envoi
+  const compressImage = (dataUrl) => new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 1024;
+      const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', 0.7));
+    };
+    img.src = dataUrl;
+  });
+
   // Lit le contenu d'un fichier — retourne { text, imageBase64 }
   const readFileContent = (file) => new Promise((resolve) => {
     const reader = new FileReader();
     if (file.type.startsWith('image/')) {
-      reader.onload = (e) => resolve({ text: `[Image jointe : ${file.name}]`, imageBase64: e.target.result });
+      reader.onload = async (e) => {
+        const compressed = await compressImage(e.target.result);
+        resolve({ text: `[Image jointe : ${file.name}]`, imageBase64: compressed });
+      };
       reader.readAsDataURL(file);
     } else {
       reader.onload = (e) => resolve({ text: `[Fichier : ${file.name}]\n${e.target.result}`, imageBase64: null });
