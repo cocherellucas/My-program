@@ -54,6 +54,91 @@ function getExerciseFragileZones(exercise, fragileZones = []) {
   });
 }
 
+// ─── Warmup Accordion ─────────────────────────────────────────────────────────
+const COMPOUND = /squat|soulevé|deadlift|développé|bench|overhead|press|rowing|tirage|tractions|dips/i;
+const LOWER = /squat|soulevé|deadlift|jambe|quadricep|ischio|fessier|mollet/i;
+const UPPER_PUSH = /développé|bench|overhead|press|dips|écarté/i;
+const UPPER_PULL = /rowing|tirage|tractions|curl|bicep/i;
+
+function getWarmupAdvice(exercise) {
+  const name = (exercise.name || '').toLowerCase();
+  const muscle = (exercise.muscle_group || '').toLowerCase();
+  const isCompound = COMPOUND.test(name);
+  const isLower = LOWER.test(name) || LOWER.test(muscle);
+  const isUpperPush = UPPER_PUSH.test(name) || /pectoraux|épaules|triceps/.test(muscle);
+  const isUpperPull = UPPER_PULL.test(name) || /dos|biceps/.test(muscle);
+
+  const sets = [];
+
+  if (isCompound) {
+    sets.push({ label: 'Série 1', desc: '50% du poids de travail × 10 reps — activer le mouvement' });
+    sets.push({ label: 'Série 2', desc: '65% × 6 reps — sentir la charge' });
+    sets.push({ label: 'Série 3', desc: '80% × 3 reps — préparer le système nerveux' });
+  } else {
+    sets.push({ label: 'Série 1', desc: '60% du poids de travail × 10 reps — activation légère' });
+    sets.push({ label: 'Série 2', desc: '80% × 5 reps — mise en tension' });
+  }
+
+  const mobility = [];
+  if (isLower) mobility.push('mobilité des hanches et chevilles', 'activation des fessiers (pont fessier ou abduction)');
+  if (isUpperPush) mobility.push('rotation des épaules', 'échauffement de la coiffe des rotateurs');
+  if (isUpperPull) mobility.push('rétraction des omoplates', 'étirement léger des biceps');
+  if (!isLower && !isUpperPush && !isUpperPull) mobility.push('mobilité articulaire générale', 'élévation du rythme cardiaque 2-3 min');
+
+  return { sets, mobility, isCompound };
+}
+
+function WarmupAccordion({ exercise, logs, exIdx, sets: totalSets }) {
+  const [open, setOpen] = useState(false);
+  const advice = getWarmupAdvice(exercise);
+  const workingWeight = logs[`${exIdx}-0`]?.weight;
+
+  return (
+    <Card className="bg-white/10 backdrop-blur-sm border-white/15 overflow-hidden">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center justify-between px-4 py-3 text-left">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold text-white/80">🔥 Échauffement</span>
+          <span className="text-xs text-white/40">{open ? '' : '— appuie pour voir'}</span>
+        </div>
+        <span className="text-white/40 text-xs">{open ? '▲' : '▼'}</span>
+      </button>
+
+      {open && (
+        <div className="px-4 pb-4 space-y-4">
+          {advice.mobility.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-white/60 uppercase tracking-wide mb-1.5">Mobilité avant</p>
+              <ul className="space-y-1">
+                {advice.mobility.map((m, i) => (
+                  <li key={i} className="text-xs text-white/70 flex items-start gap-1.5">
+                    <span className="text-white/40 mt-0.5">·</span>{m}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <div>
+            <p className="text-xs font-semibold text-white/60 uppercase tracking-wide mb-1.5">Séries d'activation</p>
+            <div className="space-y-2">
+              {advice.sets.map((s, i) => (
+                <div key={i} className="flex items-start gap-2">
+                  <span className="text-xs font-bold text-white/50 w-14 shrink-0">{s.label}</span>
+                  <span className="text-xs text-white/70">
+                    {workingWeight ? s.desc.replace(/(\d+)%/, (_, pct) => `${Math.round(workingWeight * pct / 100)} kg`) : s.desc}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <p className="text-xs text-white/40 italic">Ces séries ne comptent pas dans ton volume — elles préparent tes articulations et ton système nerveux.</p>
+        </div>
+      )}
+    </Card>
+  );
+}
+
 // ─── Single Exercise Focus View ───────────────────────────────────────────────
 function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, regressingEx, onExtendRest, currentRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones }) {
   const sets = Math.max(1, exercise.sets || 3);
@@ -227,6 +312,9 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
           )}
         </div>
       </Card>
+
+      {/* Échauffement — premier exercice uniquement */}
+      {exIdx === 0 && <WarmupAccordion exercise={exercise} logs={logs} exIdx={exIdx} sets={sets} />}
 
       {/* Progression/Regression suggestion banners */}
       {(() => {
