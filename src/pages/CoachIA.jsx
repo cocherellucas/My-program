@@ -261,7 +261,7 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
   ];
 
   return (
-    <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100dvh - 96px)', paddingBottom: keyboardHeight > 0 ? `${keyboardHeight}px` : 0 }}>
+    <div className="flex flex-col" style={{ height: 'calc(100svh - 96px)' }}>
       <div className="mb-2 flex items-center justify-end">
         {messages.length > 0 && (
           <button
