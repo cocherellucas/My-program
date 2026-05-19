@@ -395,14 +395,14 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
         }
 
         if (goodAboveSeries >= 2 && !objectifActed) return (
-          <div className="flex items-start gap-3 p-3 rounded-xl bg-accent/20 border border-accent/40">
-            <div className="relative flex-shrink-0 w-12 h-12 flex items-center justify-center">
-              <Bot className="w-9 h-9 text-accent" />
-              <TrendingUp className="w-4 h-4 text-accent absolute bottom-0 right-0" />
+          <div className="fixed bottom-20 left-4 right-4 z-40 flex items-center gap-3 p-3 rounded-xl bg-violet-950/95 backdrop-blur-sm border border-accent/40 shadow-xl">
+            <div className="relative flex-shrink-0 w-10 h-10 flex items-center justify-center">
+              <Bot className="w-7 h-7 text-accent" />
+              <TrendingUp className="w-3.5 h-3.5 text-accent absolute bottom-0 right-0" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-white">Objectifs dépassés</p>
-              <p className="text-xs text-white/70 mt-0.5">Réduis le repos ou augmente le poids.</p>
+              <p className="text-xs text-white/60">Réduis le repos ou augmente le poids.</p>
             </div>
             <div className="flex-shrink-0 flex items-center gap-1.5">
               <Popover>
