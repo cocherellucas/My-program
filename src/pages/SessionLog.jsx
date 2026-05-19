@@ -418,7 +418,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
               {!isBodyweightExercise(exercise.name) && (
                 <button
                   onClick={() => {
-                    for (let s = activeSetIdx; s < sets; s++) {
+                    for (let s = activeSetIdx + 1; s < sets; s++) {
                       const key = `${exIdx}-${s}`;
                       const current = logs[key]?.weight || 0;
                       if (current > 0) updateLog(exIdx, s, 'weight', current + 2.5);
