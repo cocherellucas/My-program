@@ -891,23 +891,14 @@ export default function SessionLog() {
 };
 
   const forcePropagateWeight = (exIdx, setIdx, value, totalSets) => {
-  if (!value || !totalSets) return;
-
-  setLogs((prev) => {
-    const updated = { ...prev };
-
+    if (!value || !totalSets) return;
+    const newLogs = { ...logs };
     for (let s = setIdx + 1; s < totalSets; s++) {
       const key = `${exIdx}-${s}`;
-
-      updated[key] = {
-        ...updated[key],
-        weight: Number(value), // 👈 IMPORTANT
-      };
+      newLogs[key] = { ...(newLogs[key] || {}), weight: Number(value) };
     }
-
-    return { ...updated }; // 👈 force re-render
-  });
-};
+    setLogs(newLogs);
+  };
 
   const handleRegressionRequest = async (exIdx) => {
     setRegressingEx(exIdx);
