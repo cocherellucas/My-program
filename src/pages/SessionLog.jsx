@@ -464,16 +464,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
               log={logs[`${exIdx}-${setIdx}`] || {}}
               onUpdate={(field, value) => updateLog(exIdx, setIdx, field, value)}
               onWeightBlur={(value) => propagateWeight(exIdx, setIdx, value, sets)}
-              onWeightPropagate={(value) => {
-                setLogs(prev => {
-                  const next = { ...prev };
-                  for (let s = setIdx + 1; s < sets; s++) {
-                    const k = `${exIdx}-${s}`;
-                    next[k] = { ...(prev[k] || {}), weight: Number(value) };
-                  }
-                  return next;
-                });
-              }}
+              onWeightPropagate={(value) => forcePropagateWeight(exIdx, setIdx, value, sets)}
               nextWeights={Array.from({ length: sets - setIdx - 1 }, (_, i) => logs[`${exIdx}-${setIdx + 1 + i}`]?.weight)}
               rirContext={rirContext ? { ...rirContext, block: exercise.block } : null}
               exerciseFragileZones={getExerciseFragileZones(exercise, fragileZones)}
