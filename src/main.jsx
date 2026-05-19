@@ -8,6 +8,11 @@ document.addEventListener('touchmove', (e) => { if (e.touches.length > 1) e.prev
 document.addEventListener('gesturestart', (e) => e.preventDefault(), { passive: false });
 document.addEventListener('gesturechange', (e) => e.preventDefault(), { passive: false });
 
+// Forcer le mode portrait
+if (screen?.orientation?.lock) {
+  screen.orientation.lock('portrait').catch(() => {});
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <App />
 )
