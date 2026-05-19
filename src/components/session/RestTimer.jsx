@@ -122,10 +122,8 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange }
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -80 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-violet-950 to-violet-900 shadow-xl">
-
-        {/* Remplissage barre de statut */}
-        <div style={{ height: 'env(safe-area-inset-top, 0px)' }} className="min-h-[44px]" />
+        style={{ top: '-2px', paddingTop: 'calc(2px + max(44px, env(safe-area-inset-top)))' }}
+        className="fixed left-0 right-0 z-50 bg-gradient-to-r from-violet-950 to-violet-900 shadow-xl">
 
         <div className="px-5 pb-4 flex items-center justify-between gap-4">
 
