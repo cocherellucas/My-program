@@ -212,9 +212,12 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
           </div>
           {(exercise.notes || (logs[`${exIdx}-0`]?.quality || 'good') !== 'bad') && (
             <p className="text-xs text-white/60 mt-2 italic w-full break-words">
-              {exercise.notes}
-              {exercise.notes && (logs[`${exIdx}-0`]?.quality || 'good') !== 'bad' && ' · '}
-              {(logs[`${exIdx}-0`]?.quality || 'good') !== 'bad' && 'RIR 0 sur la dernière série si ce n\'est pas dangereux'}
+              {exercise.notes && <>{exercise.notes} · </>}
+              {(logs[`${exIdx}-0`]?.quality || 'good') !== 'bad' && <>RIR 0 sur la dernière série si ce n'est pas dangereux</>}
+              {rirContext && <> · {Array.from({ length: sets }).map((_, i) => {
+                const rir = computeTargetRIR({ phase: rirContext.phase || 'MAV', sessionType: rirContext.sessionType || 'hypertrophy', block: exercise.block, setIndex: i, totalSets: sets, weekNumber: rirContext.weekNumber || 1, plannedWeeks: rirContext.plannedWeeks || 8 });
+                return `S${i + 1} : ${ririLabel(rir).short}`;
+              }).join(' · ')}</>}
             </p>
           )}
         </div>
