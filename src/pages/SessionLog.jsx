@@ -342,26 +342,24 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                 : 'border-transparent opacity-80'
             }`}>
               {isActive && (
-                <div className="flex items-center justify-end gap-3 px-3 pt-2">
-                  <div className="flex items-center gap-3">
-                    {setIdx > 0 && (
-                      <button
-                        onClick={() => setActiveSetIdx(setIdx - 1)}
-                        className="text-xs text-white/40 hover:text-white/70 transition-colors">
-                        ← Précédent
-                      </button>
-                    )}
-                    {setIdx < sets - 1 && (
-                      <button
-                        onClick={() => {
-                          updateLog(exIdx, setIdx, 'skipped', true);
-                          setActiveSetIdx(setIdx + 1);
-                        }}
-                        className="text-xs text-white/40 hover:text-white/70 transition-colors">
-                        Passer →
-                      </button>
-                    )}
-                  </div>
+                <div className="flex items-center justify-between px-3 pt-2">
+                  {setIdx > 0 ? (
+                    <button
+                      onClick={() => setActiveSetIdx(setIdx - 1)}
+                      className="text-xs text-white/40 hover:text-white/70 transition-colors">
+                      ← Précédent
+                    </button>
+                  ) : <span />}
+                  {setIdx < sets - 1 && (
+                    <button
+                      onClick={() => {
+                        updateLog(exIdx, setIdx, 'skipped', true);
+                        setActiveSetIdx(setIdx + 1);
+                      }}
+                      className="text-xs text-white/40 hover:text-white/70 transition-colors">
+                      Passer →
+                    </button>
+                  )}
                 </div>
               )}
               <SetRow
