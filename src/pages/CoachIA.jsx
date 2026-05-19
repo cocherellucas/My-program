@@ -258,10 +258,10 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
 
   return (
     <div className="flex flex-col overflow-hidden" style={{ height: `${viewportHeight - 80}px`, marginBottom: '-16px' }}>
-      <div className="mb-4 flex items-start justify-between">
+      <div className="mb-2 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-heading font-bold text-white">Coach IA</h1>
-          <p className="text-white/70 mt-1 text-sm">Demande-moi n'importe quoi sur ton entraînement</p>
+          <h1 className="text-xl font-heading font-bold text-white">Coach IA</h1>
+          <p className="text-white/70 text-xs">Demande-moi n'importe quoi sur ton entraînement</p>
         </div>
         {messages.length > 0 && (
           <button
