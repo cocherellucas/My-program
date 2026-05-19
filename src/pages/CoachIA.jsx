@@ -44,17 +44,30 @@ export default function CoachIA() {
     }
   }, [messages, user?.id]);
 
-  // Supprime pb-20 du layout main pour CoachIA
+  // Mesure la hauteur réelle disponible
   useEffect(() => {
     const main = document.querySelector('main');
-    if (main) { main.style.paddingBottom = '0px'; }
+    const nav = document.querySelector('.mobile-nav');
+    if (main) main.style.paddingBottom = '0px';
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
+
+    const measure = () => {
+      if (nav && containerRef.current) {
+        const navTop = nav.getBoundingClientRect().top;
+        const containerTop = containerRef.current.getBoundingClientRect().top;
+        setContainerHeight(navTop - containerTop);
+      }
+    };
+    setTimeout(measure, 100);
+    window.addEventListener('resize', measure);
+
     return () => {
       if (main) main.style.paddingBottom = '';
       document.body.style.overflow = prev;
       document.documentElement.style.overflow = '';
+      window.removeEventListener('resize', measure);
     };
   }, []);
 
@@ -74,6 +87,8 @@ export default function CoachIA() {
   }, []);
 
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(0);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     const vv = window.visualViewport;
@@ -264,7 +279,7 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
   ];
 
   return (
-    <div className="flex flex-col" style={{ height: 'calc(100dvh - 96px)', marginBottom: '-16px' }}>
+    <div ref={containerRef} className="flex flex-col" style={{ height: containerHeight > 0 ? `${containerHeight}px` : 'calc(100dvh - 96px)' }}>
       <div className="mb-2 flex items-center justify-end">
         {messages.length > 0 && (
           <button
