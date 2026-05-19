@@ -61,7 +61,6 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
   const [editReps, setEditReps] = useState(originalExercise?.target_reps || '');
   const [editRest, setEditRest] = useState(originalExercise?.rest_seconds || 90);
   const [activeSetIdx, setActiveSetIdx] = useState(0);
-  const [showSkipConfirm, setShowSkipConfirm] = useState(false);
 
   const isSetDone = (idx) => {
     const key = `${exIdx}-${idx}`;
@@ -102,9 +101,18 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
       {/* Header progress */}
       <div className="flex items-center justify-between text-sm text-white/70">
         <span className="font-medium">Exercice {exIdx + 1} / {totalExercises}</span>
-        <div className="flex gap-1">
-          {Array.from({ length: totalExercises }).map((_, i) =>
-          <div key={i} className={`h-1.5 rounded-full transition-all ${i === exIdx ? 'w-6 bg-white' : i < exIdx ? 'w-3 bg-white/40' : 'w-3 bg-white/20'}`} />
+        <div className="flex items-center gap-3">
+          <div className="flex gap-1">
+            {Array.from({ length: totalExercises }).map((_, i) =>
+            <div key={i} className={`h-1.5 rounded-full transition-all ${i === exIdx ? 'w-6 bg-white' : i < exIdx ? 'w-3 bg-white/40' : 'w-3 bg-white/20'}`} />
+            )}
+          </div>
+          {!allSetsDone && (
+            <button
+              onClick={onNext}
+              className="text-xs text-white/40 hover:text-white/70 transition-colors underline underline-offset-2">
+              Passer
+            </button>
           )}
         </div>
       </div>
@@ -402,35 +410,20 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
       </Card>
 
       {/* Nav buttons */}
-      {showSkipConfirm ? (
-        <div className="space-y-2">
-          <p className="text-xs text-white/70 text-center">
-            {incompleteSets.length} série{incompleteSets.length > 1 ? 's' : ''} non complétée{incompleteSets.length > 1 ? 's' : ''}. Continuer quand même ?
-          </p>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setShowSkipConfirm(false)} className="flex-1 border-white/30 text-white hover:bg-white/10">
-              Revenir
-            </Button>
-            <Button onClick={() => { setShowSkipConfirm(false); onNext(); }} className="flex-1">
-              Passer
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div className="flex items-center justify-between gap-3">
-          {exIdx > 0 &&
-          <Button variant="outline" onClick={onPrev} className="flex-1 border-white/30 text-white hover:bg-white/10 hover:text-white">
-              <ChevronLeft className="w-4 h-4 mr-1" /> Précédent
-            </Button>
-          }
-          <Button
-            onClick={() => allSetsDone ? onNext() : setShowSkipConfirm(true)}
-            className={`flex-1 ${!allSetsDone ? 'opacity-70' : ''}`}
-          >
-            {isLast ? <><CheckCircle className="w-4 h-4 mr-1" /> Terminer</> : <>Suivant <ChevronRight className="w-4 h-4 ml-1" /></>}
+      <div className="flex items-center justify-between gap-3">
+        {exIdx > 0 &&
+        <Button variant="outline" onClick={onPrev} className="flex-1 border-white/30 text-white hover:bg-white/10 hover:text-white">
+            <ChevronLeft className="w-4 h-4 mr-1" /> Précédent
           </Button>
-        </div>
-      )}
+        }
+        <Button
+          onClick={onNext}
+          disabled={!allSetsDone}
+          className="flex-1 disabled:opacity-40"
+        >
+          {isLast ? <><CheckCircle className="w-4 h-4 mr-1" /> Terminer</> : <>Suivant <ChevronRight className="w-4 h-4 ml-1" /></>}
+        </Button>
+      </div>
     </motion.div>);
 
 }
