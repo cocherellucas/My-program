@@ -146,7 +146,7 @@ function WarmupAccordion({ exercise, logs, exIdx, sets: totalSets }) {
 }
 
 // ─── Single Exercise Focus View ───────────────────────────────────────────────
-function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, regressingEx, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones }) {
+function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, regressingEx, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture }) {
   const sets = Math.max(1, exercise.sets || 3);
   const [editSets, setEditSets] = useState(Math.max(1, originalExercise?.sets || 3));
   const [editReps, setEditReps] = useState(originalExercise?.target_reps || '');
@@ -408,7 +408,12 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
               <Popover>
                 <PopoverTrigger asChild>
                   <button
-                    onClick={() => { onExtendRest(exIdx, Math.max((currentRestSeconds ?? exercise.rest_seconds ?? 90) - 30, 30)); setObjectifActed(true); }}
+                    onClick={() => {
+                      const newRest = Math.max((currentRestSeconds ?? exercise.rest_seconds ?? 90) - 30, 30);
+                      onExtendRest(exIdx, newRest);
+                      onApplyToFuture?.(exercise.name, { rest_seconds: newRest });
+                      setObjectifActed(true);
+                    }}
                     className="text-xs px-3 py-1.5 rounded-lg bg-white/20 text-white font-medium hover:bg-white/30 transition-colors flex items-center gap-1">
                     
                     −30s repos <HelpCircle className="w-3 h-3 opacity-60" />
@@ -422,11 +427,13 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
               {!isBodyweightExercise(exercise.name) && (
                 <button
                   onClick={() => {
+                    let newWeight = 0;
                     for (let s = activeSetIdx + 1; s < sets; s++) {
                       const key = `${exIdx}-${s}`;
                       const current = logs[key]?.weight || 0;
-                      if (current > 0) updateLog(exIdx, s, 'weight', current + 2.5);
+                      if (current > 0) { updateLog(exIdx, s, 'weight', current + 2.5); newWeight = current + 2.5; }
                     }
+                    if (newWeight > 0) onApplyToFuture?.(exercise.name, { target_weight: newWeight });
                     setObjectifActed(true);
                   }}
                   className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors flex items-center gap-1">
@@ -1051,6 +1058,22 @@ Réponds uniquement avec le JSON demandé.`,
     setSessionExercises(updatedExercises);
   };
 
+  const handleApplyToFuture = async (exerciseName, updates) => {
+    try {
+      const allSessions = await base44.entities.Session.filter({ program_id: session.program_id });
+      const future = allSessions
+        .filter(s => s.status === 'planned' && s.planned_date > new Date().toISOString().split('T')[0])
+        .slice(0, 8);
+      await Promise.all(future.map(fs => {
+        if (!fs.exercises?.length) return Promise.resolve();
+        const updated = fs.exercises.map(ex =>
+          ex.name === exerciseName ? { ...ex, ...updates } : ex
+        );
+        return base44.entities.Session.update(fs.id, { exercises: updated });
+      }));
+    } catch (e) { console.error('applyToFuture error', e); }
+  };
+
   const handleNext = () => {
     if (currentExIdx < exercises.length - 1) {
       setCurrentExIdx((i) => i + 1);
@@ -1283,6 +1306,7 @@ Réponds uniquement avec le JSON demandé.`,
           onProgressionRequest={handleProgressionRequest}
           regressingEx={regressingEx}
           onExtendRest={handleExtendRest}
+          onApplyToFuture={handleApplyToFuture}
           currentRestSeconds={exercises[currentExIdx]?.rest_seconds}
           nextExRestSeconds={exercises[currentExIdx + 1]?.rest_seconds}
           onRestTimeSave={handleRestTimeSave}
