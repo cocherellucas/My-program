@@ -24,7 +24,7 @@ textarea:focus, textarea:focus-visible,
 button:focus, button:focus-visible {
   outline: none !important;
   box-shadow: none !important;
-  ring: 0 !important;
+  --tw-ring-shadow: 0 0 0 0 transparent !important;
 }
 *::-webkit-scrollbar {
   display: none;
