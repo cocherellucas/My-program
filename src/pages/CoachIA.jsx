@@ -380,7 +380,7 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
             <input
               type="file"
               accept="image/*,.pdf,.txt"
-              style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', fontSize: 0 }}
+              style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', touchAction: 'auto', WebkitAppearance: 'none' }}
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) setAttachedFile(file);

@@ -10,6 +10,10 @@
   touch-action: manipulation;
 }
 
+input[type="file"] {
+  touch-action: auto !important;
+}
+
 @keyframes shimmer {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(200%); }
