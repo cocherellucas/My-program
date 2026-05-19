@@ -359,8 +359,9 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
               <div className="space-y-2">
                 <button
                 onClick={() => handleSetDone(setIdx)}
-                className="w-full text-xs text-white/50 hover:text-white flex items-center justify-center gap-1 py-1 rounded-lg hover:bg-white/10 transition-colors">
-                
+                disabled={!isActive}
+                className="w-full text-xs flex items-center justify-center gap-1 py-1 rounded-lg transition-colors disabled:opacity-0 disabled:pointer-events-none text-white/50 hover:text-white hover:bg-white/10">
+
                   <Timer className="w-3 h-3" /> Lancer le repos
                 </button>
                 {setIdx === 0 &&
