@@ -1050,6 +1050,8 @@ Réponds uniquement avec le JSON demandé.`,
     if (updates.rest_seconds) {
       setRestTimeForEx((prev) => ({ ...prev, [exIdx]: updates.rest_seconds }));
     }
+    const exerciseName = exercises[exIdx]?.name;
+    if (exerciseName) handleApplyToFuture(exerciseName, updates);
   };
 
   const handleRestTimeSave = (exIdx, newRestSecs) => {
