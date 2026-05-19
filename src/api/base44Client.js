@@ -135,20 +135,12 @@ const auth = {
 const integrations = {
   Core: {
     async InvokeLLM({ prompt, response_json_schema, model, add_context_from_images }) {
-      if (add_context_from_images?.length) {
-        const imageDataUrl = add_context_from_images[0];
-        const [meta, data] = imageDataUrl.split(',');
-        const mediaType = meta.match(/:(.*?);/)?.[1] || 'image/jpeg';
-        const visionParams = Object.assign({}, { model }, {
-          messages: [{ role: 'user', content: [
-            { type: 'image', source: { type: 'base64', media_type: mediaType, data } },
-            { type: 'text', text: prompt }
-          ]}]
-        });
-        // @ts-ignore
-        return base44SDK.integrations.Core.InvokeLLM(visionParams);
-      }
-      return base44SDK.integrations.Core.InvokeLLM({ prompt, response_json_schema, model });
+      // @ts-ignore
+      return base44SDK.integrations.Core.InvokeLLM(
+        add_context_from_images?.length
+          ? Object.assign({ prompt, model }, { add_context_from_images })
+          : { prompt, response_json_schema, model }
+      );
     },
   },
 };

@@ -157,7 +157,15 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
       model: 'claude_sonnet_4_6',
     };
     if (imageBase64) llmParams.add_context_from_images = [imageBase64];
-    const result = await base44.integrations.Core.InvokeLLM(llmParams);
+
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 30000));
+    const result = await Promise.race([
+      base44.integrations.Core.InvokeLLM(llmParams),
+      timeout
+    ]).catch(() => {
+      if (imageBase64) return "Je n'arrive pas à analyser l'image directement. Peux-tu me décrire ou copier-coller le contenu de ton programme en texte ? Je pourrai alors l'importer correctement.";
+      return "Une erreur est survenue. Réessaie.";
+    });
 
     setMessages(prev => [...prev, { role: 'assistant', content: result }]);
     setLoading(false);
