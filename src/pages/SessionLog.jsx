@@ -150,7 +150,11 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
   const sets = Math.max(1, exercise.sets || 3);
   const [editSets, setEditSets] = useState(Math.max(1, originalExercise?.sets || 3));
   const [editReps, setEditReps] = useState(originalExercise?.target_reps || '');
-  const [editRest, setEditRest] = useState(originalExercise?.rest_seconds || 90);
+  const [editRest, setEditRest] = useState(currentRestSeconds ?? originalExercise?.rest_seconds ?? 90);
+
+  useEffect(() => {
+    setEditRest(currentRestSeconds ?? originalExercise?.rest_seconds ?? 90);
+  }, [currentRestSeconds]);
   const [activeSetIdx, setActiveSetIdx] = useState(0);
   const [completedSets, setCompletedSets] = useState(new Set());
 
@@ -1008,7 +1012,6 @@ Réponds uniquement avec le JSON demandé.`,
     i === exIdx ? { ...ex, rest_seconds: newRestSecs } : ex
     );
     setSessionExercises(updatedExercises);
-    setRestSeconds(newRestSecs);
     setRestTimeForEx((prev) => ({ ...prev, [exIdx]: newRestSecs }));
   };
 
