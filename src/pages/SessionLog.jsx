@@ -81,7 +81,7 @@ function getWarmupAdvice(exercise) {
 
   const mobility = [];
   if (isLower) mobility.push('mobilité des hanches et chevilles', 'activation des fessiers (pont fessier ou abduction)');
-  if (isUpperPush) mobility.push('rotation des épaules × 20', 'coiffe des rotateurs — 2 séries × 15-20 reps (poulie ou élastique)');
+  if (isUpperPush) mobility.push('rotation des épaules × 20', 'coiffe des rotateurs — 2 séries × 15-20 reps');
   if (isUpperPull) mobility.push('rotations des épaules × 10 dans chaque sens', 'échauffement léger des biceps (curl à vide ou élastique)');
   if (!isLower && !isUpperPush && !isUpperPull) mobility.push('cardio léger 2-3 min (vélo, marche rapide)', 'montée en charge progressive si exercice chargé');
 
