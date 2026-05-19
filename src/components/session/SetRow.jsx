@@ -49,9 +49,9 @@ const shouldShowPropagate =
            value={log.weight || ''}
            onChange={(e) => {
   const v = parseFloat(e.target.value);
-
   if (!isNaN(v) && v >= 0) {
     onUpdate('weight', v);
+    onWeightBlur?.(v);
     setPropagated(false);
     setManuallyEdited(true);
   } else if (e.target.value === '') {
