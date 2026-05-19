@@ -539,7 +539,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
     {showObjectifBanner && (
       <div className="fixed bottom-20 left-4 right-4 z-40 flex items-center gap-3 p-4 rounded-2xl shadow-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #1e0050 0%, #3b0764 50%, #1e0050 100%)', border: '1px solid rgba(139,92,246,0.5)', boxShadow: '0 0 30px rgba(139,92,246,0.3), 0 8px 32px rgba(0,0,0,0.4)' }}>
         {/* Shimmer */}
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.04) 50%, transparent 60%)', animation: 'shimmer 3s infinite' }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%)', animation: 'shimmer 2s infinite' }} />
         <div className="relative flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-violet-500/20">
           <Bot className="w-6 h-6 text-violet-300" />
           <TrendingUp className="w-3 h-3 text-green-400 absolute bottom-0.5 right-0.5" />
