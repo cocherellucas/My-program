@@ -881,7 +881,9 @@ export default function SessionLog() {
 
     for (let s = setIdx + 1; s < totalSets; s++) {
       const key = `${exIdx}-${s}`;
-      updated[key] = { ...updated[key], weight: Number(value) };
+      if (!updated[key]?.weight) {
+        updated[key] = { ...updated[key], weight: Number(value) };
+      }
     }
 
     return updated;
