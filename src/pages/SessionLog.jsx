@@ -394,7 +394,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
             <TrendingDown className="w-4 h-4 text-accent mt-0.5 flex-shrink-0 rotate-180" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-white">Objectifs dépassés 💪</p>
-              <p className="text-xs text-white/70 mt-0.5">Réduis le repos pour augmenter la difficulté ou progresse vers une variante plus difficile.</p>
+              <p className="text-xs text-white/70 mt-0.5">Réduis le repos ou ajoute du poids à la prochaine séance.</p>
             </div>
             <div className="flex-shrink-0 flex items-center gap-1.5">
               <Popover>
