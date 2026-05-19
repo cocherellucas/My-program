@@ -74,19 +74,14 @@ export default function CoachIA() {
   };
   const handleInputBlur = () => document.body.classList.remove('keyboard-open');
 
-  const [attachedImageBase64, setAttachedImageBase64] = useState(null);
-
-  // Lit le contenu d'un fichier (texte ou image base64)
+  // Lit le contenu d'un fichier — retourne { text, imageBase64 }
   const readFileContent = (file) => new Promise((resolve) => {
     const reader = new FileReader();
     if (file.type.startsWith('image/')) {
-      reader.onload = (e) => {
-        setAttachedImageBase64(e.target.result); // stocker la base64 complète
-        resolve(`[Image jointe : ${file.name}]`);
-      };
+      reader.onload = (e) => resolve({ text: `[Image jointe : ${file.name}]`, imageBase64: e.target.result });
       reader.readAsDataURL(file);
     } else {
-      reader.onload = (e) => resolve(`[Fichier : ${file.name}]\n${e.target.result}`);
+      reader.onload = (e) => resolve({ text: `[Fichier : ${file.name}]\n${e.target.result}`, imageBase64: null });
       reader.readAsText(file);
     }
   });
@@ -96,9 +91,11 @@ export default function CoachIA() {
     let userMsg = input.trim();
 
     // Lire le contenu du fichier si joint
+    let imageBase64 = null;
     if (attachedFile) {
-      const fileContent = await readFileContent(attachedFile);
-      userMsg = userMsg ? `${userMsg}\n\n${fileContent}` : fileContent;
+      const { text, imageBase64: b64 } = await readFileContent(attachedFile);
+      userMsg = userMsg ? `${userMsg}\n\n${text}` : text;
+      imageBase64 = b64;
       setAttachedFile(null);
     }
 
@@ -140,10 +137,7 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
       prompt: `${systemContext}${importInstruction}\n\n${history}\n\nUtilisateur: ${userMsg}`,
       model: 'claude_sonnet_4_6',
     };
-    if (attachedImageBase64) {
-      llmParams.add_context_from_images = [attachedImageBase64];
-      setAttachedImageBase64(null);
-    }
+    if (imageBase64) llmParams.add_context_from_images = [imageBase64];
     const result = await base44.integrations.Core.InvokeLLM(llmParams);
 
     setMessages(prev => [...prev, { role: 'assistant', content: result }]);
@@ -378,9 +372,9 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
 
         {/* Toolbar bas */}
         <div className="flex items-center justify-between px-3 pb-2 pt-1">
-          <label className="cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors">
+          <label className="cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors" style={{ touchAction: 'auto' }}>
             <Paperclip className="w-5 h-5" />
-            <input type="file" accept=".pdf,.txt,image/*" className="hidden" onChange={(e) => setAttachedFile(e.target.files?.[0] || null)} />
+            <input type="file" accept="image/*,.pdf,.txt" className="hidden" onChange={(e) => setAttachedFile(e.target.files?.[0] || null)} />
           </label>
           <button
             onClick={sendMessage}
