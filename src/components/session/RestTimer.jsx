@@ -122,8 +122,12 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange }
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -80 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        style={{ paddingTop: 'max(14px, env(safe-area-inset-top))' }}
-        className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-violet-950 to-violet-900 shadow-xl px-5 pb-4 flex items-center justify-between gap-4">
+        className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-violet-950 to-violet-900 shadow-xl">
+
+        {/* Remplissage barre de statut */}
+        <div style={{ height: 'env(safe-area-inset-top, 0px)' }} className="min-h-[44px]" />
+
+        <div className="px-5 pb-4 flex items-center justify-between gap-4">
 
         {/* Label + timer */}
         <div className="flex items-center gap-3">
@@ -160,10 +164,12 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange }
           </button>
         </div>
 
+        </div>
+
         {/* Barre de progression / scrub */}
         <div
           ref={barRef}
-          className="absolute bottom-0 left-0 right-0 h-2 bg-white/10 cursor-pointer select-none"
+          className="h-2 bg-white/10 cursor-pointer select-none"
           onMouseDown={handleBarMouseDown}
           onTouchStart={handleBarTouchStart}>
           <div className="h-full transition-none relative" style={{ width: `${progress * 100}%`, backgroundColor: urgentColor }}>
