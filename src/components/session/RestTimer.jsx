@@ -81,7 +81,8 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange }
         initial={{ opacity: 0, y: -60 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -60 }}
-        className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border shadow-lg px-6 py-3 flex items-center justify-between">
+        style={{ paddingTop: 'max(12px, env(safe-area-inset-top))' }}
+        className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border shadow-lg px-6 pb-3 flex items-center justify-between">
 
         <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
           <Timer className="w-4 h-4" /> Repos
@@ -109,11 +110,11 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange }
         </div>
 
         <div className="flex items-center gap-1">
-          <Button size="icon" variant="ghost" className="h-9 w-9 text-violet-500 hover:text-violet-400 hover:bg-violet-400/10" onClick={() => setRunning((r) => !r)}>
-            {running ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+          <Button size="icon" variant="ghost" className="h-11 w-11 text-violet-500 hover:text-violet-400 hover:bg-violet-400/10" onClick={() => setRunning((r) => !r)}>
+            {running ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
           </Button>
-          <Button size="icon" variant="ghost" className="h-9 w-9 text-violet-500 hover:text-violet-400 hover:bg-violet-400/10" onClick={() => onComplete?.()}>
-            <X className="w-5 h-5" />
+          <Button size="icon" variant="ghost" className="h-11 w-11 text-violet-500 hover:text-violet-400 hover:bg-violet-400/10" onClick={() => onComplete?.()}>
+            <X className="w-6 h-6" />
           </Button>
         </div>
       </motion.div>
