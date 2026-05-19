@@ -70,10 +70,24 @@ export default function CoachIA() {
     return () => document.removeEventListener('touchmove', block);
   }, []);
 
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => {
+      const kh = window.innerHeight - vv.height - vv.offsetTop;
+      setKeyboardHeight(Math.max(0, kh));
+    };
+    vv.addEventListener('resize', update);
+    vv.addEventListener('scroll', update);
+    return () => { vv.removeEventListener('resize', update); vv.removeEventListener('scroll', update); };
+  }, []);
+
   const handleInputFocus = () => {
     setTimeout(() => {
       inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 100);
+    }, 300);
   };
   const handleInputBlur = () => {};
 
@@ -247,7 +261,7 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
   ];
 
   return (
-    <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100dvh - 96px)' }}>
+    <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100dvh - 96px)', paddingBottom: keyboardHeight > 0 ? `${keyboardHeight}px` : 0 }}>
       <div className="mb-2 flex items-center justify-end">
         {messages.length > 0 && (
           <button
