@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Loader2, LayoutList, ChevronRight, ChevronLeft, Timer, Eye, HelpCircle, TrendingDown, Bot, MessageSquare } from 'lucide-react';
+import { CheckCircle, Loader2, LayoutList, ChevronRight, ChevronLeft, Timer, Eye, HelpCircle, TrendingDown, TrendingUp, Bot, MessageSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -396,7 +396,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 
         if (goodAboveSeries >= 2 && !objectifActed) return (
           <div className="flex items-start gap-3 p-3 rounded-xl bg-accent/20 border border-accent/40">
-            <TrendingDown className="w-4 h-4 text-accent mt-0.5 flex-shrink-0 rotate-180" />
+            <TrendingUp className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-white">Objectifs dépassés 💪</p>
               <p className="text-xs text-white/70 mt-0.5">Réduis le repos ou augmente le poids.</p>
