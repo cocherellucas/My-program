@@ -101,18 +101,9 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
       {/* Header progress */}
       <div className="flex items-center justify-between text-sm text-white/70">
         <span className="font-medium">Exercice {exIdx + 1} / {totalExercises}</span>
-        <div className="flex items-center gap-3">
-          <div className="flex gap-1">
-            {Array.from({ length: totalExercises }).map((_, i) =>
-            <div key={i} className={`h-1.5 rounded-full transition-all ${i === exIdx ? 'w-6 bg-white' : i < exIdx ? 'w-3 bg-white/40' : 'w-3 bg-white/20'}`} />
-            )}
-          </div>
-          {!allSetsDone && (
-            <button
-              onClick={onNext}
-              className="text-xs text-white/40 hover:text-white/70 transition-colors underline underline-offset-2">
-              Passer
-            </button>
+        <div className="flex gap-1">
+          {Array.from({ length: totalExercises }).map((_, i) =>
+          <div key={i} className={`h-1.5 rounded-full transition-all ${i === exIdx ? 'w-6 bg-white' : i < exIdx ? 'w-3 bg-white/40' : 'w-3 bg-white/20'}`} />
           )}
         </div>
       </div>
@@ -343,13 +334,23 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
             const isDone = isSetDone(setIdx);
             return (
           <div key={setIdx}
-            className={`space-y-1 rounded-xl transition-all border-2 ${
+            className={`relative space-y-1 rounded-xl transition-all border-2 ${
               isActive
                 ? 'border-white bg-white/15 shadow-lg shadow-white/10'
                 : isDone
                 ? 'border-transparent opacity-50'
                 : 'border-transparent opacity-80'
             }`}>
+              {isActive && (
+                <button
+                  onClick={() => {
+                    updateLog(exIdx, setIdx, 'skipped', true);
+                    if (setIdx < sets - 1) setActiveSetIdx(setIdx + 1);
+                  }}
+                  className="absolute top-2 right-2 text-xs text-white/40 hover:text-white/70 transition-colors z-10">
+                  Passer
+                </button>
+              )}
               <SetRow
               setIdx={setIdx}
               totalSets={sets}
