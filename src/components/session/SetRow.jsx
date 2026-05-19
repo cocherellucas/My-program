@@ -100,9 +100,9 @@ onBlur={(e) => {
         <div>
           <Input
            type="number"
-           disabled={locked}
            placeholder={previousReps ? `${previousReps}` : 'reps'}
            value={log.reps || ''}
+           readOnly={locked}
            onChange={(e) => {
   const v = parseInt(e.target.value);
 
@@ -123,8 +123,8 @@ onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
 
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <Select value={log.mode || previousMode || defaultMode} onValueChange={(v) => onUpdate('mode', v)} disabled={locked}>
-            <SelectTrigger className="w-full h-10 text-xs bg-white/10 border-white/20 text-white">
+          <Select value={log.mode || previousMode || defaultMode} onValueChange={(v) => !locked && onUpdate('mode', v)}>
+            <SelectTrigger className={`w-full h-10 text-xs bg-white/10 border-white/20 text-white${locked ? ' pointer-events-none' : ''}`}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -156,8 +156,8 @@ onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
           </div>
         </div>
         <div>
-          <Select value={log.quality || 'good'} onValueChange={(v) => onUpdate('quality', v)} disabled={locked}>
-            <SelectTrigger className="w-full h-10 text-xs bg-white/10 border-white/20 text-white">
+          <Select value={log.quality || 'good'} onValueChange={(v) => !locked && onUpdate('quality', v)}>
+            <SelectTrigger className={`w-full h-10 text-xs bg-white/10 border-white/20 text-white${locked ? ' pointer-events-none' : ''}`}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
