@@ -362,21 +362,7 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
       <p className="text-xs text-white/50 px-1 pt-2 flex-shrink-0"><span className="font-bold text-white">Coach IA</span> · Demande-moi n'importe quoi</p>
 
       {/* Input */}
-      <div ref={inputAreaRef} className="flex-shrink-0 bg-white/10 rounded-2xl border border-white/20 mx-0 mt-1">
-        {/* Fichier joint */}
-        {attachedFile && (
-          <div className="flex items-center gap-2 px-4 pt-3">
-            {attachedFile.type.startsWith('image/') ? (
-              <img src={URL.createObjectURL(attachedFile)} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
-            ) : (
-              <FileText className="w-4 h-4 text-white/70 flex-shrink-0" />
-            )}
-            <span className="text-xs text-white/70 flex-1 truncate">{attachedFile.name}</span>
-            <button onClick={() => setAttachedFile(null)} className="text-white/40 hover:text-white/70 text-xs">✕</button>
-          </div>
-        )}
-
-        {/* Textarea */}
+      <div ref={inputAreaRef} className="flex-shrink-0 bg-white/10 rounded-2xl border border-white/20 mx-0 mt-1 flex items-center gap-2 px-3 py-2">
         <Textarea
           ref={inputRef}
           value={input}
@@ -387,22 +373,18 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
           autoCorrect="off"
           autoComplete="off"
           spellCheck="false"
-          className="w-full min-h-[48px] max-h-[120px] resize-none bg-transparent border-0 border-none text-white placeholder:text-white/40 focus:ring-0 shadow-none px-4 pt-3 pb-1"
+          className="flex-1 min-h-[36px] max-h-[120px] resize-none bg-transparent border-0 border-none text-white placeholder:text-white/40 focus:ring-0 shadow-none p-0 leading-tight"
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
           }}
         />
-
-        {/* Toolbar bas */}
-        <div className="flex items-center justify-end px-3 pb-2 pt-1">
-          <button
-            onClick={sendMessage}
-            disabled={loading || !input.trim()}
-            className="w-8 h-8 flex items-center justify-center rounded-lg bg-white text-violet-700 hover:bg-white/90 disabled:opacity-30 transition-all"
-          >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-          </button>
-        </div>
+        <button
+          onClick={sendMessage}
+          disabled={loading || !input.trim()}
+          className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg bg-white text-violet-700 hover:bg-white/90 disabled:opacity-30 transition-all"
+        >
+          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+        </button>
       </div>
     </div>
   );
