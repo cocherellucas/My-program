@@ -38,6 +38,7 @@ function SessionInfo({ session }) {
 export default function NextSessionCard({ todaySession, nextSession, hasSessions }) {
   // Cas 1 : séance aujourd'hui
   if (todaySession) {
+    const isInProgress = (() => { try { return localStorage.getItem('active_session_id') === String(todaySession.id); } catch { return false; } })();
     return (
       <Card className="p-6 bg-white/15 backdrop-blur-sm border-2 border-white/40 overflow-hidden relative shadow-lg shadow-white/10">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-8 translate-x-8" />
@@ -50,7 +51,7 @@ export default function NextSessionCard({ todaySession, nextSession, hasSessions
           <Link to={`/session?id=${todaySession.id}`}>
             <Button className="w-full bg-white text-violet-700 hover:bg-white/90 font-semibold">
               <Play className="w-4 h-4 mr-2" />
-              Commencer la séance
+              {isInProgress ? 'Reprendre la séance' : 'Commencer la séance'}
             </Button>
           </Link>
         </div>
