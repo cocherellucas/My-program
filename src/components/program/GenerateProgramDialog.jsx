@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, HelpCircle } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 const STRUCTURES = [
   { value: 'auto', label: 'Auto (IA choisit)', description: 'Structure optimale selon ton profil', full: true },
@@ -54,7 +55,17 @@ export default function GenerateProgramDialog({ open, onClose, onGenerate }) {
 
           {/* Structure */}
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">Style</p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">Style</p>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button><HelpCircle className="w-3.5 h-3.5 text-white/30 hover:text-white/60 transition-colors" /></button>
+                </PopoverTrigger>
+                <PopoverContent className="w-56 text-xs bg-violet-900/95 border-white/20 text-white">
+                  La structure définit comment les groupes musculaires sont répartis dans la semaine. Full Body = tout à chaque séance. PPL = Push/Pull/Legs séparés. Auto = l'IA choisit selon tes jours disponibles.
+                </PopoverContent>
+              </Popover>
+            </div>
             <div className="grid grid-cols-2 gap-2">
               {STRUCTURES.map(s => (
                 <button
@@ -75,7 +86,17 @@ export default function GenerateProgramDialog({ open, onClose, onGenerate }) {
 
           {/* Durée */}
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">Durée</p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">Durée</p>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button><HelpCircle className="w-3.5 h-3.5 text-white/30 hover:text-white/60 transition-colors" /></button>
+                </PopoverTrigger>
+                <PopoverContent className="w-56 text-xs bg-violet-900/95 border-white/20 text-white">
+                  Durée totale du programme avant de le régénérer. 4 semaines = bon pour débuter ou tester. 8-12 semaines = cycle complet avec progression structurée. Auto = l'IA calcule selon ton niveau et la phase.
+                </PopoverContent>
+              </Popover>
+            </div>
             <div className="flex gap-2">
               {DURATIONS.map(d => (
                 <button
@@ -95,7 +116,20 @@ export default function GenerateProgramDialog({ open, onClose, onGenerate }) {
 
           {/* Phase */}
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">Phase de départ</p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">Phase de départ</p>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button><HelpCircle className="w-3.5 h-3.5 text-white/30 hover:text-white/60 transition-colors" /></button>
+                </PopoverTrigger>
+                <PopoverContent className="w-56 text-xs bg-violet-900/95 border-white/20 text-white space-y-1">
+                  <p><span className="font-bold text-violet-300">MEV</span> — Volume minimal efficace. Idéal pour débuter ou reprendre.</p>
+                  <p><span className="font-bold text-violet-300">MAV</span> — Volume d'adaptation maximal. Progression active et soutenue.</p>
+                  <p><span className="font-bold text-violet-300">MRV</span> — Volume maximal récupérable. Réservé aux avancés.</p>
+                  <p><span className="font-bold text-violet-300">Auto</span> — L'IA choisit selon ton niveau et tes objectifs.</p>
+                </PopoverContent>
+              </Popover>
+            </div>
             <div className="grid grid-cols-4 gap-2">
               {PHASES.map(p => (
                 <button
