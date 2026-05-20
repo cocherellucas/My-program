@@ -889,7 +889,7 @@ export default function SessionLog() {
     if (!sessionId) return;
     const key = `session_scroll_${sessionId}`;
     const saved = parseInt(localStorage.getItem(key) || '0');
-    if (saved > 0) setTimeout(() => window.scrollTo({ top: saved, behavior: 'instant' }), 80);
+    if (saved > 0) setTimeout(() => window.scrollTo({ top: saved, behavior: 'instant' }), 200);
     const onScroll = () => { try { localStorage.setItem(key, String(window.scrollY)); } catch {} };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
