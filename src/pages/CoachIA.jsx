@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Loader2, Bot, User, Sparkles, Paperclip, FileText } from 'lucide-react';
+import { Send, Loader2, Bot, User, Sparkles, Paperclip, FileText, Copy, Pencil, RotateCcw } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
 import { buildSystemPrompt } from '@/lib/coach-prompts';
@@ -347,24 +347,24 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
               })()}
             </div>
             {shownTs === i && (
-              <div className="flex items-center gap-2 mt-1 px-1">
-                {msg.ts && <span className="text-xs text-white/40">{fmtTime(msg.ts)}</span>}
+              <div className="flex items-center gap-1 mt-1 px-1">
+                {msg.ts && <span className="text-xs text-white/40 mr-1">{fmtTime(msg.ts)}</span>}
                 <button
                   onClick={() => { navigator.clipboard?.writeText(msg.content); setShownTs(null); }}
-                  className="text-xs text-white/50 hover:text-white transition-colors">
-                  Copier
+                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/10 text-white/50 hover:text-white hover:bg-white/20 transition-colors">
+                  <Copy className="w-3.5 h-3.5" />
                 </button>
                 {msg.role === 'user' && (
                   <>
                     <button
                       onClick={() => { setInput(msg.content); setShownTs(null); }}
-                      className="text-xs text-white/50 hover:text-white transition-colors">
-                      Modifier
+                      className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/10 text-white/50 hover:text-white hover:bg-white/20 transition-colors">
+                      <Pencil className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => { setInput(msg.content); sendMessage(); setShownTs(null); }}
-                      className="text-xs text-white/50 hover:text-white transition-colors">
-                      Réessayer
+                      className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/10 text-white/50 hover:text-white hover:bg-white/20 transition-colors">
+                      <RotateCcw className="w-3.5 h-3.5" />
                     </button>
                   </>
                 )}
