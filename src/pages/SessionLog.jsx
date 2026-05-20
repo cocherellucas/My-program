@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Loader2, LayoutList, ChevronRight, ChevronLeft, Timer, Eye, HelpCircle, TrendingDown, TrendingUp, Bot, MessageSquare } from 'lucide-react';
+import { CheckCircle, Loader2, LayoutList, ChevronRight, ChevronLeft, Timer, Eye, HelpCircle, TrendingDown, TrendingUp, Bot, MessageSquare, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -864,6 +864,7 @@ export default function SessionLog() {
   const [currentExIdx, setCurrentExIdx] = useState(() => _draft.currentExIdx || 0);
   const [showOverview, setShowOverview] = useState(false);
   const [showEnd, setShowEnd] = useState(false);
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const [restSeconds, setRestSeconds] = useState(null);
   const [restCompleteCallback, setRestCompleteCallback] = useState(null);
   const [restTimeForEx, setRestTimeForEx] = useState(() => _draft.restTimeForEx || {});
@@ -1288,18 +1289,40 @@ Réponds uniquement avec le JSON demandé.`,
           <h1 className="text-2xl font-heading font-bold text-white">{(session.day_label || 'Séance').replace(/^(week|semaine)\s*\d+\s*[-–:·]?\s*/i, '').replace(/\bmonday\b/gi, 'Lundi').replace(/\btuesday\b/gi, 'Mardi').replace(/\bwednesday\b/gi, 'Mercredi').replace(/\bthursday\b/gi, 'Jeudi').replace(/\bfriday\b/gi, 'Vendredi').replace(/\bsaturday\b/gi, 'Samedi').replace(/\bsunday\b/gi, 'Dimanche')}</h1>
           <p className="text-white/70 text-sm">{exercises.length} exercices</p>
         </div>
-        {!showEnd &&
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowOverview((v) => !v)}
-          className="border-white/30 text-white hover:bg-white/10 hover:text-white">
-          
-            <LayoutList className="w-4 h-4 mr-1" />
-            {showOverview ? 'Vue focus' : 'Vue d\'ensemble'}
-          </Button>
-        }
+        {!showEnd && (
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => setShowOverview((v) => !v)}
+              className="border-white/30 text-white hover:bg-white/10 hover:text-white">
+              <LayoutList className="w-4 h-4 mr-1" />
+              {showOverview ? 'Vue focus' : 'Vue d\'ensemble'}
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setShowQuitConfirm(true)}
+              className="text-white/50 hover:text-white hover:bg-white/10 px-2">
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
       </div>
+
+      {/* Quit confirm */}
+      {showQuitConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="mx-4 rounded-2xl p-6 text-center space-y-4" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)' }}>
+            <p className="font-bold text-white text-lg">Quitter la séance ?</p>
+            <p className="text-white/60 text-sm">Ta progression est sauvegardée, tu pourras reprendre plus tard.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowQuitConfirm(false)}
+                className="flex-1 py-2.5 rounded-xl border border-white/20 text-white/70 text-sm font-semibold hover:bg-white/10">
+                Continuer
+              </button>
+              <button onClick={() => { try { localStorage.removeItem('active_session_id'); } catch {} navigate('/'); }}
+                className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
+                Quitter
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Content */}
       <AnimatePresence mode="wait">
