@@ -33,7 +33,7 @@ export default function MobileNav() {
     <nav className="mobile-nav fixed bottom-0 left-0 right-0 z-50 pb-safe" style={{ background: 'linear-gradient(to bottom, rgba(109,40,217,0.13) 0%, white 100%)', borderTop: '1px solid rgba(109,40,217,0.12)' }}>
       <div className="flex items-center justify-around px-1 py-1.5">
         {items.map((item) => {
-          const isActive = location.pathname === item.path;
+          const isActive = location.pathname === item.path.split('?')[0];
           return (
             <Link
               key={item.path}
