@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom/client'
 import App from '@/App.jsx'
 import '@/index.css'
 
+// Désactiver la restauration de scroll native du navigateur (géré manuellement pour Séance et Coach)
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
 // Bloquer pinch-to-zoom uniquement
 document.addEventListener('touchmove', (e) => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
 document.addEventListener('gesturestart', (e) => e.preventDefault(), { passive: false });
