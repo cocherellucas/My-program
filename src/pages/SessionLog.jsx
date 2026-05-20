@@ -885,6 +885,16 @@ export default function SessionLog() {
     } catch {}
   }, [logs, currentExIdx, fatigue, notes, restTimeForEx, sessionExercises, sessionId]);
 
+  useEffect(() => {
+    if (!sessionId) return;
+    const key = `session_scroll_${sessionId}`;
+    const saved = parseInt(localStorage.getItem(key) || '0');
+    if (saved > 0) setTimeout(() => window.scrollTo({ top: saved, behavior: 'instant' }), 80);
+    const onScroll = () => { try { localStorage.setItem(key, String(window.scrollY)); } catch {} };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [sessionId]);
+
   const fragileZones = (() => {
     try { return JSON.parse(user?.fragile_zones || '[]'); } catch { return []; }
   })();
@@ -1251,7 +1261,7 @@ Réponds uniquement avec le JSON demandé.`,
 
     queryClient.invalidateQueries({ queryKey: ['sessions'] });
     queryClient.invalidateQueries({ queryKey: ['program-sessions'] });
-    try { localStorage.removeItem(`session_draft_${sessionId}`); localStorage.removeItem('active_session_id'); } catch {}
+    try { localStorage.removeItem(`session_draft_${sessionId}`); localStorage.removeItem('active_session_id'); localStorage.removeItem(`session_scroll_${sessionId}`); } catch {}
     setSaving(false);
 
     // Si douleur → afficher notification coach avant de naviguer
