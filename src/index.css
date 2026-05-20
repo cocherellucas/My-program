@@ -4,10 +4,6 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
-  background-color: #1e0050;
-}
-
 * {
   scrollbar-width: none;
   -ms-overflow-style: none;

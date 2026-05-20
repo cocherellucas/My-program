@@ -44,8 +44,13 @@ const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const [minDelay, setMinDelay] = React.useState(true);
   React.useEffect(() => { const t = setTimeout(() => setMinDelay(false), 2000); return () => clearTimeout(t); }, []);
+  const isSplash = isLoadingPublicSettings || isLoadingAuth || minDelay;
+  React.useEffect(() => {
+    if (isSplash) { document.body.style.background = '#1e0050'; }
+    else { document.body.style.background = ''; }
+  }, [isSplash]);
 
-  if (isLoadingPublicSettings || isLoadingAuth || minDelay) {
+  if (isSplash) {
     return (
       <div style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(160deg, #2e1065 0%, #1e0050 100%)', gap: 24 }}>
         <style>{`
