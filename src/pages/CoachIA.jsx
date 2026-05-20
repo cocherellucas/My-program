@@ -279,7 +279,12 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
   ];
 
   return (
-    <div ref={containerRef} className="flex flex-col" style={{ height: containerHeight > 0 ? `${containerHeight}px` : 'calc(100dvh - 96px)' }}>
+    <div ref={containerRef} className="flex flex-col" style={{
+      height: containerHeight > 0 ? `${containerHeight}px` : 'calc(100dvh - 96px)',
+      transform: keyboardHeight > 50 ? `translateY(-${keyboardHeight}px)` : 'none',
+      transition: 'transform 0.25s ease',
+      paddingBottom: keyboardHeight > 50 ? `${keyboardHeight}px` : 0,
+    }}>
       <div className="mb-2 flex items-center justify-end">
         {messages.length > 0 && (
           <button
