@@ -63,6 +63,8 @@ export default function Program() {
   const [generating, setGenerating] = useState(false);
   const [genPhase, setGenPhase] = useState('');
   const [genSeconds, setGenSeconds] = useState(0);
+  const [genError, setGenError] = useState(null);
+  const genParamsRef = React.useRef(null);
   const genTimerRef = React.useRef(null);
   const [showDialog, setShowDialog] = useState(false);
   const [showRegenGate, setShowRegenGate] = useState(false);
@@ -116,7 +118,9 @@ export default function Program() {
   }, [user, objectives, activeProgram, generating]);
 
   const generateProgram = async ({ structure, weeks, phase }) => {
+    genParamsRef.current = { structure, weeks, phase };
     setGenerating(true);
+    setGenError(null);
     setGenSeconds(0);
     setGenPhase('Analyse du profil…');
     genTimerRef.current = setInterval(() => setGenSeconds(s => s + 1), 1000);
@@ -293,7 +297,12 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
 
     } catch (err) {
       console.error('[generateProgram] erreur :', err);
-      alert(`Erreur lors de la génération : ${err?.message || err}`);
+      const isNetwork = /network|fetch|failed to fetch/i.test(err?.message || '');
+      if (isNetwork) {
+        setGenError('network');
+      } else {
+        setGenError(err?.message || 'Erreur inconnue');
+      }
     } finally {
       clearInterval(genTimerRef.current);
       setGenerating(false);
@@ -629,6 +638,30 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                 return 'finalisation…';
               })()}
             </p>
+          </div>
+        </div>
+      )}
+
+      {genError && !generating && (
+        <div className="fixed inset-0 bg-violet-900/80 backdrop-blur-sm flex flex-col items-center justify-center z-50 gap-4 px-6">
+          <div className="text-center space-y-3">
+            <p className="text-white font-bold text-lg">
+              {genError === 'network' ? 'Connexion perdue' : 'Erreur de génération'}
+            </p>
+            <p className="text-white/60 text-sm">
+              {genError === 'network'
+                ? 'La génération a été interrompue par un problème réseau. Réessaie — la connexion est souvent rétablie.'
+                : genError}
+            </p>
+            <div className="flex gap-3 mt-2">
+              <button onClick={() => setGenError(null)} className="flex-1 py-2.5 rounded-xl border border-white/20 text-white/70 text-sm font-semibold hover:bg-white/10">
+                Annuler
+              </button>
+              <button onClick={() => { setGenError(null); generateProgram(genParamsRef.current); }}
+                className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
+                Réessayer
+              </button>
+            </div>
           </div>
         </div>
       )}
