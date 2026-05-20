@@ -16,6 +16,17 @@ const items = [
 
 export default function MobileNav() {
   const location = useLocation();
+  const [keyboardOpen, setKeyboardOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const handler = () => setKeyboardOpen(vv.height < window.innerHeight * 0.75);
+    vv.addEventListener('resize', handler);
+    return () => vv.removeEventListener('resize', handler);
+  }, []);
+
+  if (keyboardOpen) return null;
 
   return (
     <nav className="mobile-nav fixed bottom-0 left-0 right-0 z-50 pb-safe" style={{ background: 'linear-gradient(to bottom, rgba(109,40,217,0.13) 0%, white 100%)', borderTop: '1px solid rgba(109,40,217,0.12)' }}>
