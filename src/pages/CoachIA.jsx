@@ -291,16 +291,11 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
             key={i}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            {msg.role === 'assistant' && (
-              <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Bot className="w-4 h-4 text-white" />
-              </div>
-            )}
             <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-              msg.role === 'user' 
-                ? 'bg-white text-violet-800 font-medium' 
+              msg.role === 'user'
+                ? 'bg-white text-violet-800 font-medium'
                 : 'bg-white/15 border border-white/20 text-white backdrop-blur-sm'
             }`}>
               {msg.role === 'user' ? (
@@ -326,11 +321,6 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
                 );
               })()}
             </div>
-            {msg.role === 'user' && (
-              <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <User className="w-4 h-4 text-white" />
-              </div>
-            )}
           </motion.div>
         ))}
 
