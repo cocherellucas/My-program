@@ -96,9 +96,6 @@ export default function NextSessionCard({ todaySession, nextSession, hasSessions
   return (
     <Card className="p-6 bg-white/15 backdrop-blur-sm border-white/20">
       <div className="flex flex-col items-center text-center gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
-          <Plus className="w-6 h-6 text-white/80" />
-        </div>
         <div>
           <h3 className="font-heading font-bold text-base text-white mb-1">Pas encore de programme</h3>
           <p className="text-xs text-white/60">Crée ton premier programme pour planifier tes séances.</p>
