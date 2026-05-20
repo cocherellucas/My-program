@@ -308,9 +308,7 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
             {msg.role === 'assistant' && (
               <div className="flex items-center gap-1.5 mb-1 ml-1">
                 <div style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 2L9 9H2L7.5 13.5L5.5 21L12 16.5L18.5 21L16.5 13.5L22 9H15L12 2Z" fill="white" />
-                  </svg>
+                  <Bot className="w-3 h-3 text-white" />
                 </div>
                 <span className="text-xs font-semibold text-white/60">Coach IA</span>
               </div>
