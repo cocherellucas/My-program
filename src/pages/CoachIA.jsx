@@ -383,7 +383,7 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
       </div>
 
       {/* Label Coach IA */}
-      <p className="text-xs text-white/50 px-1 pt-2 flex-shrink-0"><span className="font-bold text-white">Coach IA</span> · Demande-moi n'importe quoi</p>
+      <p className="text-xs text-white/50 px-1 pt-2 flex-shrink-0"><span className="font-bold text-white">Coach IA</span> · Ton assistant entraînement</p>
 
       {/* Input */}
       <div ref={inputAreaRef} className="flex-shrink-0 bg-white/10 rounded-2xl border border-white/20 mx-0 mt-1 flex items-center gap-2 px-3 py-2">
