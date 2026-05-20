@@ -18,7 +18,7 @@ export default function MobileNav() {
   const location = useLocation();
 
   return (
-    <nav className="mobile-nav fixed bottom-0 left-0 right-0 z-50 pb-safe bg-white border-t border-gray-100">
+    <nav className="mobile-nav fixed bottom-0 left-0 right-0 z-50 pb-safe" style={{ background: 'linear-gradient(to bottom, rgba(109,40,217,0.13) 0%, white 100%)', borderTop: '1px solid rgba(109,40,217,0.12)' }}>
       <div className="flex items-center justify-around px-1 py-1.5">
         {items.map((item) => {
           const isActive = location.pathname === item.path;
@@ -29,18 +29,18 @@ export default function MobileNav() {
               className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all relative"
             >
               {isActive && (
-                <span className="absolute inset-0 rounded-xl bg-violet-50" />
+                <span className="absolute inset-0 rounded-xl" style={{ background: 'rgba(255,255,255,0.92)', boxShadow: '0 2px 10px rgba(124,58,237,0.25)' }} />
               )}
               <item.icon
                 className="w-5 h-5 relative z-10 transition-all"
                 style={{
-                  color: isActive ? '#7c3aed' : '#9ca3af',
-                  strokeWidth: isActive ? 2.5 : 1.8
+                  color: isActive ? '#6b5ea8' : '#374151',
+                  strokeWidth: isActive ? 2.5 : 2.0
                 }}
               />
               <span
                 className="text-[10px] font-semibold relative z-10"
-                style={{ color: isActive ? '#7c3aed' : '#9ca3af' }}
+                style={{ color: isActive ? '#6b5ea8' : '#374151' }}
               >
                 {item.label}
               </span>

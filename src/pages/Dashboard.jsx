@@ -102,9 +102,9 @@ export default function Dashboard() {
         <CheckIn24h sessions={sessionsNeedingCheckin} onSubmit={handleCheckin} />
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className={`grid gap-6 ${activeProgram ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
         <NextSessionCard todaySession={todaySession} nextSession={nextSession} hasSessions={hasSessions} />
-        <ProgramSummaryCard program={activeProgram} objectives={objectives} />
+        {activeProgram && <ProgramSummaryCard program={activeProgram} objectives={objectives} />}
       </div>
 
       <AlertsCard alerts={alerts} />

@@ -229,7 +229,7 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
           program_id: program.id,
           week_number: s.week_number || 1,
           day_label: s.day_label || s.day,
-          type: s.type || 'hypertrophy',
+          type: ['strength','hypertrophy','endurance','mixed','cardio','mobility'].includes(s.type) ? s.type : 'mixed',
           status: 'planned',
           planned_date: d.toISOString().split('T')[0],
           estimated_duration: s.estimated_duration || 60,
