@@ -442,7 +442,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent className="bg-violet-950 border border-white/20 rounded-2xl mx-4">
+                <AlertDialogContent className="bg-violet-950 border border-white/20 rounded-2xl w-[calc(100%-2rem)] max-w-sm left-1/2 -translate-x-1/2 mx-0">
                   <AlertDialogHeader>
                     <AlertDialogTitle className="text-white text-lg font-bold">Supprimer le programme ?</AlertDialogTitle>
                     <AlertDialogDescription className="text-white/60 text-sm">
