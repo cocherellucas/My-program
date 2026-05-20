@@ -67,6 +67,8 @@ export default function CoachIA() {
   }, []);
 
   const containerRef = useRef(null);
+  const [shownTs, setShownTs] = useState(null);
+  const fmtTime = (ts) => ts ? new Date(ts).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '';
 
   const handleInputFocus = () => {
     setTimeout(() => inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }), 100);
@@ -117,7 +119,7 @@ export default function CoachIA() {
     }
 
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
+    setMessages(prev => [...prev, { role: 'user', content: userMsg, ts: Date.now() }]);
     setLoading(true);
 
     const [objectives, programs, memory, recentSessions, seriesLogs] = await Promise.all([
@@ -165,7 +167,7 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
       return "Une erreur est survenue. Réessaie.";
     });
 
-    setMessages(prev => [...prev, { role: 'assistant', content: result }]);
+    setMessages(prev => [...prev, { role: 'assistant', content: result, ts: Date.now() }]);
     setLoading(false);
   };
 
@@ -291,13 +293,16 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
             key={i}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
           >
-            <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-              msg.role === 'user'
-                ? 'bg-white text-violet-800 font-medium'
-                : 'bg-white/15 border border-white/20 text-white backdrop-blur-sm'
-            }`}>
+            <div
+              onClick={() => setShownTs(shownTs === i ? null : i)}
+              className={`max-w-[80%] rounded-2xl px-4 py-3 cursor-pointer ${
+                msg.role === 'user'
+                  ? 'bg-white text-violet-800 font-medium'
+                  : 'bg-white/15 border border-white/20 text-white backdrop-blur-sm'
+              }`}
+            >
               {msg.role === 'user' ? (
                 <p className="text-sm">{msg.content}</p>
               ) : (() => {
@@ -321,6 +326,9 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
                 );
               })()}
             </div>
+            {shownTs === i && msg.ts && (
+              <span className="text-xs text-white/40 mt-1 px-1">{fmtTime(msg.ts)}</span>
+            )}
           </motion.div>
         ))}
 
