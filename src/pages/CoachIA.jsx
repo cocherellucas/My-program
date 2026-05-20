@@ -69,7 +69,7 @@ export default function CoachIA() {
   const containerRef = useRef(null);
 
   const handleInputFocus = () => {
-    setTimeout(() => inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }), 100);
+    setTimeout(() => inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }), 25);
   };
   const handleInputBlur = () => {};
 
