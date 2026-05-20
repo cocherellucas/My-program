@@ -156,8 +156,19 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
     setEditRest(currentRestSeconds ?? originalExercise?.rest_seconds ?? 90);
   }, [currentRestSeconds]);
 
-  const [activeSetIdx, setActiveSetIdx] = useState(0);
-  const [completedSets, setCompletedSets] = useState(new Set());
+  const [completedSets, setCompletedSets] = useState(() => {
+    const done = new Set();
+    for (let i = 0; i < sets; i++) {
+      if (logs[`${exIdx}-${i}`]?.reps) done.add(i);
+    }
+    return done;
+  });
+  const [activeSetIdx, setActiveSetIdx] = useState(() => {
+    for (let i = 0; i < sets; i++) {
+      if (!logs[`${exIdx}-${i}`]?.reps) return i;
+    }
+    return Math.max(0, sets - 1);
+  });
   const [ackedGoodSeries, setAckedGoodSeries] = useState(0);
 
   const markSetComplete = (idx) => setCompletedSets(prev => new Set([...prev, idx]));
@@ -845,11 +856,17 @@ export default function SessionLog() {
   const sessionId = urlParams.get('id');
 
   const [user, setUser] = useState(null);
-  const [logs, setLogs] = useState({});
+  const [logs, setLogs] = useState(() => {
+    try { const s = localStorage.getItem(`session_draft_${sessionId}`); if (s) return JSON.parse(s).logs || {}; } catch {}
+    return {};
+  });
   const [fatigue, setFatigue] = useState(2);
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
-  const [currentExIdx, setCurrentExIdx] = useState(0);
+  const [currentExIdx, setCurrentExIdx] = useState(() => {
+    try { const s = localStorage.getItem(`session_draft_${sessionId}`); if (s) return JSON.parse(s).currentExIdx || 0; } catch {}
+    return 0;
+  });
   const [showOverview, setShowOverview] = useState(false);
   const [showEnd, setShowEnd] = useState(false);
   const [restSeconds, setRestSeconds] = useState(null);
@@ -863,6 +880,11 @@ export default function SessionLog() {
   const [coachPainQuery, setCoachPainQuery] = useState(null); // {zone, message} notification coach après douleur
 
   useEffect(() => {base44.auth.me().then(u => setUser(normalizeUser(u)));}, []);
+
+  useEffect(() => {
+    if (!sessionId) return;
+    try { localStorage.setItem(`session_draft_${sessionId}`, JSON.stringify({ logs, currentExIdx })); } catch {}
+  }, [logs, currentExIdx, sessionId]);
 
   const fragileZones = (() => {
     try { return JSON.parse(user?.fragile_zones || '[]'); } catch { return []; }
@@ -1230,6 +1252,7 @@ Réponds uniquement avec le JSON demandé.`,
 
     queryClient.invalidateQueries({ queryKey: ['sessions'] });
     queryClient.invalidateQueries({ queryKey: ['program-sessions'] });
+    try { localStorage.removeItem(`session_draft_${sessionId}`); } catch {}
     setSaving(false);
 
     // Si douleur → afficher notification coach avant de naviguer
