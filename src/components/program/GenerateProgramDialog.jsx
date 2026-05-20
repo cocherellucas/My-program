@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { Sparkles } from 'lucide-react';
 
 const STRUCTURES = [
-  { value: 'auto', label: 'Auto (IA choisit)', description: 'Structure optimale selon ton profil' },
+  { value: 'auto', label: 'Auto (IA choisit)', description: 'Structure optimale selon ton profil', full: true },
   { value: 'full_body', label: 'Full Body', description: 'Tous les muscles à chaque séance' },
-  { value: 'upper_lower', label: 'Upper / Lower', description: 'Haut / bas du corps en alternance' },
+  { value: 'upper_lower', label: 'Upper / Lower', description: 'Haut / bas en alternance' },
   { value: 'ppl', label: 'PPL', description: 'Push / Pull / Legs' },
   { value: 'arnold_split', label: 'Arnold Split', description: 'Pecs+Dos / Épaules+Bras / Jambes' },
 ];
@@ -42,48 +41,50 @@ export default function GenerateProgramDialog({ open, onClose, onGenerate }) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-sm mx-4 rounded-2xl">
-        <DialogHeader className="pb-0">
-          <DialogTitle className="font-heading text-lg">Configurer le programme</DialogTitle>
-          <p className="text-xs text-muted-foreground">Tous les choix sont optionnels.</p>
-        </DialogHeader>
+      <DialogContent className="w-[calc(100vw-2rem)] max-w-sm rounded-2xl border-white/20 p-0 overflow-hidden"
+        style={{ background: 'linear-gradient(160deg, #2e1065 0%, #1e0050 100%)', left: '50%', transform: 'translate(-50%, -50%)' }}>
 
-        <div className="space-y-4 py-1">
+        {/* Header */}
+        <div className="px-5 pt-5 pb-3 border-b border-white/10">
+          <h2 className="font-heading font-bold text-white text-lg">Configurer le programme</h2>
+          <p className="text-xs text-white/50 mt-0.5">Tous les choix sont optionnels — l'IA décide si tu laisses.</p>
+        </div>
+
+        <div className="px-5 py-4 space-y-5">
+
           {/* Structure */}
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Style</Label>
-            <div className="grid grid-cols-2 gap-1.5">
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">Style</p>
+            <div className="grid grid-cols-2 gap-2">
               {STRUCTURES.map(s => (
                 <button
                   key={s.value}
                   onClick={() => setStructure(s.value)}
-                  className={`text-left px-3 py-2 rounded-lg border transition-all ${
-                    s.value === 'auto' ? 'col-span-2' : ''
-                  } ${
+                  className={`text-left px-3 py-2.5 rounded-xl border transition-all ${s.full ? 'col-span-2' : ''} ${
                     structure === s.value
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border hover:border-muted-foreground/40'
+                      ? 'border-violet-400/60 bg-violet-500/20'
+                      : 'border-white/10 bg-white/5 hover:bg-white/10'
                   }`}
                 >
-                  <span className="font-medium text-sm block">{s.label}</span>
-                  {structure === s.value && <p className="text-xs text-muted-foreground">{s.description}</p>}
+                  <span className="font-semibold text-sm text-white block">{s.label}</span>
+                  {structure === s.value && <p className="text-xs text-white/50 mt-0.5">{s.description}</p>}
                 </button>
               ))}
             </div>
           </div>
 
           {/* Durée */}
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Durée</Label>
-            <div className="flex gap-1.5">
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">Durée</p>
+            <div className="flex gap-2">
               {DURATIONS.map(d => (
                 <button
                   key={d.value}
                   onClick={() => setWeeks(d.value)}
-                  className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-all ${
+                  className={`flex-1 py-2 rounded-xl border text-sm font-semibold transition-all ${
                     weeks === d.value
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-border hover:border-muted-foreground/40'
+                      ? 'border-violet-400/60 bg-violet-500/20 text-white'
+                      : 'border-white/10 bg-white/5 text-white/60 hover:bg-white/10'
                   }`}
                 >
                   {d.label}
@@ -93,34 +94,38 @@ export default function GenerateProgramDialog({ open, onClose, onGenerate }) {
           </div>
 
           {/* Phase */}
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Phase de départ</Label>
-            <div className="grid grid-cols-4 gap-1.5">
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">Phase de départ</p>
+            <div className="grid grid-cols-4 gap-2">
               {PHASES.map(p => (
                 <button
                   key={p.value}
                   onClick={() => setPhase(p.value)}
-                  className={`text-center px-2 py-2 rounded-lg border transition-all ${
+                  className={`text-center py-2.5 px-1 rounded-xl border transition-all ${
                     phase === p.value
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border hover:border-muted-foreground/40'
+                      ? 'border-violet-400/60 bg-violet-500/20'
+                      : 'border-white/10 bg-white/5 hover:bg-white/10'
                   }`}
                 >
-                  <span className="font-bold text-sm block">{p.label}</span>
-                  <p className="text-[10px] text-muted-foreground leading-tight">{p.description}</p>
+                  <span className="font-bold text-sm text-white block">{p.label}</span>
+                  <p className="text-[10px] text-white/40 leading-tight mt-0.5">{p.description}</p>
                 </button>
               ))}
             </div>
           </div>
         </div>
 
-        <DialogFooter className="gap-2 pt-1">
-          <Button variant="outline" onClick={onClose} className="flex-1">Annuler</Button>
-          <Button onClick={handleGenerate} className="flex-1">
-            <Sparkles className="w-4 h-4 mr-2" />
+        {/* Footer */}
+        <div className="px-5 pb-5 flex gap-2">
+          <button onClick={onClose} className="flex-1 py-3 rounded-xl border border-white/15 text-white/60 text-sm font-semibold hover:bg-white/10 transition-colors">
+            Annuler
+          </button>
+          <button onClick={handleGenerate} className="flex-1 py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 flex items-center justify-center gap-2"
+            style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
+            <Sparkles className="w-4 h-4" />
             Générer
-          </Button>
-        </DialogFooter>
+          </button>
+        </div>
       </DialogContent>
     </Dialog>
   );
