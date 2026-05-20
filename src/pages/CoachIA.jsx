@@ -336,8 +336,29 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
                 );
               })()}
             </div>
-            {shownTs === i && msg.ts && (
-              <span className="text-xs text-white/40 mt-1 px-1">{fmtTime(msg.ts)}</span>
+            {shownTs === i && (
+              <div className="flex items-center gap-2 mt-1 px-1">
+                {msg.ts && <span className="text-xs text-white/40">{fmtTime(msg.ts)}</span>}
+                <button
+                  onClick={() => { navigator.clipboard?.writeText(msg.content); setShownTs(null); }}
+                  className="text-xs text-white/50 hover:text-white transition-colors">
+                  Copier
+                </button>
+                {msg.role === 'user' && (
+                  <>
+                    <button
+                      onClick={() => { setInput(msg.content); setShownTs(null); }}
+                      className="text-xs text-white/50 hover:text-white transition-colors">
+                      Modifier
+                    </button>
+                    <button
+                      onClick={() => { setInput(msg.content); sendMessage(); setShownTs(null); }}
+                      className="text-xs text-white/50 hover:text-white transition-colors">
+                      Réessayer
+                    </button>
+                  </>
+                )}
+              </div>
             )}
           </motion.div>
         ))}
