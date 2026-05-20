@@ -79,7 +79,11 @@ CONFLITS ET RÉSOLUTIONS :
    - Exercices métaboliques (burpees, thruster, box jump, corde) → toujours en dernier
    - Gainage → fin de séance OU entre séries comme repos actif
    - NE JAMAIS pré-fatiguer un synergiste d'un composé suivant (curl avant tirage = -15% dos)
-   - EXCEPTION avancés/intermédiaires en hypertrophie uniquement : pré-fatigue intentionnelle d'un muscle CIBLE difficile à recruter (ex: leg extension avant squat pour cibler les quadriceps quand les fessiers prennent tout ; écarté poulie avant développé quand les triceps cèdent en premier). Réduit la charge absolue mais augmente le recrutement du muscle cible (~+12% EMG). Ne jamais utiliser pour objectif force ou niveau débutant.
+   - EXCEPTION pré-fatigue — conditions STRICTES (toutes requises) :
+     1. L'utilisateur signale explicitement "je ne sens pas" le muscle cible sur un exercice qu'il veut garder
+     2. Niveau intermédiaire ou avancé uniquement
+     3. Objectif hypertrophie uniquement (jamais force)
+     Dans ce cas : placer une isolation du muscle cible juste avant le composé (ex: leg extension → squat si "je ne sens pas mes quadris au squat" ; écarté poulie → développé couché si "je ne sens pas mes pecs"). Réduit la charge absolue mais augmente le recrutement EMG du muscle cible (~+12%). Toujours proposer d'abord des alternatives (correction technique, tempo, ROM) avant de recourir à la pré-fatigue.
    - Antagonistes → peuvent être supersetés (bench + rowing, curl + triceps)
    - Exercice le plus important pour l'objectif → en 1er dans son bloc
    - PRIORITÉ MUSCULAIRE : si l'utilisateur a un muscle prioritaire déclaré, ce muscle commence toujours la séance, même si un autre muscle de la séance est habituellement plus "dangereux" ou taxant. Ex : Arnold split pec/dos avec priorité dos → commencer par les exercices dos malgré que les pectoraux soient habituellement plus exigeants SNC. Le muscle prioritaire bénéficie du SNC frais et de l'énergie maximale.
