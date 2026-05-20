@@ -305,6 +305,16 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
             animate={{ opacity: 1, y: 0 }}
             className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
           >
+            {msg.role === 'assistant' && (
+              <div className="flex items-center gap-1.5 mb-1 ml-1">
+                <div style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L9 9H2L7.5 13.5L5.5 21L12 16.5L18.5 21L16.5 13.5L22 9H15L12 2Z" fill="white" />
+                  </svg>
+                </div>
+                <span className="text-xs font-semibold text-white/60">Coach IA</span>
+              </div>
+            )}
             <div
               onClick={() => setShownTs(shownTs === i ? null : i)}
               className={`max-w-[80%] rounded-2xl px-4 py-3 cursor-pointer ${
