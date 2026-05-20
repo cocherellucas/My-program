@@ -55,7 +55,7 @@ const AuthenticatedApp = () => {
       document.body.style.background = '#1e0050';
     } else if (splashVisible) {
       setSplashOpacity(0);
-      const t = setTimeout(() => { setSplashVisible(false); document.body.style.background = ''; }, 600);
+      const t = setTimeout(() => { setSplashVisible(false); document.body.style.background = ''; document.documentElement.style.background = ''; }, 600);
       return () => clearTimeout(t);
     }
   }, [isSplash]);
