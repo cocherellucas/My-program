@@ -5,17 +5,18 @@ import {
   MessageSquare, User, BookOpen
 } from 'lucide-react';
 
-const items = [
-  { icon: LayoutDashboard, label: 'Accueil', path: '/' },
-  { icon: Dumbbell, label: 'Programme', path: '/program' },
-  { icon: CalendarDays, label: 'Séance', path: '/session' },
-  { icon: MessageSquare, label: 'Coach', path: '/coach' },
-  { icon: BookOpen, label: 'Biblio', path: '/library' },
-  { icon: User, label: 'Profil', path: '/profile' },
-];
-
 export default function MobileNav() {
   const location = useLocation();
+
+  const activeSessionId = (() => { try { return localStorage.getItem('active_session_id'); } catch { return null; } })();
+  const items = [
+    { icon: LayoutDashboard, label: 'Accueil', path: '/' },
+    { icon: Dumbbell, label: 'Programme', path: '/program' },
+    { icon: CalendarDays, label: 'Séance', path: activeSessionId ? `/session?id=${activeSessionId}` : '/session' },
+    { icon: MessageSquare, label: 'Coach', path: '/coach' },
+    { icon: BookOpen, label: 'Biblio', path: '/library' },
+    { icon: User, label: 'Profil', path: '/profile' },
+  ];
   const [keyboardOpen, setKeyboardOpen] = React.useState(false);
 
   React.useEffect(() => {

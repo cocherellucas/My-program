@@ -878,7 +878,10 @@ export default function SessionLog() {
 
   useEffect(() => {
     if (!sessionId) return;
-    try { localStorage.setItem(`session_draft_${sessionId}`, JSON.stringify({ logs, currentExIdx, fatigue, notes, restTimeForEx, sessionExercises })); } catch {}
+    try {
+      localStorage.setItem(`session_draft_${sessionId}`, JSON.stringify({ logs, currentExIdx, fatigue, notes, restTimeForEx, sessionExercises }));
+      localStorage.setItem('active_session_id', sessionId);
+    } catch {}
   }, [logs, currentExIdx, fatigue, notes, restTimeForEx, sessionExercises, sessionId]);
 
   const fragileZones = (() => {
@@ -1247,7 +1250,7 @@ Réponds uniquement avec le JSON demandé.`,
 
     queryClient.invalidateQueries({ queryKey: ['sessions'] });
     queryClient.invalidateQueries({ queryKey: ['program-sessions'] });
-    try { localStorage.removeItem(`session_draft_${sessionId}`); } catch {}
+    try { localStorage.removeItem(`session_draft_${sessionId}`); localStorage.removeItem('active_session_id'); } catch {}
     setSaving(false);
 
     // Si douleur → afficher notification coach avant de naviguer
