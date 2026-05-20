@@ -45,17 +45,21 @@ const AuthenticatedApp = () => {
   const [minDelay, setMinDelay] = React.useState(true);
   const [splashVisible, setSplashVisible] = React.useState(true);
   const [splashOpacity, setSplashOpacity] = React.useState(1);
+  const splashDone = React.useRef(false);
 
   React.useEffect(() => { const t = setTimeout(() => setMinDelay(false), 2000); return () => clearTimeout(t); }, []);
 
   const isSplash = isLoadingPublicSettings || isLoadingAuth || minDelay;
 
   React.useEffect(() => {
-    if (isSplash) {
-      document.body.style.background = '#1e0050';
-    } else if (splashVisible) {
+    if (!isSplash && !splashDone.current) {
+      splashDone.current = true;
       setSplashOpacity(0);
-      const t = setTimeout(() => { setSplashVisible(false); document.body.style.background = ''; document.documentElement.style.background = ''; }, 600);
+      const t = setTimeout(() => {
+        setSplashVisible(false);
+        document.body.style.background = '';
+        document.documentElement.style.background = '';
+      }, 600);
       return () => clearTimeout(t);
     }
   }, [isSplash]);
