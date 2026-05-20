@@ -442,16 +442,18 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent>
+                <AlertDialogContent className="bg-violet-950 border border-white/20 rounded-2xl mx-4">
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Supprimer le programme ?</AlertDialogTitle>
-                    <AlertDialogDescription>
+                    <AlertDialogTitle className="text-white text-lg font-bold">Supprimer le programme ?</AlertDialogTitle>
+                    <AlertDialogDescription className="text-white/60 text-sm">
                       Toutes les séances planifiées seront supprimées. Les séances déjà complétées restent dans l'historique.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Annuler</AlertDialogCancel>
-                    <AlertDialogAction onClick={deleteProgram} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  <AlertDialogFooter className="gap-2 mt-2">
+                    <AlertDialogCancel className="flex-1 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white rounded-xl">
+                      Annuler
+                    </AlertDialogCancel>
+                    <AlertDialogAction onClick={deleteProgram} className="flex-1 bg-red-500/80 hover:bg-red-500 text-white border-0 rounded-xl">
                       Supprimer
                     </AlertDialogAction>
                   </AlertDialogFooter>
