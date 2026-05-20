@@ -861,6 +861,7 @@ export default function SessionLog() {
   const [fatigue, setFatigue] = useState(() => _draft.fatigue ?? 2);
   const [notes, setNotes] = useState(() => _draft.notes || '');
   const [saving, setSaving] = useState(false);
+  const [scrollReady, setScrollReady] = useState(false);
   const [currentExIdx, setCurrentExIdx] = useState(() => _draft.currentExIdx || 0);
   const [showOverview, setShowOverview] = useState(false);
   const [showEnd, setShowEnd] = useState(false);
@@ -889,7 +890,14 @@ export default function SessionLog() {
     if (!sessionId) return;
     const key = `session_scroll_${sessionId}`;
     const saved = parseInt(localStorage.getItem(key) || '0');
-    if (saved > 0) setTimeout(() => window.scrollTo({ top: saved, behavior: 'instant' }), 200);
+    if (saved > 0) {
+      setTimeout(() => {
+        window.scrollTo({ top: saved, behavior: 'instant' });
+        setScrollReady(true);
+      }, 200);
+    } else {
+      setScrollReady(true);
+    }
     const onScroll = () => { try { localStorage.setItem(key, String(window.scrollY)); } catch {} };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -1292,7 +1300,7 @@ Réponds uniquement avec le JSON demandé.`,
   }
 
   return (
-    <div className="space-y-4 max-w-2xl mx-auto pb-24">
+    <div className="space-y-4 max-w-2xl mx-auto pb-24" style={{ opacity: scrollReady ? 1 : 0, transition: 'opacity 0.2s ease' }}>
       {/* Top bar */}
       <div className="flex items-center justify-between">
         <div>
