@@ -856,24 +856,19 @@ export default function SessionLog() {
   const sessionId = urlParams.get('id');
 
   const [user, setUser] = useState(null);
-  const [logs, setLogs] = useState(() => {
-    try { const s = localStorage.getItem(`session_draft_${sessionId}`); if (s) return JSON.parse(s).logs || {}; } catch {}
-    return {};
-  });
-  const [fatigue, setFatigue] = useState(2);
-  const [notes, setNotes] = useState('');
+  const _draft = (() => { try { const s = localStorage.getItem(`session_draft_${sessionId}`); return s ? JSON.parse(s) : {}; } catch { return {}; } })();
+  const [logs, setLogs] = useState(() => _draft.logs || {});
+  const [fatigue, setFatigue] = useState(() => _draft.fatigue ?? 2);
+  const [notes, setNotes] = useState(() => _draft.notes || '');
   const [saving, setSaving] = useState(false);
-  const [currentExIdx, setCurrentExIdx] = useState(() => {
-    try { const s = localStorage.getItem(`session_draft_${sessionId}`); if (s) return JSON.parse(s).currentExIdx || 0; } catch {}
-    return 0;
-  });
+  const [currentExIdx, setCurrentExIdx] = useState(() => _draft.currentExIdx || 0);
   const [showOverview, setShowOverview] = useState(false);
   const [showEnd, setShowEnd] = useState(false);
   const [restSeconds, setRestSeconds] = useState(null);
   const [restCompleteCallback, setRestCompleteCallback] = useState(null);
-  const [restTimeForEx, setRestTimeForEx] = useState({});
+  const [restTimeForEx, setRestTimeForEx] = useState(() => _draft.restTimeForEx || {});
   const [regressingEx, setRegressingEx] = useState(null);
-  const [sessionExercises, setSessionExercises] = useState(null);
+  const [sessionExercises, setSessionExercises] = useState(() => _draft.sessionExercises || null);
   const [editingObjectif, setEditingObjectif] = useState(false);
   const [previousLogs, setPreviousLogs] = useState({});
   const [proposal, setProposal] = useState(null);
@@ -883,8 +878,8 @@ export default function SessionLog() {
 
   useEffect(() => {
     if (!sessionId) return;
-    try { localStorage.setItem(`session_draft_${sessionId}`, JSON.stringify({ logs, currentExIdx })); } catch {}
-  }, [logs, currentExIdx, sessionId]);
+    try { localStorage.setItem(`session_draft_${sessionId}`, JSON.stringify({ logs, currentExIdx, fatigue, notes, restTimeForEx, sessionExercises })); } catch {}
+  }, [logs, currentExIdx, fatigue, notes, restTimeForEx, sessionExercises, sessionId]);
 
   const fragileZones = (() => {
     try { return JSON.parse(user?.fragile_zones || '[]'); } catch { return []; }
