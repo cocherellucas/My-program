@@ -73,6 +73,7 @@ CONFLITS ET RÉSOLUTIONS :
 
 8. ORDRE DES EXERCICES DANS LA SÉANCE — hiérarchie non négociable
    - Skills neurologiques de haute coordination (mouvements isométriques avancés, sauts, skills calisthenics présents dans la base) → toujours en 1er (SNC frais)
+   - PLAGE DE REPS CROISSANTE : en hypertrophie, les reps augmentent et la charge diminue au fil de la séance. Bloc A : 4-8 reps (composés lourds, charge maximale) → Bloc B : 8-12 reps (composés accessoires) → Bloc C : 12-20 reps (isolations). Jamais l'inverse. La charge disponible sur un exercice détermine naturellement sa plage et donc son bloc. Exception : force pure (reps basses tout le long) et endurance musculaire (reps élevées tout le long).
    - Composés lourds bloc A (squat, DL, bench, OHP barre) → avant toute fatigue significative
    - Composés accessoires bloc B → dans l'ordre de priorité de l'objectif du jour
    - Isolations bloc C → en fin de séance

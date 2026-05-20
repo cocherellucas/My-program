@@ -41,6 +41,20 @@ export const KNOWLEDGE_BASE = [
     keywords: ['ressenti', 'mind muscle', 'recrutement', 'connexion musculaire', 'pré-fatigue', 'compensation'],
   },
   {
+    id: 'rep_range_order_001',
+    topic: 'exercise_order',
+    subtopics: ['plage de répétitions', 'intensité intra-séance', 'hypertrophie', 'bloc A B C'],
+    finding: 'En hypertrophie, la charge disponible sur un exercice détermine sa plage de reps naturelle et donc sa position dans la séance : plus lourd → moins de reps → plus tôt.',
+    detail: 'Toutes les plages produisent de l\'hypertrophie à effort équivalent (Schoenfeld 2017). La règle pratique : les composés lourds permettent naturellement peu de reps (4-8) et vont en bloc A ; les composés accessoires en 8-12 en bloc B ; les isolations en 12-20 en bloc C. Règle inviolable : dans une même séance, la charge ne remonte pas et les reps ne descendent pas d\'un bloc au suivant pour un même groupe musculaire. Exceptions : objectif force pure (reps basses tout le long) ou endurance musculaire (reps élevées tout le long).',
+    source: 'Schoenfeld et al. (2017) — J Strength Cond Res ; Fink et al. (2018)',
+    application: 'Générer les séances hypertrophie avec des reps croissantes au fil des blocs. Ne jamais mettre 15 reps sur un composé lourd en début de séance ni 5 reps sur une isolation en fin. Si un utilisateur demande un exercice à une position inhabituelle, vérifier la cohérence charge/reps.',
+    example: 'Séance pec : développé couché barre 4×6 → développé incliné haltères 3×10 → écarté poulie 3×15. Jamais l\'inverse.',
+    objectives: ['hypertrophy'],
+    levels: ['beginner', 'intermediate', 'advanced'],
+    muscles: [],
+    keywords: ['plage reps', 'intensité', 'ordre intra-séance', 'lourd léger', 'bloc A B C'],
+  },
+  {
     id: 'order_002',
     topic: 'exercise_order',
     subtopics: ['pré-fatigue', 'pré-activation', 'recrutement', 'avancé'],
@@ -1747,8 +1761,8 @@ export const KNOWLEDGE_BASE = [
   // ORDRE DES EXERCICES
   // ══════════════════════════════════════════════════════════════════════════
   {
-    id: 'order_001',
-    topic: 'exercise',
+    id: 'order_004',
+    topic: 'exercise_order',
     subtopics: ['ordre exercices', 'composés avant isolation'],
     finding: 'L\'ordre des exercices a un impact minimal sur l\'hypertrophie à volume équivalent. La convention composés-avant-isolation est une bonne pratique mais pas une règle absolue.',
     detail: 'Méta-analyse Nunes 2020 (Journal of Sports Sciences) : l\'ordre n\'affecte pas significativement l\'hypertrophie ni la force à volume égal. L\'effet pratique : les exercices placés en premier bénéficient d\'un meilleur recrutement et d\'une charge absolue plus élevée — mais l\'adaptation finale est similaire. La pré-exhaustion (isolation avant composé) ne surpasse pas le composé-d\'abord.',
