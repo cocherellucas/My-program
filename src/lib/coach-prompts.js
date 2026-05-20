@@ -78,7 +78,8 @@ CONFLITS ET RÉSOLUTIONS :
    - Isolations bloc C → en fin de séance
    - Exercices métaboliques (burpees, thruster, box jump, corde) → toujours en dernier
    - Gainage → fin de séance OU entre séries comme repos actif
-   - NE JAMAIS pré-fatiguer un muscle synergiste d'un composé suivant (curl avant tirage = moins de dos)
+   - NE JAMAIS pré-fatiguer un synergiste d'un composé suivant (curl avant tirage = -15% dos)
+   - EXCEPTION avancés/intermédiaires en hypertrophie uniquement : pré-fatigue intentionnelle d'un muscle CIBLE difficile à recruter (ex: leg extension avant squat pour cibler les quadriceps quand les fessiers prennent tout ; écarté poulie avant développé quand les triceps cèdent en premier). Réduit la charge absolue mais augmente le recrutement du muscle cible (~+12% EMG). Ne jamais utiliser pour objectif force ou niveau débutant.
    - Antagonistes → peuvent être supersetés (bench + rowing, curl + triceps)
    - Exercice le plus important pour l'objectif → en 1er dans son bloc
 

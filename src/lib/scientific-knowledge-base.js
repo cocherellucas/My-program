@@ -10,6 +10,38 @@
 export const KNOWLEDGE_BASE = [
 
   // ══════════════════════════════════════════════════════════════════════════
+  // ORDRE DES EXERCICES
+  // ══════════════════════════════════════════════════════════════════════════
+  {
+    id: 'order_001',
+    topic: 'exercise_order',
+    subtopics: ['ordre intra-séance', 'SNC', 'fatigue', 'composé', 'isolation'],
+    finding: 'Les exercices les plus exigeants nerveusement et mécaniquement doivent être placés en début de séance quand le SNC est frais.',
+    detail: 'La performance sur les composés lourds (squat, deadlift, bench, OHP) chute significativement si précédés d\'exercices fatigants. À l\'inverse, les isolations souffrent peu d\'être placées en fin. La hiérarchie : skills SNC > composés lourds > composés accessoires > isolations > métaboliques > gainage.',
+    source: 'Simão et al. (2012) — J Strength Cond Res ; Spreuwenberg et al. (2006)',
+    application: 'Toujours placer l\'exercice le plus lourd et le plus technique en 1er dans son bloc. Ne jamais pré-fatiguer un muscle synergiste d\'un composé suivant (ex: curl avant tirage = -15% de performance dos).',
+    example: 'Séance pec : développé couché barre (bloc A) → développé incliné haltères (bloc B) → écarté poulie (bloc C). Jamais l\'inverse.',
+    objectives: ['hypertrophy', 'strength', 'endurance'],
+    levels: ['beginner', 'intermediate', 'advanced'],
+    muscles: [],
+    keywords: ['ordre exercices', 'SNC', 'fatigue', 'composé', 'isolation', 'performance'],
+  },
+  {
+    id: 'order_002',
+    topic: 'exercise_order',
+    subtopics: ['pré-fatigue', 'pré-activation', 'recrutement', 'avancé'],
+    finding: 'La technique de pré-fatigue (isolation avant composé) augmente le recrutement du muscle cible en le pré-activant, permettant d\'atteindre l\'échec sur ce muscle malgré la limitation des synergistes.',
+    detail: 'Exemple classique : leg extension (quadriceps) avant squat. Le quad est pré-fatigué, donc il atteint l\'échec musculaire avant que les fessiers/ischio ne cèdent. Résultat : plus de stimulus direct sur le quad à charge plus faible. Inconvénient : la charge absolue sur le composé est réduite, ce qui limite le stimulus global. Méta-analyse Augustsson (2003) : la pré-fatigue augmente l\'activation EMG du muscle cible de ~12% mais réduit la charge externe de ~20%. Rapport stimulus/fatigue favorable pour l\'hypertrophie avancée, défavorable pour la force.',
+    source: 'Augustsson et al. (2003) — J Strength Cond Res ; Normand et al. (2019)',
+    application: 'Réserver la pré-fatigue aux intermédiaires/avancés en hypertrophie UNIQUEMENT quand le muscle cible est difficile à recruter (ex: quad dominant sur leg press au lieu de squat, ou chest sur développé couché quand les triceps cèdent en premier). JAMAIS pour la force ou les débutants.',
+    example: 'Leg extension 3×15 → squat 4×8 pour cibler les quadriceps sur quelqu\'un dont les fessiers prennent tout le travail. Ou : écarté poulie → développé couché pour quelqu\'un dont les triceps cèdent avant les pec.',
+    objectives: ['hypertrophy'],
+    levels: ['intermediate', 'advanced'],
+    muscles: ['Quadriceps', 'Pectoraux', 'Épaules', 'Dos'],
+    keywords: ['pré-fatigue', 'pré-activation', 'recrutement', 'avancé', 'isolation avant composé', 'EMG'],
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
   // VOLUME
   // ══════════════════════════════════════════════════════════════════════════
   {
