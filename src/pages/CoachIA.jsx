@@ -68,7 +68,17 @@ export default function CoachIA() {
 
   const containerRef = useRef(null);
   const [shownTs, setShownTs] = useState(null);
-  const fmtTime = (ts) => ts ? new Date(ts).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '';
+  const fmtTime = (ts) => {
+    if (!ts) return '';
+    const diff = Date.now() - ts;
+    const d = new Date(ts);
+    const time = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    if (diff > 48 * 60 * 60 * 1000) {
+      const date = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+      return `${date} · ${time}`;
+    }
+    return time;
+  };
 
   const handleInputFocus = () => {
     setTimeout(() => inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }), 100);
