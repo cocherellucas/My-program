@@ -394,26 +394,10 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
         />
 
         {/* Toolbar bas */}
-        <div className="flex items-center justify-between px-3 pb-2 pt-1">
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors">
-            <Paperclip className="w-5 h-5" />
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*,.pdf,.txt"
-            style={{ position: 'fixed', top: '-200vh', left: '-200vw' }}
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) setAttachedFile(file);
-            }}
-          />
+        <div className="flex items-center justify-end px-3 pb-2 pt-1">
           <button
             onClick={sendMessage}
-            disabled={loading || (!input.trim() && !attachedFile)}
+            disabled={loading || !input.trim()}
             className="w-8 h-8 flex items-center justify-center rounded-lg bg-white text-violet-700 hover:bg-white/90 disabled:opacity-30 transition-all"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
