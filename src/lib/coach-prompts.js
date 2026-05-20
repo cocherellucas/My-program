@@ -82,6 +82,7 @@ CONFLITS ET RÉSOLUTIONS :
    - EXCEPTION avancés/intermédiaires en hypertrophie uniquement : pré-fatigue intentionnelle d'un muscle CIBLE difficile à recruter (ex: leg extension avant squat pour cibler les quadriceps quand les fessiers prennent tout ; écarté poulie avant développé quand les triceps cèdent en premier). Réduit la charge absolue mais augmente le recrutement du muscle cible (~+12% EMG). Ne jamais utiliser pour objectif force ou niveau débutant.
    - Antagonistes → peuvent être supersetés (bench + rowing, curl + triceps)
    - Exercice le plus important pour l'objectif → en 1er dans son bloc
+   - PRIORITÉ MUSCULAIRE : si l'utilisateur a un muscle prioritaire déclaré, ce muscle commence toujours la séance, même si un autre muscle de la séance est habituellement plus "dangereux" ou taxant. Ex : Arnold split pec/dos avec priorité dos → commencer par les exercices dos malgré que les pectoraux soient habituellement plus exigeants SNC. Le muscle prioritaire bénéficie du SNC frais et de l'énergie maximale.
 
 SYSTÈME PROGRESSION POIDS DE CORPS (Bloc I) :
 - 5 vecteurs avant de changer de variante (dans l'ordre) : 1. Reps → 2. Tempo (2-0-1 → 4-1-1) → 3. ROM/amplitude → 4. Bilatéral→Unilatéral → 5. Lestage
