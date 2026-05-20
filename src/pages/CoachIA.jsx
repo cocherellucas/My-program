@@ -290,11 +290,10 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
             className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
           >
             {msg.role === 'assistant' && (
-              <div className="flex items-center gap-1.5 mb-1 ml-1">
-                <div style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Bot className="w-3 h-3 text-white" />
+              <div className="mb-1 ml-1">
+                <div style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Bot className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-xs font-semibold text-white/60">Coach IA</span>
               </div>
             )}
             <div
