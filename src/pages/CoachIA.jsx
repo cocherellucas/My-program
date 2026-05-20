@@ -256,22 +256,6 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
 
   return (
     <div ref={containerRef} className="flex flex-col" style={{ height: 'calc(100dvh - 96px)' }}>
-      <div className="mb-2 flex items-center justify-end">
-        {messages.length > 0 && (
-          <button
-            onClick={() => {
-              setMessages([]);
-              Object.keys(localStorage)
-                .filter(k => k.startsWith('coach_history_'))
-                .forEach(k => localStorage.removeItem(k));
-            }}
-            className="text-xs text-white/40 hover:text-white/70 transition-colors"
-          >
-            Effacer
-          </button>
-        )}
-      </div>
-
       {/* Messages */}
       <div ref={messagesRef} className="flex-1 overflow-y-auto space-y-4 pb-4 overscroll-contain" style={{ touchAction: 'pan-y' }}>
         {messages.length === 0 && (
