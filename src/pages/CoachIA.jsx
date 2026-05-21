@@ -195,8 +195,11 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
       const activePrograms = await base44.entities.Program.filter({ user_id: user.id, status: 'active' });
       const existingProgram = activePrograms[0] || null;
 
+      const importedProgramIds = JSON.parse(localStorage.getItem('imported_program_ids') || '[]');
+      const isImportedProgram = (p) => p && importedProgramIds.includes(p.id);
+
       // Bloquer si programme généré par l'IA (pas un import)
-      if (existingProgram && existingProgram.source !== 'coach_import') {
+      if (existingProgram && !isImportedProgram(existingProgram)) {
         setMessages(prev => [...prev, {
           role: 'assistant',
           content: `⚠️ Tu as déjà un programme généré actif. Pour importer un programme depuis le Coach, supprime d'abord ton programme actuel depuis l'onglet **Programme** (tu peux l'enregistrer dans la bibliothèque avant si tu veux le garder).`
@@ -230,9 +233,11 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
           planned_weeks: Math.max(...expandedSessions.map(s => s.week_number || 1), 1),
           active_phase: 'MEV',
           status: 'active',
-          source: 'coach_import',
           program_data: data,
         });
+        // Mémoriser que ce programme est un import
+        const ids = JSON.parse(localStorage.getItem('imported_program_ids') || '[]');
+        localStorage.setItem('imported_program_ids', JSON.stringify([...ids, program.id]));
       }
 
       const today = new Date(); today.setHours(0,0,0,0);
