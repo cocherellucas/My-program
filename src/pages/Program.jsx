@@ -313,17 +313,19 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
     }
   };
 
+  const [deleting, setDeleting] = useState(false);
+
   const deleteProgram = async () => {
     if (!activeProgram) return;
-    // Marquer comme completed (archiver)
+    setDeleting(true);
     await base44.entities.Program.update(activeProgram.id, { status: 'completed' });
-    // Supprimer les séances planifiées
     const planned = sessions.filter(s => s.status === 'planned');
     for (const s of planned) {
       await base44.entities.Session.delete(s.id);
     }
     queryClient.invalidateQueries({ queryKey: ['programs'] });
     queryClient.invalidateQueries({ queryKey: ['program-sessions'] });
+    setDeleting(false);
   };
 
   const detectStructureType = (prog) => {
@@ -646,6 +648,18 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
         onClose={() => setShowDialog(false)}
         onGenerate={generateProgram}
       />
+
+      {deleting && (
+        <div className="fixed inset-0 bg-violet-900/80 backdrop-blur-sm flex flex-col items-center justify-center z-50 gap-4">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', boxShadow: '0 0 30px rgba(124,58,237,0.5)' }}>
+            <Loader2 className="w-6 h-6 text-white animate-spin" />
+          </div>
+          <div className="text-center space-y-1">
+            <p className="text-white font-semibold text-sm">Suppression en cours…</p>
+            <p className="text-white/50 text-xs">Les séances planifiées sont effacées</p>
+          </div>
+        </div>
+      )}
 
       {generating && (
         <div className="fixed inset-0 bg-violet-900/80 backdrop-blur-sm flex flex-col items-center justify-center z-50 gap-4">
