@@ -33,25 +33,24 @@ const getPushSubscription = () => new Promise((resolve) => {
   }).catch(() => resolve(null));
 });
 
-// Envoyer la notification via le serveur Vercel (pour iOS background)
-const scheduleServerPush = async (endTime) => {
-  try {
-    const subscription = await getPushSubscription();
-    if (!subscription) return;
-    const delay = Math.ceil((endTime - Date.now()) / 1000);
-    if (delay <= 0) return;
-    // keepalive: true garantit que la requête aboutit même quand la page passe en arrière-plan
-    fetch('/api/push', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ subscription, delay: Math.min(delay, 58) }),
-      keepalive: true,
-    }).catch(() => {});
-  } catch {}
+const sendPushNow = (subscription, delay) => {
+  if (!subscription || delay <= 0) return;
+  fetch('/api/push', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ subscription, delay: Math.min(delay, 58) }),
+    keepalive: true,
+  }).catch(() => {});
 };
 
 export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, initialEndTime }) {
   const endTimeRef = useRef(initialEndTime || Date.now() + seconds * 1000);
+  const pushSubRef = useRef(null);
+
+  // Pré-charger la subscription push dès le montage
+  useEffect(() => {
+    getPushSubscription().then(sub => { pushSubRef.current = sub; });
+  }, []);
   const [remaining, setRemaining] = useState(() => {
     const left = Math.ceil((endTimeRef.current - Date.now()) / 1000);
     return left > 0 ? left : seconds;
@@ -94,8 +93,9 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
   useEffect(() => {
     const onVisible = () => {
       if (document.hidden) {
-        // App passe en arrière-plan → déclencher push serveur pour iOS
-        scheduleServerPush(endTimeRef.current);
+        // App passe en arrière-plan → push immédiat avec subscription pré-chargée
+        const delay = Math.ceil((endTimeRef.current - Date.now()) / 1000);
+        sendPushNow(pushSubRef.current, delay);
         return;
       }
       if (!running) return;
