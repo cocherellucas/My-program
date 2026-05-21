@@ -60,6 +60,8 @@ export default function Program() {
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const [user, setUser] = useState(null);
+  const importedProgramIds = (() => { try { return JSON.parse(localStorage.getItem('imported_program_ids') || '[]'); } catch { return []; } })();
+  const isImported = (session) => importedProgramIds.includes(session.program_id);
   const [generating, setGenerating] = useState(false);
   const [genPhase, setGenPhase] = useState('');
   const [genSeconds, setGenSeconds] = useState(0);
@@ -524,7 +526,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                        <div className="flex items-center justify-between">
                          <div className="flex items-center gap-4">
                            <div className="flex flex-col items-center gap-1">
-                             {session.source === 'coach_import' ? (
+                             {isImported(session) ? (
                                <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', letterSpacing: '0.06em' }}>Importé</span>
                              ) : (
                                <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white', letterSpacing: '0.06em' }}>Coach</span>
