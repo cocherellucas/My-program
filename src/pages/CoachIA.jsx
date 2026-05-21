@@ -265,11 +265,12 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
         });
       }
 
+      const countLabel = targetWeeks === 'infinite' ? '∞' : expandedSessions.length;
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: existingProgram
-          ? `✅ ${expandedSessions.length} séances ajoutées à ton programme existant. Va dans **Programme** pour les voir.`
-          : `✅ Programme importé ! ${expandedSessions.length} séances créées. Va dans **Programme** pour le voir.`
+          ? `✅ Séances ajoutées à ton programme existant (${countLabel}). Va dans **Programme** pour les voir.`
+          : `✅ Programme importé (${countLabel} séances). Va dans **Programme** pour le voir.`
       }]);
     } catch (e) {
       setMessages(prev => [...prev, { role: 'assistant', content: `❌ Erreur lors de l'import : ${e.message}. Réessaie.` }]);
