@@ -18,6 +18,7 @@ export default function CoachIA() {
   const [loading, setLoading] = useState(false);
   const [attachedFile, setAttachedFile] = useState(null);
   const [pendingImportJson, setPendingImportJson] = useState(null);
+  const [pendingConflict, setPendingConflict] = useState(null);
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -183,8 +184,9 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
   };
 
   // Importe le programme détecté dans la DB
-  const importProgramFromCoach = async (jsonStr, targetWeeks) => {
+  const importProgramFromCoach = async (jsonStr, targetWeeks, skipConflict = false, orderSuffix = null) => {
     setPendingImportJson(null);
+    setPendingConflict(null);
     try {
       const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
       if (!jsonMatch) throw new Error('JSON introuvable');
@@ -196,13 +198,13 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
       const existingProgram = activePrograms[0] || null;
 
       const importedProgramIds = JSON.parse(localStorage.getItem('imported_program_ids') || '[]');
-      const isImportedProgram = (p) => p && importedProgramIds.includes(p.id);
+      const isImportedProgram = (p) => p && (importedProgramIds.includes(p.id) || p.weekly_structure === 'custom');
 
-      // Bloquer si programme généré par l'IA (pas un import)
+      // Bloquer uniquement si programme généré (pas custom)
       if (existingProgram && !isImportedProgram(existingProgram)) {
         setMessages(prev => [...prev, {
           role: 'assistant',
-          content: `⚠️ Tu as déjà un programme généré actif. Pour importer un programme depuis le Coach, supprime d'abord ton programme actuel depuis l'onglet **Programme** (tu peux l'enregistrer dans la bibliothèque avant si tu veux le garder).`
+          content: `⚠️ Tu as déjà un programme généré actif. Pour importer depuis le Coach, supprime-le d'abord depuis l'onglet **Programme** (tu peux le sauvegarder en bibliothèque avant).`
         }]);
         return;
       }
@@ -245,20 +247,36 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
       monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
       const dayMap = { monday:0, tuesday:1, wednesday:2, thursday:3, friday:4, saturday:5, sunday:6 };
 
-      for (const s of expandedSessions) {
+      // Précalculer les dates de toutes les séances
+      const sessionsWithDates = expandedSessions.map(s => {
         const offset = ((s.week_number || 1) - 1) * 7 + (dayMap[s.day?.toLowerCase()] ?? 0);
         const d = new Date(monday);
         d.setDate(monday.getDate() + offset);
-        // Si la date calculée est dans le passé, décaler d'une semaine
         if (d < today) d.setDate(d.getDate() + 7);
+        return { ...s, plannedDate: d.toISOString().split('T')[0] };
+      });
+
+      // Détection de conflits same-day (seulement pour les 2 premières semaines pour éviter les faux positifs sur les répétitions)
+      if (existingProgram && !skipConflict) {
+        const existingSessions = await base44.entities.Session.filter({ program_id: existingProgram.id, status: 'planned' });
+        const existingByDate = {};
+        existingSessions.forEach(s => { existingByDate[s.planned_date] = s; });
+        const conflicts = sessionsWithDates.filter(s => s.week_number <= 2 && existingByDate[s.plannedDate]);
+        if (conflicts.length > 0) {
+          setPendingConflict({ jsonStr, targetWeeks, conflicts: conflicts.map(s => ({ newLabel: s.day_label || s.day, date: s.plannedDate, existingLabel: existingByDate[s.plannedDate].day_label })) });
+          return;
+        }
+      }
+
+      for (const s of sessionsWithDates) {
         await base44.entities.Session.create({
           user_id: user.id,
           program_id: program.id,
           week_number: s.week_number || 1,
-          day_label: s.day_label || s.day,
+          day_label: orderSuffix ? `${s.day_label || s.day} §${orderSuffix}` : (s.day_label || s.day),
           type: ['strength','hypertrophy','endurance','mixed','cardio','mobility'].includes(s.type) ? s.type : 'mixed',
           status: 'planned',
-          planned_date: d.toISOString().split('T')[0],
+          planned_date: s.plannedDate,
           estimated_duration: s.estimated_duration || 60,
           exercises: s.exercises || [],
           active_zones: [...new Set((s.exercises || []).map(e => e.muscle_group).filter(Boolean))].map(m => ({ muscle_group: m })),
@@ -286,6 +304,38 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
 
   return (
     <div ref={containerRef} className="flex flex-col" style={{ height: 'calc(100dvh - 96px)' }}>
+
+      {/* Modal conflit même jour */}
+      {pendingConflict && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-sm mx-4 mb-6 rounded-2xl p-5 space-y-4" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)' }}>
+            <div>
+              <p className="font-bold text-white text-base">Séance le même jour</p>
+              <p className="text-white/50 text-xs mt-1">
+                {pendingConflict.conflicts.map(c => `"${c.newLabel}" et "${c.existingLabel}" sont le même jour.`).join(' ')}
+              </p>
+              <p className="text-white/70 text-sm mt-2">C'est voulu ? Si oui, choisis l'ordre dans la journée.</p>
+            </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-white/40 text-xs uppercase tracking-wider font-semibold">La nouvelle séance passe :</p>
+              <button onClick={async () => {
+                  await importProgramFromCoach(pendingConflict.jsonStr, pendingConflict.targetWeeks, true, '2');
+                }}
+                className="w-full py-3 rounded-xl font-bold text-sm text-white flex items-center justify-center gap-2"
+                style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
+                <span className="text-lg">②</span> En 2ème (après l'existante)
+              </button>
+              <button onClick={async () => {
+                  await importProgramFromCoach(pendingConflict.jsonStr, pendingConflict.targetWeeks, true, '1');
+                }}
+                className="w-full py-3 rounded-xl font-bold text-sm text-white/80 border border-white/20 flex items-center justify-center gap-2">
+                <span className="text-lg">①</span> En 1ère (avant l'existante)
+              </button>
+              <button onClick={() => setPendingConflict(null)} className="w-full py-2 text-white/40 text-sm">Annuler</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Sélecteur de semaines pour l'import */}
       {pendingImportJson && (

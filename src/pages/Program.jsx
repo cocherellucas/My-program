@@ -549,7 +549,15 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                            </div>
                            <div>
                              <div className="flex items-center gap-2 flex-wrap">
-                               <span className="font-semibold text-white">{(session.day_label || '').replace(/^(week|semaine)\s*\d+\s*[-–:·]?\s*/i, '').replace(/\bmonday\b/gi, 'Lundi').replace(/\btuesday\b/gi, 'Mardi').replace(/\bwednesday\b/gi, 'Mercredi').replace(/\bthursday\b/gi, 'Jeudi').replace(/\bfriday\b/gi, 'Vendredi').replace(/\bsaturday\b/gi, 'Samedi').replace(/\bsunday\b/gi, 'Dimanche')}</span>
+                               {(() => {
+                                 const raw = session.day_label || '';
+                                 const orderMatch = raw.match(/§(\d)/);
+                                 const label = raw.replace(/§\d/, '').replace(/^(week|semaine)\s*\d+\s*[-–:·]?\s*/i, '').replace(/\bmonday\b/gi, 'Lundi').replace(/\btuesday\b/gi, 'Mardi').replace(/\bwednesday\b/gi, 'Mercredi').replace(/\bthursday\b/gi, 'Jeudi').replace(/\bfriday\b/gi, 'Vendredi').replace(/\bsaturday\b/gi, 'Samedi').replace(/\bsunday\b/gi, 'Dimanche').trim();
+                                 return <>
+                                   <span className="font-semibold text-white">{label}</span>
+                                   {orderMatch && <span className="text-base">{orderMatch[1] === '1' ? '①' : '②'}</span>}
+                                 </>;
+                               })()}
                                <Badge className={`bg-white/20 text-white border-white/20`}>
                                  {TYPE_LABELS[session.type] || session.type}
                                </Badge>
