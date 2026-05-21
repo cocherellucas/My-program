@@ -4,8 +4,12 @@ import { Input } from '@/components/ui/input';
 import { Timer, X, Play, Pause, Edit2, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange }) {
-  const [remaining, setRemaining] = useState(seconds);
+export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, initialEndTime }) {
+  const endTimeRef = useRef(initialEndTime || Date.now() + seconds * 1000);
+  const [remaining, setRemaining] = useState(() => {
+    const left = Math.ceil((endTimeRef.current - Date.now()) / 1000);
+    return left > 0 ? left : seconds;
+  });
   const [running, setRunning] = useState(true);
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(String(seconds));
@@ -13,7 +17,6 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange }
   const audioRef = useRef(null);
   const barRef = useRef(null);
   const dragging = useRef(false);
-  const endTimeRef = useRef(Date.now() + seconds * 1000);
 
   useEffect(() => {
     endTimeRef.current = Date.now() + seconds * 1000;

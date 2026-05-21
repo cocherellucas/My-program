@@ -866,7 +866,18 @@ export default function SessionLog() {
   const [showOverview, setShowOverview] = useState(false);
   const [showEnd, setShowEnd] = useState(false);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
-  const [restSeconds, setRestSeconds] = useState(null);
+  const [restSeconds, setRestSeconds] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`rest_timer_${sessionId}`);
+      if (saved) {
+        const { endTime } = JSON.parse(saved);
+        const left = Math.ceil((endTime - Date.now()) / 1000);
+        if (left > 0) return left;
+        localStorage.removeItem(`rest_timer_${sessionId}`);
+      }
+    } catch {}
+    return null;
+  });
   const [restCompleteCallback, setRestCompleteCallback] = useState(null);
   const [restTimeForEx, setRestTimeForEx] = useState(() => _draft.restTimeForEx || {});
   const [regressingEx, setRegressingEx] = useState(null);
@@ -1389,7 +1400,11 @@ Réponds uniquement avec le JSON demandé.`,
           totalExercises={exercises.length}
           onNext={handleNext}
           onPrev={() => setCurrentExIdx((i) => Math.max(0, i - 1))}
-          onStartRest={(secs, onDone) => { setRestSeconds(secs); if (onDone) setRestCompleteCallback(() => onDone); }}
+          onStartRest={(secs, onDone) => {
+            setRestSeconds(secs);
+            try { localStorage.setItem(`rest_timer_${sessionId}`, JSON.stringify({ endTime: Date.now() + secs * 1000 })); } catch {}
+            if (onDone) setRestCompleteCallback(() => onDone);
+          }}
           isLast={currentExIdx === exercises.length - 1}
           rirContext={rirContext}
           onRegressionRequest={handleRegressionRequest}
@@ -1415,7 +1430,13 @@ Réponds uniquement avec le JSON demandé.`,
       {restSeconds !== null &&
       <RestTimer
         seconds={restSeconds}
-        onComplete={() => { setRestSeconds(null); restCompleteCallback?.(); setRestCompleteCallback(null); }} />
+        initialEndTime={(() => { try { const s = localStorage.getItem(`rest_timer_${sessionId}`); return s ? JSON.parse(s).endTime : null; } catch { return null; } })()}
+        onComplete={() => {
+          setRestSeconds(null);
+          try { localStorage.removeItem(`rest_timer_${sessionId}`); } catch {}
+          restCompleteCallback?.();
+          setRestCompleteCallback(null);
+        }} />
 
       }
     </div>);
