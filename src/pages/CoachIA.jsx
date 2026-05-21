@@ -17,6 +17,7 @@ export default function CoachIA() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [attachedFile, setAttachedFile] = useState(null);
+  const [pendingImportJson, setPendingImportJson] = useState(null);
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -182,24 +183,22 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
   };
 
   // Importe le programme détecté dans la DB
-  const importProgramFromCoach = async (jsonStr) => {
+  const importProgramFromCoach = async (jsonStr, targetWeeks) => {
+    setPendingImportJson(null);
     try {
-      // Nettoyage du JSON — l'IA peut ajouter du texte après le bloc
       const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
       if (!jsonMatch) throw new Error('JSON introuvable');
       const data = JSON.parse(jsonMatch[0]);
       const sessions = data.sessions || [];
       if (!sessions.length) throw new Error('Aucune séance dans le programme');
 
-      // Désactiver les programmes actifs existants
       const active = await base44.entities.Program.filter({ user_id: user.id, status: 'active' });
       for (const p of active) {
         await base44.entities.Program.update(p.id, { status: 'suspended' });
       }
 
-      // Toujours étendre sur 4 semaines en répétant le pattern
       const maxWeek = Math.max(...sessions.map(s => s.week_number || 1), 1);
-      const CYCLE_WEEKS = 4;
+      const CYCLE_WEEKS = targetWeeks === 'infinite' ? 52 : (targetWeeks || 4);
       const expandedSessions = maxWeek >= CYCLE_WEEKS ? sessions :
         Array.from({ length: Math.ceil(CYCLE_WEEKS / maxWeek) }, (_, i) =>
           sessions.map(s => ({ ...s, week_number: (s.week_number || 1) + i * maxWeek }))
@@ -257,6 +256,32 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
 
   return (
     <div ref={containerRef} className="flex flex-col" style={{ height: 'calc(100dvh - 96px)' }}>
+
+      {/* Sélecteur de semaines pour l'import */}
+      {pendingImportJson && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm" onClick={() => setPendingImportJson(null)}>
+          <div className="w-full max-w-sm mx-4 mb-6 rounded-2xl p-5 space-y-4" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)' }} onClick={e => e.stopPropagation()}>
+            <div>
+              <p className="font-bold text-white text-base">Durée du programme</p>
+              <p className="text-white/50 text-xs mt-0.5">Le cycle se répète automatiquement sur la durée choisie.</p>
+            </div>
+            <div className="grid grid-cols-5 gap-2">
+              {[1,2,3,4,5,6,7,8,9,10].map(w => (
+                <button key={w} onClick={() => importProgramFromCoach(pendingImportJson, w)}
+                  className="py-2.5 rounded-xl border border-white/15 bg-white/5 text-white font-bold text-sm hover:bg-white/15 transition-colors">
+                  {w}
+                </button>
+              ))}
+            </div>
+            <button onClick={() => importProgramFromCoach(pendingImportJson, 'infinite')}
+              className="w-full py-3 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90 flex items-center justify-center gap-2"
+              style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
+              ∞ Infini — se répète indéfiniment
+            </button>
+            <button onClick={() => setPendingImportJson(null)} className="w-full py-2 text-white/40 text-sm">Annuler</button>
+          </div>
+        </div>
+      )}
       {/* Messages */}
       <div ref={messagesRef} className="flex-1 overflow-y-auto space-y-4 pb-4 overscroll-contain" style={{ touchAction: 'pan-y' }}>
         {messages.length === 0 && (
@@ -317,7 +342,7 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
                     </ReactMarkdown>
                     {importMatch && (
                       <button
-                        onClick={() => importProgramFromCoach(importMatch[1])}
+                        onClick={() => setPendingImportJson(importMatch[1])}
                         className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-violet-700 font-semibold text-sm hover:bg-white/90 transition-colors"
                       >
                         <Sparkles className="w-4 h-4" />
