@@ -123,24 +123,52 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
     };
   }, [running]);
 
-  const playBeep = () => {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const playSingleBeep = (delayMs) => {
-      const now = audioContext.currentTime + delayMs / 1000;
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      oscillator.frequency.value = 800;
-      oscillator.type = 'sine';
-      gainNode.gain.setValueAtTime(0.3, now);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-      oscillator.start(now);
-      oscillator.stop(now + 0.3);
+  const audioCtxRef = useRef(null);
+
+  const getAudioCtx = () => {
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return audioCtxRef.current;
+  };
+
+  // Déverrouiller l'AudioContext iOS au premier touch
+  useEffect(() => {
+    const unlock = () => {
+      const ctx = getAudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+      window.removeEventListener('touchstart', unlock);
+      window.removeEventListener('touchend', unlock);
     };
-    playSingleBeep(0);
-    playSingleBeep(400);
-    playSingleBeep(800);
+    window.addEventListener('touchstart', unlock, { passive: true });
+    window.addEventListener('touchend', unlock, { passive: true });
+    return () => {
+      window.removeEventListener('touchstart', unlock);
+      window.removeEventListener('touchend', unlock);
+    };
+  }, []);
+
+  const playBeep = () => {
+    try {
+      const audioContext = getAudioCtx();
+      if (audioContext.state === 'suspended') audioContext.resume();
+      const playSingleBeep = (delayMs) => {
+        const now = audioContext.currentTime + delayMs / 1000;
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+        gainNode.gain.setValueAtTime(0.3, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        oscillator.start(now);
+        oscillator.stop(now + 0.3);
+      };
+      playSingleBeep(0);
+      playSingleBeep(400);
+      playSingleBeep(800);
+    } catch {}
   };
 
   const handleEditSave = () => {
