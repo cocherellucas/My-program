@@ -14,6 +14,34 @@ const requestNotifPermission = async () => {
   }
 };
 
+// Obtenir ou créer l'abonnement push
+const getPushSubscription = () => new Promise((resolve) => {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return resolve(null);
+  navigator.serviceWorker.ready.then(reg => {
+    reg.pushManager.getSubscription().then(existing => {
+      if (existing) return resolve(existing.toJSON());
+      reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: 'BDb9fTWerJpit946sN3TkHEaCx6aiYxN7xUEkIdCueUPzFsWGZGHTb3sSu8Atpdz-Rv0IOoEimFQSMUmRguyOWA' })
+        .then(sub => resolve(sub.toJSON()))
+        .catch(() => resolve(null));
+    });
+  }).catch(() => resolve(null));
+});
+
+// Envoyer la notification via le serveur Vercel (pour iOS background)
+const scheduleServerPush = async (endTime) => {
+  try {
+    const subscription = await getPushSubscription();
+    if (!subscription) return;
+    const delay = Math.ceil((endTime - Date.now()) / 1000);
+    if (delay <= 0 || delay > 55) return; // hors limites serveur
+    await fetch('/api/push', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subscription, delay }),
+    });
+  } catch {}
+};
+
 export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, initialEndTime }) {
   const endTimeRef = useRef(initialEndTime || Date.now() + seconds * 1000);
   const [remaining, setRemaining] = useState(() => {
@@ -57,6 +85,11 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
   // Recalculer au retour du background
   useEffect(() => {
     const onVisible = () => {
+      if (document.hidden) {
+        // App passe en arrière-plan → déclencher push serveur pour iOS
+        scheduleServerPush(endTimeRef.current);
+        return;
+      }
       if (!running) return;
       const left = Math.ceil((endTimeRef.current - Date.now()) / 1000);
       if (left <= 0) {
