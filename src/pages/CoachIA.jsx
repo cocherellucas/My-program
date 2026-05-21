@@ -195,6 +195,15 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
       const activePrograms = await base44.entities.Program.filter({ user_id: user.id, status: 'active' });
       const existingProgram = activePrograms[0] || null;
 
+      // Bloquer si programme généré par l'IA (pas un import)
+      if (existingProgram && existingProgram.source !== 'coach_import') {
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: `⚠️ Tu as déjà un programme généré actif. Pour importer un programme depuis le Coach, supprime d'abord ton programme actuel depuis l'onglet **Programme** (tu peux l'enregistrer dans la bibliothèque avant si tu veux le garder).`
+        }]);
+        return;
+      }
+
       const maxWeek = Math.max(...sessions.map(s => s.week_number || 1), 1);
       const CYCLE_WEEKS = targetWeeks === 'infinite' ? 52 : (targetWeeks || 4);
       const expandedSessions = maxWeek >= CYCLE_WEEKS ? sessions :
@@ -204,7 +213,7 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
 
       let program;
       if (existingProgram) {
-        // Ajouter au programme existant — décaler les semaines après celles déjà présentes
+        // Programme importé existant — ajouter les séances à la suite
         const existingSessions = await base44.entities.Session.filter({ program_id: existingProgram.id });
         const lastWeek = existingSessions.length
           ? Math.max(...existingSessions.map(s => s.week_number || 1), 0)
@@ -212,10 +221,7 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
         expandedSessions.forEach(s => { s.week_number = (s.week_number || 1) + lastWeek; });
         program = existingProgram;
       } else {
-        // Suspendre les anciens et créer un nouveau programme
-        for (const p of activePrograms) {
-          await base44.entities.Program.update(p.id, { status: 'suspended' });
-        }
+        // Pas de programme actif — créer un nouveau
         program = await base44.entities.Program.create({
           user_id: user.id,
           version: 1,
@@ -224,6 +230,7 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
           planned_weeks: Math.max(...expandedSessions.map(s => s.week_number || 1), 1),
           active_phase: 'MEV',
           status: 'active',
+          source: 'coach_import',
           program_data: data,
         });
       }
