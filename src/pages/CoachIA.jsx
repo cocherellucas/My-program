@@ -235,14 +235,17 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
         });
       }
 
-      const monday = new Date();
-      monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+      const today = new Date(); today.setHours(0,0,0,0);
+      const monday = new Date(today);
+      monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
       const dayMap = { monday:0, tuesday:1, wednesday:2, thursday:3, friday:4, saturday:5, sunday:6 };
 
       for (const s of expandedSessions) {
         const offset = ((s.week_number || 1) - 1) * 7 + (dayMap[s.day?.toLowerCase()] ?? 0);
         const d = new Date(monday);
         d.setDate(monday.getDate() + offset);
+        // Si la date calculée est dans le passé, décaler d'une semaine
+        if (d < today) d.setDate(d.getDate() + 7);
         await base44.entities.Session.create({
           user_id: user.id,
           program_id: program.id,
