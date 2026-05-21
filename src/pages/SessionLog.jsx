@@ -1302,23 +1302,25 @@ Réponds uniquement avec le JSON demandé.`,
   return (
     <div className="space-y-4 max-w-2xl mx-auto pb-24" style={{ opacity: scrollReady ? 1 : 0, transition: 'opacity 0.2s ease' }}>
       {/* Top bar */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-heading font-bold text-white">{(session.day_label || 'Séance').replace(/^(week|semaine)\s*\d+\s*[-–:·]?\s*/i, '').replace(/\bmonday\b/gi, 'Lundi').replace(/\btuesday\b/gi, 'Mardi').replace(/\bwednesday\b/gi, 'Mercredi').replace(/\bthursday\b/gi, 'Jeudi').replace(/\bfriday\b/gi, 'Vendredi').replace(/\bsaturday\b/gi, 'Samedi').replace(/\bsunday\b/gi, 'Dimanche')}</h1>
-          <p className="text-white/70 text-sm">{exercises.length} exercices</p>
+      <div className="space-y-2">
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl font-heading font-bold text-white">{(session.day_label || 'Séance').replace(/^(week|semaine)\s*\d+\s*[-–:·]?\s*/i, '').replace(/\bmonday\b/gi, 'Lundi').replace(/\btuesday\b/gi, 'Mardi').replace(/\bwednesday\b/gi, 'Mercredi').replace(/\bthursday\b/gi, 'Jeudi').replace(/\bfriday\b/gi, 'Vendredi').replace(/\bsaturday\b/gi, 'Samedi').replace(/\bsunday\b/gi, 'Dimanche')}</h1>
+            <p className="text-white/70 text-sm">{exercises.length} exercices</p>
+          </div>
+          {!showEnd && (
+            <Button variant="ghost" size="sm" onClick={() => setShowQuitConfirm(true)}
+              className="text-white/50 hover:text-white hover:bg-white/10 px-2 mt-1">
+              <X className="w-5 h-5" />
+            </Button>
+          )}
         </div>
         {!showEnd && (
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => setShowOverview((v) => !v)}
-              className="border-white/30 text-white hover:bg-white/10 hover:text-white">
-              <LayoutList className="w-4 h-4 mr-1" />
-              {showOverview ? 'Vue focus' : 'Vue d\'ensemble'}
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => setShowQuitConfirm(true)}
-              className="text-white/50 hover:text-white hover:bg-white/10 px-2">
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
+          <Button variant="outline" size="sm" onClick={() => setShowOverview((v) => !v)}
+            className="border-white/30 text-white hover:bg-white/10 hover:text-white">
+            <LayoutList className="w-4 h-4 mr-1" />
+            {showOverview ? 'Vue focus' : 'Vue d\'ensemble'}
+          </Button>
         )}
       </div>
 
