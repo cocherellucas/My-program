@@ -39,12 +39,14 @@ const scheduleServerPush = async (endTime) => {
     const subscription = await getPushSubscription();
     if (!subscription) return;
     const delay = Math.ceil((endTime - Date.now()) / 1000);
-    if (delay <= 0 || delay > 55) return; // hors limites serveur
-    await fetch('/api/push', {
+    if (delay <= 0) return;
+    // keepalive: true garantit que la requête aboutit même quand la page passe en arrière-plan
+    fetch('/api/push', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ subscription, delay }),
-    });
+      body: JSON.stringify({ subscription, delay: Math.min(delay, 58) }),
+      keepalive: true,
+    }).catch(() => {});
   } catch {}
 };
 

@@ -50,11 +50,29 @@ self.addEventListener('message', (event) => {
     if (timerTimeout) clearTimeout(timerTimeout);
     if (timerInterval) clearInterval(timerInterval);
 
-    // Juste une notification à la fin
+    // Notification à la fin via setTimeout SW (Android)
     const delay = Math.max(0, endTime - Date.now());
-    timerTimeout = setTimeout(() => {
-      showDoneNotif();
-    }, delay);
+    timerTimeout = setTimeout(() => { showDoneNotif(); }, delay);
+
+    // Pour iOS : chaîner des appels serveur toutes les 55s jusqu'à la fin
+    const scheduleChain = (remainingMs) => {
+      if (remainingMs <= 0) return;
+      const chunk = Math.min(remainingMs, 55000);
+      self.registration.pushManager.getSubscription().then(sub => {
+        if (!sub) return;
+        fetch('/api/push', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subscription: sub.toJSON(), delay: Math.ceil(chunk / 1000) }),
+        }).then(() => {
+          // Pas de chaîne si c'était le dernier chunk
+        }).catch(() => {});
+        if (remainingMs > 55000) {
+          setTimeout(() => scheduleChain(remainingMs - 55000), chunk);
+        }
+      }).catch(() => {});
+    };
+    if (delay > 0) scheduleChain(delay);
 
   } else if (event.data.type === 'CANCEL_REST_TIMER') {
     if (timerTimeout) { clearTimeout(timerTimeout); timerTimeout = null; }
