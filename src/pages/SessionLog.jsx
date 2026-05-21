@@ -1315,8 +1315,8 @@ Réponds uniquement avec le JSON demandé.`,
               {showOverview ? 'Vue focus' : 'Vue d\'ensemble'}
             </Button>
             <Button variant="ghost" size="sm" onClick={() => setShowQuitConfirm(true)}
-              className="text-white/50 hover:text-white hover:bg-white/10 px-2">
-              <X className="w-5 h-5" />
+              className="text-white/50 hover:text-white hover:bg-white/10">
+              Quitter
             </Button>
           </div>
         )}
