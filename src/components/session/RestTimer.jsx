@@ -13,27 +13,48 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange }
   const audioRef = useRef(null);
   const barRef = useRef(null);
   const dragging = useRef(false);
+  const endTimeRef = useRef(Date.now() + seconds * 1000);
 
   useEffect(() => {
+    endTimeRef.current = Date.now() + seconds * 1000;
     setRemaining(seconds);
     setRunning(true);
   }, [seconds]);
 
   useEffect(() => {
-    if (!running) {clearInterval(intervalRef.current);return;}
+    if (!running) { clearInterval(intervalRef.current); return; }
     intervalRef.current = setInterval(() => {
-      setRemaining((prev) => {
-        if (prev <= 1) {
-          clearInterval(intervalRef.current);
-          setRunning(false);
-          playBeep();
-          setTimeout(() => onComplete?.(), 1500);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+      const left = Math.ceil((endTimeRef.current - Date.now()) / 1000);
+      if (left <= 0) {
+        clearInterval(intervalRef.current);
+        setRunning(false);
+        setRemaining(0);
+        playBeep();
+        setTimeout(() => onComplete?.(), 1500);
+      } else {
+        setRemaining(left);
+      }
+    }, 500);
     return () => clearInterval(intervalRef.current);
+  }, [running]);
+
+  // Recalculer au retour du background
+  useEffect(() => {
+    const onVisible = () => {
+      if (!running) return;
+      const left = Math.ceil((endTimeRef.current - Date.now()) / 1000);
+      if (left <= 0) {
+        clearInterval(intervalRef.current);
+        setRunning(false);
+        setRemaining(0);
+        playBeep();
+        setTimeout(() => onComplete?.(), 500);
+      } else {
+        setRemaining(left);
+      }
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
   }, [running]);
 
   const playBeep = () => {
@@ -58,6 +79,7 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange }
 
   const handleEditSave = () => {
     const newValue = Math.max(parseInt(editValue) || remaining, 1);
+    endTimeRef.current = Date.now() + newValue * 1000;
     setRemaining(newValue);
     setEditValue(String(newValue));
     setEditing(false);
@@ -73,7 +95,9 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange }
     if (!barRef.current) return;
     const { left, width } = barRef.current.getBoundingClientRect();
     const pct = Math.min(1, Math.max(0, (clientX - left) / width));
-    setRemaining(Math.round(pct * total));
+    const newRemaining = Math.round(pct * total);
+    endTimeRef.current = Date.now() + newRemaining * 1000;
+    setRemaining(newRemaining);
   };
 
   const stopDrag = () => {
