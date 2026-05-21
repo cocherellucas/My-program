@@ -50,11 +50,7 @@ self.addEventListener('message', (event) => {
     if (timerTimeout) clearTimeout(timerTimeout);
     if (timerInterval) clearInterval(timerInterval);
 
-    // UNE seule notification statique avec l'heure de fin
-    const leftNow = Math.ceil((endTime - Date.now()) / 1000);
-    if (leftNow > 0) showCountdownNotif(endTime);
-
-    // UNE notification finale avec son quand c'est terminé
+    // Juste une notification à la fin
     const delay = Math.max(0, endTime - Date.now());
     timerTimeout = setTimeout(() => {
       showDoneNotif();
