@@ -14,17 +14,27 @@ const fmt = (secs) => {
 };
 
 const showCountdownNotif = (left) => {
-  const done = left <= 0;
-  self.registration.showNotification(done ? '💪 C\'est parti !' : 'Coach IA — Repos', {
-    body: done ? 'Temps de repos terminé — reprends la séance !' : `${fmt(left)} restantes`,
+  self.registration.showNotification('Coach IA — Repos', {
+    body: `⏱ ${fmt(left)} restantes`,
     icon: '/apple-touch-icon.png',
     badge: '/apple-touch-icon.png',
     tag: 'rest-timer',
-    renotify: done,
-    silent: !done,
-    vibrate: done ? [200, 100, 200, 100, 400] : undefined,
-    requireInteraction: done,
-    actions: done ? [] : [{ action: 'skip', title: 'Passer' }],
+    renotify: false,
+    silent: true,
+    actions: [{ action: 'skip', title: 'Passer' }],
+  });
+};
+
+const showDoneNotif = () => {
+  self.registration.showNotification('💪 C\'est parti !', {
+    body: 'Temps de repos terminé — reprends la séance !',
+    icon: '/apple-touch-icon.png',
+    badge: '/apple-touch-icon.png',
+    tag: 'rest-timer',
+    renotify: true,
+    silent: false,
+    vibrate: [200, 100, 200, 100, 400],
+    requireInteraction: true,
   });
 };
 
@@ -40,24 +50,18 @@ self.addEventListener('message', (event) => {
     const leftNow = Math.ceil((endTime - Date.now()) / 1000);
     if (leftNow > 0) showCountdownNotif(leftNow);
 
-    // Mettre à jour chaque seconde (Android garde le SW actif)
+    // Mettre à jour toutes les 10 secondes silencieusement (pas de bruit)
     timerInterval = setInterval(() => {
       const left = Math.ceil((timerEndTime - Date.now()) / 1000);
-      if (left <= 0) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-        showCountdownNotif(0);
-      } else {
-        showCountdownNotif(left);
-      }
-    }, 1000);
+      if (left > 0) showCountdownNotif(left);
+    }, 10000);
 
-    // Timeout de sécurité à la fin
+    // Notification finale avec son + vibration
     const delay = Math.max(0, endTime - Date.now());
     timerTimeout = setTimeout(() => {
       if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-      showCountdownNotif(0);
-    }, delay + 500);
+      showDoneNotif();
+    }, delay);
 
   } else if (event.data.type === 'CANCEL_REST_TIMER') {
     if (timerTimeout) { clearTimeout(timerTimeout); timerTimeout = null; }
