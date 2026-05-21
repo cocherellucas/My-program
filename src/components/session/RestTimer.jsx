@@ -5,7 +5,13 @@ import { Timer, X, Play, Pause, Edit2, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const postToSW = (msg) => {
-  navigator.serviceWorker?.ready.then(reg => reg.active?.postMessage(msg)).catch(() => {});
+  if (!('serviceWorker' in navigator)) return;
+  const sw = navigator.serviceWorker.controller;
+  if (sw) { sw.postMessage(msg); return; }
+  navigator.serviceWorker.ready.then(reg => {
+    const target = reg.active || reg.installing || reg.waiting;
+    target?.postMessage(msg);
+  }).catch(() => {});
 };
 
 const requestNotifPermission = async () => {

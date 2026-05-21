@@ -1,5 +1,8 @@
 const VAPID_PUBLIC_KEY = 'BDb9fTWerJpit946sN3TkHEaCx6aiYxN7xUEkIdCueUPzFsWGZGHTb3sSu8Atpdz-Rv0IOoEimFQSMUmRguyOWA';
 
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+
 let timerTimeout = null;
 let timerInterval = null;
 let timerEndTime = null;
