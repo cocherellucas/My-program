@@ -235,6 +235,7 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
           estimated_duration: s.estimated_duration || 60,
           exercises: s.exercises || [],
           active_zones: [...new Set((s.exercises || []).map(e => e.muscle_group).filter(Boolean))].map(m => ({ muscle_group: m })),
+          source: 'coach_import',
         });
       }
 
