@@ -4,6 +4,16 @@ import { Input } from '@/components/ui/input';
 import { Timer, X, Play, Pause, Edit2, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const postToSW = (msg) => {
+  navigator.serviceWorker?.ready.then(reg => reg.active?.postMessage(msg)).catch(() => {});
+};
+
+const requestNotifPermission = async () => {
+  if ('Notification' in window && Notification.permission === 'default') {
+    await Notification.requestPermission();
+  }
+};
+
 export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, initialEndTime }) {
   const endTimeRef = useRef(initialEndTime || Date.now() + seconds * 1000);
   const [remaining, setRemaining] = useState(() => {
@@ -19,9 +29,12 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
   const dragging = useRef(false);
 
   useEffect(() => {
-    endTimeRef.current = Date.now() + seconds * 1000;
+    endTimeRef.current = initialEndTime || Date.now() + seconds * 1000;
     setRemaining(seconds);
     setRunning(true);
+    requestNotifPermission();
+    postToSW({ type: 'SCHEDULE_REST_END', endTime: endTimeRef.current });
+    return () => postToSW({ type: 'CANCEL_REST_TIMER' });
   }, [seconds]);
 
   useEffect(() => {
@@ -187,7 +200,7 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
             {running ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
           </button>
           <button
-            onClick={() => onComplete?.()}
+            onClick={() => { postToSW({ type: 'CANCEL_REST_TIMER' }); onComplete?.(); }}
             className="h-10 w-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
             <X className="w-5 h-5" />
           </button>
