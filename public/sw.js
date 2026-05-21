@@ -13,9 +13,13 @@ const fmt = (secs) => {
   return `${m}:${String(s).padStart(2, '0')}`;
 };
 
-const showCountdownNotif = (left) => {
-  self.registration.showNotification('Coach IA — Repos', {
-    body: `⏱ ${fmt(left)} restantes`,
+const showCountdownNotif = (endTime) => {
+  const end = new Date(endTime);
+  const h = end.getHours().toString().padStart(2, '0');
+  const m = end.getMinutes().toString().padStart(2, '0');
+  const s = end.getSeconds().toString().padStart(2, '0');
+  self.registration.showNotification('Coach IA — Repos en cours', {
+    body: `⏱ Se termine à ${h}:${m}:${s}`,
     icon: '/apple-touch-icon.png',
     badge: '/apple-touch-icon.png',
     tag: 'rest-timer',
@@ -46,20 +50,13 @@ self.addEventListener('message', (event) => {
     if (timerTimeout) clearTimeout(timerTimeout);
     if (timerInterval) clearInterval(timerInterval);
 
-    // Afficher immédiatement le countdown
+    // UNE seule notification statique avec l'heure de fin
     const leftNow = Math.ceil((endTime - Date.now()) / 1000);
-    if (leftNow > 0) showCountdownNotif(leftNow);
+    if (leftNow > 0) showCountdownNotif(endTime);
 
-    // Mettre à jour toutes les 10 secondes silencieusement (pas de bruit)
-    timerInterval = setInterval(() => {
-      const left = Math.ceil((timerEndTime - Date.now()) / 1000);
-      if (left > 0) showCountdownNotif(left);
-    }, 10000);
-
-    // Notification finale avec son + vibration
+    // UNE notification finale avec son quand c'est terminé
     const delay = Math.max(0, endTime - Date.now());
     timerTimeout = setTimeout(() => {
-      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
       showDoneNotif();
     }, delay);
 
