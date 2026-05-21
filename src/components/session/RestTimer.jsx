@@ -70,7 +70,24 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
       }
     };
     document.addEventListener('visibilitychange', onVisible);
-    return () => document.removeEventListener('visibilitychange', onVisible);
+
+    const onPageHide = (e) => {
+      if (!e.persisted) {
+        // App fermée complètement — annuler le timer et la notification
+        postToSW({ type: 'CANCEL_REST_TIMER' });
+        try {
+          const keys = Object.keys(localStorage).filter(k => k.startsWith('rest_timer_'));
+          keys.forEach(k => localStorage.removeItem(k));
+        } catch {}
+        onComplete?.();
+      }
+    };
+    window.addEventListener('pagehide', onPageHide);
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('pagehide', onPageHide);
+    };
   }, [running]);
 
   const playBeep = () => {
