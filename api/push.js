@@ -20,10 +20,13 @@ export default async function handler(req, res) {
     await webpush.sendNotification(
       subscription,
       JSON.stringify({
-        title: 'Coach IA',
-        body: 'Temps de repos terminé — reprends la séance ! 💪',
+        title: '💪 C\'est parti !',
+        body: 'Temps de repos terminé — reprends la séance !',
         icon: '/apple-touch-icon.png',
-      })
+        vibrate: [200, 100, 200, 100, 400],
+        requireInteraction: true,
+      }),
+      { urgency: 'high' }
     );
     res.status(200).json({ ok: true });
   } catch (e) {

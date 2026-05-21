@@ -14,14 +14,17 @@ const fmt = (secs) => {
 };
 
 const showCountdownNotif = (left) => {
-  self.registration.showNotification('Coach IA — Repos', {
-    body: left > 0 ? `${fmt(left)} restantes` : 'Temps de repos terminé — reprends la séance ! 💪',
+  const done = left <= 0;
+  self.registration.showNotification(done ? '💪 C\'est parti !' : 'Coach IA — Repos', {
+    body: done ? 'Temps de repos terminé — reprends la séance !' : `${fmt(left)} restantes`,
     icon: '/apple-touch-icon.png',
     badge: '/apple-touch-icon.png',
     tag: 'rest-timer',
-    renotify: false,
-    silent: left > 0,
-    actions: left > 0 ? [{ action: 'skip', title: 'Passer' }] : [],
+    renotify: done,
+    silent: !done,
+    vibrate: done ? [200, 100, 200, 100, 400] : undefined,
+    requireInteraction: done,
+    actions: done ? [] : [{ action: 'skip', title: 'Passer' }],
   });
 };
 
