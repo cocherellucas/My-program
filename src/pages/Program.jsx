@@ -482,8 +482,9 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
         </div>
       </div>
 
-      {activeProgram && Object.keys(weeks).length > 0 && (
-        <Tabs defaultValue={currentWeekTab}>
+      {activeProgram && Object.keys(weeks).length > 0 && (() => {
+        const isInfinite = Object.keys(weeks).length > 10;
+        return (<Tabs defaultValue={currentWeekTab}>
           <TabsList className="bg-white/10 text-white w-full overflow-x-auto">
             {Object.keys(weeks).length > 10 ? (
               <TabsTrigger value={currentWeekTab} className="flex-1 text-sm">∞</TabsTrigger>
@@ -539,9 +540,11 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                                <span className={`text-xs capitalize ${isToday ? 'text-white/80' : 'text-white/70'}`}>
                                  {session.planned_date && format(new Date(session.planned_date), 'EEE', { locale: fr })}
                                </span>
-                               <span className={`text-sm font-bold ${isToday ? 'text-white' : 'text-white'}`}>
-                                 {session.planned_date && format(new Date(session.planned_date), 'd')}
-                               </span>
+                               {!isInfinite && (
+                                 <span className={`text-sm font-bold ${isToday ? 'text-white' : 'text-white'}`}>
+                                   {session.planned_date && format(new Date(session.planned_date), 'd')}
+                                 </span>
+                               )}
                              </div>
                            </div>
                            <div>
@@ -579,8 +582,8 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
               </div>
             </TabsContent>
           ))}
-        </Tabs>
-      )}
+        </Tabs>);
+      })()}
 
       {!activeProgram && !generating && (
         <Card className="p-12 text-center bg-white/15 backdrop-blur-sm border-white/20">
