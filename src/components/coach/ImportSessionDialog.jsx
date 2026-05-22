@@ -50,15 +50,16 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
           {sessions.map((s, i) => (
             <div key={i} className="rounded-2xl p-3 space-y-2" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
-              <div className="flex items-center justify-between gap-2">
-                <input
+              <div className="flex items-start justify-between gap-2">
+                <textarea
                   value={s.label}
                   onChange={e => updateSession(i, 'label', e.target.value)}
-                  placeholder="Nom de la séance"
-                  className="flex-1 bg-transparent text-white text-sm font-semibold outline-none placeholder-white/30 py-1.5"
+                  placeholder="Décris ta séance (ex: Lundi — Pectoraux & Triceps)"
+                  rows={2}
+                  className="flex-1 bg-transparent text-white text-sm outline-none placeholder-white/30 resize-none leading-relaxed"
                 />
                 {sessions.length > 1 && (
-                  <button onClick={() => removeSession(i)} className="text-white/30 hover:text-red-400 transition-colors">
+                  <button onClick={() => removeSession(i)} className="text-white/30 hover:text-red-400 transition-colors mt-0.5">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 )}
