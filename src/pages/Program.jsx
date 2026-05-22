@@ -597,6 +597,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
 
       {!activeProgram && !generating && (
         <Card className="p-12 text-center bg-white/15 backdrop-blur-sm border-white/20">
+          <Dumbbell className="w-12 h-12 mx-auto text-white/60 mb-4" />
           <h3 className="font-heading font-bold text-xl mb-2 text-white">Pas encore de programme</h3>
           <p className="text-white/70 mb-6">L'IA va créer un programme personnalisé basé sur ton profil</p>
           <Button onClick={() => setShowDialog(true)} disabled={generating} size="lg">
