@@ -12,6 +12,24 @@ const DAYS = [
 ];
 
 
+const parseExercises = (text) => {
+  if (!text) return [];
+  return text.split(/[,\n;]+/).map(line => line.trim()).filter(Boolean).map(line => {
+    const setsReps = line.match(/(\d+)\s*[×x\*]\s*(\d+)/);
+    const weight = line.match(/(\d+(?:[.,]\d+)?)\s*kg/i);
+    const rest = line.match(/(\d+)\s*(?:s|sec|mn|min)/i);
+    const name = line.replace(/\d+\s*[×x\*]\s*\d+/, '').replace(/\d+(?:[.,]\d+)?\s*kg/i, '').replace(/\d+\s*(?:s|sec|mn|min)/i, '').replace(/[,;]/g, '').trim();
+    return {
+      name: name || line.trim(),
+      sets: setsReps ? parseInt(setsReps[1]) : 3,
+      target_reps: setsReps ? setsReps[2] : '10',
+      target_weight: weight ? parseFloat(weight[1].replace(',', '.')) : null,
+      rest_seconds: rest ? parseInt(rest[1]) * (rest[0].toLowerCase().includes('mn') || rest[0].toLowerCase().includes('min') ? 60 : 1) : 90,
+      muscle_group: '',
+    };
+  }).filter(e => e.name);
+};
+
 export default function ImportSessionDialog({ sessions: initialSessions, onImport, onClose }) {
   const [sessions, setSessions] = useState(() =>
     (initialSessions || [{ label: '', day: 'monday', exercises: [] }]).map(s => ({
@@ -83,7 +101,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
               <textarea
                 value={s.content || ''}
                 onChange={e => updateSession(i, 'content', e.target.value)}
-                placeholder="Ex: 4×10 développé couché, 3×12 dips, 3×15 écartés..."
+                placeholder="Ex: 4×10 développé couché 80kg, 3×12 dips 20kg, 3×15 écartés..."
                 rows={6}
                 className="w-full bg-white/5 rounded-xl px-3 py-2 text-white text-sm outline-none placeholder-white/25 resize-none leading-relaxed mb-2 border border-white/10"
               />
@@ -170,7 +188,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
             Annuler
           </button>
           <button
-            onClick={() => onImport(sessions, weeks)}
+            onClick={() => onImport(sessions.map(s => ({ ...s, exercises: s.exercises?.length ? s.exercises : parseExercises(s.content) })), weeks)}
             disabled={sessions.length === 0}
             className="flex-1 py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2"
             style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
