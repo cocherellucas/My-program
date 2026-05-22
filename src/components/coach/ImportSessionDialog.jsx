@@ -116,7 +116,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                           background: (s.order || 1) === o ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'rgba(255,255,255,0.08)',
                           color: (s.order || 1) === o ? 'white' : 'rgba(255,255,255,0.5)',
                         }}>
-                        {o === 1 ? '① 1ère' : '② 2ème'}
+                        {o === 1 ? '1ère' : '2ème'}
                       </button>
                     ))}
                   </div>
