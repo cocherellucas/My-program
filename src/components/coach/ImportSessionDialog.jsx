@@ -32,7 +32,9 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
     if (sessions.length >= 14) return;
     const dayCounts = {};
     sessions.forEach(s => { dayCounts[s.day] = (dayCounts[s.day] || 0) + 1; });
-    const nextDay = DAYS.find(d => (dayCounts[d.value] || 0) < 2)?.value || 'monday';
+    const nextDay = DAYS.find(d => (dayCounts[d.value] || 0) === 0)?.value
+      || DAYS.find(d => (dayCounts[d.value] || 0) < 2)?.value
+      || 'monday';
     setSessions(prev => [...prev, { label: '', day: nextDay, exercises: [], type: 'mixed', estimated_duration: 60, order: 1 }]);
   };
 
@@ -82,20 +84,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                   const isSelected = s.day === d.value;
                   return (
                     <button key={d.value}
-                      onClick={() => {
-                        if (isSelected) return;
-                        if (alreadyTwo) return;
-                        const dayIdx = DAYS.findIndex(x => x.value === d.value);
-                        const dayCounts = {};
-                        sessions.forEach((s, si) => { if (si !== i) dayCounts[s.day] = (dayCounts[s.day] || 0) + 1; });
-                        if ((dayCounts[d.value] || 0) >= 1) {
-                          // Trouver le prochain jour libre (0 session)
-                          const next = [...DAYS.slice(dayIdx + 1), ...DAYS.slice(0, dayIdx)].find(x => (dayCounts[x.value] || 0) === 0);
-                          if (next) updateSession(i, 'day', next.value);
-                        } else {
-                          updateSession(i, 'day', d.value);
-                        }
-                      }}
+                      onClick={() => { if (!alreadyTwo || isSelected) updateSession(i, 'day', d.value); }}
                       className="py-1.5 rounded-lg text-[10px] font-bold transition-all"
                       style={{
                         background: isSelected ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'rgba(255,255,255,0.08)',
