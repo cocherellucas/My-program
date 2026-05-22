@@ -31,6 +31,8 @@ const parseExercises = (text) => {
 };
 
 export default function ImportSessionDialog({ sessions: initialSessions, onImport, onClose }) {
+  const [verified, setVerified] = useState({});
+
   const [sessions, setSessions] = useState(() =>
     (initialSessions || [{ label: '', day: 'monday', exercises: [] }]).map(s => ({
       label: s.day_label || s.label || '',
@@ -98,13 +100,42 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                   </button>
                 )}
               </div>
-              <textarea
-                value={s.content || ''}
-                onChange={e => updateSession(i, 'content', e.target.value)}
-                placeholder="Ex: 4×10 développé couché 80kg, 3×12 dips 20kg, 3×15 écartés..."
-                rows={6}
-                className="w-full bg-white/5 rounded-xl px-3 py-2 text-white text-sm outline-none placeholder-white/25 resize-none leading-relaxed mb-2 border border-white/10"
-              />
+              {verified[i] ? (
+                <div className="w-full bg-white/5 rounded-xl px-3 py-2 mb-2 border border-white/10 space-y-2">
+                  {parseExercises(s.content).length === 0
+                    ? <p className="text-white/30 text-xs italic">Aucun exercice détecté</p>
+                    : parseExercises(s.content).map((ex, ei) => (
+                      <div key={ei} className="flex flex-col gap-0.5 pb-2 border-b border-white/5 last:border-0 last:pb-0">
+                        <p className="text-white text-sm font-semibold">{ex.name}</p>
+                        <div className="flex gap-3 text-xs text-white/50">
+                          <span>{ex.sets} séries × {ex.target_reps} reps</span>
+                          {ex.target_weight && <span>· {ex.target_weight} kg</span>}
+                          <span>· {ex.rest_seconds}s repos</span>
+                        </div>
+                      </div>
+                    ))
+                  }
+                  <button onClick={() => setVerified(v => ({ ...v, [i]: false }))} className="text-white/30 text-xs hover:text-white/60 transition-colors pt-1">
+                    ✏️ Modifier
+                  </button>
+                </div>
+              ) : (
+                <div className="relative mb-2">
+                  <textarea
+                    value={s.content || ''}
+                    onChange={e => updateSession(i, 'content', e.target.value)}
+                    placeholder="Ex: 4×10 développé couché 80kg, 3×12 dips 20kg, 3×15 écartés..."
+                    rows={6}
+                    className="w-full bg-white/5 rounded-xl px-3 py-2 text-white text-sm outline-none placeholder-white/25 resize-none leading-relaxed border border-white/10"
+                  />
+                  <button
+                    onClick={() => setVerified(v => ({ ...v, [i]: true }))}
+                    className="absolute bottom-2 right-2 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all"
+                    style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white' }}>
+                    Vérifier
+                  </button>
+                </div>
+              )}
               <div className="grid grid-cols-7 gap-1">
                 {DAYS.map(d => {
                   const alreadyTwo = countForDay(d.value, i) >= 2;
