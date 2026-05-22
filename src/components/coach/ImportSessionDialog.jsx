@@ -15,7 +15,7 @@ const DAYS = [
 const parseExercises = (text) => {
   if (!text) return [];
   return text.split(/[,\n;]+/).map(line => line.trim()).filter(Boolean).map(line => {
-    const setsReps = line.match(/(\d+)\s*[×x\*]\s*(\d+)/);
+    const setsReps = line.match(/(\d+)\s*[×x\*]\s*(\d+(?:\s*[-–]\s*\d+)?)/);
     const weight = line.match(/\((\d+(?:[.,]\d+)?)\s*kg\)/i) || line.match(/(\d+(?:[.,]\d+)?)\s*kg/i);
     const restMatch =
       line.match(/(\d+)\s*m(?:in|n)?\s*(\d+)\s*s?/i) || // 2m30, 2min30, 2mn30
@@ -29,11 +29,11 @@ const parseExercises = (text) => {
           : parseInt(restMatch[1])
       : 90;
     const restStr = restMatch ? restMatch[0] : '';
-    const name = line.replace(/\d+\s*[×x\*]\s*\d+/, '').replace(/\(\d+(?:[.,]\d+)?\s*kg\)/i, '').replace(/\d+(?:[.,]\d+)?\s*kg/i, '').replace(restStr, '').replace(/[,;()]/g, '').trim();
+    const name = line.replace(/\d+\s*[×x\*]\s*\d+(?:\s*[-–]\s*\d+)?/, '').replace(/\(\d+(?:[.,]\d+)?\s*kg\)/i, '').replace(/\d+(?:[.,]\d+)?\s*kg/i, '').replace(restStr, '').replace(/[,;()]/g, '').trim();
     return {
       name: name || line.trim(),
       sets: setsReps ? parseInt(setsReps[1]) : 3,
-      target_reps: setsReps ? setsReps[2] : '10',
+      target_reps: setsReps ? setsReps[2].replace(/\s/g, '') : '10',
       target_weight: weight ? parseFloat(weight[1].replace(',', '.')) : null,
       rest_seconds: restSeconds,
       muscle_group: '',
