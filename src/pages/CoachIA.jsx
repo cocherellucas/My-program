@@ -162,9 +162,7 @@ export default function CoachIA() {
     const history = messages.map(m => `${m.role === 'user' ? 'Utilisateur' : 'Coach'}: ${m.content}`).join('\n');
 
     // Instruction spéciale pour l'import de programme
-    const importInstruction = `\n\nINSTRUCTION IMPORT : Si l'utilisateur partage un programme d'entraînement (texte, liste d'exercices, photo, PDF) ou demande de l'importer dans l'app, analyse-le, propose des optimisations selon la science, puis termine ta réponse avec exactement ce bloc JSON (remplace les valeurs) :
-IMPORT_READY:{"sessions":[{"day_label":"Lundi - Pectoraux","day":"monday","week_number":1,"type":"hypertrophy","estimated_duration":60,"exercises":[{"name":"Développé couché barre","sets":4,"target_reps":"8-10","rest_seconds":90,"muscle_group":"Pectoraux"}]}]}
-Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme structuré.`;
+    const importInstruction = `\n\nINSTRUCTION IMPORT : Si l'utilisateur demande d'importer une séance ou un programme dans l'app, réponds-lui simplement de cliquer sur le bouton **"+ Importer"** en haut à droite de l'écran. Ne génère jamais de bloc IMPORT_READY dans le chat — l'import se fait uniquement via ce bouton.`;
 
     const llmParams = {
       prompt: `${systemContext}${importInstruction}\n\n${history}\n\nUtilisateur: ${userMsg}`,
