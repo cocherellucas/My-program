@@ -518,7 +518,15 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
       </div>
 
       {/* Label Coach IA */}
-      <p className="text-xs text-white/50 px-1 pt-2 flex-shrink-0"><span className="font-bold text-white">Coach IA</span> · Ton assistant entraînement</p>
+      <div className="flex items-center justify-between px-1 pt-2 flex-shrink-0">
+        <p className="text-xs text-white/50"><span className="font-bold text-white">Coach IA</span> · Ton assistant entraînement</p>
+        <button
+          onClick={() => setPendingImportSessions({ json: '{}', sessions: [] })}
+          className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all"
+          style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
+          + Importer
+        </button>
+      </div>
 
       {/* Input */}
       <div ref={inputAreaRef} className="flex-shrink-0 bg-white/10 rounded-2xl border border-white/20 mx-0 mt-1 flex items-center gap-2 px-3 py-2">
