@@ -16,9 +16,9 @@ const parseExercises = (text) => {
   if (!text) return [];
   return text.split(/[,\n;]+/).map(line => line.trim()).filter(Boolean).map(line => {
     const setsReps = line.match(/(\d+)\s*[×x\*]\s*(\d+)/);
-    const weight = line.match(/(\d+(?:[.,]\d+)?)\s*kg/i);
+    const weight = line.match(/\((\d+(?:[.,]\d+)?)\s*kg\)/i) || line.match(/(\d+(?:[.,]\d+)?)\s*kg/i);
     const rest = line.match(/(\d+)\s*(?:s|sec|mn|min)/i);
-    const name = line.replace(/\d+\s*[×x\*]\s*\d+/, '').replace(/\d+(?:[.,]\d+)?\s*kg/i, '').replace(/\d+\s*(?:s|sec|mn|min)/i, '').replace(/[,;]/g, '').trim();
+    const name = line.replace(/\d+\s*[×x\*]\s*\d+/, '').replace(/\(\d+(?:[.,]\d+)?\s*kg\)/i, '').replace(/\d+(?:[.,]\d+)?\s*kg/i, '').replace(/\d+\s*(?:s|sec|mn|min)/i, '').replace(/[,;()]/g, '').trim();
     return {
       name: name || line.trim(),
       sets: setsReps ? parseInt(setsReps[1]) : 3,
@@ -140,11 +140,14 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                 </div>
               ) : (
                 <div className="relative mb-2">
-                  <p className="text-white/40 text-xs mb-1.5">Décris les exercices avec séries, reps, poids et repos :</p>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <p className="text-white/40 text-xs">Décris les exercices avec séries, reps et repos :</p>
+                    <p className="text-white/25 text-[10px]">(poids) = optionnel</p>
+                  </div>
                   <textarea
                     value={s.content || ''}
                     onChange={e => updateSession(i, 'content', e.target.value)}
-                    placeholder="Ex: 4×10 développé couché 80kg 90s, 3×12 dips 20kg 60s, 3×15 écartés 15kg 75s..."
+                    placeholder={"Ex: 4×10 développé couché (80kg) 90s\n3×12 dips (20kg) 60s\n3×15 écartés 75s..."}
                     rows={6}
                     className="w-full bg-white/5 rounded-xl px-3 py-2 text-white text-sm outline-none placeholder-white/25 resize-none leading-relaxed border border-white/10"
                   />
