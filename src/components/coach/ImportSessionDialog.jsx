@@ -11,19 +11,6 @@ const DAYS = [
   { value: 'sunday', label: 'Dimanche' },
 ];
 
-const DURATIONS = [
-  { value: 1, label: '1' },
-  { value: 2, label: '2' },
-  { value: 3, label: '3' },
-  { value: 4, label: '4' },
-  { value: 5, label: '5' },
-  { value: 6, label: '6' },
-  { value: 7, label: '7' },
-  { value: 8, label: '8' },
-  { value: 9, label: '9' },
-  { value: 10, label: '10' },
-  { value: 'infinite', label: '∞', large: true },
-];
 
 export default function ImportSessionDialog({ sessions: initialSessions, onImport, onClose }) {
   const [sessions, setSessions] = useState(() =>
@@ -101,20 +88,31 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
             Ajouter une séance
           </button>
 
-          {/* Durée */}
+          {/* Durée — slider */}
           <div className="pt-1">
-            <p className="text-white/40 text-xs font-semibold uppercase tracking-wider mb-2">Durée du cycle</p>
-            <div className="grid grid-cols-6 gap-1.5">
-              {DURATIONS.map(d => (
-                <button key={d.value} onClick={() => setWeeks(d.value)}
-                  className={`py-2 rounded-xl font-bold transition-all ${d.large ? 'text-2xl leading-none' : 'text-sm'}`}
-                  style={{
-                    background: weeks === d.value ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'rgba(255,255,255,0.08)',
-                    color: weeks === d.value ? 'white' : 'rgba(255,255,255,0.5)',
-                  }}>
-                  {d.label}
-                </button>
-              ))}
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-white/40 text-xs font-semibold uppercase tracking-wider">Durée du cycle</p>
+              <span className="font-bold text-white text-lg" style={{ minWidth: 28, textAlign: 'right' }}>
+                {weeks === 'infinite' ? '∞' : `${weeks} sem.`}
+              </span>
+            </div>
+            <style>{`
+              .weeks-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 99px; outline: none; background: linear-gradient(to right, #7c3aed 0%, #a855f7 var(--pct), rgba(255,255,255,0.12) var(--pct), rgba(255,255,255,0.12) 100%); }
+              .weeks-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; border-radius: 50%; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(124,58,237,0.5); }
+              .weeks-slider::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: white; cursor: pointer; border: none; box-shadow: 0 2px 8px rgba(124,58,237,0.5); }
+            `}</style>
+            <input
+              type="range" min={1} max={11} step={1}
+              value={weeks === 'infinite' ? 11 : weeks}
+              onChange={e => { const v = parseInt(e.target.value); setWeeks(v === 11 ? 'infinite' : v); }}
+              className="weeks-slider"
+              style={{ '--pct': `${((weeks === 'infinite' ? 11 : weeks) - 1) / 10 * 100}%` }}
+            />
+            <div className="flex justify-between mt-1.5 px-0.5">
+              <span className="text-white/30 text-[10px]">1</span>
+              <span className="text-white/30 text-[10px]">5</span>
+              <span className="text-white/30 text-[10px]">10</span>
+              <span className="text-white/30 text-[10px]">∞</span>
             </div>
           </div>
         </div>
