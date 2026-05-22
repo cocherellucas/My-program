@@ -10,6 +10,7 @@ import { buildSystemPrompt } from '@/lib/coach-prompts';
 import { getContextualKnowledge, getMessageKnowledge } from '@/lib/scientific-knowledge-base';
 import { getAvailableExercises, getTensionProfile } from '@/lib/exercise-database';
 import { normalizeUser } from '@/lib/utils';
+import ImportSessionDialog from '@/components/coach/ImportSessionDialog';
 
 export default function CoachIA() {
   const [user, setUser] = useState(null);
@@ -18,6 +19,7 @@ export default function CoachIA() {
   const [loading, setLoading] = useState(false);
   const [attachedFile, setAttachedFile] = useState(null);
   const [pendingImportJson, setPendingImportJson] = useState(null);
+  const [pendingImportSessions, setPendingImportSessions] = useState(null);
   const [pendingConflict, setPendingConflict] = useState(null);
   const bottomRef = useRef(null);
 
@@ -333,6 +335,32 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
         </div>
       )}
 
+      {/* Dialog import stylé */}
+      {pendingImportSessions && (
+        <ImportSessionDialog
+          sessions={pendingImportSessions.sessions}
+          onClose={() => setPendingImportSessions(null)}
+          onImport={(editedSessions, weeks) => {
+            setPendingImportSessions(null);
+            // Reconstruire le JSON avec les sessions éditées (jours mis à jour)
+            try {
+              const d = JSON.parse(pendingImportSessions.json.match(/\{[\s\S]*\}/)?.[0] || '{}');
+              const merged = editedSessions.map((s, i) => ({
+                ...(d.sessions?.[i] || {}),
+                day: s.day,
+                day_label: s.label || s.day,
+                exercises: s.exercises.length ? s.exercises : (d.sessions?.[i]?.exercises || []),
+                type: s.type,
+                estimated_duration: s.estimated_duration,
+                week_number: 1,
+              }));
+              const newJson = JSON.stringify({ ...d, sessions: merged });
+              importProgramFromCoach(newJson, weeks);
+            } catch { importProgramFromCoach(pendingImportSessions.json, weeks); }
+          }}
+        />
+      )}
+
       {/* Sélecteur de semaines pour l'import */}
       {pendingImportJson && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm" onClick={() => setPendingImportJson(null)}>
@@ -418,7 +446,12 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
                     </ReactMarkdown>
                     {importMatch && (
                       <button
-                        onClick={() => setPendingImportJson(importMatch[1])}
+                        onClick={() => {
+                          try {
+                            const d = JSON.parse(importMatch[1].match(/\{[\s\S]*\}/)?.[0] || '{}');
+                            setPendingImportSessions({ json: importMatch[1], sessions: d.sessions || [] });
+                          } catch { setPendingImportSessions({ json: importMatch[1], sessions: [] }); }
+                        }}
                         className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-violet-700 font-semibold text-sm hover:bg-white/90 transition-colors"
                       >
                         <Sparkles className="w-4 h-4" />
