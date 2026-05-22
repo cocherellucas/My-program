@@ -140,10 +140,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                 </div>
               ) : (
                 <div className="relative mb-2">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <p className="text-white/40 text-xs">Décris les exercices avec séries, reps et repos :</p>
-                    <p className="text-white/25 text-[10px]">(poids) = optionnel</p>
-                  </div>
+                  <p className="text-white/40 text-xs mb-1.5">Séries × reps, exercice, repos — le poids entre <span className="text-white/25">(parenthèses)</span> est optionnel.</p>
                   <textarea
                     value={s.content || ''}
                     onChange={e => updateSession(i, 'content', e.target.value)}
