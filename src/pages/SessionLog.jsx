@@ -971,6 +971,25 @@ export default function SessionLog() {
 
   const exercises = (sessionExercises ?? (session?.exercises || [])).filter((ex) => ex && ex.name);
 
+  // Pré-remplir les logs avec target_weight si défini et pas encore de log
+  useEffect(() => {
+    if (!exercises.length) return;
+    setLogs(prev => {
+      const updated = { ...prev };
+      exercises.forEach((ex, exIdx) => {
+        if (!ex.target_weight) return;
+        const sets = Math.max(1, ex.sets || 3);
+        for (let s = 0; s < sets; s++) {
+          const key = `${exIdx}-${s}`;
+          if (!updated[key]?.weight) {
+            updated[key] = { ...(updated[key] || {}), weight: ex.target_weight };
+          }
+        }
+      });
+      return updated;
+    });
+  }, [exercises.length]);
+
   const updateLog = (exIdx, setIdx, field, value, totalSets) => {
     setLogs((prev) => {
       const key = `${exIdx}-${setIdx}`;
