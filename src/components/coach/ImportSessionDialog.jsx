@@ -29,8 +29,11 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
   };
 
   const addSession = () => {
-    setSessions(prev => [...prev, { label: '', day: 'monday', exercises: [], type: 'mixed', estimated_duration: 60 }]);
+    if (sessions.length >= 14) return;
+    setSessions(prev => [...prev, { label: '', day: 'monday', exercises: [], type: 'mixed', estimated_duration: 60, order: 1 }]);
   };
+
+  const countForDay = (day, excludeIdx) => sessions.filter((s, i) => i !== excludeIdx && s.day === day).length;
 
   const removeSession = (i) => {
     setSessions(prev => prev.filter((_, idx) => idx !== i));
@@ -71,29 +74,51 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                 className="w-full bg-white/5 rounded-xl px-3 py-2 text-white text-sm outline-none placeholder-white/25 resize-none leading-relaxed mb-2 border border-white/10"
               />
               <div className="grid grid-cols-7 gap-1">
-                {DAYS.map(d => (
-                  <button key={d.value} onClick={() => updateSession(i, 'day', d.value)}
-                    className="py-1.5 rounded-lg text-[10px] font-bold transition-all"
-                    style={{
-                      background: s.day === d.value ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'rgba(255,255,255,0.08)',
-                      color: s.day === d.value ? 'white' : 'rgba(255,255,255,0.5)',
-                    }}>
-                    {d.label.slice(0, 2)}
-                  </button>
-                ))}
+                {DAYS.map(d => {
+                  const alreadyTwo = countForDay(d.value, i) >= 2;
+                  const isSelected = s.day === d.value;
+                  return (
+                    <button key={d.value}
+                      onClick={() => { if (!alreadyTwo || isSelected) updateSession(i, 'day', d.value); }}
+                      className="py-1.5 rounded-lg text-[10px] font-bold transition-all"
+                      style={{
+                        background: isSelected ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : alreadyTwo ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.08)',
+                        color: isSelected ? 'white' : alreadyTwo ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.5)',
+                        cursor: alreadyTwo && !isSelected ? 'not-allowed' : 'pointer',
+                      }}>
+                      {d.label.slice(0, 2)}
+                    </button>
+                  );
+                })}
               </div>
-              {s.exercises.length > 0 && (
-                <p className="text-white/30 text-xs">{s.exercises.length} exercices</p>
+              {countForDay(s.day, i) === 1 && (
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-white/40 text-xs">Ordre dans la journée :</span>
+                  <div className="flex gap-1">
+                    {[1,2].map(o => (
+                      <button key={o} onClick={() => updateSession(i, 'order', o)}
+                        className="px-3 py-1 rounded-lg text-xs font-bold transition-all"
+                        style={{
+                          background: (s.order || 1) === o ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'rgba(255,255,255,0.08)',
+                          color: (s.order || 1) === o ? 'white' : 'rgba(255,255,255,0.5)',
+                        }}>
+                        {o === 1 ? '① 1ère' : '② 2ème'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
           ))}
 
           {/* Ajouter une séance */}
-          <button onClick={addSession}
-            className="w-full py-3 rounded-2xl border border-dashed border-white/20 text-white/40 text-sm font-semibold flex items-center justify-center gap-2 hover:border-white/40 hover:text-white/60 transition-all">
-            <Plus className="w-4 h-4" />
-            Ajouter une séance
-          </button>
+          {sessions.length < 14 && (
+            <button onClick={addSession}
+              className="w-full py-3 rounded-2xl border border-dashed border-white/20 text-white/40 text-sm font-semibold flex items-center justify-center gap-2 hover:border-white/40 hover:text-white/60 transition-all">
+              <Plus className="w-4 h-4" />
+              Ajouter une séance ({sessions.length}/14)
+            </button>
+          )}
 
           {/* Durée — slider */}
           <div className="pt-1">
