@@ -17,14 +17,25 @@ const parseExercises = (text) => {
   return text.split(/[,\n;]+/).map(line => line.trim()).filter(Boolean).map(line => {
     const setsReps = line.match(/(\d+)\s*[×x\*]\s*(\d+)/);
     const weight = line.match(/\((\d+(?:[.,]\d+)?)\s*kg\)/i) || line.match(/(\d+(?:[.,]\d+)?)\s*kg/i);
-    const rest = line.match(/(\d+)\s*(?:s|sec|mn|min)/i);
-    const name = line.replace(/\d+\s*[×x\*]\s*\d+/, '').replace(/\(\d+(?:[.,]\d+)?\s*kg\)/i, '').replace(/\d+(?:[.,]\d+)?\s*kg/i, '').replace(/\d+\s*(?:s|sec|mn|min)/i, '').replace(/[,;()]/g, '').trim();
+    const restMatch =
+      line.match(/(\d+)\s*m(?:in|n)?\s*(\d+)\s*s?/i) || // 2m30, 2min30, 2mn30
+      line.match(/(\d+)\s*(?:mn|min)/i) ||               // 2min, 2mn
+      line.match(/(\d+)\s*s(?:ec)?(?!\w)/i);             // 90s, 90sec
+    const restSeconds = restMatch
+      ? restMatch[2] != null
+        ? parseInt(restMatch[1]) * 60 + parseInt(restMatch[2]) // 2m30 = 150s
+        : restMatch[0].toLowerCase().match(/mn|min/)
+          ? parseInt(restMatch[1]) * 60
+          : parseInt(restMatch[1])
+      : 90;
+    const restStr = restMatch ? restMatch[0] : '';
+    const name = line.replace(/\d+\s*[×x\*]\s*\d+/, '').replace(/\(\d+(?:[.,]\d+)?\s*kg\)/i, '').replace(/\d+(?:[.,]\d+)?\s*kg/i, '').replace(restStr, '').replace(/[,;()]/g, '').trim();
     return {
       name: name || line.trim(),
       sets: setsReps ? parseInt(setsReps[1]) : 3,
       target_reps: setsReps ? setsReps[2] : '10',
       target_weight: weight ? parseFloat(weight[1].replace(',', '.')) : null,
-      rest_seconds: rest ? parseInt(rest[1]) * (rest[0].toLowerCase().includes('mn') || rest[0].toLowerCase().includes('min') ? 60 : 1) : 90,
+      rest_seconds: restSeconds,
       muscle_group: '',
     };
   }).filter(e => e.name);
