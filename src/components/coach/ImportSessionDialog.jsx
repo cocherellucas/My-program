@@ -37,7 +37,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-3 py-10">
       <div className="w-full max-w-sm rounded-3xl overflow-hidden" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)', maxHeight: '88vh', display: 'flex', flexDirection: 'column' }}>
 
         {/* Header */}
