@@ -109,8 +109,8 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
               style={{ '--pct': `${((weeks === 'infinite' ? 11 : weeks) - 1) / 10 * 100}%` }}
             />
             <div className="relative mt-1.5 h-3">
-              {[{label:'1',step:0},{label:'5',step:4},{label:'10',step:9},{label:'∞',step:10}].map(t => (
-                <span key={t.label} className="absolute text-[10px] text-white/30 -translate-x-1/2"
+              {[{label:'1',step:0},{label:'5',step:4},{label:'10',step:9},{label:'∞',step:10,big:true}].map(t => (
+                <span key={t.label} className={`absolute -translate-x-1/2 text-white/50 font-semibold ${t.big ? 'text-base' : 'text-xs'}`}
                   style={{ left: `calc(${t.step}/10 * (100% - 24px) + 12px)` }}>{t.label}</span>
               ))}
             </div>
