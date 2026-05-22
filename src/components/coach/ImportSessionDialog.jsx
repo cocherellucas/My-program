@@ -32,6 +32,25 @@ const parseExercises = (text) => {
 
 export default function ImportSessionDialog({ sessions: initialSessions, onImport, onClose }) {
   const [verified, setVerified] = useState({});
+  const [importError, setImportError] = useState(null);
+
+  const validateAndImport = (parsedSessions, weeks) => {
+    for (let i = 0; i < parsedSessions.length; i++) {
+      const exercises = parsedSessions[i].exercises;
+      if (!exercises || exercises.length === 0) {
+        setImportError(`Séance ${i + 1} : aucun exercice détecté. Clique sur "Vérifier" pour contrôler.`);
+        return;
+      }
+      for (const ex of exercises) {
+        if (!ex.sets || !ex.target_reps || !ex.rest_seconds) {
+          setImportError(`Séance ${i + 1} — "${ex.name}" : séries, répétitions ou temps de repos manquant.`);
+          return;
+        }
+      }
+    }
+    setImportError(null);
+    onImport(parsedSessions, weeks);
+  };
 
   const [sessions, setSessions] = useState(() =>
     (initialSessions || [{ label: '', day: 'monday', exercises: [] }]).map(s => ({
@@ -213,19 +232,22 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
         </div>
 
         {/* Footer */}
-        <div className="px-5 pb-8 pt-3 flex gap-2 flex-shrink-0 border-t border-white/10">
+        <div className="px-5 pb-8 pt-3 flex-shrink-0 border-t border-white/10 space-y-2">
+          {importError && <p className="text-red-400 text-xs text-center">{importError}</p>}
+          <div className="flex gap-2">
           <button onClick={onClose}
             className="flex-1 py-3 rounded-xl border border-white/15 text-white/50 text-sm font-semibold hover:bg-white/10 transition-colors">
             Annuler
           </button>
           <button
-            onClick={() => onImport(sessions.map(s => ({ ...s, exercises: s.exercises?.length ? s.exercises : parseExercises(s.content) })), weeks)}
+            onClick={() => validateAndImport(sessions.map(s => ({ ...s, exercises: s.exercises?.length ? s.exercises : parseExercises(s.content) })), weeks)}
             disabled={sessions.length === 0}
             className="flex-1 py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2"
             style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
             <Sparkles className="w-4 h-4" />
             Importer
           </button>
+          </div>
         </div>
       </div>
     </div>
