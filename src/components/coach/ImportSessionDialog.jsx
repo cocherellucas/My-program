@@ -55,7 +55,6 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
 
         {/* Header */}
         <div className="px-5 pt-5 pb-3 border-b border-white/10 flex-shrink-0">
-          <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4" />
           <h2 className="font-bold text-white text-lg">Importer dans le programme</h2>
           <p className="text-white/40 text-xs mt-0.5">Choisis les jours et la durée du cycle</p>
         </div>
