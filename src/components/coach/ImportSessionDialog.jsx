@@ -140,10 +140,11 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                 </div>
               ) : (
                 <div className="relative mb-2">
+                  <p className="text-white/40 text-xs mb-1.5">Décris les exercices avec séries, reps, poids et repos :</p>
                   <textarea
                     value={s.content || ''}
                     onChange={e => updateSession(i, 'content', e.target.value)}
-                    placeholder="Ex: 4×10 développé couché 80kg, 3×12 dips 20kg, 3×15 écartés..."
+                    placeholder="Ex: 4×10 développé couché 80kg 90s, 3×12 dips 20kg 60s, 3×15 écartés 15kg 75s..."
                     rows={6}
                     className="w-full bg-white/5 rounded-xl px-3 py-2 text-white text-sm outline-none placeholder-white/25 resize-none leading-relaxed border border-white/10"
                   />
