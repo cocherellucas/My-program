@@ -30,7 +30,10 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
 
   const addSession = () => {
     if (sessions.length >= 14) return;
-    setSessions(prev => [...prev, { label: '', day: 'monday', exercises: [], type: 'mixed', estimated_duration: 60, order: 1 }]);
+    const dayCounts = {};
+    sessions.forEach(s => { dayCounts[s.day] = (dayCounts[s.day] || 0) + 1; });
+    const nextDay = DAYS.find(d => (dayCounts[d.value] || 0) < 2)?.value || 'monday';
+    setSessions(prev => [...prev, { label: '', day: nextDay, exercises: [], type: 'mixed', estimated_duration: 60, order: 1 }]);
   };
 
   const countForDay = (day, excludeIdx) => sessions.filter((s, i) => i !== excludeIdx && s.day === day).length;
