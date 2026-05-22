@@ -218,12 +218,8 @@ Ne mets IMPORT_READY que si tu as assez d'infos pour créer un vrai programme st
 
       let program;
       if (existingProgram) {
-        // Programme importé existant — ajouter les séances à la suite
-        const existingSessions = await base44.entities.Session.filter({ program_id: existingProgram.id });
-        const lastWeek = existingSessions.length
-          ? Math.max(...existingSessions.map(s => s.week_number || 1), 0)
-          : 0;
-        expandedSessions.forEach(s => { s.week_number = (s.week_number || 1) + lastWeek; });
+        // Ajouter au programme existant sans décaler les semaines
+        // (mercredi + jeudi restent en semaine 1)
         program = existingProgram;
       } else {
         // Pas de programme actif — créer un nouveau
