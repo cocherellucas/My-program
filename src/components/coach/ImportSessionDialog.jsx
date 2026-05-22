@@ -67,7 +67,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                 value={s.content || ''}
                 onChange={e => updateSession(i, 'content', e.target.value)}
                 placeholder="Ex: 4×10 développé couché, 3×12 dips, 3×15 écartés..."
-                rows={3}
+                rows={6}
                 className="w-full bg-white/5 rounded-xl px-3 py-2 text-white text-sm outline-none placeholder-white/25 resize-none leading-relaxed mb-2 border border-white/10"
               />
               <div className="grid grid-cols-7 gap-1">
