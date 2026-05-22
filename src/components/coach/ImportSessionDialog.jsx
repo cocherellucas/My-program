@@ -50,20 +50,26 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
           {sessions.map((s, i) => (
             <div key={i} className="rounded-2xl p-3 space-y-2" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
-              <div className="flex items-start justify-between gap-2">
-                <textarea
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <input
                   value={s.label}
                   onChange={e => updateSession(i, 'label', e.target.value)}
-                  placeholder="Ex: Pectoraux & Triceps — 4×10 développé couché, 3×12 dips..."
-                  rows={2}
-                  className="flex-1 bg-transparent text-white text-sm outline-none placeholder-white/30 resize-none leading-relaxed"
+                  placeholder="Titre de la séance"
+                  className="flex-1 bg-transparent text-white text-sm font-semibold outline-none placeholder-white/30"
                 />
                 {sessions.length > 1 && (
-                  <button onClick={() => removeSession(i)} className="text-white/30 hover:text-red-400 transition-colors mt-0.5">
+                  <button onClick={() => removeSession(i)} className="text-white/30 hover:text-red-400 transition-colors">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 )}
               </div>
+              <textarea
+                value={s.content || ''}
+                onChange={e => updateSession(i, 'content', e.target.value)}
+                placeholder="Ex: 4×10 développé couché, 3×12 dips, 3×15 écartés..."
+                rows={3}
+                className="w-full bg-white/5 rounded-xl px-3 py-2 text-white text-sm outline-none placeholder-white/25 resize-none leading-relaxed mb-2 border border-white/10"
+              />
               <div className="grid grid-cols-7 gap-1">
                 {DAYS.map(d => (
                   <button key={d.value} onClick={() => updateSession(i, 'day', d.value)}
