@@ -54,7 +54,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                 <textarea
                   value={s.label}
                   onChange={e => updateSession(i, 'label', e.target.value)}
-                  placeholder="Décris ta séance (ex: Lundi — Pectoraux & Triceps)"
+                  placeholder="Ex: Pectoraux & Triceps — 4×10 développé couché, 3×12 dips..."
                   rows={2}
                   className="flex-1 bg-transparent text-white text-sm outline-none placeholder-white/30 resize-none leading-relaxed"
                 />
