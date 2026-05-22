@@ -108,11 +108,10 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
               className="weeks-slider"
               style={{ '--pct': `${((weeks === 'infinite' ? 11 : weeks) - 1) / 10 * 100}%` }}
             />
-            <div className="flex justify-between mt-1.5 px-0.5">
-              <span className="text-white/30 text-[10px]">1</span>
-              <span className="text-white/30 text-[10px]">5</span>
-              <span className="text-white/30 text-[10px]">10</span>
-              <span className="text-white/30 text-[10px]">∞</span>
+            <div className="relative mt-1.5 h-3">
+              {[{label:'1',pct:0},{label:'5',pct:40},{label:'10',pct:90},{label:'∞',pct:100}].map(t => (
+                <span key={t.label} className="absolute text-[10px] text-white/30 -translate-x-1/2" style={{ left: `${t.pct}%` }}>{t.label}</span>
+              ))}
             </div>
           </div>
         </div>
