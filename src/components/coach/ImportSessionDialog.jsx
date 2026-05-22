@@ -233,6 +233,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
 
         {/* Footer */}
         <div className="px-5 pb-8 pt-3 flex-shrink-0 border-t border-white/10 space-y-2">
+          {sessions.length === 0 && <p className="text-white/30 text-xs text-center">Ajoute au moins une séance pour importer.</p>}
           {importError && <p className="text-red-400 text-xs text-center">{importError}</p>}
           <div className="flex gap-2">
           <button onClick={onClose}
@@ -242,7 +243,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
           <button
             onClick={() => validateAndImport(sessions.map(s => ({ ...s, exercises: s.exercises?.length ? s.exercises : parseExercises(s.content) })), weeks)}
             disabled={sessions.length === 0}
-            className="flex-1 py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2"
+            className="flex-1 py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
             <Sparkles className="w-4 h-4" />
             Importer
