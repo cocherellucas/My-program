@@ -141,7 +141,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                   </button>
                 </div>
               ) : (
-                <div className="relative mb-2">
+                <div className="mb-2">
                   <p className="text-white/40 text-xs mb-1.5">Séries × reps, exercice, repos. <span className="text-white/25">Le poids est optionnel.</span></p>
                   <textarea
                     value={s.content || ''}
@@ -152,7 +152,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                   />
                   <button
                     onClick={() => setVerified(v => ({ ...v, [i]: true }))}
-                    className="absolute bottom-2 right-2 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all"
+                    className="w-full mt-1.5 py-2 rounded-xl text-xs font-semibold transition-all"
                     style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white' }}>
                     Vérifier
                   </button>
