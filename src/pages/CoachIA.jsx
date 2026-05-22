@@ -243,11 +243,18 @@ export default function CoachIA() {
       const thisMon = new Date(today);
       thisMon.setDate(today.getDate() - ((today.getDay() + 6) % 7));
 
-      // Pour chaque jour, trouver sa première occurrence (cette semaine si futur, sinon la semaine prochaine)
-      // Les semaines suivantes s'enchaînent depuis cette base → pas de collision
+      const isInfinite = targetWeeks === 'infinite';
+
+      // Infini → lundi courant, tout visible même si passé (répétition hebdo)
+      // Fini → chaque jour trouve sa prochaine occurrence (passé décalé à semaine suivante)
       const sessionsWithDates = expandedSessions.map(s => {
         const dayOffset = dayMap[s.day?.toLowerCase()] ?? 0;
         const weekNum = (s.week_number || 1) - 1;
+        if (isInfinite) {
+          const d = new Date(thisMon);
+          d.setDate(thisMon.getDate() + dayOffset + weekNum * 7);
+          return { ...s, plannedDate: d.toISOString().split('T')[0] };
+        }
         const firstOccurrence = new Date(thisMon);
         firstOccurrence.setDate(thisMon.getDate() + dayOffset);
         if (firstOccurrence < today) firstOccurrence.setDate(firstOccurrence.getDate() + 7);
