@@ -107,7 +107,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
             <div className="grid grid-cols-6 gap-1.5">
               {DURATIONS.map(d => (
                 <button key={d.value} onClick={() => setWeeks(d.value)}
-                  className={`py-2 rounded-xl font-bold transition-all ${d.large ? 'text-lg' : 'text-sm'}`}
+                  className={`py-2 rounded-xl font-bold transition-all ${d.large ? 'text-2xl leading-none' : 'text-sm'}`}
                   style={{
                     background: weeks === d.value ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'rgba(255,255,255,0.08)',
                     color: weeks === d.value ? 'white' : 'rgba(255,255,255,0.5)',
