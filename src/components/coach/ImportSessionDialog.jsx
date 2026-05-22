@@ -116,7 +116,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                     ))
                   }
                   <button onClick={() => setVerified(v => ({ ...v, [i]: false }))} className="text-white/30 text-xs hover:text-white/60 transition-colors pt-1">
-                    ✏️ Modifier
+                    Modifier
                   </button>
                 </div>
               ) : (
