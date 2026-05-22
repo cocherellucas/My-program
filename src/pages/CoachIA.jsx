@@ -240,23 +240,19 @@ export default function CoachIA() {
 
       const today = new Date(); today.setHours(0,0,0,0);
       const dayMap = { monday:0, tuesday:1, wednesday:2, thursday:3, friday:4, saturday:5, sunday:6 };
-
-      // Trouver le lundi de départ : lundi courant si toutes les séances W1 sont futures, sinon lundi prochain
       const thisMon = new Date(today);
       thisMon.setDate(today.getDate() - ((today.getDay() + 6) % 7));
-      const week1Days = expandedSessions.filter(s => (s.week_number || 1) === 1).map(s => dayMap[s.day?.toLowerCase()] ?? 0);
-      const anyW1Past = week1Days.some(d => {
-        const date = new Date(thisMon); date.setDate(thisMon.getDate() + d);
-        return date < today;
-      });
-      const monday = new Date(thisMon);
-      if (anyW1Past) monday.setDate(thisMon.getDate() + 7); // partir de la semaine prochaine
 
-      // Précalculer les dates de toutes les séances — pas de décalage individuel
+      // Pour chaque jour, trouver sa première occurrence (cette semaine si futur, sinon la semaine prochaine)
+      // Les semaines suivantes s'enchaînent depuis cette base → pas de collision
       const sessionsWithDates = expandedSessions.map(s => {
-        const offset = ((s.week_number || 1) - 1) * 7 + (dayMap[s.day?.toLowerCase()] ?? 0);
-        const d = new Date(monday);
-        d.setDate(monday.getDate() + offset);
+        const dayOffset = dayMap[s.day?.toLowerCase()] ?? 0;
+        const weekNum = (s.week_number || 1) - 1;
+        const firstOccurrence = new Date(thisMon);
+        firstOccurrence.setDate(thisMon.getDate() + dayOffset);
+        if (firstOccurrence < today) firstOccurrence.setDate(firstOccurrence.getDate() + 7);
+        const d = new Date(firstOccurrence);
+        d.setDate(firstOccurrence.getDate() + weekNum * 7);
         return { ...s, plannedDate: d.toISOString().split('T')[0] };
       });
 
