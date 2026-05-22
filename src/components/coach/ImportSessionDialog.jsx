@@ -25,7 +25,16 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
   const [weeks, setWeeks] = useState(4);
 
   const updateSession = (i, field, value) => {
-    setSessions(prev => prev.map((s, idx) => idx === i ? { ...s, [field]: value } : s));
+    setSessions(prev => {
+      const updated = prev.map((s, idx) => idx === i ? { ...s, [field]: value } : s);
+      // Si on change l'ordre, inverser automatiquement l'autre séance du même jour
+      if (field === 'order') {
+        const day = updated[i].day;
+        const sibling = updated.findIndex((s, idx) => idx !== i && s.day === day);
+        if (sibling !== -1) updated[sibling] = { ...updated[sibling], order: value === 1 ? 2 : 1 };
+      }
+      return updated;
+    });
   };
 
   const addSession = () => {
