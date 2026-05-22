@@ -134,7 +134,9 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                       </div>
                     ))
                   }
-                  <button onClick={() => setVerified(v => ({ ...v, [i]: false }))} className="text-white/30 text-xs hover:text-white/60 transition-colors pt-1">
+                  <button onClick={() => setVerified(v => ({ ...v, [i]: false }))}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
+                    style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)' }}>
                     Modifier
                   </button>
                 </div>
