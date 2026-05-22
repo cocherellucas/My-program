@@ -140,7 +140,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                 </div>
               ) : (
                 <div className="relative mb-2">
-                  <p className="text-white/40 text-xs mb-1.5">Le poids est optionnel.</p>
+                  <p className="text-white/40 text-xs mb-1.5">Séries × reps, exercice, repos. <span className="text-white/25">Le poids est optionnel.</span></p>
                   <textarea
                     value={s.content || ''}
                     onChange={e => updateSession(i, 'content', e.target.value)}
