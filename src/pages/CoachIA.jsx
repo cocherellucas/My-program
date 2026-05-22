@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,8 @@ import { normalizeUser } from '@/lib/utils';
 import ImportSessionDialog from '@/components/coach/ImportSessionDialog';
 
 export default function CoachIA() {
+  const navigate = useNavigate();
+  const [importing, setImporting] = useState(false);
   const [user, setUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -187,6 +190,7 @@ export default function CoachIA() {
   const importProgramFromCoach = async (jsonStr, targetWeeks, skipConflict = false, orderSuffix = null) => {
     setPendingImportJson(null);
     setPendingConflict(null);
+    setImporting(true);
     try {
       const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
       if (!jsonMatch) throw new Error('JSON introuvable');
@@ -291,13 +295,10 @@ export default function CoachIA() {
       }
 
       const countLabel = targetWeeks === 'infinite' ? '∞' : expandedSessions.length;
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: existingProgram
-          ? `✅ Séances ajoutées à ton programme existant (${countLabel}). Va dans **Programme** pour les voir.`
-          : `✅ Programme importé (${countLabel} séances). Va dans **Programme** pour le voir.`
-      }]);
+      setImporting(false);
+      navigate('/program');
     } catch (e) {
+      setImporting(false);
       setMessages(prev => [...prev, { role: 'assistant', content: `❌ Erreur lors de l'import : ${e.message}. Réessaie.` }]);
     }
   };
@@ -311,6 +312,16 @@ export default function CoachIA() {
 
   return (
     <div ref={containerRef} className="flex flex-col" style={{ height: 'calc(100dvh - 96px)' }}>
+
+      {importing && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4" style={{ background: 'linear-gradient(160deg, #2e1065 0%, #1e0050 100%)' }}>
+          <img src="/apple-touch-icon.png" alt="Coach IA" style={{ width: 72, height: 72, borderRadius: 18, animation: 'splash-glow 2s ease-in-out infinite' }} />
+          <div className="text-center space-y-1">
+            <p className="text-white font-bold text-base">Import en cours…</p>
+            <p className="text-white/40 text-sm">Création des séances</p>
+          </div>
+        </div>
+      )}
 
       {/* Modal conflit même jour */}
       {pendingConflict && (
