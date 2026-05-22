@@ -85,9 +85,9 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                       onClick={() => { if (!alreadyTwo || isSelected) updateSession(i, 'day', d.value); }}
                       className="py-1.5 rounded-lg text-[10px] font-bold transition-all"
                       style={{
-                        background: isSelected ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : alreadyTwo ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.08)',
+                        background: isSelected ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'rgba(255,255,255,0.08)',
                         color: isSelected ? 'white' : alreadyTwo ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.5)',
-                        cursor: alreadyTwo && !isSelected ? 'not-allowed' : 'pointer',
+                        opacity: alreadyTwo && !isSelected ? 0.4 : 1,
                       }}>
                       {d.label.slice(0, 2)}
                     </button>
