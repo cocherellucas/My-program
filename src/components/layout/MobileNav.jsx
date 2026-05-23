@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Dumbbell, CalendarDays,
   MessageSquare, User, BookOpen
@@ -41,7 +42,12 @@ export default function MobileNav() {
               className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all relative"
             >
               {isActive && (
-                <span className="absolute inset-0 rounded-xl" style={{ background: 'rgba(255,255,255,0.92)', boxShadow: '0 2px 10px rgba(124,58,237,0.25)' }} />
+                <motion.span
+                  layoutId="tab-indicator"
+                  className="absolute inset-0 rounded-xl"
+                  style={{ background: 'rgba(255,255,255,0.92)', boxShadow: '0 2px 10px rgba(124,58,237,0.25)' }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 38 }}
+                />
               )}
               <item.icon
                 className="w-5 h-5 relative z-10 transition-all"
