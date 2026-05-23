@@ -63,13 +63,15 @@ export default function AppLayout() {
   const currentIdx    = Math.max(0, NAV_PATHS.indexOf(location.pathname));
   const currentIdxRef = useRef(currentIdx);
   currentIdxRef.current = currentIdx;
+  const pageRefs = useRef([]);
 
   const pageW = () => mainRef.current?.offsetWidth ?? window.innerWidth;
 
-  // Synchronise baseX + reset x de façon atomique avant chaque paint
+  // Synchronise baseX + reset x + reset scroll destination — tout avant le paint
   useLayoutEffect(() => {
     baseX.set(-currentIdx * pageW());
     x.set(0);
+    if (pageRefs.current[currentIdx]) pageRefs.current[currentIdx].scrollTop = 0;
   }, [currentIdx]); // eslint-disable-line
 
   // Recalcule baseX si fenêtre redimensionnée
@@ -190,7 +192,8 @@ export default function AppLayout() {
             return (
               <div
                 key={path}
-                style={{ width: `${100 / numPages}%`, height: '100%', overflowY: 'auto', flexShrink: 0 }}
+                ref={el => { pageRefs.current[idx] = el; }}
+                style={{ width: `${100 / numPages}%`, height: '100%', minHeight: 0, overflowY: 'auto', flexShrink: 0 }}
                 className="pb-20 md:pb-0"
               >
                 <div className="max-w-7xl mx-auto p-4 md:p-8">
