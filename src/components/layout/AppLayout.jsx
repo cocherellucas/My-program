@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import Sidebar from './Sidebar';
@@ -22,7 +22,7 @@ const PAGE_COMPONENTS = {
 };
 
 const SNAP_THRESHOLD = 65;
-const NO_SWIPE_PATHS = ['/coach']; // pas de swipe sur CoachIA
+const NO_SWIPE_PATHS = [];
 
 // Placeholder pour les pages qu'on ne peut pas pré-rendre
 const PageGhost = ({ label }) => (
@@ -43,10 +43,20 @@ export default function AppLayout() {
   const animating = useRef(false);
   const screenW = useRef(window.innerWidth);
 
+  const mainRef = useRef(null);
   const [adjacent, setAdjacent] = useState(null); // { path, label, Component }
 
   // La page voisine commence à ±screenWidth et suit x simultanément
   const adjX = useTransform(x, v => v - swipeDir.current * screenW.current);
+
+  // Listener non-passif pour pouvoir appeler preventDefault() et bloquer le scroll vertical
+  useEffect(() => {
+    const el = mainRef.current;
+    if (!el) return;
+    const onMove = (e) => { if (isHorizontal.current) e.preventDefault(); };
+    el.addEventListener('touchmove', onMove, { passive: false });
+    return () => el.removeEventListener('touchmove', onMove);
+  }, []);
 
   const currentIdx = NAV_PATHS.indexOf(location.pathname);
   const canSwipe = !NO_SWIPE_PATHS.includes(location.pathname);
@@ -140,6 +150,7 @@ export default function AppLayout() {
       </div>
 
       <main
+        ref={mainRef}
         className="transition-all duration-250 ease-in-out pb-20 md:pb-0"
         style={{ marginLeft: collapsed ? 72 : 260, position: 'relative', overflow: 'hidden', minHeight: '100vh' }}
         onTouchStart={handleTouchStart}
