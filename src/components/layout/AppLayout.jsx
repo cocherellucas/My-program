@@ -14,6 +14,8 @@ import Dashboard   from '@/pages/Dashboard';
 import SessionLog  from '@/pages/SessionLog';
 import CoachIA     from '@/pages/CoachIA';
 
+const COACH_IDX = NAV_PATHS.indexOf('/coach');
+
 const NAV_PATHS = ['/', '/program', '/session', '/coach', '/library', '/profile'];
 const PAGE_LABELS = {
   '/': 'Accueil', '/program': 'Programme', '/session': 'Séance',
@@ -31,7 +33,6 @@ const PRERENDER = {
 const ON_DEMAND = {
   '/':        Dashboard,
   '/session': SessionLog,
-  '/coach':   CoachIA,
 };
 
 const SNAP_THRESHOLD = 65;
@@ -60,13 +61,9 @@ export default function AppLayout() {
   const isHorizontal = useRef(false);
   const animating  = useRef(false);
 
-  const [swipeInProgress, setSwipeInProgress] = useState(false);
-
   const currentIdx    = Math.max(0, NAV_PATHS.indexOf(location.pathname));
   const currentIdxRef = useRef(currentIdx);
   currentIdxRef.current = currentIdx;
-
-  const COACH_IDX = NAV_PATHS.indexOf('/coach');
 
   const pageW = () => mainRef.current?.offsetWidth ?? window.innerWidth;
 
@@ -118,12 +115,7 @@ export default function AppLayout() {
     const adjIdx = currentIdxRef.current + (swipeDir.current > 0 ? -1 : 1);
     const hasNeighbor = adjIdx >= 0 && adjIdx < NAV_PATHS.length;
     x.set(hasNeighbor ? dx : dx * 0.1);
-
-    // Masque CoachIA seulement quand le seuil de navigation est franchi
-    if (currentIdxRef.current === COACH_IDX && Math.abs(dx) >= SNAP_THRESHOLD) {
-      setSwipeInProgress(true);
-    }
-  }, [x, COACH_IDX]);
+  }, [x]);
 
   const handleTouchEnd = useCallback((e) => {
     if (!touchStart.current || !isHorizontal.current) { cleanup(); return; }
@@ -141,13 +133,11 @@ export default function AppLayout() {
     if (shouldNavigate) {
       animate(x, swipeDir.current * pageW(), { duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }).then(() => {
         animating.current = false;
-        setSwipeInProgress(false);
         navigate(NAV_PATHS[adjIdx]);
       });
     } else {
       animate(x, 0, { type: 'spring', stiffness: 500, damping: 42 }).then(() => {
         animating.current = false;
-        setSwipeInProgress(false);
       });
     }
   }, [navigate, x, cleanup]);
@@ -216,8 +206,8 @@ export default function AppLayout() {
           })}
         </motion.div>
 
-        {/* CoachIA hors du carousel (position:fixed), caché pendant le swipe pour éviter le chevauchement */}
-        {currentIdx === COACH_IDX && !swipeInProgress && <CoachIA />}
+        {/* CoachIA monté uniquement quand on est sur la page Coach */}
+        {currentIdx === COACH_IDX && <CoachIA />}
       </main>
 
       <style>{`
