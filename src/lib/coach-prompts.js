@@ -44,6 +44,7 @@ LOIS DE LA PERFORMANCE (référentiel de décision — à appliquer à CHAQUE ch
    - Hypertrophie avant force (base musculaire → meilleur recrutement SNC)
    - Accumulation (volume élevé, MEV→MRV) → Intensification (volume réduit, intensité élevée) → Réalisation (peak)
    - Débutant : accumulation longue 8-12 sem. | Intermédiaire : 6-8 sem. acc. + 3-4 sem. intens. | Avancé : blocs 3-4 sem.
+   - Volume de départ calibré sur la durée réelle du programme : plus le programme est court, plus on démarre proche du volume optimal. Un programme court n'a pas le luxe d'une montée progressive — maximiser le stimulus sur la durée disponible.
 
 7. DIFFÉRENCES INDIVIDUELLES — calibrer sur les données réelles
    - Semaines 1-4 : valeurs de référence standard
