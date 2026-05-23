@@ -4,22 +4,34 @@ import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import Sidebar from './Sidebar';
 import MobileNav from './MobileNav';
 
-// Pages toujours pré-rendues (sans position:fixed ni side-effects dangereux)
-import Program from '@/pages/Program';
-import Library from '@/pages/Library';
-import Profile from '@/pages/Profile';
+// Pages toujours pré-rendues (pas de position:fixed ni side-effects globaux)
+import Program  from '@/pages/Program';
+import Library  from '@/pages/Library';
+import Profile  from '@/pages/Profile';
+
+// Pages chargées uniquement quand elles sont actives
+import Dashboard   from '@/pages/Dashboard';
+import SessionLog  from '@/pages/SessionLog';
+import CoachIA     from '@/pages/CoachIA';
 
 const NAV_PATHS = ['/', '/program', '/session', '/coach', '/library', '/profile'];
 const PAGE_LABELS = {
   '/': 'Accueil', '/program': 'Programme', '/session': 'Séance',
   '/coach': 'Coach', '/library': 'Biblio', '/profile': 'Profil',
 };
-// CoachIA exclue : ses éléments position:fixed bleeding sur les autres pages
-// Dashboard et Session exclus : side-effects au montage
-const PAGE_COMPONENTS = {
+
+// Toujours montées (données fraîches au swipe)
+const PRERENDER = {
   '/program': Program,
   '/library': Library,
   '/profile': Profile,
+};
+
+// Montées uniquement quand la page est active, ghost pendant le swipe
+const ON_DEMAND = {
+  '/':        Dashboard,
+  '/session': SessionLog,
+  '/coach':   CoachIA,
 };
 
 const SNAP_THRESHOLD = 65;
@@ -164,8 +176,10 @@ export default function AppLayout() {
             willChange: 'transform',
           }}
         >
-          {NAV_PATHS.map((path) => {
-            const Component = PAGE_COMPONENTS[path];
+          {NAV_PATHS.map((path, idx) => {
+            const Pre     = PRERENDER[path];
+            const OnDemand = ON_DEMAND[path];
+            const isActive = idx === currentIdx;
             return (
               <div
                 key={path}
@@ -173,9 +187,11 @@ export default function AppLayout() {
                 className="pb-20 md:pb-0"
               >
                 <div className="max-w-7xl mx-auto p-4 md:p-8">
-                  {Component
-                    ? <Component />
-                    : <PageGhost label={PAGE_LABELS[path]} />}
+                  {Pre
+                    ? <Pre />
+                    : isActive
+                      ? <OnDemand />
+                      : <PageGhost label={PAGE_LABELS[path]} />}
                 </div>
               </div>
             );
