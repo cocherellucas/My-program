@@ -445,8 +445,19 @@ export default function CoachIA() {
           </div>
         </div>
       )}
-      {/* Messages — remplit tout l'espace au-dessus de la barre input */}
-      <div ref={messagesRef} className="overflow-y-auto space-y-4 overscroll-contain" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: navOffset + 88, touchAction: 'pan-y', padding: '0 16px 16px' }}>
+      {/* Header — Coach IA + Importer */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: '8px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <p className="text-xs text-white/50"><span className="font-bold text-white">Coach IA</span> · Ton assistant entraînement</p>
+        <button
+          onClick={() => setPendingImportSessions({ json: '{}', sessions: [] })}
+          className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all"
+          style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
+          + Importer
+        </button>
+      </div>
+
+      {/* Messages — remplit tout l'espace entre header et input */}
+      <div ref={messagesRef} className="overflow-y-auto space-y-4 overscroll-contain" style={{ position: 'absolute', top: 40, left: 0, right: 0, bottom: navOffset + 68, touchAction: 'pan-y', padding: '0 16px 16px' }}>
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mb-4">
@@ -576,18 +587,9 @@ export default function CoachIA() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Label + Input — collé en bas, au-dessus du clavier ou de la MobileNav */}
+      {/* Input — collé en bas, au-dessus du clavier ou de la MobileNav */}
       <div style={{ position: 'absolute', bottom: navOffset, left: 0, right: 0, padding: '0 16px 8px' }}>
-        <div className="flex items-center justify-between pt-2">
-          <p className="text-xs text-white/50"><span className="font-bold text-white">Coach IA</span> · Ton assistant entraînement</p>
-          <button
-            onClick={() => setPendingImportSessions({ json: '{}', sessions: [] })}
-            className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all"
-            style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
-            + Importer
-          </button>
-        </div>
-        <div ref={inputAreaRef} className="bg-white/10 rounded-2xl border border-white/20 mt-1 flex items-center gap-2 px-3 py-2">
+        <div ref={inputAreaRef} className="bg-white/10 rounded-2xl border border-white/20 flex items-center gap-2 px-3 py-2">
         <Textarea
           ref={inputRef}
           value={input}
