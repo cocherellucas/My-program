@@ -206,7 +206,7 @@ export default function CoachIA() {
     const history = messages.map(m => `${m.role === 'user' ? 'Utilisateur' : 'Coach'}: ${m.content}`).join('\n');
 
     // Instruction spéciale pour l'import de programme
-    const importInstruction = `\n\nINSTRUCTION IMPORT : Si l'utilisateur demande d'importer une séance ou un programme dans l'app, réponds-lui simplement de cliquer sur le bouton **"+ Importer"** en haut à droite de l'écran. Ne génère jamais de bloc IMPORT_READY dans le chat — l'import se fait uniquement via ce bouton.`;
+    const importInstruction = `\n\nINSTRUCTION IMPORT : Cette instruction concerne UNIQUEMENT le cas où l'utilisateur veut importer un programme externe (d'un autre coach, d'une feuille Excel, d'un PDF, etc.) dans l'app. Dans CE CAS UNIQUEMENT, dis-lui de cliquer sur **"+ Importer"** en haut à droite. NE PAS confondre avec "génère-moi un programme" ou "crée un programme" ou "carte blanche" : dans ce cas, génère directement le programme (PROMPT 3). Ne génère jamais de bloc IMPORT_READY dans le chat.`;
 
     const llmParams = {
       prompt: `${systemContext}${importInstruction}\n\n${history}\n\nUtilisateur: ${userMsg}`,
