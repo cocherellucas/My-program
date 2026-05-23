@@ -2629,7 +2629,7 @@ function mergeUnique(arrays) {
 function extractKeywords(message) {
   return (message || '')
     .toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '') // enlève les accents pour le matching
+    .normalize('NFD').replace(/\p{Mn}/gu, '')
     .split(/[\s,.''"?!;:()\-/\\]+/)
     .filter(w => w.length > 3);
 }

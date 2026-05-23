@@ -112,15 +112,19 @@ Gainage : planche genoux → planche classique → planche RKC → relevé jambe
 // BUILDER PRINCIPAL
 // ─────────────────────────────────────────────────────────────────────────────
 function buildDefaultRules(user, phaseCourante) {
-  const days      = (user.available_days || []).join(', ');
-  const equip     = (user.equipment || []).join(', ');
-  const durations = Object.values(user.duration_per_day || {}).join('/') || '?';
-  const fragile   = parseFragileZones(user.fragile_zones).join(', ');
+  const fragile = parseFragileZones(user.fragile_zones).join(', ');
+  const equip   = (user.equipment || []).join(', ') || 'poids du corps uniquement';
+  const daysStr = user.availability_optimal
+    ? 'LIBRE — choisir 4-5 jours optimaux selon les objectifs'
+    : ((user.available_days || []).join(', ') || 'choisir 3-4 jours optimaux');
+  const durStr  = user.availability_optimal
+    ? '60 min (valeur par défaut — ajuster selon intensité et objectifs)'
+    : (Object.values(user.duration_per_day || {}).filter(Boolean).join('/') || '60') + ' min';
   return [
     'RÈGLES OBLIGATOIRES :',
-    '- Respecter strictement les jours disponibles : ' + days,
+    '- Jours : ' + daysStr,
     '- Ne proposer que des exercices réalisables avec : ' + equip,
-    '- Respecter la plage de durée par séance : ' + durations + ' min',
+    '- Durée par séance : ' + durStr,
     '- Phase ' + phaseCourante + ' : appliquer les plages MEV/MAV/MRV correspondantes',
     '- Triangle VIF : cohérence volume/intensité/fréquence obligatoire',
     '- Jamais à l\'échec sur : squat barre, deadlift, bench barre, OHP barre',
@@ -145,13 +149,27 @@ export function buildSystemPrompt(user, objectives, programs, memory, recentSess
     return `${label} (${goalLabel})`;
   }).join(', ');
 
+  const availStr = user.availability_optimal === true
+    ? 'LIBRE — carte blanche, choisir les jours et durées optimaux selon objectifs et niveau'
+    : user.availability_optimal === false
+      ? ((user.available_days || []).join(', ') || 'non renseigné') + ' (' + (Object.entries(user.duration_per_day || {}).map(([d,v]) => `${d}: ${v}min`).join(', ') || '60min par séance') + ')'
+      : ((user.available_days || []).length > 0
+          ? (user.available_days.join(', ')) + ' (' + (Object.entries(user.duration_per_day || {}).map(([d,v]) => `${d}: ${v}min`).join(', ') || '60min par séance') + ')'
+          : 'LIBRE — aucune contrainte renseignée, optimiser librement');
+
   const profil = `- Niveau : ${user.level || 'non renseigné'}
-- Âge / Poids / Taille : ${user.age || '?'} ans / ${user.weight || '?'} kg / ${user.height || '?'} cm
-- Morphologie : bras ${user.morphology_arm_length || '?'}, jambes ${user.morphology_leg_length || '?'}, silhouette ${user.morphology_silhouette || '?'}, posture ${user.morphology_posture || '?'}
-- Disponibilités : ${user.availability_optimal ? 'LIBRE — l\'utilisateur a donné carte blanche : choisir les jours et durées optimaux selon ses objectifs et son niveau, sans contrainte de planning' : ((user.available_days || []).join(', ') || '?') + ' (' + (Object.entries(user.duration_per_day || {}).map(([d,v]) => `${d}: ${v}min`).join(', ') || '?') + ')'}
+- Genre : ${user.gender || 'non renseigné'}
+- Âge / Poids / Taille : ${user.age || 'non renseigné'} ans / ${user.weight || 'non renseigné'} kg / ${user.height || 'non renseigné'} cm
+- Morphologie : bras ${user.morphology_arm_length || 'non renseigné'}, jambes ${user.morphology_leg_length || 'non renseigné'}, silhouette ${user.morphology_silhouette || 'non renseigné'}, posture ${user.morphology_posture || 'non renseigné'}
+- Disponibilités : ${availStr}
+- Fréquence souhaitée : ${user.frequency_min || 'libre'}–${user.frequency_max || 'libre'} séances/semaine
 - Équipement : ${(user.equipment || []).join(', ') || 'non renseigné'}
 - Zones sensibles : ${zonesStr}
-- Objectifs actifs : ${objectives.map(o => `${o.type} ${o.zone}${o.focus_group ? ' (' + o.focus_group + ')' : ''} [${o.priority}]`).join(', ') || 'aucun'}`;
+- Objectifs actifs : ${objectives.map(o => `${o.type} ${o.zone}${o.focus_group ? ' (' + o.focus_group + ')' : ''} [${o.priority}]`).join(', ') || 'aucun'}
+- Muscles à ne pas développer : ${(user.no_volume_muscles || []).join(', ') || 'aucun'}
+- Préférences VIF : volume ${user.pref_volume || 'auto'} / intensité ${user.pref_intensity || 'auto'} / fréquence ${user.pref_frequency || 'auto'}
+- Techniques avancées acceptées : ${user.accepts_advanced_techniques ? 'oui' : 'non'}
+- Peaking activé : ${user.peaking_enabled ? 'oui' : 'non'}`;
 
   const exercicesAimes = [
     ...(user.preferred_exercises || []),
@@ -349,11 +367,7 @@ Pour optimiser le programme, croise TOUTES les données disponibles sans excepti
 - Connaissances scientifiques (base de référence, contexte du message)
 Les lois de performance sont le cadre de décision appliqué sur toutes ces données — pas un substitut à elles.
 
-Ne jamais demander : temps de repos, fourchette de reps, nombre de séries — toujours déductibles des objectifs, du niveau et de la phase.
-
-Si les disponibilités sont LIBRE : choisir les jours et durées optimaux directement, sans demander. Ne jamais poser de question sur les jours ni la durée dans ce cas.
-
-Pose des questions UNIQUEMENT si les jours ET la durée sont absents ET que `availability_optimal` n'est pas LIBRE. Dans ce cas, regroupe en un seul message.
+INTERDICTION ABSOLUE pour ce prompt : ne poser AUCUNE question. Si une donnée est absente, utiliser une valeur par défaut raisonnable et l'annoncer entre parenthèses. Générer directement dans tous les cas.
 
 Applique OBLIGATOIREMENT les lois dans cet ordre : Spécificité → Différences individuelles → Phase Potentiation → Overload → SRA → Fatigue → Variation.
 
