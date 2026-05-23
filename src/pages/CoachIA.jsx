@@ -110,10 +110,22 @@ export default function CoachIA() {
     return time;
   };
 
+  // Masque la MobileNav dès le focus (fiable sur tous les modes iOS)
+  const [focused, setFocused] = useState(false);
   const handleInputFocus = () => {
+    setFocused(true);
+    const nav = document.querySelector('.mobile-nav');
+    if (nav) nav.style.display = 'none';
     setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
   };
-  const handleInputBlur = () => {};
+  const handleInputBlur = () => {
+    setFocused(false);
+    // Petit délai pour éviter le flash avant que le clavier se ferme
+    setTimeout(() => {
+      const nav = document.querySelector('.mobile-nav');
+      if (nav) nav.style.display = '';
+    }, 150);
+  };
 
   // Redimensionne et compresse une image avant envoi
   const compressImage = (dataUrl) => new Promise((resolve) => {
@@ -333,6 +345,10 @@ export default function CoachIA() {
     "Est-ce que je peux passer en PPL ?",
   ];
 
+  // navOffset = 0 quand clavier ouvert ou textarea focus (MobileNav cachée)
+  //           = 80 quand clavier fermé (espace pour MobileNav)
+  const navOffset = (kbOpen || focused) ? 0 : 80;
+
   return (
     <div ref={containerRef} style={{ position: 'fixed', top: containerTop, left: 0, right: 0, height: containerH, zIndex: 10 }}>
 
@@ -430,7 +446,7 @@ export default function CoachIA() {
         </div>
       )}
       {/* Messages — remplit tout l'espace au-dessus de la barre input */}
-      <div ref={messagesRef} className="overflow-y-auto space-y-4 overscroll-contain" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: (kbOpen ? 0 : 80) + 88, touchAction: 'pan-y', padding: '0 16px 16px' }}>
+      <div ref={messagesRef} className="overflow-y-auto space-y-4 overscroll-contain" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: navOffset + 88, touchAction: 'pan-y', padding: '0 16px 16px' }}>
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mb-4">
@@ -561,7 +577,7 @@ export default function CoachIA() {
       </div>
 
       {/* Label + Input — collé en bas, au-dessus du clavier ou de la MobileNav */}
-      <div style={{ position: 'absolute', bottom: kbOpen ? 0 : 80, left: 0, right: 0, padding: '0 16px 8px' }}>
+      <div style={{ position: 'absolute', bottom: navOffset, left: 0, right: 0, padding: '0 16px 8px' }}>
         <div className="flex items-center justify-between pt-2">
           <p className="text-xs text-white/50"><span className="font-bold text-white">Coach IA</span> · Ton assistant entraînement</p>
           <button
