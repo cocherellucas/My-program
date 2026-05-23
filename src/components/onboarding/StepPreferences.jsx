@@ -160,6 +160,42 @@ export default function StepPreferences({ data, onChange }) {
         )}
       </div>
 
+      {/* Techniques avancées */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-1.5">
+          <p className="text-sm font-semibold text-white">Techniques avancées</p>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button type="button" className="text-white/40 hover:text-white/70 transition-colors">
+                <HelpCircle className="w-3.5 h-3.5" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64 text-xs space-y-1.5">
+              <p>Supersets, rest-pause, drop sets, séries dégressives. Augmente l'intensité et réduit le temps de séance mais demande plus d'expérience.</p>
+            </PopoverContent>
+          </Popover>
+        </div>
+        <p className="text-xs text-white/50">Autoriser les supersets, rest-pause et drop sets dans ton programme ?</p>
+        <div className="flex gap-2">
+          <button type="button"
+            onClick={() => onChange({ accepts_advanced_techniques: true })}
+            className={cn('flex-1 py-1.5 rounded-lg text-xs font-semibold border transition-colors',
+              data.accepts_advanced_techniques === true
+                ? 'bg-white text-violet-700 border-white'
+                : 'bg-white/10 text-white/60 border-white/20 hover:bg-white/20')}>
+            Oui
+          </button>
+          <button type="button"
+            onClick={() => onChange({ accepts_advanced_techniques: false })}
+            className={cn('flex-1 py-1.5 rounded-lg text-xs font-semibold border transition-colors',
+              data.accepts_advanced_techniques === false
+                ? 'bg-white text-violet-700 border-white'
+                : 'bg-white/10 text-white/60 border-white/20 hover:bg-white/20')}>
+            Non
+          </button>
+        </div>
+      </div>
+
       {/* Exercices */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="space-y-2">
