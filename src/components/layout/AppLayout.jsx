@@ -60,9 +60,13 @@ export default function AppLayout() {
   const isHorizontal = useRef(false);
   const animating  = useRef(false);
 
+  const [swipeInProgress, setSwipeInProgress] = useState(false);
+
   const currentIdx    = Math.max(0, NAV_PATHS.indexOf(location.pathname));
   const currentIdxRef = useRef(currentIdx);
   currentIdxRef.current = currentIdx;
+
+  const COACH_IDX = NAV_PATHS.indexOf('/coach');
 
   const pageW = () => mainRef.current?.offsetWidth ?? window.innerWidth;
 
@@ -109,6 +113,7 @@ export default function AppLayout() {
       if (Math.abs(dx) < Math.abs(dy) * 2) { touchStart.current = null; return; }
       isHorizontal.current = true;
       swipeDir.current = dx > 0 ? 1 : -1;
+      setSwipeInProgress(true);
     }
 
     const adjIdx = currentIdxRef.current + (swipeDir.current > 0 ? -1 : 1);
@@ -132,12 +137,13 @@ export default function AppLayout() {
     if (shouldNavigate) {
       animate(x, swipeDir.current * pageW(), { duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }).then(() => {
         animating.current = false;
+        setSwipeInProgress(false);
         navigate(NAV_PATHS[adjIdx]);
-        // useLayoutEffect s'occupe du reset x + baseX avant le prochain paint
       });
     } else {
       animate(x, 0, { type: 'spring', stiffness: 500, damping: 42 }).then(() => {
         animating.current = false;
+        setSwipeInProgress(false);
       });
     }
   }, [navigate, x, cleanup]);
@@ -206,8 +212,8 @@ export default function AppLayout() {
           })}
         </motion.div>
 
-        {/* CoachIA rendu hors du carousel : son position:fixed fonctionne par rapport au viewport */}
-        {currentIdx === NAV_PATHS.indexOf('/coach') && <CoachIA />}
+        {/* CoachIA hors du carousel (position:fixed), caché pendant le swipe pour éviter le chevauchement */}
+        {currentIdx === COACH_IDX && !swipeInProgress && <CoachIA />}
       </main>
 
       <style>{`
