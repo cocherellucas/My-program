@@ -4,9 +4,8 @@ import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import Sidebar from './Sidebar';
 import MobileNav from './MobileNav';
 
-// Pages toujours pré-rendues
+// Pages toujours pré-rendues (sans position:fixed ni side-effects dangereux)
 import Program from '@/pages/Program';
-import CoachIA from '@/pages/CoachIA';
 import Library from '@/pages/Library';
 import Profile from '@/pages/Profile';
 
@@ -15,10 +14,10 @@ const PAGE_LABELS = {
   '/': 'Accueil', '/program': 'Programme', '/session': 'Séance',
   '/coach': 'Coach', '/library': 'Biblio', '/profile': 'Profil',
 };
-// Dashboard et Session gardent un ghost (side-effects au montage)
+// CoachIA exclue : ses éléments position:fixed bleeding sur les autres pages
+// Dashboard et Session exclus : side-effects au montage
 const PAGE_COMPONENTS = {
   '/program': Program,
-  '/coach':   CoachIA,
   '/library': Library,
   '/profile': Profile,
 };
