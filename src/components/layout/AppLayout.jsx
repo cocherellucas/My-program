@@ -94,7 +94,7 @@ export default function AppLayout() {
 
     if (!isHorizontal.current) {
       if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
-      if (Math.abs(dy) >= Math.abs(dx)) { touchStart.current = null; return; }
+      if (Math.abs(dx) < Math.abs(dy) * 2) { touchStart.current = null; return; }
       isHorizontal.current = true;
       swipeDir.current = dx > 0 ? 1 : -1;
     }
