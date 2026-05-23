@@ -61,23 +61,28 @@ export default function CoachIA() {
   const inputAreaRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Hauteur explicite du container pour coller l'input au clavier sur iOS
-  // On utilise height (pas bottom) car iOS ne calcule pas bien flex-1 avec bottom:x sur fixed
+  // Aligne le container sur le visual viewport (gère le scroll iOS quand textarea focus)
+  // iOS scrolle vv.offsetTop > 0 quand il focus un input, ce qui décale le container fixe
   const [kbOpen, setKbOpen] = useState(false);
   const [containerH, setContainerH] = useState(() => window.innerHeight);
+  const [containerTop, setContainerTop] = useState(0);
   useEffect(() => {
     const update = () => {
       const vv = window.visualViewport;
       if (!vv) return;
       const isOpen = vv.height < window.innerHeight * 0.75;
-      const kh = isOpen ? Math.max(0, window.innerHeight - vv.height - (vv.offsetTop || 0)) : 0;
       setKbOpen(isOpen);
-      setContainerH(window.innerHeight - kh);
+      setContainerH(vv.height);
+      setContainerTop(vv.offsetTop || 0);
       if (isOpen) setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'instant' }), 50);
     };
     update();
     window.visualViewport?.addEventListener('resize', update);
-    return () => window.visualViewport?.removeEventListener('resize', update);
+    window.visualViewport?.addEventListener('scroll', update);
+    return () => {
+      window.visualViewport?.removeEventListener('resize', update);
+      window.visualViewport?.removeEventListener('scroll', update);
+    };
   }, []);
 
   // Bloque tout scroll tactile sauf dans la zone messages
@@ -329,7 +334,7 @@ export default function CoachIA() {
   ];
 
   return (
-    <div ref={containerRef} style={{ position: 'fixed', top: 0, left: 0, right: 0, height: containerH, zIndex: 10 }}>
+    <div ref={containerRef} style={{ position: 'fixed', top: containerTop, left: 0, right: 0, height: containerH, zIndex: 10 }}>
 
       {importing && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4" style={{ background: 'linear-gradient(160deg, #2e1065 0%, #1e0050 100%)' }}>
