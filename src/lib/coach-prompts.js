@@ -148,7 +148,7 @@ export function buildSystemPrompt(user, objectives, programs, memory, recentSess
   const profil = `- Niveau : ${user.level || 'non renseigné'}
 - Âge / Poids / Taille : ${user.age || '?'} ans / ${user.weight || '?'} kg / ${user.height || '?'} cm
 - Morphologie : bras ${user.morphology_arm_length || '?'}, jambes ${user.morphology_leg_length || '?'}, silhouette ${user.morphology_silhouette || '?'}, posture ${user.morphology_posture || '?'}
-- Disponibilités : ${(user.available_days || []).join(', ') || '?'} (${Object.entries(user.duration_per_day || {}).map(([d,v]) => `${d}: ${v}min`).join(', ') || '?'})
+- Disponibilités : ${user.availability_optimal ? 'LIBRE — l\'utilisateur a donné carte blanche : choisir les jours et durées optimaux selon ses objectifs et son niveau, sans contrainte de planning' : ((user.available_days || []).join(', ') || '?') + ' (' + (Object.entries(user.duration_per_day || {}).map(([d,v]) => `${d}: ${v}min`).join(', ') || '?') + ')'}
 - Équipement : ${(user.equipment || []).join(', ') || 'non renseigné'}
 - Zones sensibles : ${zonesStr}
 - Objectifs actifs : ${objectives.map(o => `${o.type} ${o.zone}${o.focus_group ? ' (' + o.focus_group + ')' : ''} [${o.priority}]`).join(', ') || 'aucun'}`;
@@ -341,9 +341,11 @@ Pour optimiser le programme, croise TOUTES les données disponibles sans excepti
 - Connaissances scientifiques (base de référence, contexte du message)
 Les lois de performance sont le cadre de décision appliqué sur toutes ces données — pas un substitut à elles.
 
-Ne jamais demander : temps de repos, fourchette de reps, nombre de séries — ces paramètres sont toujours déductibles des objectifs, du niveau et de la phase via les lois de performance. Les déterminer sans demander.
+Ne jamais demander : temps de repos, fourchette de reps, nombre de séries — toujours déductibles des objectifs, du niveau et de la phase.
 
-Pose des questions UNIQUEMENT si les jours d'entraînement ou la durée de séance sont absents du profil. Dans ce cas, regroupe en un seul message.
+Si les disponibilités sont LIBRE : choisir les jours et durées optimaux directement, sans demander. Ne jamais poser de question sur les jours ni la durée dans ce cas.
+
+Pose des questions UNIQUEMENT si les jours ET la durée sont absents ET que `availability_optimal` n'est pas LIBRE. Dans ce cas, regroupe en un seul message.
 
 Applique OBLIGATOIREMENT les lois dans cet ordre : Spécificité → Différences individuelles → Phase Potentiation → Overload → SRA → Fatigue → Variation.
 
