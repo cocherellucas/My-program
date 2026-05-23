@@ -146,7 +146,7 @@ export default function AppLayout() {
         <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
       </div>
       <div className="md:hidden">
-        <MobileNav />
+        <MobileNav swipeX={x} swipeCurrentIdx={currentIdx} />
       </div>
 
       <main
