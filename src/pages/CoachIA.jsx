@@ -62,17 +62,6 @@ export default function CoachIA() {
   const inputAreaRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Hauteur réelle du viewport (réduit quand clavier ouvert)
-  const [vvh, setVvh] = useState(null);
-  useEffect(() => {
-    const update = () => {
-      setVvh(window.visualViewport?.height ?? window.innerHeight);
-      setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
-    };
-    update();
-    window.visualViewport?.addEventListener('resize', update);
-    return () => window.visualViewport?.removeEventListener('resize', update);
-  }, []);
 
   // Bloque tout scroll tactile sauf dans la zone messages
   const messagesRef = useRef(null);
@@ -100,7 +89,7 @@ export default function CoachIA() {
   };
 
   const handleInputFocus = () => {
-    setTimeout(() => inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }), 350);
+    setTimeout(() => inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }), 100);
   };
   const handleInputBlur = () => {};
 
@@ -323,7 +312,7 @@ export default function CoachIA() {
   ];
 
   return (
-    <div ref={containerRef} className="flex flex-col" style={{ height: vvh ? `calc(${vvh}px - 96px)` : 'calc(100dvh - 96px)' }}>
+    <div ref={containerRef} className="flex flex-col" style={{ height: 'calc(100dvh - 96px)' }}>
 
       {importing && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4" style={{ background: 'linear-gradient(160deg, #2e1065 0%, #1e0050 100%)' }}>
