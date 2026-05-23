@@ -198,7 +198,15 @@ export default function AppLayout() {
               <div
                 key={path}
                 ref={el => { pageRefs.current[idx] = el; }}
-                style={{ width: `${100 / numPages}%`, height: '100%', minHeight: 0, overflowY: 'auto', flexShrink: 0 }}
+                style={{
+                  width: `${100 / numPages}%`,
+                  height: '100%',
+                  minHeight: 0,
+                  flexShrink: 0,
+                  // Seule la page active peut scroller — empêche l'inertie de contaminer les pages adjacentes
+                  overflowY: idx === currentIdx ? 'auto' : 'hidden',
+                  overscrollBehavior: 'contain',
+                }}
                 className="pb-20 md:pb-0"
               >
                 <div className="max-w-7xl mx-auto p-4 md:p-8">
