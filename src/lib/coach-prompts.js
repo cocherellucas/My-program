@@ -385,16 +385,21 @@ ${programBrief || buildDefaultRules(user, phaseCourante)}
 Présente le programme de façon claire et lisible, sans jargon technique. Format :
 
 **[Jour] — [type de séance] — [durée] min**
-- [Exercice] : [N] séries × [plage de reps] — arrête [N] reps avant l'échec — [repos entre séries]
-[répéter pour chaque exercice, groupés par logique (composés lourds → accessoires → isolations)]
+
+Si deux exercices sont à enchaîner en superset antagoniste, le préciser explicitement :
+↔ Superset : [Exercice A] + [Exercice B] — [N] séries × [reps] chacun — repos [X] après chaque paire
+
+Si les exercices sont en séries classiques avec repos complet :
+- [Exercice] : [N] séries × [plage de reps] — arrête [N] reps avant l'échec — repos [X] entre chaque série
+
+Ne jamais laisser d'ambiguïté sur l'organisation : préciser toujours si c'est enchaîné ou séparé.
 
 Termine par :
-**Progression semaines 3-4 :** [ce qui augmente et pourquoi, en langage simple]
+**Progression :** [ce qui augmente et pourquoi, en langage simple]
 **À surveiller :** [signaux concrets que l'utilisateur peut observer lui-même]
 
 Règles de rédaction :
-- Jamais de "BLOC A/B/C", "MEV/MAV/MRV", "RIR", "SRA", "VIF" — écrire en clair : "2 reps avant l'échec", "volume de départ", "récupération"
-- Le repos entre séries s'écrit entre parenthèses après chaque exercice : (repos : 90s) ou (repos : 2 min)
+- Jamais de "BLOC A/B/C", "MEV/MAV/MRV", "RIR", "SRA", "VIF" — écrire en clair
 - Ton direct et concret, comme un coach qui explique à voix haute
 
 ---
