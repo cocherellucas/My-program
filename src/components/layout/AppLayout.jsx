@@ -67,11 +67,13 @@ export default function AppLayout() {
 
   const pageW = () => mainRef.current?.offsetWidth ?? window.innerWidth;
 
-  // Synchronise baseX + reset x + reset scroll destination — tout avant le paint
+  // Synchronise baseX + reset x + reset scroll toutes les pages non-actives
   useLayoutEffect(() => {
     baseX.set(-currentIdx * pageW());
     x.set(0);
-    if (pageRefs.current[currentIdx]) pageRefs.current[currentIdx].scrollTop = 0;
+    pageRefs.current.forEach((ref, i) => {
+      if (ref && i !== currentIdx) ref.scrollTop = 0;
+    });
   }, [currentIdx]); // eslint-disable-line
 
   // Recalcule baseX si fenêtre redimensionnée
@@ -111,6 +113,9 @@ export default function AppLayout() {
       if (Math.abs(dx) < Math.abs(dy) * 2) { touchStart.current = null; return; }
       isHorizontal.current = true;
       swipeDir.current = dx > 0 ? 1 : -1;
+      // Reset scroll de la page adjacente avant même que l'animation commence
+      const adjI = currentIdxRef.current + (swipeDir.current > 0 ? -1 : 1);
+      if (pageRefs.current[adjI]) pageRefs.current[adjI].scrollTop = 0;
     }
 
     const adjIdx = currentIdxRef.current + (swipeDir.current > 0 ? -1 : 1);
