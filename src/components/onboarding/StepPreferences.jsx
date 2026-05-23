@@ -175,25 +175,34 @@ export default function StepPreferences({ data, onChange }) {
             </PopoverContent>
           </Popover>
         </div>
-        <p className="text-xs text-white/50">Autoriser les supersets, rest-pause et drop sets dans ton programme ?</p>
-        <div className="flex gap-2">
-          <button type="button"
-            onClick={() => onChange({ accepts_advanced_techniques: true })}
-            className={cn('flex-1 py-1.5 rounded-lg text-xs font-semibold border transition-colors',
-              data.accepts_advanced_techniques === true
-                ? 'bg-white text-violet-700 border-white'
-                : 'bg-white/10 text-white/60 border-white/20 hover:bg-white/20')}>
-            Oui
-          </button>
-          <button type="button"
-            onClick={() => onChange({ accepts_advanced_techniques: false })}
-            className={cn('flex-1 py-1.5 rounded-lg text-xs font-semibold border transition-colors',
-              data.accepts_advanced_techniques === false
-                ? 'bg-white text-violet-700 border-white'
-                : 'bg-white/10 text-white/60 border-white/20 hover:bg-white/20')}>
-            Non
-          </button>
-        </div>
+        {data.level === 'beginner' ? (
+          <div className="p-3 rounded-xl bg-orange-500/15 border border-orange-400/30">
+            <p className="text-xs text-orange-200 font-semibold mb-0.5">Non disponible en débutant</p>
+            <p className="text-xs text-orange-200/70">Les patterns moteurs ne sont pas encore automatisés. Enchaîner des exercices sans maîtriser le geste de base augmente le risque de blessure et ancre de mauvaises habitudes. Passe en intermédiaire pour déverrouiller cette option.</p>
+          </div>
+        ) : (
+          <>
+            <p className="text-xs text-white/50">Autoriser les supersets, rest-pause et drop sets dans ton programme ?</p>
+            <div className="flex gap-2">
+              <button type="button"
+                onClick={() => onChange({ accepts_advanced_techniques: true })}
+                className={cn('flex-1 py-1.5 rounded-lg text-xs font-semibold border transition-colors',
+                  data.accepts_advanced_techniques === true
+                    ? 'bg-white text-violet-700 border-white'
+                    : 'bg-white/10 text-white/60 border-white/20 hover:bg-white/20')}>
+                Oui
+              </button>
+              <button type="button"
+                onClick={() => onChange({ accepts_advanced_techniques: false })}
+                className={cn('flex-1 py-1.5 rounded-lg text-xs font-semibold border transition-colors',
+                  data.accepts_advanced_techniques === false
+                    ? 'bg-white text-violet-700 border-white'
+                    : 'bg-white/10 text-white/60 border-white/20 hover:bg-white/20')}>
+                Non
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Exercices */}

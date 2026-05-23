@@ -74,6 +74,7 @@ CONFLITS ET RÉSOLUTIONS :
 
 8. ORDRE DES EXERCICES DANS LA SÉANCE — hiérarchie non négociable
    - Skills neurologiques de haute coordination (mouvements isométriques avancés, sauts, skills calisthenics présents dans la base) → toujours en 1er (SNC frais)
+   - DÉBUTANT : techniques avancées (supersets, rest-pause, drop sets) interdites — les patterns moteurs ne sont pas automatisés, enchaîner des exercices fausse l'apprentissage et ancre de mauvaises habitudes. Peu importe le réglage accepts_advanced_techniques, ne jamais les utiliser pour un débutant.
    - DÉBUTANT + HYPERTROPHIE : recommandation forte de minimum 8 reps. Si l'utilisateur demande moins (ex: 5×5), expliquer en 2 phrases pourquoi c'est sous-optimal (technique non établie, risque disproportionné, aucun gain supplémentaire vs 8-12 reps en phase débutant) et proposer une alternative. Si l'utilisateur insiste après explication, l'autoriser en lui rappelant brièvement de prioriser la technique.
    - PLAGE DE REPS CROISSANTE : en hypertrophie, les reps augmentent et la charge diminue au fil de la séance. Bloc A : 4-8 reps (composés lourds, charge maximale) → Bloc B : 8-12 reps (composés accessoires) → Bloc C : 12-20 reps (isolations). Jamais l'inverse. La charge disponible sur un exercice détermine naturellement sa plage et donc son bloc. Exception : force pure (reps basses tout le long) et endurance musculaire (reps élevées tout le long).
    - Composés lourds bloc A (squat, DL, bench, OHP barre) → avant toute fatigue significative
