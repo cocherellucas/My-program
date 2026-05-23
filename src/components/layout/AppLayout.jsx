@@ -177,9 +177,17 @@ export default function AppLayout() {
           }}
         >
           {NAV_PATHS.map((path, idx) => {
-            const Pre     = PRERENDER[path];
+            const Pre      = PRERENDER[path];
             const OnDemand = ON_DEMAND[path];
             const isActive = idx === currentIdx;
+            // CoachIA a un position:fixed à la racine — doit être rendu HORS du carousel
+            if (path === '/coach') {
+              return (
+                <div key={path} style={{ width: `${100 / numPages}%`, height: '100%', flexShrink: 0 }}>
+                  <PageGhost label="Coach" />
+                </div>
+              );
+            }
             return (
               <div
                 key={path}
@@ -197,6 +205,9 @@ export default function AppLayout() {
             );
           })}
         </motion.div>
+
+        {/* CoachIA rendu hors du carousel : son position:fixed fonctionne par rapport au viewport */}
+        {currentIdx === NAV_PATHS.indexOf('/coach') && <CoachIA />}
       </main>
 
       <style>{`
