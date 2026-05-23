@@ -381,22 +381,20 @@ ${profil}
 
 ${programBrief || buildDefaultRules(user, phaseCourante)}
 
-Réponds STRICTEMENT sous ce format — aucune explication, aucun texte hors format :
+Présente le programme de façon claire et lisible, sans jargon technique. Format :
 
-STRUCTURE : [nom]
-PHASE : ${phaseCourante} — Semaines 1-2
-STRATÉGIE VIF : Volume [cible] / Intensité [RIR cible] / Fréquence [N×/sem]
+**[Jour] — [type de séance] — [durée] min**
+- [Exercice] : [N] séries × [plage de reps] — arrête [N] reps avant l'échec — [repos entre séries]
+[répéter pour chaque exercice, groupés par logique (composés lourds → accessoires → isolations)]
 
-JOUR [ex: Lundi] — [type de séance] — [durée] min
-BLOC [A/B] — [objectif] — [stratégie VIF de ce bloc]
-- [Exercice] : [N] séries × [reps] — RIR [cible] — [note si échec autorisé/interdit]
-...
+Termine par :
+**Progression semaines 3-4 :** [ce qui augmente et pourquoi, en langage simple]
+**À surveiller :** [signaux concrets que l'utilisateur peut observer lui-même]
 
-PROGRESSION SEMAINE 3-4 :
-- [groupe] : +[N] série(s)/semaine → zone MAV (si RIR réalisé ≥ 2)
-
-SIGNAUX D'ACCOMMODATION À SURVEILLER :
-- [exercice] : si stagnation > 3 sem → [variation niveau 1 recommandée]
+Règles de rédaction :
+- Jamais de "BLOC A/B/C", "MEV/MAV/MRV", "RIR", "SRA", "VIF" — écrire en clair : "2 reps avant l'échec", "volume de départ", "récupération"
+- Le repos entre séries s'écrit entre parenthèses après chaque exercice : (repos : 90s) ou (repos : 2 min)
+- Ton direct et concret, comme un coach qui explique à voix haute
 
 ---
 PROMPT 4 — ajustement_seance
