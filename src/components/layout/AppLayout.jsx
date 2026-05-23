@@ -4,33 +4,43 @@ import Sidebar from './Sidebar';
 import MobileNav from './MobileNav';
 
 const NAV_PATHS = ['/', '/program', '/session', '/coach', '/library', '/profile'];
-const SWIPE_THRESHOLD = 60;
-const SWIPE_MAX_VERTICAL_RATIO = 0.6; // annule si trop vertical
+const SWIPE_MIN_X = 70;     // distance horizontale minimale
+const SWIPE_MAX_Y = 30;     // si on dépasse ça verticalement → c'est un scroll, on annule
 
 export default function AppLayout() {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const touchStart = useRef(null);
+  const cancelled = useRef(false); // annulé dès qu'on détecte un scroll vertical
 
   const handleTouchStart = (e) => {
-    // Ne pas interférer avec CoachIA (gère ses propres touches)
     if (location.pathname === '/coach') return;
+    cancelled.current = false;
     touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
   };
 
+  const handleTouchMove = (e) => {
+    if (!touchStart.current || cancelled.current) return;
+    const dy = Math.abs(e.touches[0].clientY - touchStart.current.y);
+    const dx = Math.abs(e.touches[0].clientX - touchStart.current.x);
+    // Dès qu'on monte/descend trop → ce n'est pas un swipe de navigation
+    if (dy > SWIPE_MAX_Y && dy > dx) {
+      cancelled.current = true;
+    }
+  };
+
   const handleTouchEnd = (e) => {
-    if (!touchStart.current || location.pathname === '/coach') return;
+    if (!touchStart.current || cancelled.current || location.pathname === '/coach') {
+      touchStart.current = null;
+      return;
+    }
     const dx = e.changedTouches[0].clientX - touchStart.current.x;
-    const dy = e.changedTouches[0].clientY - touchStart.current.y;
     touchStart.current = null;
 
-    // Ignorer si trop vertical ou trop court
-    if (Math.abs(dx) < SWIPE_THRESHOLD) return;
-    if (Math.abs(dy) / Math.abs(dx) > SWIPE_MAX_VERTICAL_RATIO) return;
+    if (Math.abs(dx) < SWIPE_MIN_X) return;
 
-    const currentPath = location.pathname;
-    const idx = NAV_PATHS.indexOf(currentPath);
+    const idx = NAV_PATHS.indexOf(location.pathname);
     if (idx === -1) return;
 
     if (dx < 0 && idx < NAV_PATHS.length - 1) navigate(NAV_PATHS[idx + 1]);
@@ -54,6 +64,7 @@ export default function AppLayout() {
         className="transition-all duration-250 ease-in-out pb-20 md:pb-0 overflow-x-hidden"
         style={{ marginLeft: collapsed ? 72 : 260 }}
         onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
         <div className="max-w-7xl mx-auto p-4 md:p-8">
