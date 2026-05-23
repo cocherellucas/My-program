@@ -62,6 +62,22 @@ export default function CoachIA() {
   const inputAreaRef = useRef(null);
   const fileInputRef = useRef(null);
 
+  // Hauteur du container adaptée à l'ouverture du clavier
+  // Clavier fermé : vv.height - 96px (p-4 top + MobileNav)
+  // Clavier ouvert : vv.height - 16px (p-4 top seulement, MobileNav cachée)
+  const [containerH, setContainerH] = useState(null);
+  useEffect(() => {
+    const update = () => {
+      const vv = window.visualViewport;
+      if (!vv) return;
+      const kbOpen = vv.height < window.innerHeight * 0.75;
+      setContainerH(kbOpen ? vv.height - 16 : vv.height - 96);
+      if (kbOpen) setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'instant' }), 50);
+    };
+    update();
+    window.visualViewport?.addEventListener('resize', update);
+    return () => window.visualViewport?.removeEventListener('resize', update);
+  }, []);
 
   // Bloque tout scroll tactile sauf dans la zone messages
   const messagesRef = useRef(null);
@@ -312,7 +328,7 @@ export default function CoachIA() {
   ];
 
   return (
-    <div ref={containerRef} className="flex flex-col" style={{ height: 'calc(100dvh - 96px)' }}>
+    <div ref={containerRef} className="flex flex-col" style={{ height: containerH ? `${containerH}px` : 'calc(100dvh - 96px)' }}>
 
       {importing && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4" style={{ background: 'linear-gradient(160deg, #2e1065 0%, #1e0050 100%)' }}>
