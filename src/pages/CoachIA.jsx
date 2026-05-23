@@ -605,8 +605,9 @@ export default function CoachIA() {
           onClick={sendMessage}
           disabled={loading || !input.trim()}
           className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg bg-white text-violet-700 hover:bg-white/90 disabled:opacity-30 transition-all"
+          style={{ opacity: loading ? 0 : undefined }}
         >
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+          <Send className="w-4 h-4" />
         </button>
         </div>
         <div className="flex items-center justify-between px-1 pt-1 pb-2">
