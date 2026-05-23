@@ -123,7 +123,6 @@ export default function CoachIA() {
     setFocused(true);
     const nav = document.querySelector('.mobile-nav');
     if (nav) nav.style.display = 'none';
-    setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
   };
   const handleInputBlur = () => {
     setFocused(false);
