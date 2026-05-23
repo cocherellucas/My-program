@@ -329,7 +329,7 @@ export default function CoachIA() {
   ];
 
   return (
-    <div ref={containerRef} className="flex flex-col" style={{ position: 'fixed', top: 0, left: 0, right: 0, height: containerH, zIndex: 10, paddingBottom: kbOpen ? 0 : 80 }}>
+    <div ref={containerRef} style={{ position: 'fixed', top: 0, left: 0, right: 0, height: containerH, zIndex: 10 }}>
 
       {importing && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4" style={{ background: 'linear-gradient(160deg, #2e1065 0%, #1e0050 100%)' }}>
@@ -424,8 +424,8 @@ export default function CoachIA() {
           </div>
         </div>
       )}
-      {/* Messages */}
-      <div ref={messagesRef} className="flex-1 overflow-y-auto space-y-4 overscroll-contain" style={{ touchAction: 'pan-y', padding: '0 16px 16px' }}>
+      {/* Messages — remplit tout l'espace au-dessus de la barre input */}
+      <div ref={messagesRef} className="overflow-y-auto space-y-4 overscroll-contain" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: (kbOpen ? 0 : 80) + 88, touchAction: 'pan-y', padding: '0 16px 16px' }}>
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mb-4">
@@ -555,8 +555,8 @@ export default function CoachIA() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Label + Input */}
-      <div style={{ padding: '0 16px 8px', flexShrink: 0 }}>
+      {/* Label + Input — collé en bas, au-dessus du clavier ou de la MobileNav */}
+      <div style={{ position: 'absolute', bottom: kbOpen ? 0 : 80, left: 0, right: 0, padding: '0 16px 8px' }}>
         <div className="flex items-center justify-between pt-2">
           <p className="text-xs text-white/50"><span className="font-bold text-white">Coach IA</span> · Ton assistant entraînement</p>
           <button
