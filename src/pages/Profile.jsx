@@ -35,6 +35,8 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'basics');
   const NO_SAVE_TABS = ['equipment', 'objectives'];
 
+  useEffect(() => { window.scrollTo(0, 0); }, []);
+
   useEffect(() => {
     base44.auth.me().then(u => {
       const normalized = normalizeUser(u);

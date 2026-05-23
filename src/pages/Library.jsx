@@ -174,6 +174,7 @@ export default function Library() {
   const [user, setUser] = useState(null);
   const queryClient = useQueryClient();
 
+  useEffect(() => { window.scrollTo(0, 0); }, []);
   useEffect(() => { base44.auth.me().then(setUser); }, []);
 
   const { data: savedPrograms = [] } = useQuery({

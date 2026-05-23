@@ -30,6 +30,8 @@ export default function Dashboard() {
   const [user, setUser]       = useState(null);
   const [checkins, setCheckins] = useState(loadCheckins);
 
+  useEffect(() => { window.scrollTo(0, 0); }, []);
+
   useEffect(() => {
     base44.auth.me().then(u => {
       setUser(u);
