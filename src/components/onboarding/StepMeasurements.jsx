@@ -1,7 +1,6 @@
-import React, { useRef } from 'react';
-import { Input } from '@/components/ui/input';
+import React from 'react';
 import { Label } from '@/components/ui/label';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { NumInput } from '@/components/ui/num-input';
 
 const FIELDS = [
   { key: 'shoulders',   label: 'Tour d\'épaules' },
@@ -19,65 +18,6 @@ const DEFAULTS = {
   neutral: { shoulders: 112, waist: 80,  hips: 100, right_arm: 32, left_arm: 32, right_thigh: 59, left_thigh: 59 },
 };
 
-function NumInput({ value, onChange, placeholder = '—', step = 0.5, min = 1, defaultValue = 0 }) {
-  const holdRef = useRef(null);
-  const valRef  = useRef(value);
-  valRef.current = value;
-
-  const doStep = (dir) => {
-    const cur  = parseFloat(valRef.current) || defaultValue;
-    const next = Math.max(min, parseFloat((cur + dir * step).toFixed(1)));
-    onChange(next);
-  };
-
-  const startHold = (dir) => {
-    doStep(dir);
-    holdRef.current = setTimeout(() => {
-      holdRef.current = setInterval(() => doStep(dir), 80);
-    }, 400);
-  };
-
-  const stopHold = () => {
-    clearTimeout(holdRef.current);
-    clearInterval(holdRef.current);
-    holdRef.current = null;
-  };
-
-  return (
-    <div className="relative">
-      <Input
-        type="text"
-        inputMode="decimal"
-        placeholder={placeholder}
-        value={value || ''}
-        onChange={(e) => {
-          const raw = e.target.value.replace(/[^0-9.]/g, '');
-          onChange(raw === '' ? '' : raw);
-        }}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter')     { e.target.blur(); }
-          if (e.key === 'ArrowUp')   { e.preventDefault(); doStep(1); }
-          if (e.key === 'ArrowDown') { e.preventDefault(); doStep(-1); }
-        }}
-        className="pr-6 bg-white/10 border-white/20 text-white placeholder:text-white/30"
-      />
-      <div className="absolute right-1 top-0 h-full flex flex-col justify-center">
-        <button type="button" tabIndex={-1}
-          onMouseDown={(e) => { e.preventDefault(); startHold(1); }}
-          onMouseUp={stopHold} onMouseLeave={stopHold}
-          className="text-white/50 hover:text-white leading-none">
-          <ChevronUp className="w-3 h-3" />
-        </button>
-        <button type="button" tabIndex={-1}
-          onMouseDown={(e) => { e.preventDefault(); startHold(-1); }}
-          onMouseUp={stopHold} onMouseLeave={stopHold}
-          className="text-white/50 hover:text-white leading-none">
-          <ChevronDown className="w-3 h-3" />
-        </button>
-      </div>
-    </div>
-  );
-}
 
 export default function StepMeasurements({ data, onChange }) {
   const defaults = DEFAULTS[data.gender] || DEFAULTS.neutral;
@@ -104,6 +44,9 @@ export default function StepMeasurements({ data, onChange }) {
               onChange={(val) => onChange({ [key]: val === '' ? '' : parseFloat(val) || '' })}
               defaultValue={defaults[key]}
               placeholder={String(defaults[key])}
+              step={0.5}
+              min={1}
+              className="bg-white/10 border-white/20 text-white placeholder:text-white/30"
             />
           </div>
         ))}

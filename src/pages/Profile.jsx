@@ -3,8 +3,8 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { NumInput } from '@/components/ui/num-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Save, Loader2, User, Ruler, Dumbbell, Calendar, LogOut, Target, SlidersHorizontal, CheckCircle2, RefreshCw } from 'lucide-react';
@@ -107,7 +107,7 @@ export default function Profile() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-white">Âge</Label>
-                <Input type="number" value={form.age || ''} onChange={(e) => update('age', parseInt(e.target.value))} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
+                <NumInput value={form.age} onChange={(v) => update('age', v === '' ? '' : parseInt(v))} min={10} max={100} step={1} defaultValue={20} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
               </div>
               <div className="space-y-2">
                 <Label className="text-white">Niveau</Label>
@@ -122,11 +122,11 @@ export default function Profile() {
               </div>
               <div className="space-y-2">
                 <Label className="text-white">Taille (cm)</Label>
-                <Input type="number" value={form.height || ''} onChange={(e) => update('height', parseInt(e.target.value))} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
+                <NumInput value={form.height} onChange={(v) => update('height', v === '' ? '' : parseInt(v))} min={100} max={250} step={1} defaultValue={170} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
               </div>
               <div className="space-y-2">
                 <Label className="text-white">Poids (kg)</Label>
-                <Input type="number" value={form.weight || ''} onChange={(e) => update('weight', parseInt(e.target.value))} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
+                <NumInput value={form.weight} onChange={(v) => update('weight', v === '' ? '' : parseFloat(v))} min={30} max={250} step={0.5} defaultValue={70} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
               </div>
             </div>
           </Card>
