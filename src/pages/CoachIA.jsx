@@ -51,30 +51,29 @@ export default function CoachIA() {
     }
   }, [messages, user?.id]);
 
-  // Supprime pb-20 du layout pour CoachIA
+  // Empêche le scroll du body pendant que CoachIA est affiché
   useEffect(() => {
-    const main = document.querySelector('main');
-    if (main) main.style.paddingBottom = '0px';
-    return () => { if (main) main.style.paddingBottom = ''; };
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
   }, []);
 
   const inputRef = useRef(null);
   const inputAreaRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Hauteur du container adaptée à l'ouverture du clavier
-  // Clavier fermé : vv.height - 96px (p-4 top + MobileNav)
-  // Clavier ouvert : vv.height - 16px (p-4 top seulement, MobileNav cachée)
-  const [containerH, setContainerH] = useState(null);
+  // Hauteur du clavier via visualViewport pour coller l'input au clavier
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [kbOpen, setKbOpen] = useState(false);
   useEffect(() => {
     const update = () => {
       const vv = window.visualViewport;
       if (!vv) return;
-      const kbOpen = vv.height < window.innerHeight * 0.75;
-      setContainerH(kbOpen ? vv.height - 16 : vv.height - 96);
-      if (kbOpen) setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'instant' }), 50);
+      const isOpen = vv.height < window.innerHeight * 0.75;
+      const kh = isOpen ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) : 0;
+      setKbOpen(isOpen);
+      setKeyboardHeight(kh);
+      if (isOpen) setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'instant' }), 50);
     };
-    update();
     window.visualViewport?.addEventListener('resize', update);
     return () => window.visualViewport?.removeEventListener('resize', update);
   }, []);
@@ -105,7 +104,7 @@ export default function CoachIA() {
   };
 
   const handleInputFocus = () => {
-    setTimeout(() => inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }), 100);
+    setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
   };
   const handleInputBlur = () => {};
 
@@ -328,7 +327,7 @@ export default function CoachIA() {
   ];
 
   return (
-    <div ref={containerRef} className="flex flex-col" style={{ height: containerH ? `${containerH}px` : 'calc(100dvh - 96px)' }}>
+    <div ref={containerRef} className="flex flex-col" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: keyboardHeight, zIndex: 10, paddingBottom: kbOpen ? 0 : 80 }}>
 
       {importing && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4" style={{ background: 'linear-gradient(160deg, #2e1065 0%, #1e0050 100%)' }}>
@@ -424,7 +423,7 @@ export default function CoachIA() {
         </div>
       )}
       {/* Messages */}
-      <div ref={messagesRef} className="flex-1 overflow-y-auto space-y-4 pb-4 overscroll-contain" style={{ touchAction: 'pan-y' }}>
+      <div ref={messagesRef} className="flex-1 overflow-y-auto space-y-4 overscroll-contain" style={{ touchAction: 'pan-y', padding: '0 16px 16px' }}>
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mb-4">
@@ -554,19 +553,18 @@ export default function CoachIA() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Label Coach IA */}
-      <div className="flex items-center justify-between px-1 pt-2 flex-shrink-0">
-        <p className="text-xs text-white/50"><span className="font-bold text-white">Coach IA</span> · Ton assistant entraînement</p>
-        <button
-          onClick={() => setPendingImportSessions({ json: '{}', sessions: [] })}
-          className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all"
-          style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
-          + Importer
-        </button>
-      </div>
-
-      {/* Input */}
-      <div ref={inputAreaRef} className="flex-shrink-0 bg-white/10 rounded-2xl border border-white/20 mx-0 mt-1 flex items-center gap-2 px-3 py-2">
+      {/* Label + Input */}
+      <div style={{ padding: '0 16px 8px', flexShrink: 0 }}>
+        <div className="flex items-center justify-between pt-2">
+          <p className="text-xs text-white/50"><span className="font-bold text-white">Coach IA</span> · Ton assistant entraînement</p>
+          <button
+            onClick={() => setPendingImportSessions({ json: '{}', sessions: [] })}
+            className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all"
+            style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
+            + Importer
+          </button>
+        </div>
+        <div ref={inputAreaRef} className="bg-white/10 rounded-2xl border border-white/20 mt-1 flex items-center gap-2 px-3 py-2">
         <Textarea
           ref={inputRef}
           value={input}
@@ -589,6 +587,7 @@ export default function CoachIA() {
         >
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
         </button>
+        </div>
       </div>
     </div>
   );
