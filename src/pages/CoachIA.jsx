@@ -65,7 +65,10 @@ export default function CoachIA() {
   // Hauteur réelle du viewport (réduit quand clavier ouvert)
   const [vvh, setVvh] = useState(null);
   useEffect(() => {
-    const update = () => setVvh(window.visualViewport?.height ?? window.innerHeight);
+    const update = () => {
+      setVvh(window.visualViewport?.height ?? window.innerHeight);
+      setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    };
     update();
     window.visualViewport?.addEventListener('resize', update);
     return () => window.visualViewport?.removeEventListener('resize', update);
