@@ -113,13 +113,17 @@ export default function AppLayout() {
       if (Math.abs(dx) < Math.abs(dy) * 2) { touchStart.current = null; return; }
       isHorizontal.current = true;
       swipeDir.current = dx > 0 ? 1 : -1;
-      setSwipeInProgress(true);
     }
 
     const adjIdx = currentIdxRef.current + (swipeDir.current > 0 ? -1 : 1);
     const hasNeighbor = adjIdx >= 0 && adjIdx < NAV_PATHS.length;
     x.set(hasNeighbor ? dx : dx * 0.1);
-  }, [x]);
+
+    // Masque CoachIA seulement quand le seuil de navigation est franchi
+    if (currentIdxRef.current === COACH_IDX && Math.abs(dx) >= SNAP_THRESHOLD) {
+      setSwipeInProgress(true);
+    }
+  }, [x, COACH_IDX]);
 
   const handleTouchEnd = useCallback((e) => {
     if (!touchStart.current || !isHorizontal.current) { cleanup(); return; }
