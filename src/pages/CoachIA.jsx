@@ -61,19 +61,21 @@ export default function CoachIA() {
   const inputAreaRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Hauteur du clavier via visualViewport pour coller l'input au clavier
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  // Hauteur explicite du container pour coller l'input au clavier sur iOS
+  // On utilise height (pas bottom) car iOS ne calcule pas bien flex-1 avec bottom:x sur fixed
   const [kbOpen, setKbOpen] = useState(false);
+  const [containerH, setContainerH] = useState(() => window.innerHeight);
   useEffect(() => {
     const update = () => {
       const vv = window.visualViewport;
       if (!vv) return;
       const isOpen = vv.height < window.innerHeight * 0.75;
-      const kh = isOpen ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) : 0;
+      const kh = isOpen ? Math.max(0, window.innerHeight - vv.height - (vv.offsetTop || 0)) : 0;
       setKbOpen(isOpen);
-      setKeyboardHeight(kh);
+      setContainerH(window.innerHeight - kh);
       if (isOpen) setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'instant' }), 50);
     };
+    update();
     window.visualViewport?.addEventListener('resize', update);
     return () => window.visualViewport?.removeEventListener('resize', update);
   }, []);
@@ -327,7 +329,7 @@ export default function CoachIA() {
   ];
 
   return (
-    <div ref={containerRef} className="flex flex-col" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: keyboardHeight, zIndex: 10, paddingBottom: kbOpen ? 0 : 80 }}>
+    <div ref={containerRef} className="flex flex-col" style={{ position: 'fixed', top: 0, left: 0, right: 0, height: containerH, zIndex: 10, paddingBottom: kbOpen ? 0 : 80 }}>
 
       {importing && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4" style={{ background: 'linear-gradient(160deg, #2e1065 0%, #1e0050 100%)' }}>
