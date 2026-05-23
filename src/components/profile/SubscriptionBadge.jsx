@@ -31,12 +31,18 @@ const PLAN_CONFIG = {
   },
 };
 
+const CACHE_KEY = 'cached_subscription_plan';
+
 export default function SubscriptionBadge({ fullWidth = false }) {
-  const [planId, setPlanId] = useState(null);
+  const [planId, setPlanId] = useState(() => {
+    try { return localStorage.getItem(CACHE_KEY) || 'starter'; } catch { return 'starter'; }
+  });
 
   useEffect(() => {
     base44.auth.me().then(u => {
-      setPlanId(u?.subscription_plan || 'starter');
+      const plan = u?.subscription_plan || 'starter';
+      setPlanId(plan);
+      try { localStorage.setItem(CACHE_KEY, plan); } catch {}
     });
   }, []);
 
