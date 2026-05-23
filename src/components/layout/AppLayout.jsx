@@ -14,9 +14,8 @@ import Dashboard   from '@/pages/Dashboard';
 import SessionLog  from '@/pages/SessionLog';
 import CoachIA     from '@/pages/CoachIA';
 
-const COACH_IDX = NAV_PATHS.indexOf('/coach');
-
 const NAV_PATHS = ['/', '/program', '/session', '/coach', '/library', '/profile'];
+const COACH_IDX = NAV_PATHS.indexOf('/coach');
 const PAGE_LABELS = {
   '/': 'Accueil', '/program': 'Programme', '/session': 'Séance',
   '/coach': 'Coach', '/library': 'Biblio', '/profile': 'Profil',
