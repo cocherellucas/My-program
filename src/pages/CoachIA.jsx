@@ -62,6 +62,13 @@ export default function CoachIA() {
   const fileInputRef = useRef(null);
 
   // Aligne le container sur le visual viewport (gère le scroll iOS quand textarea focus)
+  // Hauteur réelle de la MobileNav (inclut safe-area-inset-bottom automatiquement)
+  const [navHeight, setNavHeight] = useState(80);
+  useEffect(() => {
+    const nav = document.querySelector('.mobile-nav');
+    if (nav) setNavHeight(nav.offsetHeight);
+  }, []);
+
   // iOS scrolle vv.offsetTop > 0 quand il focus un input, ce qui décale le container fixe
   const [kbOpen, setKbOpen] = useState(false);
   const [containerH, setContainerH] = useState(() => window.innerHeight);
@@ -347,7 +354,7 @@ export default function CoachIA() {
 
   // navOffset = 0 quand clavier ouvert ou textarea focus (MobileNav cachée)
   //           = 80 quand clavier fermé (espace pour MobileNav)
-  const navOffset = (kbOpen || focused) ? 0 : 80;
+  const navOffset = (kbOpen || focused) ? 0 : navHeight;
 
   return (
     <div ref={containerRef} style={{ position: 'fixed', top: containerTop, left: 0, right: 0, height: containerH, zIndex: 10 }}>
