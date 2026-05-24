@@ -21,11 +21,11 @@ const STRUCTURE_LABELS = {
 };
 
 const STRUCTURE_COLORS = {
-  full_body: 'bg-accent/10 text-accent',
-  upper_lower: 'bg-chart-3/10 text-chart-3',
-  ppl: 'bg-primary/10 text-primary',
-  arnold_split: 'bg-chart-5/10 text-chart-5',
-  custom: 'bg-muted text-muted-foreground',
+  full_body:    'bg-white/20 text-white border-white/20',
+  upper_lower:  'bg-white/20 text-white border-white/20',
+  ppl:          'bg-white/20 text-white border-white/20',
+  arnold_split: 'bg-white/20 text-white border-white/20',
+  custom:       'bg-white/10 text-white/60 border-white/15',
 };
 
 const TYPE_LABELS = { strength: 'Force', hypertrophy: 'Hypertrophie', endurance: 'Endurance', mixed: 'Mixte' };
