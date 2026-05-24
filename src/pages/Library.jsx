@@ -47,7 +47,7 @@ function SavedProgramCard({ prog, onDelete, onReapply }) {
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold font-heading text-base text-white">{prog.name}</span>
+            <span className="font-semibold font-heading text-base text-white">{prog.name?.replace(/\s*·\s*\w+$/, '')}</span>
           </div>
           <div className="flex items-center gap-3 mt-1 text-xs text-white/60 flex-wrap">
             <span>Sauvegardé le {format(new Date(prog.created_date), 'd MMM yyyy', { locale: fr })}</span>
