@@ -92,7 +92,7 @@ export default function Program() {
     enabled: !!user,
   });
 
-  const { data: programs = [] } = useQuery({
+  const { data: programs = [], isLoading: programsLoading } = useQuery({
     queryKey: ['programs'],
     queryFn: () => base44.entities.Program.filter({ status: 'active' }, '-created_date', 1),
     enabled: !!user,
@@ -508,8 +508,9 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
         </div>
       </div>
 
-      {activeProgram && sessionsLoading && (
+      {(!user || programsLoading || (activeProgram && sessionsLoading)) && !generating && (
         <div className="space-y-3">
+          <div className="h-6 w-48 rounded-lg bg-white/10 animate-pulse" />
           {[1,2,3].map(i => (
             <div key={i} className="h-20 rounded-xl bg-white/10 animate-pulse" />
           ))}
