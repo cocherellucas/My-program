@@ -131,26 +131,12 @@ export default function Program() {
     genTimerRef.current = setInterval(() => setGenSeconds(s => s + 1), 1000);
     try {
 
-    // Calcul intelligent des semaines si "auto" (RP — Israetel et al.)
-    // MEV = départ de cycle → durée = cycle complet selon niveau
-    // MAV = phase principale, 2-4 sem. de travail productif
-    // MRV = pic de volume, 2-3 sem. max avant surentraînement
-    if (!weeks || weeks === 'auto') {
-      const level = user?.level || 'beginner';
-      const resolvedPhase = phase || 'auto';
-      const OPTIMAL_WEEKS = {
-        //              cycle auto  MEV   MAV   MRV
-        beginner:     { auto: 4,  MEV: 4, MAV: 4, MRV: 2 },
-        intermediate: { auto: 6,  MEV: 6, MAV: 5, MRV: 3 },
-        advanced:     { auto: 10, MEV: 10, MAV: 6, MRV: 3 },
-      };
-      weeks = (OPTIMAL_WEEKS[level] || OPTIMAL_WEEKS.beginner)[resolvedPhase] || 4;
-    }
+    const weeksIsAuto = !weeks || weeks === 'auto';
 
     // Pré-calcul déterministe — zéro API
     setGenPhase('Calcul du volume et des splits…');
     const programCtx     = buildProgramContext(user, objectives);
-    const programBrief   = formatProgramBrief({ ...programCtx, structure: structure || programCtx.structure, plannedWeeks: weeks, phase });
+    const programBrief   = formatProgramBrief({ ...programCtx, structure: structure || programCtx.structure, plannedWeeks: weeksIsAuto ? null : weeks, phase });
     const scienceContext = getContextualKnowledge(user, objectives);
     setGenPhase('L\'IA construit ton programme…');
 
@@ -198,8 +184,16 @@ ${programBrief}
 ═══════════════════════════════════════════════════
 ${structureInstruction}
 ${phaseInstruction}
-Génère un programme COMPLET de ${weeks} semaines avec le champ "week" de 1 à ${weeks} pour chaque séance.
-⚠️ VOLUME SÉANCES OBLIGATOIRE : exactement ${weeks} semaines distinctes. Le champ "week" DOIT aller de 1 à ${weeks} — chaque semaine doit avoir ses propres séances. Total attendu : ${weeks * 3} à ${weeks * 5} séances (${weeks} semaines × 3-5 séances/sem). Ne génère JAMAIS uniquement la semaine 1.
+${weeksIsAuto
+  ? `DURÉE DU PROGRAMME : tu choisis le nombre de semaines optimal (planned_weeks) en fonction du profil complet ci-dessus. Critères RP/science :
+- Niveau débutant + objectif hypertrophie/endurance → 4 sem. | force → 4-5 sem.
+- Niveau intermédiaire + hypertrophie → 6-8 sem. | force → 8-10 sem.
+- Niveau avancé + hypertrophie → 8-10 sem. | force → 10-12 sem.
+- Modificateurs : fréquence élevée (5-6j) → -1 sem. | fréquence basse (2-3j) → +1-2 sem. | zone fragile active → -1 sem. | âge 50+ → -1 sem. | préférence intensité élevée → -1 sem.
+Retourne ce choix dans le champ "planned_weeks" de ta réponse JSON.`
+  : `DURÉE IMPOSÉE : ${weeks} semaines.`}
+Génère un programme COMPLET avec le champ "week" de 1 à planned_weeks pour chaque séance.
+⚠️ VOLUME OBLIGATOIRE : le champ "week" DOIT couvrir TOUTES les semaines de 1 à planned_weeks — chaque semaine a ses propres séances distinctes. Ne génère JAMAIS uniquement la semaine 1.
 Chaque séance = tous les exercices avec sets, reps, RIR, repos.
 Règles absolues : jamais à l'échec sur squat/deadlift/bench barre/OHP barre. Échec autorisé dernière série isolation uniquement. SRA : 48h min entre séances hypertrophie même muscle, 72h pour force composé lourd.
 
@@ -214,6 +208,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
         type: "object",
         properties: {
           weekly_structure: { type: "string" },
+          planned_weeks: { type: "number", description: "Optimal number of weeks chosen by the AI based on the user profile" },
           multi_objective_mode: { type: "string" },
           sessions: {
           type: "array",
@@ -246,7 +241,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
         return allowed.includes(raw) ? raw : 'full_body';
       })(),
       active_days: (user.available_days || []).map(d => ({ day: d, duration_minutes: (user.duration_per_day || {})[d] || 60 })),
-      planned_weeks: weeks,
+      planned_weeks: weeksIsAuto ? (result.planned_weeks || 4) : weeks,
       active_phase: phase || 'MEV',
       status: 'active',
       multi_objective_mode: ['simple', 'parallel', 'sequential', 'vif'].includes(result.multi_objective_mode) ? result.multi_objective_mode : 'simple',
