@@ -198,8 +198,8 @@ ${programBrief}
 ═══════════════════════════════════════════════════
 ${structureInstruction}
 ${phaseInstruction}
-Génère un programme COMPLET de ${weeks} semaines.
-⚠️ VOLUME SÉANCES OBLIGATOIRE : ${weeks * 3} à ${weeks * 5} séances au total (${weeks} semaines × 3-5 séances/sem selon niveau et science). Ne génère JAMAIS une seule séance sur tout le programme.
+Génère un programme COMPLET de ${weeks} semaines avec le champ "week" de 1 à ${weeks} pour chaque séance.
+⚠️ VOLUME SÉANCES OBLIGATOIRE : exactement ${weeks} semaines distinctes. Le champ "week" DOIT aller de 1 à ${weeks} — chaque semaine doit avoir ses propres séances. Total attendu : ${weeks * 3} à ${weeks * 5} séances (${weeks} semaines × 3-5 séances/sem). Ne génère JAMAIS uniquement la semaine 1.
 Chaque séance = tous les exercices avec sets, reps, RIR, repos.
 Règles absolues : jamais à l'échec sur squat/deadlift/bench barre/OHP barre. Échec autorisé dernière série isolation uniquement. SRA : 48h min entre séances hypertrophie même muscle, 72h pour force composé lourd.
 
