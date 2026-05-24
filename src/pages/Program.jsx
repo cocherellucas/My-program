@@ -535,17 +535,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
           {Object.entries(weeks).map(([w, weekSessions]) => (
             <TabsContent key={w} value={w}>
               <div className="grid gap-3">
-                 {weekSessions.filter(session => {
-                   // Cacher les séances planifiées AVANT la création du programme
-                   if (session.planned_date && activeProgram?.created_at) {
-                     const programStart = new Date(activeProgram.created_at);
-                     programStart.setHours(0, 0, 0, 0);
-                     const d = new Date(session.planned_date);
-                     d.setHours(0, 0, 0, 0);
-                     if (d < programStart) return false;
-                   }
-                   return true;
-                 }).map((session, i) => {
+                 {weekSessions.map((session, i) => {
                    const isPastDay = isPast(session);
                    const past = isPastDay && session.status !== 'completed';
                    const sessionDate = session.planned_date ? new Date(session.planned_date) : null;
@@ -570,13 +560,18 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                              ) : (
                                <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white', letterSpacing: '0.06em' }}>Coach</span>
                              )}
-                             <div className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center ${isToday ? 'bg-violet-600 border-2 border-white' : 'bg-white/20'}`}>
-                               <span className={`text-xs capitalize ${isToday ? 'text-white/80' : 'text-white/70'}`}>
+                             <div className={`w-14 h-14 rounded-xl flex flex-col items-center justify-center ${isToday ? 'bg-violet-600 border-2 border-white' : 'bg-white/20'}`}>
+                               <span className={`text-[10px] capitalize ${isToday ? 'text-white/80' : 'text-white/70'}`}>
                                  {session.planned_date && format(new Date(session.planned_date), 'EEE', { locale: fr })}
                                </span>
                                {!isInfinite && (
                                  <span className={`text-sm font-bold ${isToday ? 'text-white' : 'text-white'}`}>
                                    {session.planned_date && format(new Date(session.planned_date), 'd')}
+                                 </span>
+                               )}
+                               {!isInfinite && (
+                                 <span className={`text-[9px] capitalize ${isToday ? 'text-white/70' : 'text-white/50'}`}>
+                                   {session.planned_date && format(new Date(session.planned_date), 'MMM', { locale: fr })}
                                  </span>
                                )}
                              </div>
