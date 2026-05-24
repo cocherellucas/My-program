@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { BookOpen, Dumbbell, Trash2, Play, Clock, ChevronDown, ChevronUp, CalendarDays } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { addDays, startOfWeek } from 'date-fns';
 
 const STRUCTURE_LABELS = {
@@ -262,8 +262,9 @@ export default function Library() {
             </Card>
           ) : (
             <div className="space-y-3">
+              <AnimatePresence>
               {savedPrograms.map((prog, i) => (
-                <motion.div key={prog.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                <motion.div key={prog.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -40, height: 0, marginBottom: 0 }} transition={{ duration: 0.25 }}>
                   <SavedProgramCard
                     prog={prog}
                     onDelete={(id) => deleteMutation.mutate(id)}
@@ -271,6 +272,7 @@ export default function Library() {
                   />
                 </motion.div>
               ))}
+              </AnimatePresence>
             </div>
           )}
         </TabsContent>
