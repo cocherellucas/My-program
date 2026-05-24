@@ -28,7 +28,7 @@ const PHASES = [
 
 export default function GenerateProgramDialog({ open, onClose, onGenerate }) {
   const [structure, setStructure] = useState('auto');
-  const [weeks, setWeeks] = useState('4');
+  const [weeks, setWeeks] = useState('auto');
   const [phase, setPhase] = useState('auto');
 
   const handleGenerate = () => {
