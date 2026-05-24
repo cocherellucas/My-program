@@ -253,8 +253,11 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
       program_data: result,
     });
 
-    // Create sessions
-    const monday = startOfWeek(new Date(), { weekStartsOn: 1 });
+    // Create sessions — start from current Monday, or next Monday if today is Wed-Sun
+    const todayDate = new Date(); todayDate.setHours(0,0,0,0);
+    const thisMon = startOfWeek(new Date(), { weekStartsOn: 1 });
+    const dayOfWeek = todayDate.getDay(); // 0=Sun,1=Mon,...,6=Sat
+    const monday = dayOfWeek >= 3 ? addDays(thisMon, 7) : thisMon;
     const dayMap = {
       monday: 0, lundi: 0,
       tuesday: 1, mardi: 1,
