@@ -48,14 +48,8 @@ function SavedProgramCard({ prog, onDelete, onReapply }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold font-heading text-base text-white">{prog.name}</span>
-            {label && <Badge className={`text-xs ${color}`}>{label}</Badge>}
           </div>
           <div className="flex items-center gap-3 mt-1 text-xs text-white/60 flex-wrap">
-            {(() => {
-              const actualWeeks = new Set((prog.sessions_templates || []).map(s => s.week_number).filter(Boolean)).size;
-              const displayWeeks = actualWeeks || prog.planned_weeks;
-              return displayWeeks ? <span>{displayWeeks} semaine{displayWeeks > 1 ? 's' : ''}</span> : null;
-            })()}
             <span>Sauvegardé le {format(new Date(prog.created_date), 'd MMM yyyy', { locale: fr })}</span>
           </div>
         </div>
