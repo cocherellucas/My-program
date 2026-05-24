@@ -353,7 +353,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
     const structureLabel = { full_body: 'Full Body', upper_lower: 'Upper/Lower', ppl: 'PPL', arnold_split: 'Arnold Split', custom: 'Personnalisé', unknown: '' };
     const label = structureLabel[structureType] || '';
     const actualWeeks = new Set(sessions.map(s => s.week_number).filter(Boolean)).size || activeProgram.planned_weeks || '?';
-    const name = `${label ? label + ' — ' : ''}${actualWeeks} sem. · ${activeProgram.active_phase}`.trim();
+    const name = `${label ? label + ' — ' : ''}${actualWeeks} sem.`.trim();
 
     await base44.entities.SavedProgram.create({
       user_id: user.id,
