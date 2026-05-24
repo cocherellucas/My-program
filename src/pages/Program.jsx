@@ -101,7 +101,7 @@ export default function Program() {
   const activeProgram = programs[0] || null;
   const alreadySaved = activeProgram ? localStorage.getItem(`saved_program_${activeProgram.id}`) === 'true' : false;
 
-  const { data: sessions = [] } = useQuery({
+  const { data: sessions = [], isLoading: sessionsLoading } = useQuery({
     queryKey: ['program-sessions', activeProgram?.id],
     queryFn: () => base44.entities.Session.filter({ program_id: activeProgram.id }, 'planned_date'),
     enabled: !!activeProgram,
@@ -434,9 +434,31 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white">Programme</h1>
-          <p className="text-white/70 mt-1 text-sm">
-            {activeProgram ? `Version ${activeProgram.version} · Phase ${activeProgram.active_phase}` : ''}
-          </p>
+          {activeProgram && (() => {
+            const nextSession = sessions.find(s => s.status !== 'completed' && s.planned_date && new Date(s.planned_date) >= today);
+            const completedCount = sessions.filter(s => s.status === 'completed').length;
+            const totalCount = sessions.length;
+            const currentWeekNum = nextSession?.week_number || 1;
+            const totalWeeks = activeProgram.planned_weeks || 1;
+            const daysUntil = nextSession?.planned_date
+              ? Math.round((new Date(nextSession.planned_date) - today) / 86400000)
+              : null;
+            return (
+              <div className="flex flex-wrap items-center gap-2 mt-1">
+                <span className="text-white/60 text-sm">Semaine {currentWeekNum}/{totalWeeks}</span>
+                {daysUntil !== null && (
+                  <span className="text-white/60 text-sm">·</span>
+                )}
+                {daysUntil === 0 && <span className="text-green-300 text-sm font-medium">Séance aujourd'hui</span>}
+                {daysUntil === 1 && <span className="text-white/60 text-sm">Prochaine séance demain</span>}
+                {daysUntil > 1 && <span className="text-white/60 text-sm">Prochaine séance dans {daysUntil}j</span>}
+                {totalCount > 0 && (
+                  <><span className="text-white/60 text-sm">·</span>
+                  <span className="text-white/60 text-sm">{completedCount}/{totalCount} séances</span></>
+                )}
+              </div>
+            );
+          })()}
         </div>
         <div className="flex items-center gap-2">
           {activeProgram && (
@@ -486,7 +508,15 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
         </div>
       </div>
 
-      {activeProgram && Object.keys(weeks).length > 0 && (() => {
+      {activeProgram && sessionsLoading && (
+        <div className="space-y-3">
+          {[1,2,3].map(i => (
+            <div key={i} className="h-20 rounded-xl bg-white/10 animate-pulse" />
+          ))}
+        </div>
+      )}
+
+      {activeProgram && !sessionsLoading && Object.keys(weeks).length > 0 && (() => {
         const isInfinite = Object.keys(weeks).length > 10;
         return (<Tabs defaultValue={currentWeekTab}>
           <TabsList className="bg-white/10 text-white w-full overflow-x-auto">
