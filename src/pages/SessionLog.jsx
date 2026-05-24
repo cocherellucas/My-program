@@ -961,12 +961,17 @@ export default function SessionLog() {
     enabled: !!session?.program_id
   });
 
-  // Build RIR context from all available factors
+  // Phase calculée dynamiquement depuis la position dans le cycle (active_phase est statique)
+  const _wk = session?.week_number || 1;
+  const _pw = activeProgram?.planned_weeks || 8;
+  const _ratio = (_wk - 1) / Math.max(1, _pw - 1);
+  const _phase = _ratio < 0.25 ? 'MEV' : _ratio < 0.75 ? 'MAV' : 'MRV';
+
   const rirContext = {
-    phase: activeProgram?.active_phase || 'MAV',
+    phase: _phase,
     sessionType: session?.type || 'hypertrophy',
-    weekNumber: session?.week_number || 1,
-    plannedWeeks: activeProgram?.planned_weeks || 8
+    weekNumber: _wk,
+    plannedWeeks: _pw
   };
 
   const exercises = (sessionExercises ?? (session?.exercises || [])).filter((ex) => ex && ex.name);
