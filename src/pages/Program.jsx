@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
@@ -677,8 +678,8 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
         onGenerate={generateProgram}
       />
 
-      {deleting && (
-        <div className="fixed inset-0 bg-violet-900/80 backdrop-blur-sm flex flex-col items-center justify-center z-50 gap-4">
+      {deleting && createPortal(
+        <div className="fixed inset-0 bg-violet-900/80 backdrop-blur-sm flex flex-col items-center justify-center z-[200] gap-4">
           <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', boxShadow: '0 0 30px rgba(124,58,237,0.5)' }}>
             <Loader2 className="w-6 h-6 text-white animate-spin" />
           </div>
@@ -686,11 +687,12 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
             <p className="text-white font-semibold text-sm">Suppression en cours…</p>
             <p className="text-white/50 text-xs">Les séances planifiées sont effacées</p>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {generating && (
-        <div className="fixed inset-0 bg-violet-900/80 backdrop-blur-sm flex flex-col items-center justify-center z-50 gap-4">
+      {generating && createPortal(
+        <div className="fixed inset-0 flex flex-col items-center justify-center z-[200] gap-4" style={{ background: 'linear-gradient(160deg, #2e1065 0%, #1e0050 100%)' }}>
           <LoadingOrb />
           <div className="text-center space-y-1">
             <p className="text-white font-semibold text-sm">{genPhase}</p>
@@ -705,11 +707,12 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
               })()}
             </p>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {genError && !generating && (
-        <div className="fixed inset-0 bg-violet-900/80 backdrop-blur-sm flex flex-col items-center justify-center z-50 gap-4 px-6">
+      {genError && !generating && createPortal(
+        <div className="fixed inset-0 bg-violet-900/80 backdrop-blur-sm flex flex-col items-center justify-center z-[200] gap-4 px-6">
           <div className="text-center space-y-3">
             <p className="text-white font-bold text-lg">
               {genError === 'network' ? 'Connexion perdue' : 'Erreur de génération'}
@@ -729,7 +732,8 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
