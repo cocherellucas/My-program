@@ -56,8 +56,6 @@ function SavedProgramCard({ prog, onDelete, onReapply }) {
               const displayWeeks = actualWeeks || prog.planned_weeks;
               return displayWeeks ? <span>{displayWeeks} semaine{displayWeeks > 1 ? 's' : ''}</span> : null;
             })()}
-            {prog.active_phase && <span>Phase {prog.active_phase}</span>}
-            {prog.weekly_structure && <span className="capitalize">{prog.weekly_structure.replace('_', ' ')}</span>}
             <span>Sauvegardé le {format(new Date(prog.created_date), 'd MMM yyyy', { locale: fr })}</span>
           </div>
         </div>
