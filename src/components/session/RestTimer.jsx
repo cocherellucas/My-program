@@ -20,37 +20,8 @@ const requestNotifPermission = async () => {
   }
 };
 
-// Obtenir ou créer l'abonnement push
-const getPushSubscription = () => new Promise((resolve) => {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return resolve(null);
-  navigator.serviceWorker.ready.then(reg => {
-    reg.pushManager.getSubscription().then(existing => {
-      if (existing) return resolve(existing.toJSON());
-      reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: 'BDb9fTWerJpit946sN3TkHEaCx6aiYxN7xUEkIdCueUPzFsWGZGHTb3sSu8Atpdz-Rv0IOoEimFQSMUmRguyOWA' })
-        .then(sub => resolve(sub.toJSON()))
-        .catch(() => resolve(null));
-    });
-  }).catch(() => resolve(null));
-});
-
-const sendPushNow = (subscription, delay) => {
-  if (!subscription || delay <= 0) return;
-  fetch('/api/push', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ subscription, delay: Math.min(delay, 58) }),
-    keepalive: true,
-  }).catch(() => {});
-};
-
 export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, initialEndTime }) {
   const endTimeRef = useRef(initialEndTime || Date.now() + seconds * 1000);
-  const pushSubRef = useRef(null);
-
-  // Pré-charger la subscription push dès le montage
-  useEffect(() => {
-    getPushSubscription().then(sub => { pushSubRef.current = sub; });
-  }, []);
   const [remaining, setRemaining] = useState(() => {
     const left = Math.ceil((endTimeRef.current - Date.now()) / 1000);
     return left > 0 ? left : seconds;
@@ -92,12 +63,7 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
   // Recalculer au retour du background
   useEffect(() => {
     const onVisible = () => {
-      if (document.hidden) {
-        // App passe en arrière-plan → push immédiat avec subscription pré-chargée
-        const delay = Math.ceil((endTimeRef.current - Date.now()) / 1000);
-        sendPushNow(pushSubRef.current, delay);
-        return;
-      }
+      if (document.hidden) return;
       if (!running) return;
       const left = Math.ceil((endTimeRef.current - Date.now()) / 1000);
       if (left <= 0) {
