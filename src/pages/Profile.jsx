@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Card } from '@/components/ui/card';
@@ -187,7 +188,7 @@ export default function Profile() {
         </button>
       )}
 
-      {confirmLogout && (
+      {confirmLogout && createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6" onClick={() => setConfirmLogout(false)}>
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
           <div className="relative bg-violet-900 border border-white/20 rounded-2xl p-6 w-full max-w-xs shadow-2xl text-center space-y-4" onClick={e => e.stopPropagation()}>
@@ -208,7 +209,7 @@ export default function Profile() {
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
     </div>
   );
 }
