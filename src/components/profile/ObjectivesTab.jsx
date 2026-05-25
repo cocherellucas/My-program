@@ -193,7 +193,7 @@ export default function ObjectivesTab({ userId }) {
       </Button>
 
       <button onClick={save} disabled={saving} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm bg-white text-violet-700 hover:bg-white/90 shadow transition-all disabled:opacity-50">
-        {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+        {saving && <Loader2 className="w-4 h-4 animate-spin" />}
         Sauvegarder les objectifs
       </button>
     </div>
