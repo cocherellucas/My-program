@@ -176,10 +176,14 @@ export default function Profile() {
       )}
 
       {!NO_SAVE_TABS.includes(activeTab) && (
-        <Button onClick={save} disabled={saving || saved} className={`w-full transition-all ${saved ? 'bg-accent hover:bg-accent text-accent-foreground' : ''}`}>
-          {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : saved ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+        <button
+          onClick={save}
+          disabled={saving || saved}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm bg-white text-violet-700 hover:bg-white/90 shadow transition-all disabled:opacity-50"
+        >
+          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <CheckCircle2 className="w-4 h-4" /> : <Save className="w-4 h-4" />}
           {saving ? 'Sauvegarde…' : saved ? 'Sauvegardé !' : 'Sauvegarder'}
-        </Button>
+        </button>
       )}
     </div>
   );
