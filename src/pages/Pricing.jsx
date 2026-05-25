@@ -64,7 +64,7 @@ export default function Pricing() {
         {/* Plans — scroll horizontal sur mobile, grille sur desktop */}
         <div className="md:hidden -mx-4 px-4">
           <div
-            className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory"
+            className="flex gap-4 overflow-x-auto pt-5 pb-4 snap-x snap-mandatory"
             style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
           >
             {visiblePlans.map((plan) => {
