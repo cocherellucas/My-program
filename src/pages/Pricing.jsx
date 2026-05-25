@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Check, Zap, Star, Crown, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DEFAULT_PLANS } from '@/lib/pricing-config';
@@ -21,30 +19,30 @@ export default function Pricing() {
   }, []);
 
   const icons = { starter: Zap, coach: Star, elite: Crown };
-  const iconColors = { starter: 'text-muted-foreground', coach: 'text-primary', elite: 'text-yellow-400' };
 
   return (
-    <div className="min-h-screen bg-background py-16 px-4">
+    <div className="min-h-screen bg-violet-800 py-12 px-4">
       <div className="max-w-5xl mx-auto">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8 text-sm font-medium"
+          className="flex items-center gap-2 text-white/60 hover:text-white transition-colors mb-8 text-sm font-medium"
         >
           <ArrowLeft className="w-4 h-4" />
           Retour
         </button>
+
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-heading font-bold mb-3">Choisis ton plan</h1>
-          <p className="text-muted-foreground text-lg">Commence gratuitement. Monte en puissance quand tu es prêt.</p>
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-heading font-bold text-white mb-3">Choisis ton plan</h1>
+          <p className="text-white/60 text-base">Commence gratuitement. Monte en puissance quand tu es prêt.</p>
 
           {/* Toggle */}
-          <div className="inline-flex items-center gap-1 bg-muted rounded-full p-1 mt-8">
+          <div className="inline-flex items-center gap-1 bg-white/10 border border-white/20 rounded-full p-1 mt-8">
             <button
               onClick={() => setBilling('monthly')}
               className={cn(
-                'px-5 py-2 rounded-full text-sm font-medium transition-all',
-                billing === 'monthly' ? 'bg-card text-foreground shadow' : 'text-muted-foreground'
+                'px-5 py-2 rounded-full text-sm font-semibold transition-all',
+                billing === 'monthly' ? 'bg-white text-violet-700 shadow' : 'text-white/60 hover:text-white'
               )}
             >
               Mensuel
@@ -52,12 +50,12 @@ export default function Pricing() {
             <button
               onClick={() => setBilling('annual')}
               className={cn(
-                'px-5 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2',
-                billing === 'annual' ? 'bg-card text-foreground shadow' : 'text-muted-foreground'
+                'px-5 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2',
+                billing === 'annual' ? 'bg-white text-violet-700 shadow' : 'text-white/60 hover:text-white'
               )}
             >
               Annuel
-              <span className="text-xs bg-accent text-accent-foreground px-2 py-0.5 rounded-full font-bold">-30%</span>
+              <span className="text-xs bg-violet-500 text-white px-2 py-0.5 rounded-full font-bold">-30%</span>
             </button>
           </div>
         </div>
@@ -74,55 +72,51 @@ export default function Pricing() {
               <div
                 key={plan.id}
                 className={cn(
-                  'relative rounded-2xl border p-6 flex flex-col gap-5 transition-all',
+                  'relative rounded-2xl p-6 flex flex-col gap-5 transition-all',
                   isFeatured
-                    ? 'bg-primary border-primary shadow-2xl shadow-primary/20 scale-105'
-                    : 'bg-card border-border'
+                    ? 'bg-white/20 border-2 border-white/50 shadow-2xl shadow-black/20 md:scale-105'
+                    : 'bg-white/10 border border-white/20'
                 )}
               >
                 {isFeatured && !isActive && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="bg-accent text-accent-foreground text-xs font-bold px-4 py-1 rounded-full">
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                    <span className="bg-white text-violet-700 text-xs font-bold px-4 py-1 rounded-full whitespace-nowrap">
                       LE PLUS POPULAIRE
                     </span>
                   </div>
                 )}
                 {isActive && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="bg-green-500 text-white text-xs font-bold px-4 py-1 rounded-full flex items-center gap-1">
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                    <span className="bg-green-500 text-white text-xs font-bold px-4 py-1 rounded-full flex items-center gap-1.5 whitespace-nowrap">
                       <span className="w-1.5 h-1.5 bg-white rounded-full inline-block animate-pulse" />
                       Plan actif
                     </span>
                   </div>
                 )}
 
-                {/* Plan header */}
+                {/* Icon + name */}
                 <div>
-                  <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center mb-3',
-                    isFeatured ? 'bg-primary-foreground/10' : 'bg-muted'
-                  )}>
-                    <Icon className={cn('w-5 h-5', isFeatured ? 'text-primary-foreground' : iconColors[plan.id])} />
+                  <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center mb-3">
+                    <Icon className="w-5 h-5 text-white" />
                   </div>
-                  <h3 className={cn('font-heading font-bold text-xl', isFeatured ? 'text-primary-foreground' : '')}>{plan.name}</h3>
-                  <p className={cn('text-sm mt-1', isFeatured ? 'text-primary-foreground/70' : 'text-muted-foreground')}>{plan.description}</p>
+                  <h3 className="font-heading font-bold text-xl text-white">{plan.name}</h3>
+                  <p className="text-sm mt-1 text-white/60">{plan.description}</p>
                 </div>
 
                 {/* Price */}
                 <div>
                   {price === 0 ? (
-                    <div className={cn('text-4xl font-heading font-bold', isFeatured ? 'text-primary-foreground' : '')}>
-                      Gratuit
-                    </div>
+                    <div className="text-4xl font-heading font-bold text-white">Gratuit</div>
                   ) : (
                     <div>
-                      <span className={cn('text-4xl font-heading font-bold', isFeatured ? 'text-primary-foreground' : '')}>
+                      <span className="text-4xl font-heading font-bold text-white">
                         {price.toFixed(2).replace('.', ',')}€
                       </span>
-                      <span className={cn('text-sm ml-1', isFeatured ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
+                      <span className="text-sm ml-1 text-white/60">
                         /{billing === 'monthly' ? 'mois' : 'mois · facturé annuellement'}
                       </span>
                       {billing === 'annual' && plan.discount_annual_pct > 0 && (
-                        <div className={cn('text-xs mt-1', isFeatured ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
+                        <div className="text-xs mt-1 text-white/50">
                           Économise {plan.discount_annual_pct}% vs mensuel
                         </div>
                       )}
@@ -131,24 +125,21 @@ export default function Pricing() {
                 </div>
 
                 {/* CTA */}
-                <Button
-                  className={cn(
-                    'w-full font-semibold',
-                    isFeatured
-                      ? 'bg-primary-foreground text-primary hover:bg-primary-foreground/90'
-                      : ''
-                  )}
-                  variant={isFeatured ? 'default' : 'outline'}
-                >
+                <button className={cn(
+                  'w-full py-3 rounded-xl font-semibold text-sm transition-all',
+                  isFeatured
+                    ? 'bg-white text-violet-700 hover:bg-white/90 shadow'
+                    : 'bg-white/15 text-white hover:bg-white/25 border border-white/20'
+                )}>
                   {plan.cta_label}
-                </Button>
+                </button>
 
                 {/* Features */}
                 <ul className="space-y-2.5">
                   {plan.features.map((f, i) => (
                     <li key={i} className="flex items-start gap-2.5 text-sm">
-                      <Check className={cn('w-4 h-4 mt-0.5 flex-shrink-0', isFeatured ? 'text-primary-foreground' : 'text-accent')} />
-                      <span className={isFeatured ? 'text-primary-foreground/90' : ''}>{f}</span>
+                      <Check className="w-4 h-4 mt-0.5 flex-shrink-0 text-violet-300" />
+                      <span className="text-white/80">{f}</span>
                     </li>
                   ))}
                 </ul>
