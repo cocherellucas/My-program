@@ -18,6 +18,16 @@ export default function Pricing() {
     }).catch(() => {});
   }, []);
 
+  useEffect(() => {
+    const prev = document.body.style.background;
+    document.body.style.background = '#5b21b6';
+    document.documentElement.style.background = '#5b21b6';
+    return () => {
+      document.body.style.background = prev;
+      document.documentElement.style.background = '';
+    };
+  }, []);
+
   const icons = { starter: Zap, coach: Star, elite: Crown };
   const visiblePlans = plans.filter(p => p.visible);
 
