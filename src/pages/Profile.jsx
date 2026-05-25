@@ -85,19 +85,10 @@ export default function Profile() {
             <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white">Profil</h1>
             <p className="text-white/70 mt-0.5 text-sm">{user.email}</p>
           </div>
-          {confirmLogout ? (
-            <div className="flex items-center gap-2 bg-white/10 border border-white/20 rounded-xl px-3 py-1.5">
-              <span className="text-xs text-white/80 whitespace-nowrap">Se déconnecter ?</span>
-              <button onClick={() => base44.auth.logout()} className="text-xs font-semibold text-red-300 hover:text-red-200 transition-colors">Oui</button>
-              <span className="text-white/30">·</span>
-              <button onClick={() => setConfirmLogout(false)} className="text-xs text-white/60 hover:text-white transition-colors">Non</button>
-            </div>
-          ) : (
-            <Button variant="outline" size="sm" onClick={() => setConfirmLogout(true)} className="border-white/30 text-white hover:bg-white/10 hover:text-white flex-shrink-0">
-              <LogOut className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Déconnexion</span>
-            </Button>
-          )}
+          <Button variant="outline" size="sm" onClick={() => setConfirmLogout(true)} className="border-white/30 text-white hover:bg-white/10 hover:text-white flex-shrink-0">
+            <LogOut className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Déconnexion</span>
+          </Button>
         </div>
         <SubscriptionBadge fullWidth />
       </div>
@@ -194,6 +185,29 @@ export default function Profile() {
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <CheckCircle2 className="w-4 h-4" /> : <Save className="w-4 h-4" />}
           {saving ? 'Sauvegarde…' : saved ? 'Sauvegardé !' : 'Sauvegarder'}
         </button>
+      )}
+
+      {confirmLogout && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6" onClick={() => setConfirmLogout(false)}>
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+          <div className="relative bg-violet-900 border border-white/20 rounded-2xl p-6 w-full max-w-xs shadow-2xl text-center space-y-4" onClick={e => e.stopPropagation()}>
+            <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mx-auto">
+              <LogOut className="w-6 h-6 text-red-400" />
+            </div>
+            <div>
+              <p className="font-bold text-white text-base">Se déconnecter ?</p>
+              <p className="text-sm text-white/60 mt-1">Tu devras te reconnecter pour accéder à ton compte.</p>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmLogout(false)} className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-white/10 text-white hover:bg-white/20 transition-colors">
+                Annuler
+              </button>
+              <button onClick={() => base44.auth.logout()} className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors">
+                Se déconnecter
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
