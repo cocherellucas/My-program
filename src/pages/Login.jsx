@@ -66,7 +66,7 @@ export default function Login() {
               <Input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value.replace(/\s/g, ''))}
                 required
                 placeholder="ton@email.com"
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white/50"
@@ -79,7 +79,7 @@ export default function Login() {
                 <Input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value.replace(/\s/g, ''))}
                   required
                   placeholder="••••••••"
                   className="bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white/50 pr-10"
