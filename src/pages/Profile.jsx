@@ -32,6 +32,7 @@ export default function Profile() {
   const [form, setForm] = useState({});
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [dirty, setDirty] = useState(false);
   const [showRegenBanner, setShowRegenBanner] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'basics');
@@ -71,10 +72,11 @@ export default function Profile() {
     toast.success('Profil mis à jour');
     setSaving(false);
     setSaved(true);
+    setDirty(false);
     setTimeout(() => setSaved(false), 2500);
   };
 
-  const update = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
+  const update = (field, value) => { setForm(prev => ({ ...prev, [field]: value })); setDirty(true); };
 
   if (!user) return null;
 
@@ -177,7 +179,7 @@ export default function Profile() {
         </div>
       )}
 
-      {!NO_SAVE_TABS.includes(activeTab) && (
+      {!NO_SAVE_TABS.includes(activeTab) && (dirty || saving || saved) && (
         <button
           onClick={save}
           disabled={saving || saved}
