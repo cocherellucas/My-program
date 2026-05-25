@@ -2,17 +2,22 @@ import React, { useState, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { HelpCircle } from 'lucide-react';
+import { HelpCircle, AlertTriangle, Send, Loader2 } from 'lucide-react';
 import { computeTargetRIR, ririLabel, rirToMode } from '@/lib/rir-optimizer';
+import ReactMarkdown from 'react-markdown';
 
 const ZONE_LABELS = {
   wrists: 'Poignets', shoulders: 'Épaules', elbows: 'Coudes',
   knees: 'Genoux', lower_back: 'Bas du dos', neck: 'Cervicales',
 };
 
-export default function SetRow({ setIdx, totalSets, log, onUpdate, onWeightBlur, onWeightPropagate, rirContext, previousWeight, previousReps, previousMode, nextWeights, exerciseFragileZones = [], locked = false }) {
+export default function SetRow({ setIdx, totalSets, log, onUpdate, onWeightBlur, onWeightPropagate, rirContext, previousWeight, previousReps, previousMode, nextWeights, exerciseFragileZones = [], locked = false, onAskCoach }) {
   const [manuallyEdited, setManuallyEdited] = useState(false);
   const [propagated, setPropagated] = useState(false);
+  const [showPain, setShowPain] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [painThread, setPainThread] = useState([]); // [{ role: 'user'|'ai', text }]
+  const [followUp, setFollowUp] = useState('');
   const blurFromEnter = useRef(false);
   const propagateTimer = useRef(null);
   // rirContext = { phase, sessionType, block, weekNumber, plannedWeeks }
@@ -42,14 +47,82 @@ const shouldShowPropagate =
     <div className="space-y-2 p-3 bg-white/10 rounded-lg border border-white/20">
       <div className="flex items-center justify-between">
         <span className="text-sm font-bold text-white">Série {setIdx + 1}</span>
+        <button
+          onClick={() => setShowPain(p => !p)}
+          className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border transition-all ${
+            showPain || log.pain_note
+              ? 'border-red-400/60 bg-red-500/20 text-red-300'
+              : 'border-white/20 text-white/40 hover:text-white/70 hover:border-white/40'
+          }`}>
+          <AlertTriangle className="w-3 h-3" />
+          Douleur ?
+        </button>
       </div>
+
+      {showPain && (
+        <div className="space-y-2">
+          {/* Thread */}
+          {painThread.length > 0 && (
+            <div className="space-y-1.5">
+              {painThread.map((msg, i) => (
+                <div key={i} className={msg.role === 'user'
+                  ? 'text-xs bg-red-500/10 border border-red-400/20 rounded-lg px-3 py-2 text-white/70'
+                  : 'bg-violet-500/25 border border-violet-400/40 rounded-xl px-4 py-3'}>
+                  {msg.role === 'ai' && (
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <div className="w-1.5 h-1.5 rounded-full bg-violet-400" />
+                      <span className="text-[11px] font-bold text-violet-300 uppercase tracking-widest">Coach IA</span>
+                    </div>
+                  )}
+                  <div className="text-sm text-white leading-relaxed [&_strong]:font-bold [&_p]:mb-1 [&_p:last-child]:mb-0">
+                    {msg.role === 'ai' ? <ReactMarkdown>{msg.text}</ReactMarkdown> : msg.text}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Input */}
+          <div className="flex gap-2">
+            <textarea
+              autoFocus={painThread.length === 0}
+              rows={2}
+              placeholder={painThread.length === 0 ? "Décris ce que tu ressens (où, quand, comment)…" : "Ça persiste ? Réponds au coach…"}
+              value={painThread.length === 0 ? (log.pain_note || '') : followUp}
+              onChange={(e) => {
+                if (painThread.length === 0) { onUpdate('pain_note', e.target.value); }
+                else setFollowUp(e.target.value);
+              }}
+              className="flex-1 text-xs bg-red-500/10 border border-red-400/30 rounded-lg px-3 py-2 text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-red-400/60"
+            />
+            <button
+              disabled={aiLoading || (painThread.length === 0 ? !log.pain_note?.trim() : !followUp.trim())}
+              onPointerDown={async (e) => {
+                e.preventDefault();
+                const msg = painThread.length === 0 ? log.pain_note : followUp;
+                if (!msg?.trim() || aiLoading || !onAskCoach) return;
+                const newThread = [...painThread, { role: 'user', text: msg }];
+                setPainThread(newThread);
+                setFollowUp('');
+                setAiLoading(true);
+                const reply = await onAskCoach(msg, setIdx, newThread);
+                setPainThread(t => [...t, { role: 'ai', text: reply }]);
+                setAiLoading(false);
+              }}
+              className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg bg-red-500/30 border border-red-400/40 text-red-300 disabled:opacity-40 transition-all hover:bg-red-500/50 self-start mt-0.5"
+            >
+              {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-2">
         <div>
           <Input
            type="text"
            inputMode="decimal"
-           placeholder={previousWeight ? `${previousWeight} kg` : 'kg'}
+           placeholder={previousWeight ? `${previousWeight}` : ''}
            value={log.weight || ''}
            onChange={(e) => {
   const v = parseFloat(e.target.value);
@@ -76,7 +149,7 @@ onBlur={(e) => {
 }}
            className="w-full h-10 text-center bg-white/10 border-white/20 text-white placeholder:text-white/40 text-sm"
           />
-          <div className="text-xs text-center mt-1.5 min-h-[24px] flex items-center justify-center">
+          <div className="text-xs text-center mt-1 flex items-center justify-center">
             {shouldShowPropagate ? (
   <button
     onPointerDown={(e) => {
@@ -91,14 +164,16 @@ onBlur={(e) => {
   </button>
 ) : previousWeight ? (
   <span className="text-white/40">↑ {previousWeight} kg</span>
-) : null}
+) : (
+  <span className="text-white/50">kg / lbs</span>
+)}
           </div>
         </div>
         <div>
           <Input
            type="text"
            inputMode="numeric"
-           placeholder={previousReps ? `${previousReps}` : 'reps'}
+           placeholder={previousReps ? `${previousReps}` : ''}
            value={log.reps || ''}
            readOnly={locked}
            onChange={(e) => {
@@ -126,10 +201,10 @@ onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="failure">Échec (RIR 0)</SelectItem>
-              <SelectItem value="RIR_1">RIR 1</SelectItem>
-              <SelectItem value="RIR_2">RIR 2</SelectItem>
               <SelectItem value="RIR_3+">RIR 3+</SelectItem>
+              <SelectItem value="RIR_2">RIR 2</SelectItem>
+              <SelectItem value="RIR_1">RIR 1</SelectItem>
+              <SelectItem value="failure">Échec (RIR 0)</SelectItem>
             </SelectContent>
           </Select>
           <div className="flex items-center justify-center gap-1 mt-1">

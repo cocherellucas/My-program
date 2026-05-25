@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { base44 } from '@/api/base44Client';
 import { normalizeUser } from '@/lib/utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -146,7 +147,7 @@ function WarmupAccordion({ exercise, logs, exIdx, sets: totalSets }) {
 }
 
 // ─── Single Exercise Focus View ───────────────────────────────────────────────
-function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, regressingEx, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture }) {
+function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, regressingEx, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach }) {
   const sets = Math.max(1, exercise.sets || 3);
   const [editSets, setEditSets] = useState(Math.max(1, originalExercise?.sets || 3));
   const [editReps, setEditReps] = useState(originalExercise?.target_reps || '');
@@ -482,7 +483,8 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
               previousWeight={previousLogs?.[exercise.name]?.[setIdx + 1]?.weight}
               previousReps={previousLogs?.[exercise.name]?.[setIdx + 1]?.reps}
               previousMode={previousLogs?.[exercise.name]?.[setIdx + 1]?.mode}
-              locked={setIdx > activeSetIdx} />
+              locked={setIdx > activeSetIdx}
+              onAskCoach={onAskCoach ? (painNote, sIdx, thread) => onAskCoach({ exercise: { ...exercise, _sessionIdx: exIdx }, setIdx: sIdx, painNote, thread, logs: Object.fromEntries(Object.entries(logs).filter(([k]) => k.startsWith(`${exIdx}-`))), allLogs: logs, prevLogs: previousLogs, sessionsHistory }) : undefined} />
             
               <div className="space-y-2">
                 <button
@@ -649,7 +651,7 @@ function OverviewPanel({ exercises, logs, updateLog, onClose, fragileZones = [] 
 }
 
 // ─── End of session panel ──────────────────────────────────────────────────────
-function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setNotes, onSave, saving, proposal, setProposal, generateProposal, coachPainQuery, onDismissPain }) {
+function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setNotes, onSave, saving, proposal, setProposal, generateProposal, coachPainQuery, onDismissPain, fragileZones = [] }) {
   const [showOverview, setShowOverview] = useState(false);
   const navigate = useNavigate();
 
@@ -884,6 +886,7 @@ export default function SessionLog() {
   const [sessionExercises, setSessionExercises] = useState(() => _draft.sessionExercises || null);
   const [editingObjectif, setEditingObjectif] = useState(false);
   const [previousLogs, setPreviousLogs] = useState({});
+  const [sessionsHistory, setSessionsHistory] = useState(''); // résumé textuel pour l'IA
   const [proposal, setProposal] = useState(null);
   const [coachPainQuery, setCoachPainQuery] = useState(null); // {zone, message} notification coach après douleur
 
@@ -932,22 +935,40 @@ export default function SessionLog() {
   useEffect(() => {
     if (!session || !user) return;
     const fetchPreviousLogs = async () => {
-      // Get all completed sessions for this program
       const allSessions = await base44.entities.Session.filter({ program_id: session.program_id, status: 'completed' });
-      // Find the most recent completed session before this one
       const sorted = allSessions
         .filter(s => s.id !== session.id)
         .sort((a, b) => new Date(b.actual_date || b.created_date) - new Date(a.actual_date || a.created_date));
+
+      // previousLogs = dernière séance uniquement (pour affichage poids précédents)
       const lastSession = sorted[0];
-      if (!lastSession) return;
-      const seriesLogs = await base44.entities.SeriesLog.filter({ session_id: lastSession.id, user_id: user.id });
-      // Build a map: exerciseName -> setNumber -> weight
-      const map = {};
-      seriesLogs.forEach(sl => {
-        if (!map[sl.exercise_name]) map[sl.exercise_name] = {};
-        map[sl.exercise_name][sl.set_number] = { weight: sl.weight, reps: sl.reps_done, mode: sl.mode };
+      if (lastSession) {
+        const lastLogs = await base44.entities.SeriesLog.filter({ session_id: lastSession.id, user_id: user.id });
+        const map = {};
+        lastLogs.forEach(sl => {
+          if (!map[sl.exercise_name]) map[sl.exercise_name] = {};
+          map[sl.exercise_name][sl.set_number] = { weight: sl.weight, reps: sl.reps_done, mode: sl.mode };
+        });
+        setPreviousLogs(map);
+      }
+
+      // sessionsHistory = toutes les séances condensées pour l'IA coach
+      const recentSessions = sorted.slice(0, 10);
+      if (recentSessions.length === 0) return;
+      const allLogs = await Promise.all(
+        recentSessions.map(s => base44.entities.SeriesLog.filter({ session_id: s.id, user_id: user.id }))
+      );
+      const lines = recentSessions.map((s, i) => {
+        const date = s.actual_date || s.created_date?.split('T')[0] || '?';
+        const byEx = {};
+        allLogs[i].forEach(sl => {
+          if (!byEx[sl.exercise_name]) byEx[sl.exercise_name] = [];
+          byEx[sl.exercise_name].push(`${sl.weight || '?'}kg×${sl.reps_done || '?'}`);
+        });
+        const exLines = Object.entries(byEx).map(([name, sets]) => `  ${name} : ${sets.join(', ')}`).join('\n');
+        return `Séance du ${date} :\n${exLines}`;
       });
-      setPreviousLogs(map);
+      setSessionsHistory(lines.join('\n'));
     };
     fetchPreviousLogs();
   }, [session, user]);
@@ -1184,20 +1205,112 @@ Réponds uniquement avec le JSON demandé.`,
     }
   };
 
+  // Conseil IA en temps réel pendant la séance (bouton "Douleur ?")
+  const handleAskCoach = async ({ exercise, setIdx, painNote, logs: setLogs, thread = [], allLogs, prevLogs, sessionsHistory: history }) => {
+    // Sauvegarder immédiatement en mémoire coach + récupérer l'historique des douleurs passées
+    const today = new Date().toISOString().split('T')[0];
+    const painEntry = `[${today} — séance en cours] ${exercise.name} série ${setIdx + 1} : "${painNote}"`;
+    let coachNotes = '';
+    try {
+      const existing = await base44.entities.UserMemory.filter({ user_id: user.id });
+      if (existing.length > 0) {
+        coachNotes = existing[0].coach_notes || '';
+        await base44.entities.UserMemory.update(existing[0].id, {
+          coach_notes: coachNotes ? `${coachNotes}\n${painEntry}` : painEntry
+        });
+      } else {
+        await base44.entities.UserMemory.create({ user_id: user.id, coach_notes: painEntry });
+      }
+    } catch {}
+
+    // Collecter toutes les douleurs déjà signalées dans cette séance (autres exercices)
+    const sessionPainsSoFar = Object.entries(logs)
+      .filter(([, l]) => l.pain_note)
+      .map(([k, l]) => {
+        const [eIdx, sIdx2] = k.split('-').map(Number);
+        const exName = exercises[eIdx]?.name || 'exercice';
+        return `${exName} série ${sIdx2 + 1} : "${l.pain_note}"`;
+      })
+      .filter(entry => !entry.includes(`${exercise.name} série ${setIdx + 1}`));
+
+    const sets = Object.entries(setLogs).map(([k, l]) => {
+      const sIdx2 = Number(k.split('-')[1]);
+      return `Série ${sIdx2 + 1} : ${l.weight ? `${l.weight} kg` : '?'} × ${l.reps || '?'} reps, RIR ${l.mode || '?'}, qualité ${l.quality || '?'}`;
+    }).join('\n');
+
+    // Résumé des autres exercices déjà faits dans cette séance
+    const otherExercisesCtx = (() => {
+      if (!allLogs || !exercises) return '';
+      const done = {};
+      for (const [key, l] of Object.entries(allLogs)) {
+        const [eIdx] = key.split('-').map(Number);
+        if (eIdx === (exercise._sessionIdx ?? -1)) continue;
+        const exName = exercises[eIdx]?.name;
+        if (!exName) continue;
+        if (!done[exName]) done[exName] = [];
+        if (l.weight || l.reps) done[exName].push(`${l.weight || '?'}kg×${l.reps || '?'}`);
+      }
+      const lines = Object.entries(done).map(([name, s]) => `${name} : ${s.join(', ')}`);
+      return lines.length > 0 ? `\nAutres exercices cette séance :\n${lines.join('\n')}` : '';
+    })();
+
+    const prevSessionCtx = history ? `\nHistorique des séances précédentes :\n${history}` : '';
+    const memoryCtx = coachNotes ? `\nMémoire coach (douleurs et notes passées) :\n${coachNotes}` : '';
+
+    const priorPainCtx = sessionPainsSoFar.length > 0
+      ? `\nDouleurs déjà signalées cette séance :\n${sessionPainsSoFar.map(e => `• ${e}`).join('\n')}\n`
+      : '';
+
+    const userEquipment = Array.isArray(user?.equipment)
+      ? user.equipment
+      : (() => { try { return JSON.parse(user?.equipment || '[]'); } catch { return []; } })();
+    const userLevel = user?.level || 'intermediate';
+    const alternatives = EXERCISES.filter(e =>
+      e.name !== exercise.name &&
+      e.muscles?.primary?.includes(exercise.muscle_group) &&
+      e.level?.includes(userLevel) &&
+      e.equipmentOptions?.some(opt => opt.every(item => userEquipment.includes(item)))
+    ).map(e => e.name);
+    const altCtx = alternatives.length > 0
+      ? `\nAlternatives disponibles (même muscle, équipement compatible) : ${alternatives.join(', ')}`
+      : '';
+
+    const threadCtx = thread.length > 1
+      ? `\nHistorique :\n${thread.slice(0, -1).map(m => `${m.role === 'user' ? 'Utilisateur' : 'Coach'}: ${m.text}`).join('\n')}\n`
+      : '';
+
+    const prompt = `Tu es un coach sportif expérimenté. L'utilisateur est en pause entre les séries et te décrit ce qu'il ressent. Réponds en MAX 2 phrases directement actionnables. Raisonne selon la nature exacte de la douleur — pas de règle rigide. Si l'historique montre que ton conseil précédent n'a pas aidé, propose autre chose. Pas d'introduction ni de répétition du nom de l'exercice.
+
+Exercice : ${exercise.name} (${exercise.muscle_group || ''})${altCtx}${memoryCtx}${priorPainCtx}${otherExercisesCtx}${prevSessionCtx}${threadCtx}
+Logs de l'exercice en cours :
+${sets}
+
+Ce que l'utilisateur dit : "${painNote}"`;
+
+    try {
+      const result = await base44.integrations.Core.InvokeLLM({ prompt, model: 'claude_sonnet_4_6' });
+      return typeof result === 'string' ? result : result?.response || "Je n'ai pas pu analyser. Arrête si la douleur est vive.";
+    } catch {
+      return "Erreur de connexion. Par précaution : si la douleur est vive, arrête l'exercice.";
+    }
+  };
+
   // Génère les propositions d'adaptation basées sur les logs + fatigue + notes
   const generateProposal = () => {
     const perEx = {};
+    const setPainNotes = [];
     for (const [key, log] of Object.entries(logs)) {
       const [exIdx] = key.split('-').map(Number);
       const ex = exercises[exIdx];
       if (!ex) continue;
-      if (!perEx[ex.name]) perEx[ex.name] = { weights: [], modes: [], qualities: [], name: ex.name, originalWeight: ex.target_weight };
+      if (!perEx[ex.name]) perEx[ex.name] = { weights: [], modes: [], qualities: [], painNotes: [], name: ex.name, originalWeight: ex.target_weight };
       if (log.weight) perEx[ex.name].weights.push(log.weight);
       if (log.mode) perEx[ex.name].modes.push(log.mode);
       if (log.quality) perEx[ex.name].qualities.push(log.quality);
+      if (log.pain_note) { perEx[ex.name].painNotes.push(log.pain_note); setPainNotes.push({ exercise: ex.name, note: log.pain_note }); }
     }
     const noteText = (notes || '').toLowerCase();
-    const notePain = /douleur|mal\b|gêne|pincement|blessure|douloureux|coude|épaule|genou|dos|poignet|cervical/.test(noteText);
+    const notePain = /douleur|mal\b|gêne|pincement|blessure|douloureux|coude|épaule|genou|dos|poignet|cervical/.test(noteText) || setPainNotes.length > 0;
     const noteEasy = /trop facile|trop léger|pas assez/.test(noteText);
     const noteHard = /trop dur|très dur|épuisant/.test(noteText);
 
@@ -1287,10 +1400,15 @@ Réponds uniquement avec le JSON demandé.`,
     // Si douleur signalée → mémoriser pour le coach IA
     const noteText = (notes || '').toLowerCase();
     const painZone = noteText.match(/coude|épaule|genou|dos|poignet|cervical/)?.[0];
-    const hasPain = /douleur|mal\b|gêne|pincement|blessure/.test(noteText) || painZone;
+    const setPainEntries = Object.entries(logs).filter(([, l]) => l.pain_note).map(([key, l]) => {
+      const [exIdx] = key.split('-').map(Number);
+      return `${exercises[exIdx]?.name || 'exercice'} série ${Number(key.split('-')[1]) + 1} : ${l.pain_note}`;
+    });
+    const hasPain = /douleur|mal\b|gêne|pincement|blessure/.test(noteText) || painZone || setPainEntries.length > 0;
     if (hasPain && user?.id) {
       const today = new Date().toISOString().split('T')[0];
-      const painNote = `[${today}] Douleur signalée${painZone ? ` (${painZone})` : ''} — réduire charges sur exercices concernés, surveiller évolution.`;
+      const painDetail = setPainEntries.length > 0 ? `\n  ${setPainEntries.join('\n  ')}` : '';
+      const painNote = `[${today}] Douleur signalée${painZone ? ` (${painZone})` : ''}${painDetail} — réduire charges sur exercices concernés, surveiller évolution.`;
       const existing = await base44.entities.UserMemory.filter({ user_id: user.id });
       if (existing.length > 0) {
         const prev = existing[0].coach_notes || '';
@@ -1309,9 +1427,12 @@ Réponds uniquement avec le JSON demandé.`,
 
     // Si douleur → afficher notification coach avant de naviguer
     if (hasPain) {
+      const painCtx = setPainEntries.length > 0
+        ? `\n\nDétail des douleurs signalées :\n${setPainEntries.map(e => `• ${e}`).join('\n')}`
+        : '';
       setCoachPainQuery({
         zone: painZone,
-        preMessage: `J'ai noté une douleur${painZone ? ` au ${painZone}` : ''} pendant ta séance. Pour mieux adapter tes prochains entraînements, dis-moi en plus : pendant quel exercice ? C'est apparu comment (gêne légère, vraie douleur, coup) ? Depuis quand ?`
+        preMessage: `J'ai noté une douleur${painZone ? ` au ${painZone}` : ''} pendant ta séance.${painCtx}\n\nPour mieux adapter tes prochains entraînements, dis-moi en plus : comment ça s'est manifesté (gêne légère, vraie douleur, coup) ? Depuis quand ? Ça dure encore maintenant ?`
       });
     } else {
       navigate('/program');
@@ -1395,7 +1516,8 @@ Réponds uniquement avec le JSON demandé.`,
             setProposal={setProposal}
             generateProposal={generateProposal}
             coachPainQuery={coachPainQuery}
-            onDismissPain={() => navigate('/program')} />
+            onDismissPain={() => navigate('/program')}
+            fragileZones={fragileZones} />
           
           </motion.div> :
         showOverview ?
@@ -1445,24 +1567,25 @@ Réponds uniquement avec le JSON demandé.`,
           previousLogs={previousLogs}
           propagateWeight={propagateWeight}
           forcePropagateWeight={forcePropagateWeight}
-          fragileZones={fragileZones} />
+          fragileZones={fragileZones}
+          onAskCoach={handleAskCoach} />
 
         }
       </AnimatePresence>
 
-      {/* Rest Timer */}
-      {restSeconds !== null &&
-      <RestTimer
-        seconds={restSeconds}
-        initialEndTime={(() => { try { const s = localStorage.getItem(`rest_timer_${sessionId}`); return s ? JSON.parse(s).endTime : null; } catch { return null; } })()}
-        onComplete={() => {
-          setRestSeconds(null);
-          try { localStorage.removeItem(`rest_timer_${sessionId}`); } catch {}
-          restCompleteCallback?.();
-          setRestCompleteCallback(null);
-        }} />
-
-      }
+      {/* Rest Timer — portal pour échapper au contexte transform du carousel */}
+      {restSeconds !== null && createPortal(
+        <RestTimer
+          seconds={restSeconds}
+          initialEndTime={(() => { try { const s = localStorage.getItem(`rest_timer_${sessionId}`); return s ? JSON.parse(s).endTime : null; } catch { return null; } })()}
+          onComplete={() => {
+            setRestSeconds(null);
+            try { localStorage.removeItem(`rest_timer_${sessionId}`); } catch {}
+            restCompleteCallback?.();
+            setRestCompleteCallback(null);
+          }} />,
+        document.body
+      )}
     </div>);
 
 }

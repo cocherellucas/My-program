@@ -105,7 +105,7 @@ export default function Dashboard() {
       )}
 
       <div className={`grid gap-6 ${activeProgram ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
-        <NextSessionCard todaySession={todaySession} nextSession={nextSession} hasSessions={hasSessions} />
+        <NextSessionCard todaySession={todaySession} nextSession={nextSession} hasSessions={hasSessions} activeProgram={activeProgram} />
         {activeProgram && <ProgramSummaryCard program={activeProgram} objectives={objectives} />}
       </div>
 

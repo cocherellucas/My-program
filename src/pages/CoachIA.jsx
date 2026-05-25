@@ -225,6 +225,27 @@ export default function CoachIA() {
 
     setMessages(prev => [...prev, { role: 'assistant', content: result, ts: Date.now() }]);
     setLoading(false);
+
+    // Détection silencieuse de douleur — sauvegarde en mémoire coach
+    const hasPain = /douleur|mal\b|gêne|pincement|blessure|douloureux|tendinite|inflammation|coude|épaule|genou|dos|poignet|cervical|hanche|cheville/i.test(userMsg);
+    if (hasPain && user?.id) {
+      const today = new Date().toISOString().split('T')[0];
+      const note = `[${today} — CoachIA] "${userMsg}"`;
+      try {
+        const existing = await base44.entities.UserMemory.filter({ user_id: user.id });
+        if (existing.length > 0) {
+          const prev = existing[0].coach_notes || '';
+          const alreadySaved = prev.includes(userMsg.slice(0, 40));
+          if (!alreadySaved) {
+            await base44.entities.UserMemory.update(existing[0].id, {
+              coach_notes: prev ? `${prev}\n${note}` : note
+            });
+          }
+        } else {
+          await base44.entities.UserMemory.create({ user_id: user.id, coach_notes: note });
+        }
+      } catch {}
+    }
   };
 
   // Importe le programme détecté dans la DB

@@ -35,7 +35,9 @@ function SessionInfo({ session }) {
   );
 }
 
-export default function NextSessionCard({ todaySession, nextSession, hasSessions }) {
+const STRUCTURE_LABELS = { full_body: 'Full Body', upper_lower: 'Upper / Lower', ppl: 'PPL', arnold_split: 'Arnold Split', custom: 'Personnalisé' };
+
+export default function NextSessionCard({ todaySession, nextSession, hasSessions, activeProgram }) {
   // Cas 1 : séance aujourd'hui
   if (todaySession) {
     const isInProgress = (() => { try { return localStorage.getItem('active_session_id') === String(todaySession.id); } catch { return false; } })();
@@ -45,7 +47,14 @@ export default function NextSessionCard({ todaySession, nextSession, hasSessions
         <div className="relative">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-heading font-bold text-lg text-white">Séance du jour</h3>
-            <Badge className="bg-white/25 text-white border-white/30">{todaySession.day_label || todaySession.type}</Badge>
+            <div className="flex items-center gap-1.5">
+              {activeProgram?.weekly_structure && STRUCTURE_LABELS[activeProgram.weekly_structure] && (
+                <Badge className="bg-white/25 text-white border-white/30">{STRUCTURE_LABELS[activeProgram.weekly_structure]}</Badge>
+              )}
+              <Badge className="bg-white/25 text-white border-white/30">
+                {{ hypertrophy: 'Hypertrophie', strength: 'Force', endurance: 'Endurance', mixed: 'Mixte' }[todaySession.type] || todaySession.type}
+              </Badge>
+            </div>
           </div>
           <SessionInfo session={todaySession} />
           <Link to={`/session?id=${todaySession.id}`}>
