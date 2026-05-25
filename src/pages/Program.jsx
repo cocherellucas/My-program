@@ -447,7 +447,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                 {daysUntil !== null && (
                   <span className="text-white/60 text-sm">·</span>
                 )}
-                {daysUntil === 0 && <span className="text-green-300 text-sm font-medium">Séance aujourd'hui</span>}
+                {daysUntil === 0 && <span className="text-violet-300 text-sm font-medium">Séance aujourd'hui</span>}
                 {daysUntil === 1 && <span className="text-white/60 text-sm">Prochaine séance demain</span>}
                 {daysUntil > 1 && <span className="text-white/60 text-sm">Prochaine séance dans {daysUntil}j</span>}
                 {totalCount > 0 && (
