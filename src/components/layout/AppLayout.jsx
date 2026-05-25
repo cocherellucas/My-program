@@ -1,8 +1,11 @@
 import React, { useState, useRef, useCallback, useEffect, useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import Sidebar from './Sidebar';
 import MobileNav from './MobileNav';
+import RestTimer from '@/components/session/RestTimer';
+import { useRestTimer } from '@/lib/RestTimerContext';
 
 // Pages toujours pré-rendues (pas de position:fixed ni side-effects globaux)
 import Program  from '@/pages/Program';
@@ -44,6 +47,7 @@ const PageGhost = ({ label }) => (
 
 export default function AppLayout() {
   const [collapsed, setCollapsed] = useState(false);
+  const { timerState, stopTimer, updateSeconds } = useRestTimer();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -228,6 +232,17 @@ export default function AppLayout() {
       <style>{`
         @media (max-width: 767px) { main { margin-left: 0 !important; } }
       `}</style>
+
+      {timerState && createPortal(
+        <RestTimer
+          key={timerState.endTime}
+          seconds={timerState.seconds}
+          initialEndTime={timerState.endTime}
+          onComplete={() => stopTimer(true)}
+          onRestTimeChange={updateSeconds}
+        />,
+        document.body
+      )}
     </div>
   );
 }

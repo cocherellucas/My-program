@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
+import { useRestTimer } from '@/lib/RestTimerContext';
 import { base44 } from '@/api/base44Client';
 import { normalizeUser } from '@/lib/utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -13,7 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import SetRow from '@/components/session/SetRow';
 import ExerciseGif from '@/components/session/ExerciseGif';
-import RestTimer, { RestTimerControl } from '@/components/session/RestTimer';
+import { RestTimerControl } from '@/components/session/RestTimer';
 import { computeTargetRIR, ririLabel, computeAdaptedRestTime } from '@/lib/rir-optimizer';
 import { buildProgressionContext, isAtChainBottom } from '@/lib/progression-chains';
 import { FRAGILE_ZONE_MUSCLES } from '@/lib/coaching-engine';
@@ -868,19 +868,24 @@ export default function SessionLog() {
   const [showOverview, setShowOverview] = useState(false);
   const [showEnd, setShowEnd] = useState(false);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
-  const [restSeconds, setRestSeconds] = useState(() => {
+  const { startTimer } = useRestTimer();
+
+  // Restore timer from localStorage on mount (e.g. after page refresh)
+  useEffect(() => {
     try {
       const saved = localStorage.getItem(`rest_timer_${sessionId}`);
       if (saved) {
         const { endTime } = JSON.parse(saved);
         const left = Math.ceil((endTime - Date.now()) / 1000);
-        if (left > 0) return left;
-        localStorage.removeItem(`rest_timer_${sessionId}`);
+        if (left > 0) {
+          startTimer(left, endTime, null);
+        } else {
+          localStorage.removeItem(`rest_timer_${sessionId}`);
+        }
       }
     } catch {}
-    return null;
-  });
-  const [restCompleteCallback, setRestCompleteCallback] = useState(null);
+  }, []); // eslint-disable-line
+
   const [restTimeForEx, setRestTimeForEx] = useState(() => _draft.restTimeForEx || {});
   const [regressingEx, setRegressingEx] = useState(null);
   const [sessionExercises, setSessionExercises] = useState(() => _draft.sessionExercises || null);
@@ -1547,9 +1552,12 @@ Ce que l'utilisateur dit : "${painNote}"`;
           onNext={handleNext}
           onPrev={() => setCurrentExIdx((i) => Math.max(0, i - 1))}
           onStartRest={(secs, onDone) => {
-            setRestSeconds(secs);
-            try { localStorage.setItem(`rest_timer_${sessionId}`, JSON.stringify({ endTime: Date.now() + secs * 1000 })); } catch {}
-            if (onDone) setRestCompleteCallback(() => onDone);
+            const endTime = Date.now() + secs * 1000;
+            try { localStorage.setItem(`rest_timer_${sessionId}`, JSON.stringify({ endTime })); } catch {}
+            startTimer(secs, endTime, () => {
+              try { localStorage.removeItem(`rest_timer_${sessionId}`); } catch {}
+              onDone?.();
+            });
           }}
           isLast={currentExIdx === exercises.length - 1}
           rirContext={rirContext}
@@ -1573,19 +1581,6 @@ Ce que l'utilisateur dit : "${painNote}"`;
         }
       </AnimatePresence>
 
-      {/* Rest Timer — portal pour échapper au contexte transform du carousel */}
-      {restSeconds !== null && createPortal(
-        <RestTimer
-          seconds={restSeconds}
-          initialEndTime={(() => { try { const s = localStorage.getItem(`rest_timer_${sessionId}`); return s ? JSON.parse(s).endTime : null; } catch { return null; } })()}
-          onComplete={() => {
-            setRestSeconds(null);
-            try { localStorage.removeItem(`rest_timer_${sessionId}`); } catch {}
-            restCompleteCallback?.();
-            setRestCompleteCallback(null);
-          }} />,
-        document.body
-      )}
     </div>);
 
 }

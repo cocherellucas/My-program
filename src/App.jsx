@@ -26,6 +26,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { ThemeProvider } from '@/lib/ThemeContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import AppLayout from '@/components/layout/AppLayout';
+import { RestTimerProvider } from '@/lib/RestTimerContext';
 import Dashboard from '@/pages/Dashboard';
 import Onboarding from '@/pages/Onboarding';
 import Program from '@/pages/Program';
@@ -119,11 +120,13 @@ function App() {
       <AuthProvider>
         <QueryClientProvider client={queryClientInstance}>
           <Router>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/*" element={<AuthenticatedApp />} />
-            </Routes>
-            <Toaster />
+            <RestTimerProvider>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/*" element={<AuthenticatedApp />} />
+              </Routes>
+              <Toaster />
+            </RestTimerProvider>
           </Router>
         </QueryClientProvider>
       </AuthProvider>
