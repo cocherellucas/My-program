@@ -43,12 +43,12 @@ export default function Pricing() {
         </button>
 
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-heading font-bold text-white mb-2">Choisis ton plan</h1>
-          <p className="text-white/60 text-sm">Commence gratuitement. Monte en puissance quand tu es prêt.</p>
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-heading font-bold text-white mb-1">Choisis ton plan</h1>
+          <p className="text-white/60 text-xs">Commence gratuitement. Monte en puissance quand tu es prêt.</p>
 
           {/* Toggle */}
-          <div className="inline-flex items-center gap-1 bg-white/10 border border-white/20 rounded-full p-1 mt-6">
+          <div className="inline-flex items-center gap-1 bg-white/10 border border-white/20 rounded-full p-1 mt-4">
             <button
               onClick={() => setBilling('monthly')}
               className={cn(
@@ -77,7 +77,7 @@ export default function Pricing() {
             const Icon = icons[plan.id] || Star;
             const isActive = user?.subscription_plan === plan.id;
             return (
-              <div key={plan.id} className="relative rounded-2xl px-4 py-3 bg-white/10 border border-white/20 flex items-center justify-between gap-3">
+              <div key={plan.id} className="relative rounded-2xl p-4 bg-white/10 border border-white/20">
                 {isActive && (
                   <div className="absolute -top-2.5 left-4">
                     <span className="bg-green-500 text-white text-[10px] font-bold px-3 py-0.5 rounded-full flex items-center gap-1.5">
@@ -86,19 +86,28 @@ export default function Pricing() {
                     </span>
                   </div>
                 )}
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
-                    <Icon className="w-4 h-4 text-white" />
-                  </div>
-                  <div>
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
+                      <Icon className="w-3.5 h-3.5 text-white" />
+                    </div>
                     <p className="font-heading font-bold text-sm text-white">{plan.name}</p>
-                    <p className="text-xs text-white/50">{plan.description}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <p className="text-lg font-heading font-bold text-white">Gratuit</p>
+                    <button className="px-3 py-1.5 rounded-xl font-semibold text-xs bg-white/15 text-white border border-white/20 whitespace-nowrap">
+                      {plan.cta_label}
+                    </button>
                   </div>
                 </div>
-                <p className="text-xl font-heading font-bold text-white flex-shrink-0">Gratuit</p>
-                <button className="flex-shrink-0 px-4 py-2 rounded-xl font-semibold text-sm bg-white/15 text-white border border-white/20">
-                  {plan.cta_label}
-                </button>
+                <div className="flex flex-wrap gap-1.5">
+                  {plan.features.map((f, i) => (
+                    <span key={i} className="flex items-center gap-1 text-[10px] bg-white/10 border border-white/15 rounded-full px-2 py-0.5 text-white/70">
+                      <Check className="w-2.5 h-2.5 text-violet-300 flex-shrink-0" />
+                      {f}
+                    </span>
+                  ))}
+                </div>
               </div>
             );
           })}
