@@ -32,6 +32,7 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showRegenBanner, setShowRegenBanner] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'basics');
   const NO_SAVE_TABS = ['equipment', 'objectives'];
 
@@ -84,10 +85,19 @@ export default function Profile() {
             <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white">Profil</h1>
             <p className="text-white/70 mt-0.5 text-sm">{user.email}</p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => base44.auth.logout()} className="border-white/30 text-white hover:bg-white/10 hover:text-white flex-shrink-0">
-            <LogOut className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Déconnexion</span>
-          </Button>
+          {confirmLogout ? (
+            <div className="flex items-center gap-2 bg-white/10 border border-white/20 rounded-xl px-3 py-1.5">
+              <span className="text-xs text-white/80 whitespace-nowrap">Se déconnecter ?</span>
+              <button onClick={() => base44.auth.logout()} className="text-xs font-semibold text-red-300 hover:text-red-200 transition-colors">Oui</button>
+              <span className="text-white/30">·</span>
+              <button onClick={() => setConfirmLogout(false)} className="text-xs text-white/60 hover:text-white transition-colors">Non</button>
+            </div>
+          ) : (
+            <Button variant="outline" size="sm" onClick={() => setConfirmLogout(true)} className="border-white/30 text-white hover:bg-white/10 hover:text-white flex-shrink-0">
+              <LogOut className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Déconnexion</span>
+            </Button>
+          )}
         </div>
         <SubscriptionBadge fullWidth />
       </div>
