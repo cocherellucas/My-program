@@ -67,6 +67,7 @@ export default function Login() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value.replace(/\s/g, ''))}
+                onKeyDown={(e) => { if (e.key === ' ') e.preventDefault(); }}
                 required
                 placeholder="ton@email.com"
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white/50"
@@ -80,6 +81,7 @@ export default function Login() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value.replace(/\s/g, ''))}
+                  onKeyDown={(e) => { if (e.key === ' ') e.preventDefault(); }}
                   required
                   placeholder="••••••••"
                   className="bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white/50 pr-10"
