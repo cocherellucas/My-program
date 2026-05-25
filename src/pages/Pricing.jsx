@@ -78,7 +78,7 @@ export default function Pricing() {
                   key={plan.id}
                   className={cn(
                     'relative rounded-2xl p-5 flex flex-col gap-4 flex-shrink-0 snap-center',
-                    'w-[78vw] max-w-[300px]',
+                    'w-[56vw] max-w-[220px]',
                     isFeatured
                       ? 'bg-white/20 border-2 border-white/50 shadow-xl'
                       : 'bg-white/10 border border-white/20'
