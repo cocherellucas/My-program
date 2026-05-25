@@ -156,9 +156,9 @@ export default function StepEquipment({ data, onChange }) {
   const [view, setView] = useState('material');
   const [validated, setValidated] = useState(false);
   const [fading, setFading] = useState(false);
-  const lastValidatedRef = useRef(null);
+  const lastValidatedRef = useRef(context ? equipment : null);
 
-  useEffect(() => { lastValidatedRef.current = null; }, [context]);
+  useEffect(() => { lastValidatedRef.current = context ? equipment : null; }, [context]); // eslint-disable-line
 
   const hasChanged = lastValidatedRef.current === null ||
     JSON.stringify(equipment) !== JSON.stringify(lastValidatedRef.current);
