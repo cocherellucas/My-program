@@ -77,42 +77,28 @@ export default function Pricing() {
             const Icon = icons[plan.id] || Star;
             const isActive = user?.subscription_plan === plan.id;
             return (
-              <div key={plan.id} className="relative rounded-2xl p-4 bg-white/10 border border-white/20">
+              <div key={plan.id} className="relative rounded-2xl px-4 py-3 bg-white/10 border border-white/20 flex items-center justify-between gap-3">
                 {isActive && (
-                  <div className="absolute -top-3 left-4">
+                  <div className="absolute -top-2.5 left-4">
                     <span className="bg-green-500 text-white text-[10px] font-bold px-3 py-0.5 rounded-full flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 bg-white rounded-full inline-block animate-pulse" />
                       Plan actif
                     </span>
                   </div>
                 )}
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
-                      <Icon className="w-4 h-4 text-white" />
-                    </div>
-                    <div>
-                      <p className="font-heading font-bold text-base text-white">{plan.name}</p>
-                      <p className="text-xs text-white/60">{plan.description}</p>
-                    </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                    <Icon className="w-4 h-4 text-white" />
                   </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-2xl font-heading font-bold text-white">Gratuit</p>
+                  <div>
+                    <p className="font-heading font-bold text-sm text-white">{plan.name}</p>
+                    <p className="text-xs text-white/50">{plan.description}</p>
                   </div>
                 </div>
-                <div className="mt-3 flex items-center gap-4">
-                  <button className="flex-shrink-0 px-5 py-2 rounded-xl font-semibold text-sm bg-white/15 text-white border border-white/20">
-                    {plan.cta_label}
-                  </button>
-                  <ul className="flex flex-wrap gap-x-3 gap-y-1">
-                    {plan.features.map((f, i) => (
-                      <li key={i} className="flex items-center gap-1 text-[11px]">
-                        <Check className="w-3 h-3 flex-shrink-0 text-violet-300" />
-                        <span className="text-white/70">{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <p className="text-xl font-heading font-bold text-white flex-shrink-0">Gratuit</p>
+                <button className="flex-shrink-0 px-4 py-2 rounded-xl font-semibold text-sm bg-white/15 text-white border border-white/20">
+                  {plan.cta_label}
+                </button>
               </div>
             );
           })}
