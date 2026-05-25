@@ -589,7 +589,6 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                                <Badge className={`bg-white/20 text-white border-white/20`}>
                                  {TYPE_LABELS[session.type] || session.type}
                                </Badge>
-                               {isToday && <Badge className="text-xs bg-white/30 text-white">Aujourd'hui</Badge>}
                                {past && <Badge variant="outline" className="text-xs text-white/50 border-white/20">Passée</Badge>}
                                {session.status === 'completed' && <Badge variant="default" className="text-xs">✓ Fait</Badge>}
                              </div>
