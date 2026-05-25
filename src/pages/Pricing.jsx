@@ -61,78 +61,113 @@ export default function Pricing() {
           </div>
         </div>
 
-        {/* Plans — 3 colonnes sur mobile ET desktop */}
-        <div className="grid grid-cols-3 gap-2 mt-6">
-          {visiblePlans.map((plan) => {
+        {/* Plan gratuit — pleine largeur horizontal */}
+        <div className="mt-6 space-y-3">
+          {visiblePlans.filter(p => p.price_monthly === 0).map((plan) => {
             const Icon = icons[plan.id] || Star;
-            const price = billing === 'monthly' ? plan.price_monthly : plan.price_annual;
-            const isFeatured = plan.featured;
             const isActive = user?.subscription_plan === plan.id;
-
             return (
-              <div
-                key={plan.id}
-                className={cn(
-                  'relative rounded-2xl p-3 flex flex-col gap-3',
-                  isFeatured
-                    ? 'bg-white/20 border-2 border-white/50 shadow-xl'
-                    : 'bg-white/10 border border-white/20'
-                )}
-              >
-                {isFeatured && !isActive && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-full flex justify-center">
-                    <span className="bg-white text-violet-700 text-[9px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
-                      POPULAIRE
-                    </span>
-                  </div>
-                )}
+              <div key={plan.id} className="relative rounded-2xl p-4 bg-white/10 border border-white/20">
                 {isActive && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-full flex justify-center">
-                    <span className="bg-green-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 whitespace-nowrap">
-                      <span className="w-1 h-1 bg-white rounded-full inline-block animate-pulse" />
-                      Actif
+                  <div className="absolute -top-3 left-4">
+                    <span className="bg-green-500 text-white text-[10px] font-bold px-3 py-0.5 rounded-full flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 bg-white rounded-full inline-block animate-pulse" />
+                      Plan actif
                     </span>
                   </div>
                 )}
-
-                <div className="pt-1">
-                  <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center mb-2">
-                    <Icon className="w-3.5 h-3.5 text-white" />
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                      <Icon className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-heading font-bold text-base text-white">{plan.name}</p>
+                      <p className="text-xs text-white/60">{plan.description}</p>
+                    </div>
                   </div>
-                  <p className="font-heading font-bold text-sm text-white leading-tight">{plan.name}</p>
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-2xl font-heading font-bold text-white">Gratuit</p>
+                  </div>
                 </div>
-
-                <div>
-                  {price === 0 ? (
-                    <p className="text-xl font-heading font-bold text-white">Gratuit</p>
-                  ) : (
-                    <p className="text-xl font-heading font-bold text-white leading-tight">
-                      {price.toFixed(2).replace('.', ',')}€
-                      <span className="text-[10px] font-normal text-white/60 block">/mois</span>
-                    </p>
-                  )}
+                <div className="mt-3 flex items-center gap-4">
+                  <button className="flex-shrink-0 px-5 py-2 rounded-xl font-semibold text-sm bg-white/15 text-white border border-white/20">
+                    {plan.cta_label}
+                  </button>
+                  <ul className="flex flex-wrap gap-x-3 gap-y-1">
+                    {plan.features.map((f, i) => (
+                      <li key={i} className="flex items-center gap-1 text-[11px]">
+                        <Check className="w-3 h-3 flex-shrink-0 text-violet-300" />
+                        <span className="text-white/70">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-
-                <button className={cn(
-                  'w-full py-2 rounded-xl font-semibold text-[11px] transition-all',
-                  isFeatured
-                    ? 'bg-white text-violet-700'
-                    : 'bg-white/15 text-white border border-white/20'
-                )}>
-                  {plan.cta_label}
-                </button>
-
-                <ul className="space-y-1.5">
-                  {plan.features.map((f, i) => (
-                    <li key={i} className="flex items-start gap-1.5 text-[10px]">
-                      <Check className="w-3 h-3 mt-0.5 flex-shrink-0 text-violet-300" />
-                      <span className="text-white/80 leading-tight">{f}</span>
-                    </li>
-                  ))}
-                </ul>
               </div>
             );
           })}
+
+          {/* Plans payants — 2 colonnes */}
+          <div className="grid grid-cols-2 gap-3 pt-1">
+            {visiblePlans.filter(p => p.price_monthly > 0).map((plan) => {
+              const Icon = icons[plan.id] || Star;
+              const price = billing === 'monthly' ? plan.price_monthly : plan.price_annual;
+              const isFeatured = plan.featured;
+              const isActive = user?.subscription_plan === plan.id;
+              return (
+                <div key={plan.id} className={cn(
+                  'relative rounded-2xl p-4 flex flex-col gap-3',
+                  isFeatured
+                    ? 'bg-white/20 border-2 border-white/50 shadow-xl'
+                    : 'bg-white/10 border border-white/20'
+                )}>
+                  {isFeatured && !isActive && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                      <span className="bg-white text-violet-700 text-[10px] font-bold px-3 py-0.5 rounded-full whitespace-nowrap">
+                        POPULAIRE
+                      </span>
+                    </div>
+                  )}
+                  {isActive && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                      <span className="bg-green-500 text-white text-[10px] font-bold px-3 py-0.5 rounded-full flex items-center gap-1 whitespace-nowrap">
+                        <span className="w-1 h-1 bg-white rounded-full inline-block animate-pulse" />
+                        Actif
+                      </span>
+                    </div>
+                  )}
+                  <div className="pt-1">
+                    <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center mb-2">
+                      <Icon className="w-4 h-4 text-white" />
+                    </div>
+                    <p className="font-heading font-bold text-base text-white">{plan.name}</p>
+                    <p className="text-xs text-white/60 mt-0.5 leading-tight">{plan.description}</p>
+                  </div>
+                  <div>
+                    <span className="text-2xl font-heading font-bold text-white">{price.toFixed(2).replace('.', ',')}€</span>
+                    <span className="text-xs text-white/60 ml-1">/mois</span>
+                    {billing === 'annual' && plan.discount_annual_pct > 0 && (
+                      <p className="text-[10px] text-white/50 mt-0.5">Économise {plan.discount_annual_pct}%</p>
+                    )}
+                  </div>
+                  <button className={cn(
+                    'w-full py-2.5 rounded-xl font-semibold text-sm transition-all',
+                    isFeatured ? 'bg-white text-violet-700' : 'bg-white/15 text-white border border-white/20'
+                  )}>
+                    {plan.cta_label}
+                  </button>
+                  <ul className="space-y-1.5">
+                    {plan.features.map((f, i) => (
+                      <li key={i} className="flex items-start gap-1.5 text-xs">
+                        <Check className="w-3 h-3 mt-0.5 flex-shrink-0 text-violet-300" />
+                        <span className="text-white/80 leading-tight">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
       </div>
