@@ -100,12 +100,12 @@ export default function Pricing() {
                     </button>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 mt-1">
                   {plan.features.map((f, i) => (
-                    <span key={i} className="flex items-center gap-1 text-[10px] bg-white/10 border border-white/15 rounded-full px-2 py-0.5 text-white/70">
-                      <Check className="w-2.5 h-2.5 text-violet-300 flex-shrink-0" />
-                      {f}
-                    </span>
+                    <div key={i} className="flex items-start gap-1.5 text-xs">
+                      <Check className="w-3 h-3 mt-0.5 flex-shrink-0 text-violet-300" />
+                      <span className="text-white/80 leading-tight">{f}</span>
+                    </div>
                   ))}
                 </div>
               </div>
