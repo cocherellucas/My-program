@@ -100,7 +100,7 @@ export default function Pricing() {
                     </button>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 mt-1">
+                <div className="grid grid-flow-col grid-rows-3 gap-x-4 gap-y-1.5 mt-1">
                   {plan.features.map((f, i) => (
                     <div key={i} className="flex items-start gap-1.5 text-xs">
                       <Check className="w-3 h-3 mt-0.5 flex-shrink-0 text-violet-300" />
