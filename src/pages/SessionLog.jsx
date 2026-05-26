@@ -1413,18 +1413,20 @@ Ce que l'utilisateur dit : "${painNote}"`;
     });
     const hasPain = /douleur|mal\b|gêne|pincement|blessure/.test(noteText) || painZone || setPainEntries.length > 0;
     if (hasPain && user?.id) {
-      const today = new Date().toISOString().split('T')[0];
-      const painDetail = setPainEntries.length > 0 ? `\n  ${setPainEntries.join('\n  ')}` : '';
-      const painNote = `[${today}] Douleur signalée${painZone ? ` (${painZone})` : ''}${painDetail} — réduire charges sur exercices concernés, surveiller évolution.`;
-      const existing = await base44.entities.UserMemory.filter({ user_id: user.id });
-      if (existing.length > 0) {
-        const prev = existing[0].coach_notes || '';
-        await base44.entities.UserMemory.update(existing[0].id, {
-          coach_notes: prev ? `${prev}\n${painNote}` : painNote
-        });
-      } else {
-        await base44.entities.UserMemory.create({ user_id: user.id, coach_notes: painNote });
-      }
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        const painDetail = setPainEntries.length > 0 ? `\n  ${setPainEntries.join('\n  ')}` : '';
+        const painNote = `[${today}] Douleur signalée${painZone ? ` (${painZone})` : ''}${painDetail} — réduire charges sur exercices concernés, surveiller évolution.`;
+        const existing = await base44.entities.UserMemory.filter({ user_id: user.id });
+        if (existing.length > 0) {
+          const prev = existing[0].coach_notes || '';
+          await base44.entities.UserMemory.update(existing[0].id, {
+            coach_notes: prev ? `${prev}\n${painNote}` : painNote
+          });
+        } else {
+          await base44.entities.UserMemory.create({ user_id: user.id, coach_notes: painNote });
+        }
+      } catch {}
     }
 
     queryClient.invalidateQueries({ queryKey: ['sessions'] });
