@@ -63,6 +63,13 @@ export default function AppLayout() {
   const touchStart = useRef(null);
   const isHorizontal = useRef(false);
   const animating  = useRef(false);
+  const swipeLocked = useRef(false);
+
+  useEffect(() => {
+    const handler = (e) => { swipeLocked.current = e.detail; };
+    window.addEventListener('swipe-lock', handler);
+    return () => window.removeEventListener('swipe-lock', handler);
+  }, []);
 
   const currentIdx    = Math.max(0, NAV_PATHS.indexOf(location.pathname));
   const currentIdxRef = useRef(currentIdx);
@@ -119,7 +126,7 @@ export default function AppLayout() {
   }, [x, cleanup]);
 
   const handleTouchStart = useCallback((e) => {
-    if (animating.current) return;
+    if (animating.current || swipeLocked.current) return;
     if (e.target.closest('[data-no-swipe]')) return;
     touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     isHorizontal.current = false;

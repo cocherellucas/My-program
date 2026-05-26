@@ -130,12 +130,14 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
     try { localStorage.setItem('_import_form', JSON.stringify({ sessions, weeks, verified, collapsed, sessionCount: _expLen })); } catch {}
   }, [sessions, weeks, verified, collapsed]); // eslint-disable-line
 
-  // Cache la nav pendant que le dialog est ouvert
+  // Cache la nav et bloque le swipe de page pendant que le dialog est ouvert
   useEffect(() => {
     const nav = document.querySelector('.mobile-nav');
     if (nav) nav.style.display = 'none';
+    window.dispatchEvent(new CustomEvent('swipe-lock', { detail: true }));
     return () => {
       if (nav) nav.style.display = '';
+      window.dispatchEvent(new CustomEvent('swipe-lock', { detail: false }));
     };
   }, []);
 
