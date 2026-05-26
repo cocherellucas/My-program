@@ -472,20 +472,6 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
         <div className="flex items-center gap-2">
           {activeProgram && (
             <>
-              <button
-                onClick={alreadySaved ? undefined : saveProgram}
-                disabled={saving || saved || alreadySaved}
-                className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm bg-white text-violet-700 hover:bg-white/90 shadow transition-all disabled:opacity-50"
-              >
-                {alreadySaved
-                  ? <><BookmarkCheck className="w-4 h-4" /><span className="hidden sm:inline">Déjà sauvegardé</span></>
-                  : saved
-                  ? <><BookmarkCheck className="w-4 h-4" /><span className="hidden sm:inline">Sauvegardé !</span></>
-                  : saving
-                  ? <><Loader2 className="w-4 h-4 animate-spin" /><span className="hidden sm:inline">Sauvegarde…</span></>
-                  : <><Bookmark className="w-4 h-4" /><span className="hidden sm:inline">Sauvegarder</span></>
-                }
-              </button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="ghost" className="text-destructive hover:text-destructive hover:bg-destructive/10">
@@ -509,6 +495,20 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
+              <button
+                onClick={alreadySaved ? undefined : saveProgram}
+                disabled={saving || saved || alreadySaved}
+                className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm bg-white text-violet-700 hover:bg-white/90 shadow transition-all disabled:opacity-50"
+              >
+                {alreadySaved
+                  ? <><BookmarkCheck className="w-4 h-4" /><span className="hidden sm:inline">Déjà sauvegardé</span></>
+                  : saved
+                  ? <><BookmarkCheck className="w-4 h-4" /><span className="hidden sm:inline">Sauvegardé !</span></>
+                  : saving
+                  ? <><Loader2 className="w-4 h-4 animate-spin" /><span className="hidden sm:inline">Sauvegarde…</span></>
+                  : <><Bookmark className="w-4 h-4" /><span className="hidden sm:inline">Sauvegarder</span></>
+                }
+              </button>
             </>
           )}
           {activeProgram && (
