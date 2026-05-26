@@ -27,6 +27,8 @@ export default function MobileNav({ swipeX, swipeCurrentIdx = 0 }) {
     vv.addEventListener('resize', handler);
     return () => vv.removeEventListener('resize', handler);
   }, []);
+  // Reset au changement de route pour éviter que keyboardOpen reste bloqué
+  useEffect(() => { setKeyboardOpen(false); }, [location.pathname]);
 
   const numTabs = items.length;
   const currentNavIdx = items.findIndex(item => location.pathname === item.path.split('?')[0]);
