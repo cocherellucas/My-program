@@ -841,7 +841,7 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
           <div className="flex gap-2">
             <Button onClick={() => onSave(true)} disabled={saving} className="flex-1" size="lg">
               {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
-              Appliquer et valider
+              Valider la séance
             </Button>
             <button onClick={() => onSave(false)} disabled={saving} className="px-4 text-sm text-white/50 hover:text-white/80 transition-colors">
               Ignorer
