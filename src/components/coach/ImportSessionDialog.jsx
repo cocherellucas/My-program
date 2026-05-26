@@ -135,11 +135,18 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
     const nav = document.querySelector('.mobile-nav');
     if (nav) nav.style.display = 'none';
     window.dispatchEvent(new CustomEvent('swipe-lock', { detail: true }));
+    // Pousse un état fantôme pour intercepter le geste "retour" iOS
+    window.history.pushState({ dialogOpen: true }, '');
+    const onPopState = () => { onClose(); };
+    window.addEventListener('popstate', onPopState);
     return () => {
       if (nav) nav.style.display = '';
       window.dispatchEvent(new CustomEvent('swipe-lock', { detail: false }));
+      window.removeEventListener('popstate', onPopState);
+      // Retire l'état fantôme si le dialog est fermé par un autre moyen
+      if (window.history.state?.dialogOpen) window.history.back();
     };
-  }, []);
+  }, []); // eslint-disable-line
 
   const listRef = useRef(null);
   const [initialSnapshot] = useState({ sessions, weeks });
