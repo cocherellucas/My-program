@@ -1,5 +1,6 @@
 import React from 'react';
 import { Toaster } from "@/components/ui/toaster"
+import { Toaster as SonnerToaster } from "@/components/ui/sonner"
 
 class ErrorBoundary extends React.Component {
   constructor(props) { super(props); this.state = { error: null }; }
@@ -126,6 +127,7 @@ function App() {
                 <Route path="/*" element={<AuthenticatedApp />} />
               </Routes>
               <Toaster />
+              <SonnerToaster position="top-center" />
             </RestTimerProvider>
           </Router>
         </QueryClientProvider>
