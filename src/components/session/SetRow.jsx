@@ -18,6 +18,7 @@ export default function SetRow({ setIdx, totalSets, log, onUpdate, onWeightBlur,
   const [aiLoading, setAiLoading] = useState(false);
   const [painThread, setPainThread] = useState([]); // [{ role: 'user'|'ai', text }]
   const [followUp, setFollowUp] = useState('');
+  const [tooShort, setTooShort] = useState(false);
   const blurFromEnter = useRef(false);
   const propagateTimer = useRef(null);
   // rirContext = { phase, sessionType, block, weekNumber, plannedWeeks }
@@ -59,7 +60,9 @@ const shouldShowPropagate =
         </button>
       </div>
 
-      {showPain && (
+      {showPain && (() => {
+        const lastMsgRole = painThread.length > 0 ? painThread[painThread.length - 1].role : null;
+        return (
         <div className="space-y-2">
           {/* Thread */}
           {painThread.length > 0 && (
@@ -79,43 +82,64 @@ const shouldShowPropagate =
                   </div>
                 </div>
               ))}
+              {aiLoading && (
+                <div className="flex items-center gap-2 px-3 py-2 text-white/50 text-xs">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  Le coach réfléchit…
+                </div>
+              )}
             </div>
           )}
 
-          {/* Input */}
-          <div className="flex gap-2">
-            <textarea
-              autoFocus={painThread.length === 0}
-              rows={2}
-              placeholder={painThread.length === 0 ? "Décris ce que tu ressens (où, quand, comment)…" : "Ça persiste ? Réponds au coach…"}
-              value={painThread.length === 0 ? (log.pain_note || '') : followUp}
-              onChange={(e) => {
-                if (painThread.length === 0) { onUpdate('pain_note', e.target.value); }
-                else setFollowUp(e.target.value);
-              }}
-              className="flex-1 text-xs bg-red-500/10 border border-red-400/30 rounded-lg px-3 py-2 text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-red-400/60"
-            />
-            <button
-              disabled={aiLoading || (painThread.length === 0 ? !log.pain_note?.trim() : !followUp.trim())}
-              onPointerDown={async (e) => {
-                e.preventDefault();
-                const msg = painThread.length === 0 ? log.pain_note : followUp;
-                if (!msg?.trim() || aiLoading || !onAskCoach) return;
-                const newThread = [...painThread, { role: 'user', text: msg }];
-                setPainThread(newThread);
-                setFollowUp('');
-                setAiLoading(true);
-                const reply = await onAskCoach(msg, setIdx, newThread);
-                setPainThread(t => [...t, { role: 'ai', text: reply }]);
-                setAiLoading(false);
-              }}
-              className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg bg-red-500/30 border border-red-400/40 text-red-300 disabled:opacity-40 transition-all hover:bg-red-500/50 self-start mt-0.5"
-            >
-              {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            </button>
-          </div>
+          {/* Input — caché pendant qu'on attend la réponse IA */}
+          {lastMsgRole !== 'user' && (
+            <div className="space-y-1">
+              <div className="flex gap-2">
+                <textarea
+                  autoFocus={painThread.length === 0}
+                  rows={2}
+                  placeholder={painThread.length === 0 ? "Décris ce que tu ressens (où, quand, comment)…" : "Ajouter une précision au coach…"}
+                  value={painThread.length === 0 ? (log.pain_note || '') : followUp}
+                  onChange={(e) => {
+                    setTooShort(false);
+                    if (painThread.length === 0) { onUpdate('pain_note', e.target.value); }
+                    else setFollowUp(e.target.value);
+                  }}
+                  className="flex-1 text-xs bg-red-500/10 border border-red-400/30 rounded-lg px-3 py-2 text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-red-400/60"
+                />
+                <button
+                  disabled={painThread.length === 0 ? !log.pain_note?.trim() : !followUp.trim()}
+                  onPointerDown={async (e) => {
+                    e.preventDefault();
+                    const msg = painThread.length === 0 ? log.pain_note : followUp;
+                    if (!msg?.trim() || !onAskCoach) return;
+                    const wordCount = msg.trim().split(/\s+/).filter(Boolean).length;
+                    if (wordCount < 3) { setTooShort(true); return; }
+                    setTooShort(false);
+                    const newThread = [...painThread, { role: 'user', text: msg }];
+                    setPainThread(newThread);
+                    setFollowUp('');
+                    setAiLoading(true);
+                    try {
+                      const reply = await onAskCoach(msg, setIdx, newThread);
+                      setPainThread(t => [...t, { role: 'ai', text: reply }]);
+                    } catch {
+                      setPainThread(t => [...t, { role: 'ai', text: "Une erreur s'est produite. Réessaie." }]);
+                    } finally {
+                      setAiLoading(false);
+                    }
+                  }}
+                  className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg bg-red-500/30 border border-red-400/40 text-red-300 disabled:opacity-40 transition-all hover:bg-red-500/50 self-start mt-0.5"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
+              {tooShort && <p className="text-[11px] text-red-300">Ajoute plus de détails — décris où, quand et comment (min. 3 mots).</p>}
+            </div>
+          )}
         </div>
-      )}
+        );
+      })()}
 
       <div className="grid grid-cols-2 gap-2">
         <div>
