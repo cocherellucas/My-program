@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,7 @@ import ImportSessionDialog from '@/components/coach/ImportSessionDialog';
 
 export default function CoachIA() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [importing, setImporting] = useState(false);
   const [user, setUser] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -38,7 +39,17 @@ export default function CoachIA() {
       if (u?.id) {
         try {
           const saved = localStorage.getItem(`coach_history_${u.id}`);
-          if (saved) setMessages(JSON.parse(saved));
+          const history = saved ? JSON.parse(saved) : [];
+          const pending = location.state?.initialMessage;
+          if (pending) {
+            const last = history[history.length - 1];
+            if (!last || last.content !== pending) {
+              history.push({ role: 'assistant', content: pending, ts: Date.now() });
+            }
+            // Clear state so a back-navigation doesn't re-inject
+            navigate('/coach', { replace: true, state: {} });
+          }
+          if (history.length > 0) setMessages(history);
         } catch {}
       }
     });

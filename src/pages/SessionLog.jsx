@@ -675,7 +675,7 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
           </div>
           <div className="flex gap-2">
             <Button
-              onClick={() => navigate('/coach')}
+              onClick={() => navigate('/coach', { state: { initialMessage: coachPainQuery.preMessage } })}
               className="flex-1 bg-white text-violet-700 hover:bg-white/90 font-semibold"
             >
               <MessageSquare className="w-4 h-4 mr-2" />
