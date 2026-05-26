@@ -514,7 +514,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
               <button
                 onClick={alreadySaved ? undefined : saveProgram}
                 disabled={saving || saved || alreadySaved}
-                className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm bg-white text-violet-700 hover:bg-white/90 shadow transition-all disabled:opacity-50"
+                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl font-semibold text-sm bg-white text-violet-700 hover:bg-white/90 shadow transition-all disabled:opacity-50"
               >
                 {alreadySaved
                   ? <><BookmarkCheck className="w-4 h-4" /><span className="hidden sm:inline">Déjà sauvegardé</span></>
@@ -531,19 +531,19 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
             <button
               onClick={() => setShowRegenGate(true)}
               disabled={generating}
-              className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm bg-white text-violet-700 hover:bg-white/90 shadow transition-all disabled:opacity-50"
+              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl font-semibold text-sm bg-white text-violet-700 hover:bg-white/90 shadow transition-all disabled:opacity-50"
             >
               {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-              Régénérer
+              <span className="hidden sm:inline">Régénérer</span>
             </button>
           )}
           {activeProgram && isImported({ program_id: activeProgram.id }) && (
             <button
               onClick={() => navigate('/coach')}
-              className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm bg-white text-violet-700 hover:bg-white/90 shadow transition-all"
+              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl font-semibold text-sm bg-white text-violet-700 hover:bg-white/90 shadow transition-all"
             >
               <Pencil className="w-4 h-4" />
-              Modifier
+              <span className="hidden sm:inline">Modifier</span>
             </button>
           )}
         </div>
