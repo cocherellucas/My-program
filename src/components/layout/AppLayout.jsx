@@ -80,11 +80,20 @@ export default function AppLayout() {
     });
   }, [currentIdx]); // eslint-disable-line
 
-  // Recalcule baseX si fenêtre redimensionnée
+  // Recalcule baseX si fenêtre redimensionnée (debounce pour laisser le layout se stabiliser)
   useEffect(() => {
-    const onResize = () => baseX.set(-currentIdxRef.current * pageW());
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+    let timer;
+    const recalc = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => baseX.set(-currentIdxRef.current * pageW()), 150);
+    };
+    window.addEventListener('resize', recalc);
+    window.addEventListener('orientationchange', recalc);
+    return () => {
+      window.removeEventListener('resize', recalc);
+      window.removeEventListener('orientationchange', recalc);
+      clearTimeout(timer);
+    };
   }, []); // eslint-disable-line
 
   // Listener non-passif pour bloquer le scroll vertical pendant le swipe horizontal
