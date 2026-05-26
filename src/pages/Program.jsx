@@ -432,7 +432,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-baseline gap-2">
             <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white">Programme</h1>
             {activeProgram && (
               isImported({ program_id: activeProgram.id }) ? (
