@@ -843,9 +843,9 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
               {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
               Appliquer et valider
             </Button>
-            <Button onClick={() => onSave(false)} disabled={saving} variant="outline" className="flex-1 border-white/30 text-white hover:bg-white/10" size="lg">
+            <button onClick={() => onSave(false)} disabled={saving} className="px-4 text-sm text-white/50 hover:text-white/80 transition-colors">
               Ignorer
-            </Button>
+            </button>
           </div>
         ) : (
           <Button onClick={() => onSave(false)} disabled={saving} className="w-full" size="lg">
@@ -1364,7 +1364,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
       } else if (exHasPain && canProgress) {
         // Douleur sur cet exercice ET bon RIR → conflit : ne pas augmenter la charge, suggérer alternatives
         const extras = hasExtraTime ? ' ou ajoute une série si tu as le temps' : '';
-        props.push({ exercise: ex.name, newWeight: null, reason: `douleur signalée malgré un bon RIR — préfère augmenter les reps ou réduire le temps de repos${extras}`, type: 'adapt' });
+        props.push({ exercise: ex.name, newWeight: null, reason: `préfère augmenter les reps ou réduire le temps de repos${extras}`, type: 'adapt' });
       } else if (exHasPain) {
         // Douleur + difficulté → réduire légèrement
         props.push({ exercise: ex.name, newWeight: Math.round(avgW * 0.9 * 2) / 2, reason: 'douleur signalée — réduis légèrement la charge à la prochaine séance', type: 'reduce' });
@@ -1379,7 +1379,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
       } else if (canProgress && notePain) {
         // Bon RIR mais douleur générale (pas sur cet exercice) → suggestion douce
         const extras = hasExtraTime ? ' ou ajoute une série si tu as le temps' : '';
-        props.push({ exercise: ex.name, newWeight: null, reason: `bonne séance — peut augmenter les reps ou réduire le temps de repos${extras}`, type: 'adapt' });
+        props.push({ exercise: ex.name, newWeight: null, reason: `peut augmenter les reps ou réduire le temps de repos${extras}`, type: 'adapt' });
       } else if (noteHard) {
         props.push({ exercise: ex.name, newWeight: Math.round(avgW * 0.95 * 2) / 2, reason: 'séance difficile — réduis légèrement', type: 'reduce' });
       }
