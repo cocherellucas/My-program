@@ -114,7 +114,7 @@ const shouldShowPropagate =
                   { label: 'Autres',  value: painOther, set: setPainOther, placeholder: 'Depuis quand, intensité…', required: false },
                 ].map(({ label, value, set, placeholder, required }) => (
                   <div key={label} className="flex items-center gap-2">
-                    <span className="text-[11px] text-white/50 w-14 flex-shrink-0 text-right">
+                    <span className="text-[11px] text-white/50 w-16 flex-shrink-0 text-right whitespace-nowrap">
                       {label}{required ? <span className="text-red-400"> *</span> : ''}
                     </span>
                     <input
