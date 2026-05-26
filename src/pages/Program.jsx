@@ -514,15 +514,15 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
               <button
                 onClick={alreadySaved ? undefined : saveProgram}
                 disabled={saving || saved || alreadySaved}
-                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl font-semibold text-sm bg-white text-violet-700 hover:bg-white/90 shadow transition-all disabled:opacity-50"
+                className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-xl font-semibold text-xs bg-white text-violet-700 hover:bg-white/90 shadow transition-all disabled:opacity-50"
               >
                 {alreadySaved
-                  ? <><BookmarkCheck className="w-4 h-4" /><span className="hidden sm:inline">Déjà sauvegardé</span></>
+                  ? <><BookmarkCheck className="w-3.5 h-3.5" />Sauvegardé</>
                   : saved
-                  ? <><BookmarkCheck className="w-4 h-4" /><span className="hidden sm:inline">Sauvegardé !</span></>
+                  ? <><BookmarkCheck className="w-3.5 h-3.5" />Sauvegardé !</>
                   : saving
-                  ? <><Loader2 className="w-4 h-4 animate-spin" /><span className="hidden sm:inline">Sauvegarde…</span></>
-                  : <><Bookmark className="w-4 h-4" /><span className="hidden sm:inline">Sauvegarder</span></>
+                  ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />Sauvegarde…</>
+                  : <><Bookmark className="w-3.5 h-3.5" />Sauvegarder</>
                 }
               </button>
             </>
@@ -531,19 +531,19 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
             <button
               onClick={() => setShowRegenGate(true)}
               disabled={generating}
-              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl font-semibold text-sm bg-white text-violet-700 hover:bg-white/90 shadow transition-all disabled:opacity-50"
+              className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-xl font-semibold text-xs bg-white text-violet-700 hover:bg-white/90 shadow transition-all disabled:opacity-50"
             >
-              {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-              <span className="hidden sm:inline">Régénérer</span>
+              {generating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+              Régénérer
             </button>
           )}
           {activeProgram && isImported({ program_id: activeProgram.id }) && (
             <button
               onClick={() => navigate('/coach')}
-              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl font-semibold text-sm bg-white text-violet-700 hover:bg-white/90 shadow transition-all"
+              className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-xl font-semibold text-xs bg-white text-violet-700 hover:bg-white/90 shadow transition-all"
             >
-              <Pencil className="w-4 h-4" />
-              <span className="hidden sm:inline">Modifier</span>
+              <Pencil className="w-3.5 h-3.5" />
+              Modifier
             </button>
           )}
         </div>
