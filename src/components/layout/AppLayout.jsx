@@ -125,15 +125,16 @@ export default function AppLayout() {
     cleanup();
   }, [x, cleanup]);
 
+  const isSwipeLocked = () => swipeLocked.current || !!document.querySelector('[data-no-swipe]');
+
   const handleTouchStart = useCallback((e) => {
-    if (animating.current || swipeLocked.current) return;
-    if (e.target.closest('[data-no-swipe]')) return;
+    if (animating.current || isSwipeLocked()) return;
     touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     isHorizontal.current = false;
-  }, []);
+  }, []); // eslint-disable-line
 
   const handleTouchMove = useCallback((e) => {
-    if (!touchStart.current || animating.current) return;
+    if (!touchStart.current || animating.current || isSwipeLocked()) return;
     const dx = e.touches[0].clientX - touchStart.current.x;
     const dy = e.touches[0].clientY - touchStart.current.y;
 
@@ -153,6 +154,7 @@ export default function AppLayout() {
   }, [x]);
 
   const handleTouchEnd = useCallback((e) => {
+    if (isSwipeLocked()) { cleanup(); return; }
     if (!touchStart.current || !isHorizontal.current) { cleanup(); return; }
 
     const dx = e.changedTouches[0].clientX - touchStart.current.x;

@@ -135,23 +135,17 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
     const nav = document.querySelector('.mobile-nav');
     if (nav) nav.style.display = 'none';
     window.dispatchEvent(new CustomEvent('swipe-lock', { detail: true }));
-    // Pousse un état fantôme pour intercepter le geste "retour" iOS
-    window.history.pushState({ dialogOpen: true }, '', window.location.href);
-    let closedByPopstate = false;
-    const onPopState = (e) => {
-      e.stopImmediatePropagation(); // empêche React Router de traiter ce popstate
-      closedByPopstate = true;
-      onClose();
+    // Bloque tout touchstart au niveau document (capture) quand le dialog est ouvert
+    const blockTouch = (e) => {
+      if (document.querySelector('[data-no-swipe]')) {
+        e.stopImmediatePropagation();
+      }
     };
-    window.addEventListener('popstate', onPopState, { capture: true });
+    document.addEventListener('touchstart', blockTouch, { capture: true, passive: true });
     return () => {
       if (nav) nav.style.display = '';
       window.dispatchEvent(new CustomEvent('swipe-lock', { detail: false }));
-      window.removeEventListener('popstate', onPopState, { capture: true });
-      // Retire l'état fantôme seulement si fermé normalement (pas par le geste retour)
-      if (!closedByPopstate && window.history.state?.dialogOpen) {
-        window.history.back();
-      }
+      document.removeEventListener('touchstart', blockTouch, { capture: true });
     };
   }, []); // eslint-disable-line
 
