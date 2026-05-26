@@ -62,7 +62,6 @@ export default function Program() {
   const [searchParams] = useSearchParams();
   const [user, setUser] = useState(null);
   const importedProgramIds = (() => { try { return JSON.parse(localStorage.getItem('imported_program_ids') || '[]'); } catch { return []; } })();
-  const isImported = (session) => importedProgramIds.includes(session.program_id);
   const [generating, setGenerating] = useState(false);
   const [genPhase, setGenPhase] = useState('');
   const [genSeconds, setGenSeconds] = useState(0);
@@ -100,6 +99,8 @@ export default function Program() {
   });
 
   const activeProgram = programs[0] || null;
+  const isImported = (session) =>
+    importedProgramIds.includes(session.program_id) || activeProgram?.weekly_structure === 'custom';
   const alreadySaved = activeProgram ? localStorage.getItem(`saved_program_${activeProgram.id}`) === 'true' : false;
 
   const { data: sessions = [], isLoading: sessionsLoading } = useQuery({
