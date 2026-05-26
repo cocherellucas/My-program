@@ -138,15 +138,16 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
     // Pousse un état fantôme pour intercepter le geste "retour" iOS
     window.history.pushState({ dialogOpen: true }, '', window.location.href);
     let closedByPopstate = false;
-    const onPopState = () => {
+    const onPopState = (e) => {
+      e.stopImmediatePropagation(); // empêche React Router de traiter ce popstate
       closedByPopstate = true;
       onClose();
     };
-    window.addEventListener('popstate', onPopState);
+    window.addEventListener('popstate', onPopState, { capture: true });
     return () => {
       if (nav) nav.style.display = '';
       window.dispatchEvent(new CustomEvent('swipe-lock', { detail: false }));
-      window.removeEventListener('popstate', onPopState);
+      window.removeEventListener('popstate', onPopState, { capture: true });
       // Retire l'état fantôme seulement si fermé normalement (pas par le geste retour)
       if (!closedByPopstate && window.history.state?.dialogOpen) {
         window.history.back();
