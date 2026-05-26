@@ -29,28 +29,36 @@ export default function MobileNav({ swipeX, swipeCurrentIdx = 0 }) {
   }, []);
 
   const numTabs = items.length;
-  const currentNavIdx = Math.max(0, items.findIndex(item => location.pathname === item.path.split('?')[0]));
+  const currentNavIdx = items.findIndex(item => location.pathname === item.path.split('?')[0]);
 
   const containerRef = useRef(null);
 
   // Position en unités-tab (0 à numTabs-1), piloté par swipeX et tap
-  const smoothPos = useMotionValue(currentNavIdx);
+  const smoothPos = useMotionValue(currentNavIdx >= 0 ? currentNavIdx : 0);
 
-  // Tap navigation → spring vers le nouvel onglet
+  // Refs always-current pour éviter les stale closures dans le listener swipeX
+  const swipeCurrentIdxRef = useRef(swipeCurrentIdx);
+  const currentNavIdxRef = useRef(currentNavIdx);
+  swipeCurrentIdxRef.current = swipeCurrentIdx;
+  currentNavIdxRef.current = currentNavIdx;
+
+  // Tap / navigation programmatique → spring vers le nouvel onglet
   useEffect(() => {
-    animate(smoothPos, currentNavIdx, { type: 'spring', stiffness: 500, damping: 38 });
+    if (currentNavIdx >= 0) {
+      animate(smoothPos, currentNavIdx, { type: 'spring', stiffness: 500, damping: 38 });
+    }
   }, [currentNavIdx]); // eslint-disable-line
 
   // Swipe temps réel → suit swipeX directement
   useEffect(() => {
     if (!swipeX) return;
     return swipeX.on('change', v => {
-      if (v === 0) return; // laisse animate() gérer le retour
-      const base = swipeCurrentIdx >= 0 ? swipeCurrentIdx : currentNavIdx;
+      if (Math.abs(v) < 2) return; // ignore spring settling & layout-effect resets
+      const base = swipeCurrentIdxRef.current >= 0 ? swipeCurrentIdxRef.current : (currentNavIdxRef.current >= 0 ? currentNavIdxRef.current : 0);
       const next = base - v / window.innerWidth;
       smoothPos.set(Math.max(0, Math.min(numTabs - 1, next)));
     });
-  }, [swipeX, swipeCurrentIdx, currentNavIdx, numTabs]); // eslint-disable-line
+  }, [swipeX]); // eslint-disable-line — refs keep values current
 
   // Position pixel de l'indicateur (1/numTabs de la largeur du container)
   const getTabW = () => containerRef.current ? containerRef.current.offsetWidth / numTabs : window.innerWidth / numTabs;
