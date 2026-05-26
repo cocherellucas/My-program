@@ -85,6 +85,15 @@ const shouldShowPropagate =
                   </div>
                 </div>
               ))}
+              {lastMsgRole === 'ai' && !aiLoading && (
+                <button
+                  type="button"
+                  onClick={() => { setPainThread([]); onUpdate('pain_note', ''); }}
+                  className="text-[11px] text-white/40 hover:text-white/70 transition-colors px-1"
+                >
+                  ↩ Recommencer
+                </button>
+              )}
               {aiLoading && (
                 <div className="flex items-center gap-2 px-3 py-2 text-white/50 text-xs">
                   <Loader2 className="w-3 h-3 animate-spin" />
