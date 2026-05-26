@@ -168,8 +168,8 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm px-3 pb-3">
-      <div className="w-full max-w-sm rounded-3xl overflow-hidden" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)', height: 'calc(100dvh - 24px)', display: 'flex', flexDirection: 'column' }}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm px-3 pb-3" style={{ paddingTop: 'max(env(safe-area-inset-top), 56px)' }}>
+      <div className="w-full max-w-sm rounded-3xl overflow-hidden" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)', height: 'calc(100dvh - max(env(safe-area-inset-top), 56px) - 12px)', display: 'flex', flexDirection: 'column' }}>
 
         {/* Header */}
         <div className="px-5 pt-5 pb-3 border-b border-white/10 flex-shrink-0">
@@ -178,7 +178,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
         </div>
 
         {/* Sessions */}
-        <div ref={listRef} className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
+        <div ref={listRef} className="flex-1 overflow-y-auto px-5 py-4 space-y-3" style={{ touchAction: 'pan-y', overscrollBehavior: 'contain' }}>
           {sessions.map((s, i) => (
             <div key={i} className="rounded-2xl p-3 space-y-2" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
               <div className="flex items-center gap-2">
