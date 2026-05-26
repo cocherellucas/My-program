@@ -234,7 +234,7 @@ export default function Onboarding() {
               )}
             </div>
           ) : (
-            <Button onClick={finish} disabled={saving} className="bg-primary">
+            <Button onClick={finish} disabled={saving}>
               {saving ? (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               ) : (
