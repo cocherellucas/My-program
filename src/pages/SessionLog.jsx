@@ -867,7 +867,7 @@ export default function SessionLog() {
   const [scrollReady, setScrollReady] = useState(false);
   const [currentExIdx, setCurrentExIdx] = useState(() => _draft.currentExIdx || 0);
   const [showOverview, setShowOverview] = useState(false);
-  const [showEnd, setShowEnd] = useState(false);
+  const [showEnd, setShowEnd] = useState(() => _draft.showEnd || false);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const { startTimer } = useRestTimer();
 
@@ -901,10 +901,10 @@ export default function SessionLog() {
   useEffect(() => {
     if (!sessionId) return;
     try {
-      localStorage.setItem(`session_draft_${sessionId}`, JSON.stringify({ logs, currentExIdx, fatigue, notes, restTimeForEx, sessionExercises }));
+      localStorage.setItem(`session_draft_${sessionId}`, JSON.stringify({ logs, currentExIdx, fatigue, notes, restTimeForEx, sessionExercises, showEnd }));
       localStorage.setItem('active_session_id', sessionId);
     } catch {}
-  }, [logs, currentExIdx, fatigue, notes, restTimeForEx, sessionExercises, sessionId]);
+  }, [logs, currentExIdx, fatigue, notes, restTimeForEx, sessionExercises, showEnd, sessionId]);
 
   useEffect(() => {
     if (!sessionId) return;
