@@ -432,8 +432,8 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <div className="flex items-baseline gap-2">
-            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white">Programme</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white leading-none">Programme</h1>
             {activeProgram && (
               isImported({ program_id: activeProgram.id }) ? (
                 <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', letterSpacing: '0.06em' }}>Importé</span>
