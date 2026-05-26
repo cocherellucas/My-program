@@ -517,12 +517,12 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                 className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-xl font-semibold text-xs bg-white text-violet-700 hover:bg-white/90 shadow transition-all disabled:opacity-50"
               >
                 {alreadySaved
-                  ? <><BookmarkCheck className="w-3.5 h-3.5" />Sauvegardé</>
+                  ? <BookmarkCheck className="w-3.5 h-3.5" />
                   : saved
-                  ? <><BookmarkCheck className="w-3.5 h-3.5" />Sauvegardé !</>
+                  ? <BookmarkCheck className="w-3.5 h-3.5" />
                   : saving
-                  ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />Sauvegarde…</>
-                  : <><Bookmark className="w-3.5 h-3.5" />Sauvegarder</>
+                  ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  : <Bookmark className="w-3.5 h-3.5" />
                 }
               </button>
             </>
