@@ -818,11 +818,18 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
           <div className="space-y-2">
             <p className="text-xs font-semibold text-white/70 uppercase tracking-wide">Recommandations pour tes prochaines séances</p>
             {proposal.map((p, i) => (
-              <div key={i} className={`flex items-start gap-3 px-3 py-2 rounded-lg text-xs ${p.type === 'increase' ? 'bg-green-500/20 text-green-200' : p.type === 'reduce' ? 'bg-red-500/20 text-red-200' : 'bg-white/10 text-white/70'}`}>
-                <span className="text-base mt-0.5">{p.type === 'increase' ? '↑' : p.type === 'reduce' ? '↓' : '→'}</span>
+              <div key={i} className={`flex items-start gap-3 px-3 py-2 rounded-lg text-xs ${
+                p.type === 'increase' ? 'bg-green-500/20 text-green-200' :
+                p.type === 'reduce'   ? 'bg-red-500/20 text-red-200' :
+                p.type === 'warn'     ? 'bg-orange-500/20 text-orange-200' :
+                'bg-white/10 text-white/70'
+              }`}>
+                <span className="text-base mt-0.5">
+                  {p.type === 'increase' ? '↑' : p.type === 'reduce' ? '↓' : p.type === 'warn' ? '⚠' : '~'}
+                </span>
                 <div className="flex-1">
-                  <span className="font-semibold">{p.exercise}</span>
-                  {p.newWeight && <span className="ml-1">→ {p.newWeight}kg</span>}
+                  <span className="font-semibold">{p.general ? p.exercise : p.exercise}</span>
+                  {p.newWeight != null && <span className="ml-1 opacity-80">→ {p.newWeight}kg</span>}
                   <p className="text-white/60 mt-0.5">{p.reason}</p>
                 </div>
               </div>
@@ -836,7 +843,7 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
               {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
               Appliquer et valider
             </Button>
-            <Button onClick={() => onSave(false)} disabled={saving} variant="outline" className="border-white/30 text-white hover:bg-white/10" size="lg">
+            <Button onClick={() => onSave(false)} disabled={saving} variant="outline" className="flex-1 border-white/30 text-white hover:bg-white/10" size="lg">
               Ignorer
             </Button>
           </div>
@@ -1309,7 +1316,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
       const [exIdx] = key.split('-').map(Number);
       const ex = exercises[exIdx];
       if (!ex) continue;
-      if (!perEx[ex.name]) perEx[ex.name] = { weights: [], modes: [], qualities: [], painNotes: [], name: ex.name, originalWeight: ex.target_weight };
+      if (!perEx[ex.name]) perEx[ex.name] = { weights: [], modes: [], qualities: [], painNotes: [], name: ex.name };
       if (log.weight) perEx[ex.name].weights.push(log.weight);
       if (log.mode) perEx[ex.name].modes.push(log.mode);
       if (log.quality) perEx[ex.name].qualities.push(log.quality);
@@ -1320,17 +1327,24 @@ Ce que l'utilisateur dit : "${painNote}"`;
     const noteEasy = /trop facile|trop léger|pas assez/.test(noteText);
     const noteHard = /trop dur|très dur|épuisant/.test(noteText);
 
+    // Détection du temps disponible pour suggérer une série en plus
+    const dayName = session?.planned_date ? new Date(session.planned_date).toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase() : null;
+    const availDuration = user?.duration_per_day?.[dayName] || 0;
+    const hasExtraTime = availDuration > 0 && session?.estimated_duration && session.estimated_duration < availDuration - 10;
+
     const RIR_SCORE = { failure: -1, RIR_0: 0, RIR_1: 1, RIR_2: 2, 'RIR_3+': 3 };
     const props = [];
 
-    // Recommandation générale si douleur signalée (même sans logs de poids)
+    // Avertissement général si douleur détectée
     if (notePain) {
       const painZone = noteText.match(/coude|épaule|genou|dos|poignet|cervical/)?.[0];
       props.push({
         exercise: '⚠️ Douleur signalée',
         newWeight: null,
-        reason: painZone ? `douleur au ${painZone} — réduis la charge sur les exercices concernés et signale-le au coach IA` : 'douleur signalée — réduis la charge et surveille à la prochaine séance',
-        type: 'reduce',
+        reason: painZone
+          ? `douleur au ${painZone} — adapte les exercices concernés à la prochaine séance`
+          : 'douleur signalée — surveille et adapte la charge sur les exercices concernés',
+        type: 'warn',
         general: true,
       });
     }
@@ -1341,16 +1355,33 @@ Ce que l'utilisateur dit : "${painNote}"`;
       const avgRIR = ex.modes.length ? ex.modes.reduce((a, m) => a + (RIR_SCORE[m] ?? 2), 0) / ex.modes.length : 2;
       const qualityOk = ex.qualities.length === 0 || ex.qualities.filter(q => q === 'good').length / ex.qualities.length > 0.6;
       const qualityBad = ex.qualities.filter(q => q === 'bad').length > 0;
+      const exHasPain = ex.painNotes.length > 0;
+      const canProgress = (noteEasy || avgRIR >= 2) && qualityOk;
 
       if (qualityBad || fatigue >= 5) {
-        props.push({ exercise: ex.name, newWeight: Math.round(avgW * 0.92 * 2) / 2, reason: fatigue >= 5 ? 'fatigue maximale' : 'qualité dégradée', type: 'reduce' });
+        // Qualité dégradée ou fatigue extrême → réduire
+        props.push({ exercise: ex.name, newWeight: Math.round(avgW * 0.92 * 2) / 2, reason: fatigue >= 5 ? 'fatigue maximale — réduis la charge' : 'qualité dégradée — consolide avant d\'augmenter', type: 'reduce' });
+      } else if (exHasPain && canProgress) {
+        // Douleur sur cet exercice ET bon RIR → conflit : ne pas augmenter la charge, suggérer alternatives
+        const extras = hasExtraTime ? ' ou ajoute une série si tu as le temps' : '';
+        props.push({ exercise: ex.name, newWeight: null, reason: `douleur signalée malgré un bon RIR — préfère augmenter les reps ou réduire le temps de repos${extras}`, type: 'adapt' });
+      } else if (exHasPain) {
+        // Douleur + difficulté → réduire légèrement
+        props.push({ exercise: ex.name, newWeight: Math.round(avgW * 0.9 * 2) / 2, reason: 'douleur signalée — réduis légèrement la charge à la prochaine séance', type: 'reduce' });
       } else if (fatigue >= 4) {
-        props.push({ exercise: ex.name, newWeight: avgW, reason: 'fatigue élevée — maintien', type: 'maintain' });
-      } else if ((noteEasy || avgRIR >= 2) && qualityOk) {
+        props.push({ exercise: ex.name, newWeight: null, reason: 'fatigue élevée — maintien conseillé', type: 'maintain' });
+      } else if (canProgress && !notePain) {
+        // Bonne séance, pas de douleur → progression possible
         const inc = avgW >= 60 ? 2.5 : avgW >= 20 ? 1.25 : 1;
-        props.push({ exercise: ex.name, newWeight: Math.round((avgW + inc) * 2) / 2, reason: noteEasy ? 'tu as trouvé ça facile' : `reps en réserve suffisantes (RIR ~${Math.round(avgRIR)})`, type: 'increase' });
+        const newW = Math.round((avgW + inc) * 2) / 2;
+        const extras = hasExtraTime ? ' ou ajoute une série' : '';
+        props.push({ exercise: ex.name, newWeight: newW, reason: `peut augmenter la charge prudemment (+${inc}kg)${extras}`, type: 'increase' });
+      } else if (canProgress && notePain) {
+        // Bon RIR mais douleur générale (pas sur cet exercice) → suggestion douce
+        const extras = hasExtraTime ? ' ou ajoute une série si tu as le temps' : '';
+        props.push({ exercise: ex.name, newWeight: null, reason: `bonne séance — peut augmenter les reps ou réduire le temps de repos${extras}`, type: 'adapt' });
       } else if (noteHard) {
-        props.push({ exercise: ex.name, newWeight: Math.round(avgW * 0.95 * 2) / 2, reason: 'séance difficile', type: 'reduce' });
+        props.push({ exercise: ex.name, newWeight: Math.round(avgW * 0.95 * 2) / 2, reason: 'séance difficile — réduis légèrement', type: 'reduce' });
       }
     }
     return props.filter(p => p.type !== 'maintain' || props.length <= 2);
