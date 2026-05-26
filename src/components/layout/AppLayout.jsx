@@ -110,6 +110,14 @@ export default function AppLayout() {
     isHorizontal.current = false;
   }, []);
 
+  const handleTouchCancel = useCallback(() => {
+    if (isHorizontal.current) {
+      animate(x, 0, { type: 'spring', stiffness: 500, damping: 42 });
+    }
+    animating.current = false;
+    cleanup();
+  }, [x, cleanup]);
+
   const handleTouchStart = useCallback((e) => {
     if (animating.current) return;
     touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
@@ -184,6 +192,7 @@ export default function AppLayout() {
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchCancel}
       >
         {/* Carousel — toutes les pages toujours montées */}
         <motion.div
