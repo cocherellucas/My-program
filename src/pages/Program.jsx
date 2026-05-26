@@ -432,7 +432,16 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white">Programme</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white">Programme</h1>
+            {activeProgram && (
+              isImported({ program_id: activeProgram.id }) ? (
+                <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', letterSpacing: '0.06em' }}>Importé</span>
+              ) : (
+                <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white', letterSpacing: '0.06em' }}>Coach</span>
+              )
+            )}
+          </div>
           {activeProgram && (() => {
             const nextSession = sessions.find(s => s.status !== 'completed' && s.planned_date && new Date(s.planned_date) >= today);
             const completedCount = sessions.filter(s => s.status === 'completed').length;
@@ -562,11 +571,6 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                        <div className="flex items-center justify-between">
                          <div className="flex items-center gap-4">
                            <div className="flex flex-col items-center gap-1">
-                             {isImported(session) ? (
-                               <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', letterSpacing: '0.06em' }}>Importé</span>
-                             ) : (
-                               <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white', letterSpacing: '0.06em' }}>Coach</span>
-                             )}
                              <div className={`w-14 h-14 rounded-xl flex flex-col items-center justify-center ${isToday ? 'bg-violet-600 border-2 border-white' : 'bg-white/20'}`}>
                                <span className={`text-[10px] capitalize ${isToday ? 'text-white/80' : 'text-white/70'}`}>
                                  {session.planned_date && format(new Date(session.planned_date), 'EEE', { locale: fr })}
