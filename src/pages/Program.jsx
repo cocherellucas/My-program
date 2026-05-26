@@ -389,6 +389,8 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
 
   const weeks = {};
   sessions.forEach(s => {
+    // Les séances complétées ne s'affichent pas dans la vue par semaine (historique géré ailleurs)
+    if (s.status === 'completed') return;
     const w = s.week_number || 1;
     if (!weeks[w]) weeks[w] = [];
     weeks[w].push(s);
@@ -407,10 +409,9 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
     });
   });
 
-  // Find the current week tab (first week that has a session today or in the future)
-  const currentWeekTab = Object.entries(weeks).find(([, wSessions]) =>
-    wSessions.some(s => !isPast(s) || s.status === 'completed')
-  )?.[0] || Object.keys(weeks)[0] || '1';
+  // Find the current week tab: first week with an upcoming (non-past, non-completed) session
+  const nextUpcoming = sessions.find(s => s.status !== 'completed' && !isPast(s));
+  const currentWeekTab = String(nextUpcoming?.week_number || Object.keys(weeks)[0] || 1);
 
   const handleRegen = () => {
     localStorage.removeItem('pending_program_regen');
@@ -445,25 +446,40 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
           </div>
           {activeProgram && (() => {
             const nextSession = sessions.find(s => s.status !== 'completed' && s.planned_date && new Date(s.planned_date) >= today);
-            const completedCount = sessions.filter(s => s.status === 'completed').length;
-            const totalCount = sessions.length;
-            const currentWeekNum = nextSession?.week_number || 1;
-            const totalWeeks = activeProgram.planned_weeks || 1;
+            const isInfinite = (activeProgram.planned_weeks || 1) >= 52;
             const daysUntil = nextSession?.planned_date
               ? Math.round((new Date(nextSession.planned_date) - today) / 86400000)
               : null;
+            let progressLabel, sessionLabel;
+            if (isInfinite) {
+              const dayOfMonth = today.getDate();
+              const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+              const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+              const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+              const completedThisMonth = sessions.filter(s => s.status === 'completed' && s.planned_date && new Date(s.planned_date) >= monthStart && new Date(s.planned_date) < monthEnd).length;
+              const plannedThisMonth = sessions.filter(s => s.planned_date && new Date(s.planned_date) >= monthStart && new Date(s.planned_date) < monthEnd).length;
+              progressLabel = `${dayOfMonth}/${daysInMonth}`;
+              sessionLabel = plannedThisMonth > 0 ? `${completedThisMonth}/${plannedThisMonth} séances` : null;
+            } else {
+              const completedCount = sessions.filter(s => s.status === 'completed').length;
+              const totalCount = sessions.length;
+              const currentWeekNum = nextSession?.week_number || 1;
+              const totalWeeks = activeProgram.planned_weeks || 1;
+              progressLabel = `Semaine ${currentWeekNum}/${totalWeeks}`;
+              sessionLabel = totalCount > 0 ? `${completedCount}/${totalCount} séances` : null;
+            }
             return (
               <div className="flex flex-wrap items-center gap-2 mt-1">
-                <span className="text-white/60 text-sm">Semaine {currentWeekNum}/{totalWeeks}</span>
+                <span className="text-white/60 text-sm">{progressLabel}</span>
                 {daysUntil !== null && (
                   <span className="text-white/60 text-sm">·</span>
                 )}
                 {daysUntil === 0 && <span className="text-violet-300 text-sm font-medium">Séance aujourd'hui</span>}
                 {daysUntil === 1 && <span className="text-white/60 text-sm">Prochaine séance demain</span>}
                 {daysUntil > 1 && <span className="text-white/60 text-sm">Prochaine séance dans {daysUntil}j</span>}
-                {totalCount > 0 && (
+                {sessionLabel && (
                   <><span className="text-white/60 text-sm">·</span>
-                  <span className="text-white/60 text-sm">{completedCount}/{totalCount} séances</span></>
+                  <span className="text-white/60 text-sm">{sessionLabel}</span></>
                 )}
               </div>
             );

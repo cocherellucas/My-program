@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,11 +12,13 @@ import { buildSystemPrompt } from '@/lib/coach-prompts';
 import { getContextualKnowledge, getMessageKnowledge } from '@/lib/scientific-knowledge-base';
 import { getAvailableExercises, getTensionProfile } from '@/lib/exercise-database';
 import { normalizeUser } from '@/lib/utils';
+import { calcDuration } from '@/lib/duration';
 import ImportSessionDialog from '@/components/coach/ImportSessionDialog';
 
 export default function CoachIA() {
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
   const [importing, setImporting] = useState(false);
   const [user, setUser] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -26,6 +29,7 @@ export default function CoachIA() {
   const [pendingImportSessions, setPendingImportSessions] = useState(null);
   const [pendingConflict, setPendingConflict] = useState(null);
   const [hasActiveProgram, setHasActiveProgram] = useState(false);
+  const [activeImportedProgram, setActiveImportedProgram] = useState(null);
   const [showImportBlocked, setShowImportBlocked] = useState(false);
   const bottomRef = useRef(null);
 
@@ -35,6 +39,9 @@ export default function CoachIA() {
       setUser(normalized);
       base44.entities.Program.filter({ status: 'active' }, '-created_date', 1).then(progs => {
         setHasActiveProgram(progs.length > 0);
+        const p = progs[0] || null;
+        const importedIds = JSON.parse(localStorage.getItem('imported_program_ids') || '[]');
+        if (p && (importedIds.includes(p.id) || p.weekly_structure === 'custom')) setActiveImportedProgram(p);
       }).catch(() => {});
       if (u?.id) {
         try {
@@ -52,9 +59,23 @@ export default function CoachIA() {
           if (history.length > 0) setMessages(history);
         } catch {}
       }
+      // Restaure le dialog d'import si l'utilisateur avait changé d'onglet
+      const savedPending = localStorage.getItem('_import_pending');
+      if (savedPending) {
+        try { setPendingImportSessions(JSON.parse(savedPending)); } catch {}
+      }
     });
   }, []);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+
+  // Persiste le dialog d'import ouvert (survit au changement d'onglet / mise en veille)
+  useEffect(() => {
+    if (pendingImportSessions) {
+      try { localStorage.setItem('_import_pending', JSON.stringify(pendingImportSessions)); } catch {}
+    } else {
+      try { localStorage.removeItem('_import_pending'); localStorage.removeItem('_import_form'); localStorage.removeItem('_import_scroll'); } catch {}
+    }
+  }, [pendingImportSessions]);
 
   // Sauvegarder l'historique à chaque changement
   useEffect(() => {
@@ -72,6 +93,17 @@ export default function CoachIA() {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
   }, []);
+
+  // Cache la nav et bloque tout scroll pendant l'import
+  useEffect(() => {
+    const nav = document.querySelector('.mobile-nav');
+    if (importing) {
+      if (nav) nav.style.display = 'none';
+      document.body.style.overflow = 'hidden';
+    } else {
+      if (nav) nav.style.display = '';
+    }
+  }, [importing]);
 
   const inputRef = useRef(null);
   const inputAreaRef = useRef(null);
@@ -179,6 +211,31 @@ export default function CoachIA() {
     }
   });
 
+  const openEditDialog = async () => {
+    try { localStorage.removeItem('_import_form'); localStorage.removeItem('_import_scroll'); } catch {}
+    if (!activeImportedProgram) { setPendingImportSessions({ json: '{}', sessions: [], isEditing: true }); return; }
+    try {
+      const existing = await base44.entities.Session.filter({ program_id: activeImportedProgram.id, status: 'planned', week_number: 1 });
+      const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+      const formatted = existing
+        .sort((a, b) => new Date(a.planned_date) - new Date(b.planned_date))
+        .map(s => ({
+          label: s.day_label || '',
+          day: s.planned_date ? dayNames[new Date(s.planned_date + 'T12:00:00').getDay()] : 'monday',
+          exercises: s.exercises || [],
+          content: (s.exercises || []).map(e => `${e.sets || 3}×${e.target_reps || 10} ${e.name}${e.target_weight ? ` (${e.target_weight}kg)` : ''} ${e.rest_seconds || 90}s`).join('\n'),
+          type: s.type || 'mixed',
+          estimated_duration: s.estimated_duration || calcDuration(s.exercises || []),
+        }));
+      const sessionsJson = JSON.stringify({ sessions: formatted.map(s => ({ ...s, week_number: 1 })) });
+      const pw = activeImportedProgram.planned_weeks;
+      const initialWeeks = pw && pw >= 52 ? 'infinite' : (pw || 4);
+      setPendingImportSessions({ json: sessionsJson, sessions: formatted, isEditing: true, initialWeeks });
+    } catch {
+      setPendingImportSessions({ json: '{}', sessions: [], isEditing: true });
+    }
+  };
+
   const sendMessage = async () => {
     if ((!input.trim() && !attachedFile) || loading) return;
     let userMsg = input.trim();
@@ -265,7 +322,7 @@ export default function CoachIA() {
   };
 
   // Importe le programme détecté dans la DB
-  const importProgramFromCoach = async (jsonStr, targetWeeks, skipConflict = false, orderSuffix = null) => {
+  const importProgramFromCoach = async (jsonStr, targetWeeks, skipConflict = false, orderSuffix = null, replaceExisting = false) => {
     setPendingImportJson(null);
     setPendingConflict(null);
     setImporting(true);
@@ -300,9 +357,12 @@ export default function CoachIA() {
 
       let program;
       if (existingProgram) {
-        // Ajouter au programme existant sans décaler les semaines
-        // (mercredi + jeudi restent en semaine 1)
         program = existingProgram;
+        if (replaceExisting) {
+          const oldSessions = await base44.entities.Session.filter({ program_id: existingProgram.id, status: 'planned' });
+          for (const s of oldSessions) { await base44.entities.Session.delete(s.id); }
+          await base44.entities.Program.update(existingProgram.id, { planned_weeks: CYCLE_WEEKS });
+        }
       } else {
         // Pas de programme actif — créer un nouveau
         program = await base44.entities.Program.create({
@@ -324,6 +384,8 @@ export default function CoachIA() {
       const dayMap = { monday:0, tuesday:1, wednesday:2, thursday:3, friday:4, saturday:5, sunday:6 };
       const thisMon = new Date(today);
       thisMon.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+      // Toujours utiliser la date locale pour éviter le décalage UTC (ex: lundi 00h local = dimanche 22h UTC)
+      const toLocalDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 
       const isInfinite = targetWeeks === 'infinite';
 
@@ -335,14 +397,14 @@ export default function CoachIA() {
         if (isInfinite) {
           const d = new Date(thisMon);
           d.setDate(thisMon.getDate() + dayOffset + weekNum * 7);
-          return { ...s, plannedDate: d.toISOString().split('T')[0] };
+          return { ...s, plannedDate: toLocalDate(d) };
         }
         const firstOccurrence = new Date(thisMon);
         firstOccurrence.setDate(thisMon.getDate() + dayOffset);
         if (firstOccurrence < today) firstOccurrence.setDate(firstOccurrence.getDate() + 7);
         const d = new Date(firstOccurrence);
         d.setDate(firstOccurrence.getDate() + weekNum * 7);
-        return { ...s, plannedDate: d.toISOString().split('T')[0] };
+        return { ...s, plannedDate: toLocalDate(d) };
       });
 
       // Détection de conflits same-day (seulement pour les 2 premières semaines pour éviter les faux positifs sur les répétitions)
@@ -372,7 +434,8 @@ export default function CoachIA() {
         });
       }
 
-      const countLabel = targetWeeks === 'infinite' ? '∞' : expandedSessions.length;
+      queryClient.invalidateQueries({ queryKey: ['programs'] });
+      queryClient.invalidateQueries({ queryKey: ['program-sessions'] });
       setImporting(false);
       navigate('/program');
     } catch (e) {
@@ -441,24 +504,25 @@ export default function CoachIA() {
       {pendingImportSessions && (
         <ImportSessionDialog
           sessions={pendingImportSessions.sessions}
+          isEditing={pendingImportSessions.isEditing || false}
+          initialWeeks={pendingImportSessions.initialWeeks}
           onClose={() => setPendingImportSessions(null)}
           onImport={(editedSessions, weeks) => {
+            const wasEditing = pendingImportSessions.isEditing || false;
+            try { localStorage.removeItem('_import_pending'); localStorage.removeItem('_import_form'); localStorage.removeItem('_import_scroll'); } catch {}
             setPendingImportSessions(null);
-            // Reconstruire le JSON avec les sessions éditées (jours mis à jour)
-            try {
-              const d = JSON.parse(pendingImportSessions.json.match(/\{[\s\S]*\}/)?.[0] || '{}');
-              const merged = editedSessions.map((s, i) => ({
-                ...(d.sessions?.[i] || {}),
+            // Construire directement depuis editedSessions — pas de fusion JSON qui pourrait écraser le jour
+            const directJson = JSON.stringify({
+              sessions: editedSessions.map(s => ({
                 day: s.day,
                 day_label: s.label || s.day,
-                exercises: s.exercises.length ? s.exercises : (d.sessions?.[i]?.exercises || []),
-                type: s.type,
-                estimated_duration: s.estimated_duration,
+                exercises: s.exercises || [],
+                type: s.type || 'mixed',
+                estimated_duration: s.estimated_duration || calcDuration(s.exercises || []),
                 week_number: 1,
-              }));
-              const newJson = JSON.stringify({ ...d, sessions: merged });
-              importProgramFromCoach(newJson, weeks);
-            } catch { importProgramFromCoach(pendingImportSessions.json, weeks); }
+              }))
+            });
+            importProgramFromCoach(directJson, weeks, wasEditing, null, wasEditing);
           }}
         />
       )}
@@ -649,10 +713,14 @@ export default function CoachIA() {
         <div className="flex items-center justify-between px-1 pt-1 pb-2">
           <p className="text-xs text-white/50"><span className="font-bold text-white">Coach IA</span> · Ton assistant entraînement</p>
           <button
-            onClick={() => hasActiveProgram ? setShowImportBlocked(true) : setPendingImportSessions({ json: '{}', sessions: [] })}
+            onClick={() => {
+              if (activeImportedProgram) openEditDialog();
+              else if (hasActiveProgram) setShowImportBlocked(true);
+              else setPendingImportSessions({ json: '{}', sessions: [] });
+            }}
             className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all"
             style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
-            + Importer
+            {activeImportedProgram ? 'Importer / Modifier' : '+ Importer'}
           </button>
         </div>
       </div>

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Plus, Trash2, Sparkles } from 'lucide-react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { Plus, Trash2, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import { calcDuration } from '@/lib/duration';
 
 const DAYS = [
   { value: 'monday', label: 'Lundi' },
@@ -41,9 +42,23 @@ const parseExercises = (text) => {
   }).filter(e => e.name);
 };
 
-export default function ImportSessionDialog({ sessions: initialSessions, onImport, onClose }) {
-  const [verified, setVerified] = useState({});
+export default function ImportSessionDialog({ sessions: initialSessions, onImport, onClose, isEditing = false, initialWeeks }) {
+  const _expLen = (initialSessions || []).length || 1;
+  const [verified, setVerified] = useState(() => {
+    try {
+      const f = JSON.parse(localStorage.getItem('_import_form') || 'null');
+      if (f?.verified && f?.sessionCount === _expLen) return f.verified;
+    } catch {}
+    if (!isEditing) return {};
+    const v = {};
+    (initialSessions || []).forEach((s, i) => { if (s.exercises?.length || s.content?.trim()) v[i] = true; });
+    return v;
+  });
   const [importError, setImportError] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
+  const [collapsed, setCollapsed] = useState(() => {
+    try { const f = JSON.parse(localStorage.getItem('_import_form') || 'null'); return f?.collapsed || {}; } catch { return {}; }
+  });
 
   const validateAndImport = (parsedSessions, weeks) => {
     for (let i = 0; i < parsedSessions.length; i++) {
@@ -63,16 +78,24 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
     onImport(parsedSessions, weeks);
   };
 
-  const [sessions, setSessions] = useState(() =>
-    (initialSessions || [{ label: '', day: 'monday', exercises: [] }]).map(s => ({
+  const [sessions, setSessions] = useState(() => {
+    try {
+      const f = JSON.parse(localStorage.getItem('_import_form') || 'null');
+      if (f?.sessions?.length && f.sessionCount === _expLen) return f.sessions;
+    } catch {}
+    return (initialSessions || [{ label: '', day: 'monday', exercises: [] }]).map(s => ({
       label: s.day_label || s.label || '',
       day: s.day || 'monday',
       exercises: s.exercises || [],
+      content: s.content || '',
       type: s.type || 'mixed',
       estimated_duration: s.estimated_duration || 60,
-    }))
-  );
-  const [weeks, setWeeks] = useState(4);
+    }));
+  });
+  const [weeks, setWeeks] = useState(() => {
+    try { const f = JSON.parse(localStorage.getItem('_import_form') || 'null'); if (f?.weeks !== undefined && f?.sessionCount === _expLen) return f.weeks; } catch {}
+    return initialWeeks !== undefined ? initialWeeks : 4;
+  });
 
   const updateSession = (i, field, value) => {
     setSessions(prev => {
@@ -94,7 +117,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
     const nextDay = DAYS.find(d => (dayCounts[d.value] || 0) === 0)?.value
       || DAYS.find(d => (dayCounts[d.value] || 0) < 2)?.value
       || 'monday';
-    setSessions(prev => [...prev, { label: '', day: nextDay, exercises: [], type: 'mixed', estimated_duration: 60, order: 1 }]);
+    setSessions(prev => [...prev, { label: '', day: nextDay, exercises: [], content: '', type: 'mixed', estimated_duration: 60, order: 1 }]);
   };
 
   const countForDay = (day, excludeIdx) => sessions.filter((s, i) => i !== excludeIdx && s.day === day).length;
@@ -103,38 +126,101 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
     setSessions(prev => prev.filter((_, idx) => idx !== i));
   };
 
+  useEffect(() => {
+    try { localStorage.setItem('_import_form', JSON.stringify({ sessions, weeks, verified, collapsed, sessionCount: _expLen })); } catch {}
+  }, [sessions, weeks, verified, collapsed]); // eslint-disable-line
+
+  // Cache la nav et bloque le scroll horizontal pendant que le dialog est ouvert
+  useEffect(() => {
+    const nav = document.querySelector('.mobile-nav');
+    if (nav) nav.style.display = 'none';
+    document.body.style.overflowX = 'hidden';
+    return () => {
+      if (nav) nav.style.display = '';
+      document.body.style.overflowX = '';
+    };
+  }, []);
+
+  const listRef = useRef(null);
+  const [initialSnapshot] = useState({ sessions, weeks });
+  const isDirty = useMemo(
+    () => JSON.stringify(sessions) !== JSON.stringify(initialSnapshot.sessions) || weeks !== initialSnapshot.weeks,
+    [sessions, weeks] // eslint-disable-line
+  );
+
+  // Sauvegarde la position de scroll à chaque défilement
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+    const handler = () => { try { localStorage.setItem('_import_scroll', String(el.scrollTop)); } catch {} };
+    el.addEventListener('scroll', handler, { passive: true });
+    return () => el.removeEventListener('scroll', handler);
+  }, []);
+
+  // Restaure la position de scroll au montage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('_import_scroll');
+      if (saved && listRef.current) {
+        requestAnimationFrame(() => { if (listRef.current) listRef.current.scrollTop = parseInt(saved) || 0; });
+      }
+    } catch {}
+  }, []);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-3">
-      <div className="w-full max-w-sm rounded-3xl overflow-hidden" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)', height: 'calc(100vh - 24px)', display: 'flex', flexDirection: 'column' }}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm px-3 pb-3">
+      <div className="w-full max-w-sm rounded-3xl overflow-hidden" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)', height: 'calc(100dvh - 24px)', display: 'flex', flexDirection: 'column' }}>
 
         {/* Header */}
         <div className="px-5 pt-5 pb-3 border-b border-white/10 flex-shrink-0">
-          <h2 className="font-bold text-white text-lg">Importer dans le programme</h2>
-          <p className="text-white/40 text-xs mt-0.5">Choisis les jours et la durée du cycle</p>
+          <h2 className="font-bold text-white text-lg">{isEditing ? 'Modifier le programme' : 'Importer dans le programme'}</h2>
+          <p className="text-white/40 text-xs mt-0.5">{isEditing ? 'Modifie tes séances ou ajoutes-en de nouvelles' : 'Choisis les jours et la durée du cycle'}</p>
         </div>
 
         {/* Sessions */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
+        <div ref={listRef} className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
           {sessions.map((s, i) => (
             <div key={i} className="rounded-2xl p-3 space-y-2" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
-              <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-2">
                 <input
                   value={s.label}
                   onChange={e => updateSession(i, 'label', e.target.value)}
                   placeholder="Titre de la séance"
-                  className="flex-1 bg-transparent text-white text-sm font-semibold outline-none placeholder-white/30"
+                  className="flex-1 bg-transparent text-white text-sm font-semibold outline-none placeholder-white/30 min-w-0"
                 />
-                {sessions.length > 1 && (
-                  <button onClick={() => removeSession(i)} className="text-white/30 hover:text-red-400 transition-colors">
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <button onClick={() => setConfirmDelete(i)} className="text-white/30 hover:text-red-400 transition-colors">
                     <Trash2 className="w-4 h-4" />
                   </button>
-                )}
+                  <button
+                    onClick={() => setCollapsed(c => ({ ...c, [i]: !c[i] }))}
+                    className="text-white/40 hover:text-white/70 transition-colors"
+                  >
+                    {collapsed[i] ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
-              {verified[i] ? (
+              {collapsed[i] && (() => {
+                const exs = s.exercises?.length ? s.exercises : parseExercises(s.content || '');
+                return (
+                  <div className="flex items-center gap-2 text-xs text-white/40 pb-1">
+                    <span>{DAYS.find(d => d.value === s.day)?.label || s.day}</span>
+                    <span>·</span>
+                    <span>{exs.length} ex.</span>
+                    {exs.length > 0 && <><span>·</span><span>{calcDuration(exs)} min</span></>}
+                  </div>
+                );
+              })()}
+              {!collapsed[i] && (verified[i] ? (() => {
+                const exs = s.exercises?.length ? s.exercises : parseExercises(s.content || '');
+                return (
                 <div className="w-full bg-white/5 rounded-xl px-3 py-2 mb-2 border border-white/10 space-y-2">
-                  {parseExercises(s.content).length === 0
+                  {exs.length > 0 && (
+                    <p className="text-white/40 text-xs font-medium">{exs.length} exercices · {calcDuration(exs)} min estimées</p>
+                  )}
+                  {exs.length === 0
                     ? <p className="text-white/30 text-xs italic">Aucun exercice détecté</p>
-                    : parseExercises(s.content).map((ex, ei) => (
+                    : exs.map((ex, ei) => (
                       <div key={ei} className="flex flex-col gap-0.5 pb-2 border-b border-white/5 last:border-0 last:pb-0">
                         <p className="text-white text-sm font-semibold">{ex.name}</p>
                         <div className="flex gap-3 text-xs text-white/50">
@@ -145,13 +231,14 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                       </div>
                     ))
                   }
-                  <button onClick={() => setVerified(v => ({ ...v, [i]: false }))}
+                  <button onClick={() => { updateSession(i, 'exercises', []); setVerified(v => ({ ...v, [i]: false })); }}
                     className="w-full mt-1.5 py-2 rounded-xl text-xs font-semibold transition-all"
                     style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)' }}>
                     Modifier
                   </button>
                 </div>
-              ) : (
+                );
+              })() : (
                 <div className="mb-2">
                   <p className="text-white/40 text-xs mb-1.5">Séries × reps, exercice, repos. <span className="text-white/25">Le poids est optionnel.</span></p>
                   <textarea
@@ -168,8 +255,8 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                     Vérifier
                   </button>
                 </div>
-              )}
-              <div className="grid grid-cols-7 gap-1">
+              ))}
+              {!collapsed[i] && (<div className="grid grid-cols-7 gap-1">
                 {DAYS.map(d => {
                   const alreadyTwo = countForDay(d.value, i) >= 2;
                   const isSelected = s.day === d.value;
@@ -186,8 +273,8 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                     </button>
                   );
                 })}
-              </div>
-              {countForDay(s.day, i) === 1 && (
+              </div>)}
+              {!collapsed[i] && countForDay(s.day, i) === 1 && (
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-white/40 text-xs">Ordre dans la journée :</span>
                   <div className="flex gap-1">
@@ -245,8 +332,30 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
           </div>
         </div>
 
+        {/* Modal confirmation suppression */}
+        {confirmDelete !== null && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-3xl">
+            <div className="mx-6 rounded-2xl p-6 space-y-4 w-full" style={{ background: 'linear-gradient(160deg, #3b0764, #1e0050)', border: '1px solid rgba(255,255,255,0.15)' }}>
+              <div className="text-center space-y-1">
+                <p className="font-bold text-white text-base">Supprimer la séance ?</p>
+                <p className="text-white/50 text-sm">"{sessions[confirmDelete]?.label || `Séance ${confirmDelete + 1}`}" sera retirée du programme.</p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setConfirmDelete(null)}
+                  className="flex-1 py-3 rounded-xl text-sm font-semibold border border-white/15 text-white/60 hover:bg-white/10 transition-colors"
+                >Annuler</button>
+                <button
+                  onClick={() => { removeSession(confirmDelete); setConfirmDelete(null); }}
+                  className="flex-1 py-3 rounded-xl text-sm font-bold text-white bg-red-500/80 hover:bg-red-500 transition-colors"
+                >Supprimer</button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Footer */}
-        <div className="px-5 pb-8 pt-3 flex-shrink-0 border-t border-white/10 space-y-2">
+        <div className="px-5 pt-3 flex-shrink-0 border-t border-white/10 space-y-2" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 20px)' }}>
           {sessions.length === 0 && <p className="text-white/30 text-xs text-center">Ajoute au moins une séance pour importer.</p>}
           {importError && <p className="text-red-400 text-xs text-center">{importError}</p>}
           <div className="flex gap-2">
@@ -254,14 +363,19 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
             className="flex-1 py-3 rounded-xl border border-white/15 text-white/50 text-sm font-semibold hover:bg-white/10 transition-colors">
             Annuler
           </button>
-          <button
-            onClick={() => validateAndImport(sessions.map(s => ({ ...s, exercises: s.exercises?.length ? s.exercises : parseExercises(s.content) })), weeks)}
-            disabled={sessions.length === 0}
-            className="flex-1 py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
-            <Sparkles className="w-4 h-4" />
-            Importer
-          </button>
+          {(!isEditing || isDirty) && (
+            <button
+              onClick={() => validateAndImport(sessions.map(s => {
+                const exs = s.exercises?.length ? s.exercises : parseExercises(s.content);
+                return { ...s, exercises: exs, estimated_duration: calcDuration(exs) };
+              }), weeks)}
+              disabled={sessions.length === 0}
+              className="flex-1 py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
+              <Sparkles className="w-4 h-4" />
+              {isEditing ? 'Enregistrer' : 'Importer'}
+            </button>
+          )}
           </div>
         </div>
       </div>

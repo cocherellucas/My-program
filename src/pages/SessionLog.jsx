@@ -1,4 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { toast } from 'sonner';
 import { useRestTimer } from '@/lib/RestTimerContext';
 import { base44 } from '@/api/base44Client';
@@ -924,9 +925,28 @@ export default function SessionLog() {
     } else {
       setScrollReady(true);
     }
-    const onScroll = () => { try { localStorage.setItem(key, String(window.scrollY)); } catch {} };
+    let pauseSave = false;
+    let resizeTimer = null;
+    const onScroll = () => {
+      if (pauseSave) return;
+      try { localStorage.setItem(key, String(window.scrollY)); } catch {}
+    };
+    const onResize = () => {
+      pauseSave = true;
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        const pos = parseInt(localStorage.getItem(key) || '0');
+        if (pos > 0) window.scrollTo({ top: pos, behavior: 'instant' });
+        pauseSave = false;
+      }, 350);
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener('resize', onResize);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
+      clearTimeout(resizeTimer);
+    };
   }, [sessionId]);
 
   const fragileZones = (() => {
@@ -942,6 +962,14 @@ export default function SessionLog() {
     },
     enabled: !!sessionId
   });
+
+  // Redirige si la séance est déjà validée (retour arrière, mise en veille, changement d'onglet)
+  useEffect(() => {
+    if (session?.status === 'completed' && !coachPainQuery) {
+      try { localStorage.removeItem(`session_draft_${sessionId}`); localStorage.removeItem('active_session_id'); } catch {}
+      navigate('/program');
+    }
+  }, [session?.status, coachPainQuery]); // eslint-disable-line
 
   // Fetch previous session logs for the same program
   useEffect(() => {
@@ -1523,9 +1551,9 @@ Ce que l'utilisateur dit : "${painNote}"`;
       </div>
 
       {/* Quit confirm */}
-      {showQuitConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="mx-4 rounded-2xl p-6 text-center space-y-4" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)' }}>
+      {showQuitConfirm && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+          <div className="w-full max-w-sm rounded-2xl p-6 text-center space-y-4" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)' }}>
             <p className="font-bold text-white text-lg">Quitter la séance ?</p>
             <p className="text-white/60 text-sm">Ta progression est sauvegardée, tu pourras reprendre plus tard.</p>
             <div className="flex gap-3">
@@ -1539,7 +1567,8 @@ Ce que l'utilisateur dit : "${painNote}"`;
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Content */}
