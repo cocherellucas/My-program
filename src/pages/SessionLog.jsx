@@ -1342,8 +1342,8 @@ Ce que l'utilisateur dit : "${painNote}"`;
       const qualityOk = ex.qualities.length === 0 || ex.qualities.filter(q => q === 'good').length / ex.qualities.length > 0.6;
       const qualityBad = ex.qualities.filter(q => q === 'bad').length > 0;
 
-      if (notePain || qualityBad || fatigue >= 5) {
-        props.push({ exercise: ex.name, newWeight: Math.round(avgW * 0.92 * 2) / 2, reason: notePain ? 'douleur signalée' : fatigue >= 5 ? 'fatigue maximale' : 'qualité dégradée', type: 'reduce' });
+      if (qualityBad || fatigue >= 5) {
+        props.push({ exercise: ex.name, newWeight: Math.round(avgW * 0.92 * 2) / 2, reason: fatigue >= 5 ? 'fatigue maximale' : 'qualité dégradée', type: 'reduce' });
       } else if (fatigue >= 4) {
         props.push({ exercise: ex.name, newWeight: avgW, reason: 'fatigue élevée — maintien', type: 'maintain' });
       } else if ((noteEasy || avgRIR >= 2) && qualityOk) {
