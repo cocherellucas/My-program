@@ -17,7 +17,6 @@ export default function SetRow({ setIdx, totalSets, log, onUpdate, onWeightBlur,
   const [showPain, setShowPain] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [painThread, setPainThread] = useState([]); // [{ role: 'user'|'ai', text }]
-  const [followUp, setFollowUp] = useState('');
   const [painWhere, setPainWhere] = useState('');
   const [painWhen, setPainWhen] = useState('');
   const [painHow, setPainHow] = useState('');
@@ -154,40 +153,7 @@ const shouldShowPropagate =
                   Envoyer au coach
                 </button>
               </div>
-            ) : (
-              /* Follow-up après réponse IA */
-              <div className="flex gap-2">
-                <textarea
-                  rows={2}
-                  placeholder="Ajouter une précision au coach…"
-                  value={followUp}
-                  onChange={(e) => setFollowUp(e.target.value)}
-                  className="flex-1 text-xs bg-red-500/10 border border-red-400/30 rounded-lg px-3 py-2 text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-red-400/60"
-                />
-                <button
-                  disabled={!followUp.trim()}
-                  onPointerDown={async (e) => {
-                    e.preventDefault();
-                    if (!followUp.trim() || !onAskCoach) return;
-                    const newThread = [...painThread, { role: 'user', text: followUp }];
-                    setPainThread(newThread);
-                    setFollowUp('');
-                    setAiLoading(true);
-                    try {
-                      const reply = await onAskCoach(followUp, setIdx, newThread);
-                      setPainThread(t => [...t, { role: 'ai', text: reply }]);
-                    } catch {
-                      setPainThread(t => [...t, { role: 'ai', text: "Une erreur s'est produite. Réessaie." }]);
-                    } finally {
-                      setAiLoading(false);
-                    }
-                  }}
-                  className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg bg-red-500/30 border border-red-400/40 text-red-300 disabled:opacity-40 transition-all hover:bg-red-500/50 self-start mt-0.5"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
-              </div>
-            )
+            ) : null
           )}
         </div>
         );
