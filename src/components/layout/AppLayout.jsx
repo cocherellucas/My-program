@@ -120,6 +120,7 @@ export default function AppLayout() {
 
   const handleTouchStart = useCallback((e) => {
     if (animating.current) return;
+    if (e.target.closest('[data-no-swipe]')) return;
     touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     isHorizontal.current = false;
   }, []);

@@ -166,7 +166,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm px-3 pb-3" style={{ paddingTop: 'max(env(safe-area-inset-top), 56px)' }} onTouchMove={e => e.stopPropagation()}>
+    <div data-no-swipe className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm px-3 pb-3" style={{ paddingTop: 'max(env(safe-area-inset-top), 56px)' }} onTouchMove={e => e.stopPropagation()}>
       <div className="w-full max-w-sm rounded-3xl overflow-hidden" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)', height: 'calc(100dvh - max(env(safe-area-inset-top), 56px) - 12px)', display: 'flex', flexDirection: 'column' }}>
 
         {/* Header */}
