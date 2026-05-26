@@ -436,6 +436,10 @@ export default function CoachIA() {
 
       queryClient.invalidateQueries({ queryKey: ['programs'] });
       queryClient.invalidateQueries({ queryKey: ['program-sessions'] });
+      // Restaure la nav avant de naviguer (CoachIA va démonter, l'effet importing ne tournera pas)
+      const navEl = document.querySelector('.mobile-nav');
+      if (navEl) navEl.style.display = '';
+      document.body.style.overflow = '';
       setImporting(false);
       navigate('/program');
     } catch (e) {
