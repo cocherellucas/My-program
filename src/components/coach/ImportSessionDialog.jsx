@@ -135,17 +135,18 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
     const nav = document.querySelector('.mobile-nav');
     if (nav) nav.style.display = 'none';
     window.dispatchEvent(new CustomEvent('swipe-lock', { detail: true }));
-    // Bloque tout touchstart au niveau document (capture) quand le dialog est ouvert
-    const blockTouch = (e) => {
-      if (document.querySelector('[data-no-swipe]')) {
+    // Bloque les touches sur le bord gauche (<20px) pour empêcher le geste retour iOS
+    const blockEdgeTouch = (e) => {
+      if (e.touches[0].clientX < 20) {
+        e.preventDefault();
         e.stopImmediatePropagation();
       }
     };
-    document.addEventListener('touchstart', blockTouch, { capture: true, passive: true });
+    document.addEventListener('touchstart', blockEdgeTouch, { capture: true, passive: false });
     return () => {
       if (nav) nav.style.display = '';
       window.dispatchEvent(new CustomEvent('swipe-lock', { detail: false }));
-      document.removeEventListener('touchstart', blockTouch, { capture: true });
+      document.removeEventListener('touchstart', blockEdgeTouch, { capture: true });
     };
   }, []); // eslint-disable-line
 
