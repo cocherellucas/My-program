@@ -6,10 +6,10 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Sparkles, Loader2, Calendar, Dumbbell, Clock, ChevronRight, Bookmark, BookmarkCheck, Trash2, RefreshCw } from 'lucide-react';
+import { Sparkles, Loader2, Calendar, Dumbbell, Clock, ChevronRight, Bookmark, BookmarkCheck, Trash2, RefreshCw, Pencil } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { format, addDays, startOfWeek } from 'date-fns';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { fr } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
 import { useRef } from 'react';
@@ -59,6 +59,7 @@ const TYPE_COLORS = { strength: 'bg-chart-5/10 text-chart-5', hypertrophy: 'bg-p
 
 export default function Program() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [user, setUser] = useState(null);
   const importedProgramIds = (() => { try { return JSON.parse(localStorage.getItem('imported_program_ids') || '[]'); } catch { return []; } })();
@@ -518,6 +519,15 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
             >
               {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
               Régénérer
+            </button>
+          )}
+          {activeProgram && isImported({ program_id: activeProgram.id }) && (
+            <button
+              onClick={() => navigate('/coach')}
+              className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm bg-white text-violet-700 hover:bg-white/90 shadow transition-all"
+            >
+              <Pencil className="w-4 h-4" />
+              Modifier
             </button>
           )}
         </div>
