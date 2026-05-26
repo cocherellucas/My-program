@@ -1357,6 +1357,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
 
   const saveSession = async (acceptProposal = false) => {
     setSaving(true);
+    try {
 
     // Appliquer les propositions aux prochaines séances si acceptées
     if (acceptProposal && proposal?.length) {
@@ -1428,7 +1429,6 @@ Ce que l'utilisateur dit : "${painNote}"`;
     queryClient.invalidateQueries({ queryKey: ['sessions'] });
     queryClient.invalidateQueries({ queryKey: ['program-sessions'] });
     try { localStorage.removeItem(`session_draft_${sessionId}`); localStorage.removeItem('active_session_id'); localStorage.removeItem(`session_scroll_${sessionId}`); } catch {}
-    setSaving(false);
 
     // Si douleur → afficher notification coach avant de naviguer
     if (hasPain) {
@@ -1441,6 +1441,11 @@ Ce que l'utilisateur dit : "${painNote}"`;
       });
     } else {
       navigate('/program');
+    }
+    } catch (e) {
+      console.error('saveSession error:', e);
+    } finally {
+      setSaving(false);
     }
   };
 

@@ -553,7 +553,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                        isToday
                          ? 'bg-white/30 border-2 border-white shadow-lg shadow-white/20 cursor-pointer hover:bg-white/35'
                          : past
-                         ? 'bg-white/15 border-white/20 opacity-40 cursor-not-allowed'
+                         ? 'bg-white/15 border-white/20 opacity-40 cursor-default'
                          : isPastDay
                          ? 'bg-white/15 border-white/20 opacity-50 cursor-pointer hover:opacity-70'
                          : 'bg-white/15 border-white/20 hover:bg-white/20 cursor-pointer'

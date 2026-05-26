@@ -650,7 +650,6 @@ export default function CoachIA() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6" onClick={() => setShowImportBlocked(false)}>
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
           <div className="relative bg-violet-900 border border-white/20 rounded-2xl p-6 w-full max-w-xs shadow-2xl text-center space-y-4" onClick={e => e.stopPropagation()}>
-            <p className="text-2xl">🚫</p>
             <div>
               <p className="font-bold text-white text-base">Programme déjà existant</p>
               <p className="text-sm text-white/60 mt-1">Tu dois d'abord supprimer ton programme actuel avant d'en importer un nouveau.</p>

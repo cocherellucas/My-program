@@ -1,15 +1,23 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 
 export function NumInput({ value, onChange, placeholder = '—', step = 1, min = 0, max = Infinity, defaultValue = 0, className = '' }) {
-  const holdRef = useRef(null);
-  const valRef  = useRef(value);
-  valRef.current = value;
+  const inputRef = useRef(null);
+  const holdRef  = useRef(null);
+  const [display, setDisplay] = useState(value != null && value !== '' ? String(value) : '');
+
+  // Sync display only when the input is not focused (user not actively typing)
+  useEffect(() => {
+    if (inputRef.current !== document.activeElement) {
+      setDisplay(value != null && value !== '' ? String(value) : '');
+    }
+  }, [value]);
 
   const doStep = (dir) => {
-    const cur  = parseFloat(valRef.current) || defaultValue;
+    const cur  = parseFloat(value) || defaultValue;
     const next = Math.min(max, Math.max(min, parseFloat((cur + dir * step).toFixed(2))));
+    setDisplay(String(next));
     onChange(next);
   };
 
@@ -26,17 +34,37 @@ export function NumInput({ value, onChange, placeholder = '—', step = 1, min =
     holdRef.current = null;
   };
 
+  const handleChange = (e) => {
+    const raw = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
+    setDisplay(raw);
+    if (raw === '') { onChange(''); return; }
+    if (raw.endsWith('.')) return; // intermediate state — wait for blur
+    const num = parseFloat(raw);
+    if (!isNaN(num)) onChange(raw);
+  };
+
+  const handleBlur = () => {
+    const num = parseFloat(display);
+    if (!isNaN(num)) {
+      const clamped = Math.min(max, Math.max(min, num));
+      const final   = parseFloat(clamped.toFixed(2));
+      setDisplay(String(final));
+      onChange(final);
+    } else {
+      setDisplay(value != null && value !== '' ? String(value) : '');
+    }
+  };
+
   return (
     <div className="relative">
       <Input
+        ref={inputRef}
         type="text"
         inputMode="decimal"
         placeholder={placeholder}
-        value={value ?? ''}
-        onChange={(e) => {
-          const raw = e.target.value.replace(/[^0-9.]/g, '');
-          onChange(raw === '' ? '' : raw);
-        }}
+        value={display}
+        onChange={handleChange}
+        onBlur={handleBlur}
         onKeyDown={(e) => {
           if (e.key === 'Enter')     { e.target.blur(); }
           if (e.key === 'ArrowUp')   { e.preventDefault(); doStep(1); }

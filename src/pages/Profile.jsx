@@ -32,7 +32,6 @@ export default function Profile() {
   const [form, setForm] = useState({});
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [dirty, setDirty] = useState(false);
   const [showRegenBanner, setShowRegenBanner] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'basics');
@@ -70,13 +69,16 @@ export default function Profile() {
     }
 
     toast.success('Profil mis à jour');
+    setUser({ ...user, ...editableFields });
     setSaving(false);
     setSaved(true);
-    setDirty(false);
     setTimeout(() => setSaved(false), 2500);
   };
 
-  const update = (field, value) => { setForm(prev => ({ ...prev, [field]: value })); setDirty(true); };
+  const update = (field, value) => { setForm(prev => ({ ...prev, [field]: value })); };
+
+  const IGNORED = new Set(['id', 'email', 'full_name', 'created_date', 'role']);
+  const isDirty = user ? Object.keys(form).some(k => !IGNORED.has(k) && JSON.stringify(form[k]) !== JSON.stringify(user[k])) : false;
 
   if (!user) return null;
 
@@ -179,7 +181,7 @@ export default function Profile() {
         </div>
       )}
 
-      {!NO_SAVE_TABS.includes(activeTab) && (dirty || saving || saved) && (
+      {!NO_SAVE_TABS.includes(activeTab) && (isDirty || saving || saved) && (
         <button
           onClick={save}
           disabled={saving || saved}
