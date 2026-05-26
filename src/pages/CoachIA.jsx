@@ -24,12 +24,17 @@ export default function CoachIA() {
   const [pendingImportJson, setPendingImportJson] = useState(null);
   const [pendingImportSessions, setPendingImportSessions] = useState(null);
   const [pendingConflict, setPendingConflict] = useState(null);
+  const [hasActiveProgram, setHasActiveProgram] = useState(false);
+  const [showImportBlocked, setShowImportBlocked] = useState(false);
   const bottomRef = useRef(null);
 
   useEffect(() => {
     base44.auth.me().then(u => {
       const normalized = normalizeUser(u);
       setUser(normalized);
+      base44.entities.Program.filter({ status: 'active' }, '-created_date', 1).then(progs => {
+        setHasActiveProgram(progs.length > 0);
+      }).catch(() => {});
       if (u?.id) {
         try {
           const saved = localStorage.getItem(`coach_history_${u.id}`);
@@ -633,13 +638,34 @@ export default function CoachIA() {
         <div className="flex items-center justify-between px-1 pt-1 pb-2">
           <p className="text-xs text-white/50"><span className="font-bold text-white">Coach IA</span> · Ton assistant entraînement</p>
           <button
-            onClick={() => setPendingImportSessions({ json: '{}', sessions: [] })}
+            onClick={() => hasActiveProgram ? setShowImportBlocked(true) : setPendingImportSessions({ json: '{}', sessions: [] })}
             className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all"
             style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
             + Importer
           </button>
         </div>
       </div>
+
+      {showImportBlocked && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6" onClick={() => setShowImportBlocked(false)}>
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+          <div className="relative bg-violet-900 border border-white/20 rounded-2xl p-6 w-full max-w-xs shadow-2xl text-center space-y-4" onClick={e => e.stopPropagation()}>
+            <p className="text-2xl">🚫</p>
+            <div>
+              <p className="font-bold text-white text-base">Programme déjà existant</p>
+              <p className="text-sm text-white/60 mt-1">Tu dois d'abord supprimer ton programme actuel avant d'en importer un nouveau.</p>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setShowImportBlocked(false)} className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-white/10 text-white hover:bg-white/20 transition-colors">
+                Fermer
+              </button>
+              <button onClick={() => { setShowImportBlocked(false); navigate('/program'); }} className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-white text-violet-700 hover:bg-white/90 transition-colors">
+                Voir le programme
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
