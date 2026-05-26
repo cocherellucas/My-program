@@ -1,4 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { useRestTimer } from '@/lib/RestTimerContext';
 import { base44 } from '@/api/base44Client';
 import { normalizeUser } from '@/lib/utils';
@@ -1444,6 +1445,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
     }
     } catch (e) {
       console.error('saveSession error:', e);
+      toast.error(`Erreur lors de la sauvegarde : ${e?.message || e}`);
     } finally {
       setSaving(false);
     }
