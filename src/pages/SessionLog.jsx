@@ -662,7 +662,6 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
       <div className="space-y-5">
         <div>
           <h2 className="font-heading font-bold text-2xl text-white">Séance validée ✅</h2>
-          <p className="text-white/70 text-sm mt-1">Les ajustements sont appliqués.</p>
         </div>
         <div className="bg-violet-800 rounded-2xl border border-violet-600 p-4 space-y-4">
           <div className="flex items-start gap-3">
