@@ -27,7 +27,7 @@ export const PROGRESSION_CHAINS = {
     "Traction assistée élastique",
     "Traction prise neutre",
     "Traction prise large",
-    "Traction prise serrée supination (chin-up)",
+    "Traction supination",
     "Traction 1 bras assistée élastique",
     "Traction 1 bras",
   ],
