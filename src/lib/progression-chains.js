@@ -25,8 +25,8 @@ export const PROGRESSION_CHAINS = {
   tractions: [
     "Traction australienne (rowing barre basse)",
     "Traction assistée élastique",
-    "Traction prise large",
     "Traction prise neutre",
+    "Traction prise large",
     "Traction prise serrée supination (chin-up)",
     "Traction 1 bras assistée élastique",
     "Traction 1 bras",
