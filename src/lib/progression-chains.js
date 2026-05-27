@@ -24,8 +24,7 @@ export const PROGRESSION_CHAINS = {
   // ── TIRAGE VERTICAL ────────────────────────────────────────────────────────
   tractions: [
     "Traction australienne (rowing barre basse)",
-    "Traction assistée élastique épais",
-    "Traction assistée élastique léger",
+    "Traction assistée élastique",
     "Traction prise large",
     "Traction prise neutre",
     "Traction prise serrée supination (chin-up)",
