@@ -39,7 +39,7 @@ export const PROGRESSION_CHAINS = {
     "Squat assisté (chaise derrière)",
     "Squat",
     "Squat goblet haltère",
-    "Squat bulgare poids de corps",
+    "Fente bulgare",
     "Pistol squat assisté (TRX/anneau)",
     "Pistol squat",
   ],
