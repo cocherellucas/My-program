@@ -9,14 +9,14 @@ export const PROGRESSION_CHAINS = {
   pompes: [
     "Pompes sur les genoux",
     "Pompes normales",
-    "Pompes pieds surélevés (30cm)",
+    "Pompes pieds surélevés",
     "Pompes archer",
     "Pompes 1 bras sur les genoux",
     "Pompes 1 bras",
   ],
   dips: [
     "Dips assistés élastique",
-    "Dips chaise (jambes tendues)",
+    "Dips pieds surélevés",
     "Dips barres parallèles",
   ],
   développé: [
