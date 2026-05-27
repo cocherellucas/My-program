@@ -28,6 +28,7 @@ export const PROGRESSION_CHAINS = {
     "Traction prise neutre",
     "Traction supination",
     "Traction prise large",
+    "Traction",
     "Traction 1 bras assistée élastique",
     "Traction 1 bras",
   ],
@@ -139,6 +140,16 @@ const stepNames = (step) => step?.or ? step.or : [step];
 
 export function findExerciseInChains(exerciseName) {
   const nameLower = (exerciseName || '').toLowerCase();
+  // Passe 1 : correspondance exacte
+  for (const [chainName, chain] of Object.entries(PROGRESSION_CHAINS)) {
+    for (let idx = 0; idx < chain.length; idx++) {
+      const names = stepNames(chain[idx]);
+      if (names.some(n => nameLower === n.toLowerCase())) {
+        return { chainName, chain, currentIndex: idx };
+      }
+    }
+  }
+  // Passe 2 : correspondance partielle
   for (const [chainName, chain] of Object.entries(PROGRESSION_CHAINS)) {
     for (let idx = 0; idx < chain.length; idx++) {
       const names = stepNames(chain[idx]);
