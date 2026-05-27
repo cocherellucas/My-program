@@ -20,13 +20,6 @@ export const PROGRESSION_CHAINS = {
     { or: ["Dips barres parallèles assistés élastique", "Dips barres parallèles (descente seule)"] },
     "Dips barres parallèles",
   ],
-  développé: [
-    "Développé haltères légers (banc incliné)",
-    "Développé haltères plat",
-    "Développé haltères décliné",
-    "Développé barre plat",
-    "Développé barre prise serrée",
-  ],
 
   // ── TIRAGE VERTICAL ────────────────────────────────────────────────────────
   tractions: [
