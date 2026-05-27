@@ -389,8 +389,6 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
 
   const weeks = {};
   sessions.forEach(s => {
-    // Les séances complétées ne s'affichent pas dans la vue par semaine (historique géré ailleurs)
-    if (s.status === 'completed') return;
     const w = s.week_number || 1;
     if (!weeks[w]) weeks[w] = [];
     weeks[w].push(s);
@@ -589,7 +587,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                        isToday
                          ? 'bg-white/30 border-2 border-white shadow-lg shadow-white/20 cursor-pointer hover:bg-white/35'
                          : past
-                         ? 'bg-white/15 border-white/20 opacity-40 cursor-default'
+                         ? 'bg-white/15 border-white/20 opacity-50 cursor-pointer hover:opacity-70'
                          : isPastDay
                          ? 'bg-white/15 border-white/20 opacity-50 cursor-pointer hover:opacity-70'
                          : 'bg-white/15 border-white/20 hover:bg-white/20 cursor-pointer'
@@ -636,7 +634,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                              </div>
                            </div>
                          </div>
-                         {!past && <ChevronRight className="w-5 h-5 text-white/60" />}
+                         <ChevronRight className="w-5 h-5 text-white/60" />
                        </div>
                      </Card>
                    );
@@ -648,7 +646,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                        animate={{ opacity: 1, y: 0 }}
                        transition={{ delay: i * 0.05 }}
                      >
-                       {past ? card : <Link to={`/session?id=${session.id}`}>{card}</Link>}
+                       <Link to={`/session?id=${session.id}`}>{card}</Link>
                      </motion.div>
                    );
                  })}
