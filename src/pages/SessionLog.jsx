@@ -17,7 +17,7 @@ import SetRow from '@/components/session/SetRow';
 import ExerciseGif from '@/components/session/ExerciseGif';
 import { RestTimerControl } from '@/components/session/RestTimer';
 import { computeTargetRIR, ririLabel, computeAdaptedRestTime } from '@/lib/rir-optimizer';
-import { buildProgressionContext, isAtChainBottom } from '@/lib/progression-chains';
+import { findExerciseInChains, isAtChainBottom } from '@/lib/progression-chains';
 import { FRAGILE_ZONE_MUSCLES } from '@/lib/coaching-engine';
 import { EXERCISES } from '@/lib/exercise-database';
 
@@ -149,7 +149,7 @@ function WarmupAccordion({ exercise, logs, exIdx, sets: totalSets }) {
 }
 
 // ─── Single Exercise Focus View ───────────────────────────────────────────────
-function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, regressingEx, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach, sessionsHistory }) {
+function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, suggestion, onClearSuggestion, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach, sessionsHistory }) {
   const sets = Math.max(1, exercise.sets || 3);
   const [editSets, setEditSets] = useState(Math.max(1, originalExercise?.sets || 3));
   const [editReps, setEditReps] = useState(originalExercise?.target_reps || '');
@@ -417,10 +417,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                 </Popover>
                 <button
                   onClick={() => onRegressionRequest(exIdx)}
-                  disabled={regressingEx === exIdx}
-                  className="text-xs px-3 py-1.5 rounded-lg bg-destructive text-white font-medium hover:bg-destructive/80 transition-colors disabled:opacity-60 flex items-center gap-1">
-                  
-                  {regressingEx === exIdx && <Loader2 className="w-3 h-3 animate-spin" />}
+                  className="text-xs px-3 py-1.5 rounded-lg bg-destructive text-white font-medium hover:bg-destructive/80 transition-colors flex items-center gap-1">
                   Variante simple
                 </button>
               </div>
@@ -430,6 +427,25 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 
         return null;
       })()}
+
+      {/* Suggestion de variante */}
+      {suggestion && (
+        <div className="flex items-start gap-3 p-3 rounded-xl bg-white/10 border border-white/20">
+          <div className="flex-1 min-w-0">
+            {suggestion.name && (
+              <p className="text-sm font-semibold text-white">
+                Essaie : <span className="text-violet-200">{suggestion.name}</span>
+              </p>
+            )}
+            {suggestion.notes && (
+              <p className="text-xs text-white/60 mt-0.5">{suggestion.notes}</p>
+            )}
+          </div>
+          <button onClick={onClearSuggestion} className="text-white/30 hover:text-white/60 transition-colors flex-shrink-0 mt-0.5">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Sets — all visible */}
       <Card className="p-4 space-y-3 bg-white/15 backdrop-blur-sm border-white/20">
@@ -593,9 +609,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
           ) : (
             <button
               onClick={() => onProgressionRequest(exIdx)}
-              disabled={regressingEx === exIdx}
-              className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors disabled:opacity-60 flex items-center gap-1">
-              {regressingEx === exIdx && <Loader2 className="w-3 h-3 animate-spin" />}
+              className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors flex items-center gap-1">
               Variante plus dure
             </button>
           )}
@@ -895,7 +909,7 @@ export default function SessionLog() {
   }, []); // eslint-disable-line
 
   const [restTimeForEx, setRestTimeForEx] = useState(() => _draft.restTimeForEx || {});
-  const [regressingEx, setRegressingEx] = useState(null);
+  const [exSuggestion, setExSuggestion] = useState(null); // { exIdx, name, notes }
   const [sessionExercises, setSessionExercises] = useState(() => _draft.sessionExercises || null);
   const [editingObjectif, setEditingObjectif] = useState(false);
   const [previousLogs, setPreviousLogs] = useState({});
@@ -1091,100 +1105,70 @@ export default function SessionLog() {
     setLogs(newLogs);
   };
 
-  const handleRegressionRequest = async (exIdx) => {
-    setRegressingEx(exIdx);
-    const currentExercise = exercises[exIdx];
-    const equipment = user?.equipment || [];
-    const progressionCtx = buildProgressionContext(currentExercise.name, equipment);
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Tu es un coach sportif expert en régression biomécanique. L'athlète n'arrive pas à atteindre ses objectifs sur l'exercice "${currentExercise.name}" (groupe musculaire : ${currentExercise.muscle_group}, cible : ${currentExercise.sets}×${currentExercise.target_reps}).
+  const handleRegressionRequest = (exIdx) => {
+    const ex = exercises[exIdx];
+    const name = ex.name || '';
+    const isEccentric = /excentrique/i.test(name);
+    const sets = Math.max(1, ex.sets || 3);
+    const targetStr = ex.target_reps || '';
+    const targetLow = parseInt(targetStr.split('-')[0]) || 0;
 
-${progressionCtx}
-
-CONTEXTE DES SÉRIES : qualité d'exécution observée = ${
-      (() => {
-        const sets = Math.max(1, currentExercise.sets || 3);
-        const qualities = [];
-        for (let s = 0; s < sets; s++) {
-          const l = logs[`${exIdx}-${s}`] || {};
-          if (l.quality) qualities.push(l.quality);
-        }
-        return qualities.length ? qualities.join(', ') : 'non renseignée';
-      })()}
-
-HIÉRARCHIE STRICTE DE RÉGRESSION — applique dans cet ordre exact :
-
-1. SI l'exécution est dégradée ou mauvaise mais que les reps sont proches de la cible → NE régresse PAS l'exercice. Propose plutôt la VERSION EXCENTRIQUE UNIQUEMENT (descente 4s) du même exercice pour corriger la technique : "${
-      currentExercise.name} (excentrique 4s)". Explique dans les notes que c'est pour consolider le pattern moteur avant de recharger.
-
-2. SI les reps sont nettement en dessous de la cible (plus de 3 reps sous le minimum) → régresse d'une étape dans la chaîne en utilisant EXACTEMENT l'étape précédente indiquée.
-
-3. SI c'est déjà le niveau minimum → réduis d'1 série OU propose une assistance élastique OU réduis l'amplitude de mouvement. Explique concrètement.
-
-Sois ultra précis dans les notes : angle, tempo, position, respiration.
-
-Réponds uniquement avec le JSON demandé.`,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          name: { type: "string", description: "Nom exact de la variante régressive en français" },
-          notes: { type: "string", description: "Explication précise de l'étape et conseil d'exécution" }
-        }
-      }
-    });
-    const updatedExercises = exercises.map((ex, i) =>
-    i === exIdx ? { ...ex, name: result.name, notes: result.notes } : ex
-    );
-    setSessionExercises(updatedExercises);
-    for (let s = 0; s < Math.max(1, currentExercise.sets || 3); s++) {
-      updateLog(exIdx, s, 'feedback', 'change');
+    const qualities = [];
+    let totalReps = 0, filledCount = 0;
+    for (let s = 0; s < sets; s++) {
+      const l = logs[`${exIdx}-${s}`] || {};
+      if (l.quality) qualities.push(l.quality);
+      if (l.reps) { totalReps += parseInt(l.reps) || 0; filledCount++; }
     }
-    setRegressingEx(null);
+    const avgReps = filledCount > 0 ? totalReps / filledCount : 0;
+    const hasBadQuality = qualities.some(q => q === 'bad' || q === 'degraded');
+    const repsCloseToTarget = targetLow > 0 && avgReps >= targetLow - 3;
+
+    const found = findExerciseInChains(name);
+    const equipment = user?.equipment || [];
+    const hasResistanceBand = equipment.some(e => /élastique|elastique/i.test(e));
+
+    let suggestion;
+    if (hasBadQuality && repsCloseToTarget && !isEccentric) {
+      suggestion = { exIdx, name: `${name} (excentrique 4s)`, notes: 'Descente lente 4s, montée relâchée — consolider le patron moteur avant de recharger.' };
+    } else if (found && found.currentIndex > 0) {
+      suggestion = { exIdx, name: found.chain[found.currentIndex - 1], notes: null };
+    } else if (found && found.currentIndex === 0) {
+      suggestion = { exIdx, name: null, notes: hasResistanceBand ? 'Niveau minimum — utilise un élastique d\'assistance ou réduis d\'une série.' : 'Niveau minimum — réduis d\'une série ou diminue l\'amplitude de mouvement.' };
+    } else {
+      suggestion = { exIdx, name: `${name} (excentrique 4s)`, notes: 'Version excentrique pour réduire la difficulté : descente lente 4s.' };
+    }
+    setExSuggestion(suggestion);
   };
 
-  const handleProgressionRequest = async (exIdx) => {
-    setRegressingEx(exIdx);
-    const currentExercise = exercises[exIdx];
+  const handleProgressionRequest = (exIdx) => {
+    const ex = exercises[exIdx];
+    const name = ex.name || '';
+    const isEccentric = /excentrique/i.test(name);
     const equipment = user?.equipment || [];
-    const progressionCtx = buildProgressionContext(currentExercise.name, equipment);
-    const hasResistanceBand = equipment.some((e) => e.toLowerCase().includes('élastique') || e.toLowerCase().includes('elastique'));
-    const hasWeightVest = equipment.some((e) => e.toLowerCase().includes('gilet'));
-    const hasWeights = equipment.some((e) => e.toLowerCase().includes('haltère') || e.toLowerCase().includes('barre') || e.toLowerCase().includes('kettlebell'));
+    const hasResistanceBand = equipment.some(e => /élastique|elastique/i.test(e));
+    const hasWeightVest = equipment.some(e => /gilet/i.test(e));
+    const hasWeights = equipment.some(e => /haltère|barre|kettlebell/i.test(e));
     const hasLestage = hasResistanceBand || hasWeightVest || hasWeights;
 
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Tu es un coach sportif expert en progression biomécanique. L'athlète dépasse facilement ses objectifs sur l'exercice "${currentExercise.name}" (groupe musculaire : ${currentExercise.muscle_group}, cible : ${currentExercise.sets}×${currentExercise.target_reps}).
+    const found = findExerciseInChains(name);
 
-${progressionCtx}
-
-MATÉRIEL DE LESTAGE DISPONIBLE : ${hasLestage ? `OUI (${[hasWeightVest && 'gilet lesté', hasResistanceBand && 'élastiques', hasWeights && 'haltères/barre'].filter(Boolean).join(', ')})` : 'NON — poids du corps uniquement'}
-
-HIÉRARCHIE STRICTE DE PROGRESSION — applique dans cet ordre exact :
-
-1. SI la prochaine étape dans la chaîne est disponible ET que l'exercice actuel n'est PAS encore en mode excentrique uniquement → PRIORITÉ : propose d'abord la VERSION EXCENTRIQUE de l'exercice actuel (descente lente 4-5 secondes) avant de monter d'un échelon. C'est la progression intermédiaire la plus intelligente et la plus sûre. Nomme l'exercice : "${currentExercise.name} (excentrique 5s)" et explique précisément dans les notes comment l'exécuter.
-
-2. SI l'exercice actuel est DÉJÀ une version excentrique (le nom contient "excentrique") → passe à l'étape suivante dans la chaîne.
-
-3. SI c'est le niveau maximum de la chaîne ET pas de lestage disponible → garde l'exercice actuel en mode excentrique 5s, et note dans les conseils que c'est le maximum accessible actuellement et suggère d'acheter des élastiques de résistance (15kg) pour débloquer la suite.
-
-4. SI c'est le niveau maximum ET lestage disponible → propose lestage (sac à dos +5kg, élastique résistance, ou gilet lesté selon ce qui est disponible).
-
-Sois ultra concret dans les notes : timing exact de la descente, position, respiration.
-
-Réponds uniquement avec le JSON demandé.`,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          name: { type: "string", description: "Nom exact de la variante progressive en français" },
-          notes: { type: "string", description: "Explication précise de l'étape avec timing et exécution concrète" }
-        }
+    let suggestion;
+    if (!isEccentric && found && found.currentIndex !== -1) {
+      suggestion = { exIdx, name: `${name} (excentrique 5s)`, notes: 'Descente lente 5s, montée explosive — progression intermédiaire avant l\'étape suivante.' };
+    } else if (found && found.currentIndex !== -1 && found.currentIndex < found.chain.length - 1) {
+      suggestion = { exIdx, name: found.chain[found.currentIndex + 1], notes: null };
+    } else if (found) {
+      if (hasLestage) {
+        const lestage = hasWeightVest ? 'gilet lesté' : hasResistanceBand ? 'élastique de résistance' : 'sac à dos +5kg';
+        suggestion = { exIdx, name: null, notes: `Niveau maximum — ajoute du lestage (${lestage}) pour continuer à progresser.` };
+      } else {
+        suggestion = { exIdx, name: null, notes: 'Niveau maximum — procure-toi des élastiques de résistance (15kg) pour débloquer la suite.' };
       }
-    });
-    const updatedExercises = exercises.map((ex, i) =>
-    i === exIdx ? { ...ex, name: result.name, notes: result.notes } : ex
-    );
-    setSessionExercises(updatedExercises);
-    setRegressingEx(null);
+    } else {
+      suggestion = { exIdx, name: `${name} (excentrique 5s)`, notes: 'Descente lente 5s pour augmenter la difficulté.' };
+    }
+    setExSuggestion(suggestion);
   };
 
   const handleExtendRest = (exIdx, newRestSecs) => {
@@ -1631,7 +1615,8 @@ Ce que l'utilisateur dit : "${painNote}"`;
           rirContext={rirContext}
           onRegressionRequest={handleRegressionRequest}
           onProgressionRequest={handleProgressionRequest}
-          regressingEx={regressingEx}
+          suggestion={exSuggestion?.exIdx === currentExIdx ? exSuggestion : null}
+          onClearSuggestion={() => setExSuggestion(null)}
           onExtendRest={handleExtendRest}
           onApplyToFuture={handleApplyToFuture}
           currentRestSeconds={exercises[currentExIdx]?.rest_seconds}
