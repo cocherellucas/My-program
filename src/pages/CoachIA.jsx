@@ -724,7 +724,7 @@ export default function CoachIA() {
             }}
             className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all"
             style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
-            {activeImportedProgram ? 'Importer / Modifier' : '+ Importer'}
+            Importer / Modifier
           </button>
         </div>
       </div>
