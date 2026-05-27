@@ -1145,12 +1145,6 @@ export default function SessionLog() {
     const ex = exercises[exIdx];
     const name = ex.name || '';
     const isEccentric = /excentrique/i.test(name);
-    const equipment = user?.equipment || [];
-    const hasResistanceBand = equipment.some(e => /élastique|elastique/i.test(e));
-    const hasWeightVest = equipment.some(e => /gilet/i.test(e));
-    const hasWeights = equipment.some(e => /haltère|barre|kettlebell/i.test(e));
-    const hasLestage = hasResistanceBand || hasWeightVest || hasWeights;
-
     const found = findExerciseInChains(name);
 
     let suggestion;
@@ -1158,15 +1152,8 @@ export default function SessionLog() {
       suggestion = { exIdx, name: `${name} (excentrique 5s)`, notes: 'Descente lente 5s, montée explosive — progression intermédiaire avant l\'étape suivante.' };
     } else if (found && found.currentIndex !== -1 && found.currentIndex < found.chain.length - 1) {
       suggestion = { exIdx, name: found.chain[found.currentIndex + 1], notes: null };
-    } else if (found) {
-      if (hasLestage) {
-        const lestage = hasWeightVest ? 'gilet lesté' : hasResistanceBand ? 'élastique de résistance' : 'sac à dos +5kg';
-        suggestion = { exIdx, name: null, notes: `Niveau maximum — ajoute du lestage (${lestage}) pour continuer à progresser.` };
-      } else {
-        suggestion = { exIdx, name: null, notes: 'Niveau maximum — procure-toi des élastiques de résistance (15kg) pour débloquer la suite.' };
-      }
     } else {
-      suggestion = { exIdx, name: `${name} (excentrique 5s)`, notes: 'Descente lente 5s pour augmenter la difficulté.' };
+      suggestion = { exIdx, name: null, notes: 'Niveau maximum atteint pour cet exercice.' };
     }
     setExSuggestion(suggestion);
   };

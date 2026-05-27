@@ -10,20 +10,14 @@ export const PROGRESSION_CHAINS = {
     "Pompes sur les genoux",
     "Pompes normales",
     "Pompes pieds surélevés (30cm)",
-    "Pompes pieds surélevés (60cm) + lestage sac à dos",
     "Pompes archer",
-    "Pompes archer lestées",
     "Pompes 1 bras sur les genoux",
     "Pompes 1 bras",
-    "Pompes 1 bras lestées",
   ],
   dips: [
     "Dips assistés élastique",
     "Dips chaise (jambes tendues)",
     "Dips barres parallèles",
-    "Dips lestés (+5kg)",
-    "Dips lestés (+10kg)",
-    "Dips lestés (+20kg+)",
   ],
   développé: [
     "Développé haltères légers (banc incliné)",
@@ -41,9 +35,6 @@ export const PROGRESSION_CHAINS = {
     "Traction prise large",
     "Traction prise neutre",
     "Traction prise serrée supination (chin-up)",
-    "Traction lestée (+5kg)",
-    "Traction lestée (+10kg)",
-    "Traction lestée (+20kg+)",
     "Traction 1 bras assistée élastique",
     "Traction 1 bras",
   ],
@@ -52,7 +43,6 @@ export const PROGRESSION_CHAINS = {
     "Tirage verticale machine / câble prise large",
     "Tirage verticale prise neutre",
     "Tirage verticale prise serrée",
-    "Tirage lestage progressif",
   ],
 
   // ── TIRAGE HORIZONTAL ──────────────────────────────────────────────────────
@@ -75,7 +65,6 @@ export const PROGRESSION_CHAINS = {
     "Squat barre front",
     "Pistol squat assisté (TRX/anneau)",
     "Pistol squat",
-    "Pistol squat lesté",
   ],
   fente: [
     "Fente statique poids de corps",
@@ -91,7 +80,6 @@ export const PROGRESSION_CHAINS = {
     "Hip thrust poids de corps",
     "Hip thrust haltère/plaque",
     "Hip thrust barre",
-    "Hip thrust barre lesté",
     "Pont fessier 1 jambe sol",
     "Hip thrust 1 jambe",
   ],
@@ -139,7 +127,6 @@ export const PROGRESSION_CHAINS = {
     "Skull crusher haltères légers",
     "Skull crusher barre EZ",
     "Extension triceps 1 bras haltère",
-    "Dips lestés (triceps focus)",
   ],
 
   // ── MOLLETS ────────────────────────────────────────────────────────────────
@@ -148,7 +135,6 @@ export const PROGRESSION_CHAINS = {
     "Élévation mollets marche 2 jambes",
     "Élévation mollets 1 jambe sol",
     "Élévation mollets marche 1 jambe",
-    "Élévation mollets 1 jambe lestée",
   ],
 };
 
@@ -181,44 +167,3 @@ export function isAtChainBottom(exerciseName) {
   return found.currentIndex === 0;
 }
 
-/**
- * Génère le contexte de progression pour le prompt IA.
- */
-export function buildProgressionContext(exerciseName, equipment = []) {
-  const found = findExerciseInChains(exerciseName);
-  const hasWeightVest = equipment.some(e => e.toLowerCase().includes('gilet'));
-  const hasBackpack = true; // toujours possible
-  const hasResistanceBand = equipment.some(e => e.toLowerCase().includes('élastique') || e.toLowerCase().includes('elastique'));
-  const hasWeights = equipment.some(e => e.toLowerCase().includes('haltère') || e.toLowerCase().includes('barre') || e.toLowerCase().includes('kettlebell'));
-
-  let chainContext = '';
-  if (found && found.currentIndex !== -1) {
-    const { chain, currentIndex } = found;
-    const nextStep = chain[currentIndex + 1];
-    const prevStep = chain[currentIndex - 1];
-    const isAtTop = currentIndex === chain.length - 1;
-    const isAtBottom = currentIndex === 0;
-
-    chainContext = `
-POSITION DANS LA CHAÎNE DE PROGRESSION :
-- Exercice actuel : "${chain[currentIndex]}" (étape ${currentIndex + 1}/${chain.length})
-- Étape précédente (régression) : ${prevStep ? `"${prevStep}"` : 'AUCUNE — c\'est le niveau le plus simple'}
-- Étape suivante (progression) : ${nextStep ? `"${nextStep}"` : 'AUCUNE — c\'est le niveau maximum'}
-- Chaîne complète : ${chain.map((e, i) => `[${i + 1}] ${e}`).join(' → ')}
-${isAtTop ? '\n⚠️ NIVEAU MAXIMUM ATTEINT : Propose du lestage (élastiques, sac à dos) ou surcharge mécanique (tempo excentrique 5s, pause en bas 3s). Si pas d\'élastiques disponibles, suggère-les explicitement.' : ''}
-${isAtBottom ? '\n⚠️ NIVEAU MINIMUM ATTEINT : Propose de réduire le volume (-1 série), l\'amplitude, ou un tempo plus lent.' : ''}`;
-  } else if (found) {
-    chainContext = `\nChaîne de référence identifiée : ${found.chainName}\nChaîne complète : ${found.chain.join(' → ')}\nPosition exacte dans la chaîne inconnue — détermine-la par logique.`;
-  } else {
-    chainContext = `\nAucune chaîne prédéfinie trouvée pour cet exercice. Applique les principes biomécaniques généraux.`;
-  }
-
-  const equipmentContext = `
-MATÉRIEL DISPONIBLE :
-- Gilet lesté : ${hasWeightVest ? 'OUI' : 'NON'}
-- Élastiques de résistance : ${hasResistanceBand ? 'OUI' : 'NON'}
-- Haltères/Barre/Kettlebell : ${hasWeights ? 'OUI' : 'NON'}
-- Sac à dos (lestage DIY) : toujours possible`;
-
-  return chainContext + equipmentContext;
-}
