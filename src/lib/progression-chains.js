@@ -32,12 +32,6 @@ export const PROGRESSION_CHAINS = {
     "Traction 1 bras assistée élastique",
     "Traction 1 bras",
   ],
-  tirage: [
-    "Tirage élastique assis",
-    "Tirage verticale machine / câble prise large",
-    "Tirage verticale prise neutre",
-    "Tirage verticale prise serrée",
-  ],
 
   // ── TIRAGE HORIZONTAL ──────────────────────────────────────────────────────
   rowing: [
