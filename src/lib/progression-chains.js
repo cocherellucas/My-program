@@ -15,8 +15,9 @@ export const PROGRESSION_CHAINS = {
     "Pompes 1 bras",
   ],
   dips: [
-    "Dips assistés élastique",
-    "Dips pieds surélevés",
+    "Dips triceps banc (jambes fléchies)",
+    { or: ["Dips triceps banc (jambes tendues)", "Dips triceps pieds surélevés"] },
+    { or: ["Dips barres parallèles assistés élastique", "Dips barres parallèles (descente seule)"] },
     "Dips barres parallèles",
   ],
   développé: [
@@ -142,17 +143,22 @@ export const PROGRESSION_CHAINS = {
  * Trouve la chaîne la plus pertinente pour un exercice donné.
  * Retourne { chainName, chain, currentIndex } ou null si non trouvé.
  */
+const stepNames = (step) => step?.or ? step.or : [step];
+
 export function findExerciseInChains(exerciseName) {
   const nameLower = (exerciseName || '').toLowerCase();
   for (const [chainName, chain] of Object.entries(PROGRESSION_CHAINS)) {
-    const idx = chain.findIndex(ex => nameLower.includes(ex.toLowerCase()) || ex.toLowerCase().includes(nameLower.split(' ')[0]));
-    if (idx !== -1) return { chainName, chain, currentIndex: idx };
+    for (let idx = 0; idx < chain.length; idx++) {
+      const names = stepNames(chain[idx]);
+      if (names.some(n => nameLower.includes(n.toLowerCase()) || n.toLowerCase().includes(nameLower.split(' ')[0]))) {
+        return { chainName, chain, currentIndex: idx };
+      }
+    }
   }
-  // Fallback: cherche par mot-clé partiel
   for (const [chainName, chain] of Object.entries(PROGRESSION_CHAINS)) {
     const keywords = chainName.split(' ');
     if (keywords.some(k => nameLower.includes(k))) {
-      return { chainName, chain, currentIndex: -1 }; // chaîne trouvée mais position inconnue
+      return { chainName, chain, currentIndex: -1 };
     }
   }
   return null;

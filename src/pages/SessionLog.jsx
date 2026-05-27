@@ -149,7 +149,7 @@ function WarmupAccordion({ exercise, logs, exIdx, sets: totalSets }) {
 }
 
 // ─── Single Exercise Focus View ───────────────────────────────────────────────
-function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, suggestion, onClearSuggestion, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach, sessionsHistory }) {
+function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, suggestion, onClearSuggestion, onApplyVariant, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach, sessionsHistory }) {
   const sets = Math.max(1, exercise.sets || 3);
   const [editSets, setEditSets] = useState(Math.max(1, originalExercise?.sets || 3));
   const [editReps, setEditReps] = useState(originalExercise?.target_reps || '');
@@ -430,20 +430,30 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 
       {/* Suggestion de variante */}
       {suggestion && (
-        <div className="flex items-start gap-3 p-3 rounded-xl bg-white/10 border border-white/20">
-          <div className="flex-1 min-w-0">
-            {suggestion.name && (
-              <p className="text-sm font-semibold text-white">
-                Essaie : <span className="text-violet-200">{suggestion.name}</span>
-              </p>
-            )}
-            {suggestion.notes && (
-              <p className="text-xs text-white/60 mt-0.5">{suggestion.notes}</p>
-            )}
+        <div className="p-3 rounded-xl bg-white/10 border border-white/20 space-y-2">
+          <div className="flex items-start justify-between gap-2">
+            {suggestion.options ? (
+              <p className="text-sm font-semibold text-white">Choisis une variante :</p>
+            ) : suggestion.name ? (
+              <p className="text-sm font-semibold text-white">Essaie : <span className="text-violet-200">{suggestion.name}</span></p>
+            ) : null}
+            <button onClick={onClearSuggestion} className="text-white/30 hover:text-white/60 transition-colors flex-shrink-0">
+              <X className="w-4 h-4" />
+            </button>
           </div>
-          <button onClick={onClearSuggestion} className="text-white/30 hover:text-white/60 transition-colors flex-shrink-0 mt-0.5">
-            <X className="w-4 h-4" />
-          </button>
+          {suggestion.notes && <p className="text-xs text-white/60">{suggestion.notes}</p>}
+          {suggestion.options && (
+            <div className="flex flex-col gap-1.5">
+              {suggestion.options.map(opt => (
+                <button
+                  key={opt}
+                  onClick={() => onApplyVariant(exIdx, opt)}
+                  className="text-sm px-3 py-2 rounded-xl bg-white/15 text-white text-left hover:bg-white/25 transition-colors font-medium">
+                  {opt}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -1105,13 +1115,18 @@ export default function SessionLog() {
     setLogs(newLogs);
   };
 
+  const stepToSuggestion = (step) => {
+    if (!step) return null;
+    if (step?.or) return { options: step.or };
+    return { name: step };
+  };
+
   const handleRegressionRequest = (exIdx) => {
     const ex = exercises[exIdx];
     const name = ex.name || '';
     const isEccentric = /excentrique/i.test(name);
     const sets = Math.max(1, ex.sets || 3);
-    const targetStr = ex.target_reps || '';
-    const targetLow = parseInt(targetStr.split('-')[0]) || 0;
+    const targetLow = parseInt((ex.target_reps || '').split('-')[0]) || 0;
 
     const qualities = [];
     let totalReps = 0, filledCount = 0;
@@ -1123,20 +1138,17 @@ export default function SessionLog() {
     const avgReps = filledCount > 0 ? totalReps / filledCount : 0;
     const hasBadQuality = qualities.some(q => q === 'bad' || q === 'degraded');
     const repsCloseToTarget = targetLow > 0 && avgReps >= targetLow - 3;
-
     const found = findExerciseInChains(name);
-    const equipment = user?.equipment || [];
-    const hasResistanceBand = equipment.some(e => /élastique|elastique/i.test(e));
 
     let suggestion;
     if (hasBadQuality && repsCloseToTarget && !isEccentric) {
-      suggestion = { exIdx, name: `${name} (excentrique 4s)`, notes: 'Descente lente 4s, montée relâchée — consolider le patron moteur avant de recharger.' };
+      suggestion = { exIdx, name: `${name} (excentrique 4s)`, notes: 'Descente lente 4s — consolider le patron moteur avant de recharger.' };
     } else if (found && found.currentIndex > 0) {
-      suggestion = { exIdx, name: found.chain[found.currentIndex - 1], notes: null };
+      suggestion = { exIdx, ...stepToSuggestion(found.chain[found.currentIndex - 1]) };
     } else if (found && found.currentIndex === 0) {
-      suggestion = { exIdx, name: null, notes: hasResistanceBand ? 'Niveau minimum — utilise un élastique d\'assistance ou réduis d\'une série.' : 'Niveau minimum — réduis d\'une série ou diminue l\'amplitude de mouvement.' };
+      suggestion = { exIdx, name: null, notes: 'Niveau minimum — réduis d\'une série ou diminue l\'amplitude.' };
     } else {
-      suggestion = { exIdx, name: `${name} (excentrique 4s)`, notes: 'Version excentrique pour réduire la difficulté : descente lente 4s.' };
+      suggestion = { exIdx, name: `${name} (excentrique 4s)`, notes: 'Descente lente 4s pour réduire la difficulté.' };
     }
     setExSuggestion(suggestion);
   };
@@ -1149,13 +1161,18 @@ export default function SessionLog() {
 
     let suggestion;
     if (!isEccentric && found && found.currentIndex !== -1) {
-      suggestion = { exIdx, name: `${name} (excentrique 5s)`, notes: 'Descente lente 5s, montée explosive — progression intermédiaire avant l\'étape suivante.' };
+      suggestion = { exIdx, name: `${name} (excentrique 5s)`, notes: 'Descente lente 5s, montée explosive.' };
     } else if (found && found.currentIndex !== -1 && found.currentIndex < found.chain.length - 1) {
-      suggestion = { exIdx, name: found.chain[found.currentIndex + 1], notes: null };
+      suggestion = { exIdx, ...stepToSuggestion(found.chain[found.currentIndex + 1]) };
     } else {
       suggestion = { exIdx, name: null, notes: 'Niveau maximum atteint pour cet exercice.' };
     }
     setExSuggestion(suggestion);
+  };
+
+  const handleApplyVariant = (exIdx, variantName) => {
+    setSessionExercises((sessionExercises || exercises).map((ex, i) => i === exIdx ? { ...ex, name: variantName } : ex));
+    setExSuggestion(null);
   };
 
   const handleExtendRest = (exIdx, newRestSecs) => {
@@ -1604,6 +1621,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
           onProgressionRequest={handleProgressionRequest}
           suggestion={exSuggestion?.exIdx === currentExIdx ? exSuggestion : null}
           onClearSuggestion={() => setExSuggestion(null)}
+          onApplyVariant={handleApplyVariant}
           onExtendRest={handleExtendRest}
           onApplyToFuture={handleApplyToFuture}
           currentRestSeconds={exercises[currentExIdx]?.rest_seconds}
