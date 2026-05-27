@@ -37,12 +37,9 @@ export const PROGRESSION_CHAINS = {
   // ── SQUAT / JAMBES ─────────────────────────────────────────────────────────
   squat: [
     "Squat assisté (chaise derrière)",
-    "Squat poids de corps",
+    "Squat",
     "Squat goblet haltère",
     "Squat bulgare poids de corps",
-    "Squat bulgare haltères",
-    "Squat barre",
-    "Squat barre front",
     "Pistol squat assisté (TRX/anneau)",
     "Pistol squat",
   ],
