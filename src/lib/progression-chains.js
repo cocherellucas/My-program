@@ -33,14 +33,6 @@ export const PROGRESSION_CHAINS = {
     "Traction 1 bras",
   ],
 
-  // ── TIRAGE HORIZONTAL ──────────────────────────────────────────────────────
-  rowing: [
-    "Rowing haltère 1 bras léger",
-    "Rowing haltère 1 bras lourd",
-    "Rowing barre penché",
-    "Rowing barre penché prise supination",
-    "Rowing barre T",
-  ],
 
   // ── SQUAT / JAMBES ─────────────────────────────────────────────────────────
   squat: [
