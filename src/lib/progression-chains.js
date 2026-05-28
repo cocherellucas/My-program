@@ -8,10 +8,15 @@ export const PROGRESSION_CHAINS = {
   // ── POUSSÉ HORIZONTAL ──────────────────────────────────────────────────────
   pompes: [
     "Pompes sur les genoux",
+    { or: ["Pompes sur les genoux", "Pompes normales assistées élastique"] },
     "Pompes normales",
+    { or: ["Pompes normales", "Pompes pieds surélevés assistées élastique"] },
     "Pompes pieds surélevés",
+    { or: ["Pompes pieds surélevés", "Pompes archer assistées élastique"] },
     "Pompes archer",
+    { or: ["Pompes archer", "Pompes 1 bras sur les genoux assistées élastique"] },
     "Pompes 1 bras sur les genoux",
+    { or: ["Pompes 1 bras sur les genoux", "Pompes 1 bras assistées élastique"] },
     "Pompes 1 bras",
   ],
   dips: [
