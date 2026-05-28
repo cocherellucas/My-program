@@ -50,17 +50,12 @@ export const PROGRESSION_CHAINS = {
   fente: [
     "Fente statique poids de corps",
     "Fente marchée poids de corps",
-    "Fente marchée haltères",
     "Fente bulgare poids de corps",
-    "Fente bulgare haltères",
-    "Fente bulgare barre",
   ],
   "pont fessier": [
     "Pont fessier sol poids de corps",
     "Pont fessier sur banc",
     "Hip thrust poids de corps",
-    "Hip thrust haltère/plaque",
-    "Hip thrust barre",
     "Pont fessier 1 jambe sol",
     "Hip thrust 1 jambe",
   ],
@@ -74,19 +69,14 @@ export const PROGRESSION_CHAINS = {
     "Gainage avec extension jambe alternée",
     "Gainage avec rotation (mountain climber lent)",
     "Gainage sur 1 bras",
-    "Gainage sur anneaux",
   ],
 
 
   // ── TRICEPS ────────────────────────────────────────────────────────────────
   triceps: [
     "Extension triceps élastique vertical",
-    "Extension triceps corde câble",
     "Diamond push-up sur les genoux",
     "Diamond push-up",
-    "Skull crusher haltères légers",
-    "Skull crusher barre EZ",
-    "Extension triceps 1 bras haltère",
   ],
 
   // ── MOLLETS ────────────────────────────────────────────────────────────────
