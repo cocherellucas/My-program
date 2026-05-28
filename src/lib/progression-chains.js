@@ -8,15 +8,10 @@ export const PROGRESSION_CHAINS = {
   // ── POUSSÉ HORIZONTAL ──────────────────────────────────────────────────────
   pompes: [
     "Pompes sur les genoux",
-    { or: ["Pompes sur les genoux", "Pompes normales assistées élastique"] },
     "Pompes normales",
-    { or: ["Pompes normales", "Pompes pieds surélevés assistées élastique"] },
     "Pompes pieds surélevés",
-    { or: ["Pompes pieds surélevés", "Pompes archer assistées élastique"] },
     "Pompes archer",
-    { or: ["Pompes archer", "Pompes 1 bras sur les genoux assistées élastique"] },
     "Pompes 1 bras sur les genoux",
-    { or: ["Pompes 1 bras sur les genoux", "Pompes 1 bras assistées élastique"] },
     "Pompes 1 bras",
   ],
   dips: [
@@ -43,14 +38,14 @@ export const PROGRESSION_CHAINS = {
   squat: [
     "Squat assisté (chaise derrière)",
     "Squat",
-    "Fente bulgare",
     "Pistol squat assisté",
     "Pistol squat",
   ],
   fente: [
-    "Fente statique poids de corps",
+    "Fente assistée",
     "Fente marchée poids de corps",
     "Fente bulgare poids de corps",
+    "Fente bulgare surélevée",
   ],
   "pont fessier": [
     "Pont fessier sol poids de corps",
@@ -92,6 +87,8 @@ export const PROGRESSION_CHAINS = {
  * Trouve la chaîne la plus pertinente pour un exercice donné.
  * Retourne { chainName, chain, currentIndex } ou null si non trouvé.
  */
+export const ELASTIC_PROGRESSION_CHAINS = ['pompes'];
+
 const stepNames = (step) => step?.or ? step.or : [step];
 
 export function findExerciseInChains(exerciseName) {

@@ -17,7 +17,7 @@ import SetRow from '@/components/session/SetRow';
 import ExerciseGif from '@/components/session/ExerciseGif';
 import { RestTimerControl } from '@/components/session/RestTimer';
 import { computeTargetRIR, ririLabel, computeAdaptedRestTime } from '@/lib/rir-optimizer';
-import { findExerciseInChains, isAtChainBottom } from '@/lib/progression-chains';
+import { findExerciseInChains, isAtChainBottom, ELASTIC_PROGRESSION_CHAINS } from '@/lib/progression-chains';
 import { FRAGILE_ZONE_MUSCLES } from '@/lib/coaching-engine';
 import { EXERCISES } from '@/lib/exercise-database';
 
@@ -1158,12 +1158,19 @@ export default function SessionLog() {
     const name = ex.name || '';
     const isEccentric = /excentrique/i.test(name);
     const found = findExerciseInChains(name);
+    const hasElastic = found && ELASTIC_PROGRESSION_CHAINS.includes(found.chainName);
 
     let suggestion;
-    if (!isEccentric && found && found.currentIndex !== -1) {
+    if (found && found.currentIndex !== -1 && found.currentIndex < found.chain.length - 1) {
+      const nextStep = found.chain[found.currentIndex + 1];
+      if (hasElastic) {
+        const nextName = nextStep?.or ? nextStep.or[0] : nextStep;
+        suggestion = { exIdx, options: [`${name} élastique`, nextName] };
+      } else {
+        suggestion = { exIdx, ...stepToSuggestion(nextStep) };
+      }
+    } else if (!isEccentric && found) {
       suggestion = { exIdx, name: `${name} (excentrique 5s)`, notes: 'Descente lente 5s, montée explosive.' };
-    } else if (found && found.currentIndex !== -1 && found.currentIndex < found.chain.length - 1) {
-      suggestion = { exIdx, ...stepToSuggestion(found.chain[found.currentIndex + 1]) };
     } else {
       suggestion = { exIdx, name: null, notes: 'Niveau maximum atteint pour cet exercice.' };
     }
