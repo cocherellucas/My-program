@@ -72,6 +72,7 @@ export const PROGRESSION_CHAINS = {
     "Extension triceps élastique vertical",
     "Diamond push-up sur les genoux",
     "Diamond push-up",
+    "Diamond push-up élastique",
   ],
 
   // ── MOLLETS ────────────────────────────────────────────────────────────────
