@@ -77,27 +77,6 @@ export const PROGRESSION_CHAINS = {
     "Gainage sur anneaux",
   ],
 
-  // ── ÉPAULES ────────────────────────────────────────────────────────────────
-  "développé épaules": [
-    "Élévations latérales élastique",
-    "Développé militaire haltères assis",
-    "Développé militaire haltères debout",
-    "Développé militaire barre assis",
-    "Développé militaire barre debout",
-    "Press Arnold haltères",
-  ],
-
-  // ── BICEPS ─────────────────────────────────────────────────────────────────
-  curl: [
-    "Curl élastique",
-    "Curl haltères assis",
-    "Curl haltères marteau",
-    "Curl haltères supination debout",
-    "Curl barre EZ",
-    "Curl barre droite",
-    "Curl concentration",
-    "Curl incliné haltères",
-  ],
 
   // ── TRICEPS ────────────────────────────────────────────────────────────────
   triceps: [
