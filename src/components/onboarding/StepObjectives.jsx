@@ -173,37 +173,9 @@ export default function StepObjectives({ data, onChange }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between mb-2">
-        <div>
-          <h2 className="text-2xl font-heading font-bold text-white">Tes objectifs</h2>
-          <p className="text-white/70 mt-1 text-sm">Qu'est-ce que tu veux accomplir ?</p>
-        </div>
-        <Popover>
-          <PopoverTrigger asChild>
-            <div className="flex rounded-lg overflow-hidden border border-white/20 flex-shrink-0 mt-1">
-              <button type="button"
-                onClick={() => level !== 'beginner' && onChange({ volume_mode: 'auto' })}
-                className={cn('px-3 py-1.5 text-xs font-medium transition-colors',
-                  volumeMode === 'auto' ? 'bg-white text-violet-700' : 'bg-white/10 text-white/50 hover:bg-white/20')}>
-                Auto
-              </button>
-              <button type="button"
-                onClick={() => level !== 'beginner' && onChange({ volume_mode: 'manual' })}
-                className={cn('px-3 py-1.5 text-xs font-medium transition-colors flex items-center gap-1',
-                  level === 'beginner' ? 'opacity-40 cursor-not-allowed' : '',
-                  volumeMode === 'manual' ? 'bg-white text-violet-700' : 'bg-white/10 text-white/50 hover:bg-white/20')}>
-                <SlidersHorizontal className="w-3 h-3" />
-                Précis
-              </button>
-            </div>
-          </PopoverTrigger>
-          {level === 'beginner' && (
-            <PopoverContent className="w-64 text-xs">
-              <p className="font-semibold mb-1">Pas nécessaire à ton niveau</p>
-              <p className="text-white/70">En tant que débutant, tu progresses avec n'importe quel volume bien appliqué. Le mode Auto est optimisé pour toi — le mode Précis devient utile une fois les bases maîtrisées.</p>
-            </PopoverContent>
-          )}
-        </Popover>
+      <div className="mb-2">
+        <h2 className="text-2xl font-heading font-bold text-white">Tes objectifs</h2>
+        <p className="text-white/70 mt-1 text-sm">Qu'est-ce que tu veux accomplir ?</p>
       </div>
       <div className="text-center mb-8 hidden">
       </div>

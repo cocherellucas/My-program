@@ -177,9 +177,11 @@ Ces données ont été sélectionnées spécifiquement pour le niveau, les objec
 ${scienceContext || 'Principes RP/Israetel : MEV→MAV→MRV, fréquence 2×/sem par muscle, double progression, RIR 1-3.'}
 
 ═══════════════════════════════════════════════════
-ÉTAPE 3 — BRIEF PRÉ-CALCULÉ (valeurs déterministes — respecter exactement)
+ÉTAPE 3 — BRIEF PRÉ-CALCULÉ
 ═══════════════════════════════════════════════════
 ${programBrief}
+
+⚠️ Le brief est une référence calculée. Les RÈGLES ABSOLUES en bas sont non-négociables. Tout le reste est un guide — si le profil (morphologie, historique, combinaison de contraintes) justifie un écart raisonnable, priorise le jugement de coach sur la valeur exacte.
 
 ═══════════════════════════════════════════════════
 ÉTAPE 4 — GÉNÉRATION

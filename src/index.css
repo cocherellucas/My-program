@@ -131,13 +131,13 @@ button:focus, button:focus-visible {
   }
   body {
     @apply bg-background text-foreground font-body;
-    background-color: #7c3aed;
+    background-color: #5b21b6;
     /* Couvre les zones safe-area iPhone (encoche + barre bas) */
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
   }
   html {
-    background-color: #7c3aed;
+    background-color: #5b21b6;
   }
 }
 

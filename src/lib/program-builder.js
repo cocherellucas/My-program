@@ -406,7 +406,7 @@ function buildPeakingWeek(objectives, level, enabled) {
 // PARAMÈTRES D'ENTRAÎNEMENT PAR BLOC
 // A = composés lourds, B = accessoires, C = isolation
 // ─────────────────────────────────────────────────────────────────────────────
-function buildTrainingBlocks(objectives, phase, accepts_advanced_techniques) {
+function buildTrainingBlocks(objectives, phase, accepts_advanced_techniques, level = 'intermediate') {
   const primary = objectives.find(o => o.priority === 'primary');
   const type    = primary?.type || 'hypertrophy';
   const params  = TRAINING_PARAMS[type]?.[phase] || TRAINING_PARAMS.hypertrophy.MAV;
@@ -425,10 +425,14 @@ function buildTrainingBlocks(objectives, phase, accepts_advanced_techniques) {
   return {
     A: {
       sets: params.sets[1],
-      reps: type === 'strength' ? '1–5 (composés lourds)' : type === 'hypertrophy' ? '5–10 (adapter selon exercice : composé lourd → bas de fourchette, composé modéré → haut)' : '10–15',
+      reps: type === 'strength' ? '3–5 (composés lourds, neural)' : type === 'hypertrophy' ? '6–10 (adapter selon exercice : composé lourd → bas de fourchette, composé modéré → haut)' : '12–15 (composés tempo)',
       rir:  params.rir + 1,
       rest: restByBlock.A,
-      note: 'RIR et fourchette = POINT DE DÉPART semaine 1. Ajuster semaine par semaine selon le plan de phases ci-dessus. JAMAIS à l\'échec sur squat barre, deadlift, bench barre, OHP barre.',
+      note: type === 'strength'
+        ? 'Composés principaux uniquement — qualité d\'exécution maximale. JAMAIS à l\'échec sur squat barre, deadlift, bench barre, OHP barre.'
+        : type === 'hypertrophy'
+          ? `Composés prioritaires — RIR = POINT DE DÉPART semaine 1, ajuster selon plan de phases. JAMAIS à l\'échec sur squat barre, deadlift, bench barre, OHP barre.${level !== 'beginner' ? ' Tu peux inclure 1 composé lourd (4–6 reps) par séance si ça sert un objectif de force secondaire.' : ''}`
+          : 'Composés en tempo contrôlé (2-0-2). RIR = POINT DE DÉPART semaine 1.',
     },
     B: {
       sets: params.sets[0],
@@ -574,7 +578,7 @@ export function buildProgramContext(user, objectives = []) {
   const plannedWeeks   = PLANNED_WEEKS[level] || 8;
   const weeklyPhasePlan = buildWeeklyPhasePlan(plannedWeeks, level);
   const volumeRange    = getVolumeRange(level, phase);
-  const blocks         = buildTrainingBlocks(objectives, phase, user.accepts_advanced_techniques);
+  const blocks         = buildTrainingBlocks(objectives, phase, user.accepts_advanced_techniques, level);
   const progression    = buildProgressionRules(level, objectives);
   const peakingWeek    = buildPeakingWeek(objectives, level, user.peaking_enabled === true);
   const { impactedMuscles, rules: fragileRules } = getFragileAdaptations(user.fragile_zones);
@@ -636,8 +640,9 @@ export function buildProgramContext(user, objectives = []) {
     .map(item => {
       const size         = LARGE_MUSCLES.has(item.muscle) ? 'large' : 'small';
       const mev          = objTable[size]?.[level]?.MEV || 0;
+      const mrv          = objTable[size]?.[level]?.MRV || 0;
       const scaledWeekly = Math.max(1, Math.round(item.weekly * scaleFactor));
-      return { ...item, weekly: scaledWeekly, mev };
+      return { ...item, weekly: scaledWeekly, mev, mrv };
     })
     .filter(item => {
       // Seuil de suppression contextuel — dépend de l'objectif
@@ -803,7 +808,8 @@ export function formatProgramBrief(ctx) {
   const muscleLines = ctx.muscleAllocation
     .map(m => {
       const cap = m.weekly < m.mev ? ` ⚠️ sous MEV (${m.mev})` : '';
-      return `  ${m.muscle}: ${m.perSession} séries/séance (${m.weekly}/sem)${cap} — ${m.isPrimary ? 'PRIORITAIRE' : 'secondaire'}`;
+      const mrv = m.mrv ? ` — MRV ${m.mrv}/sem` : '';
+      return `  ${m.muscle}: cible ${m.weekly}/sem (MEV ${m.mev}${mrv})${cap} — ${m.isPrimary ? 'PRIORITAIRE' : 'secondaire'}`;
     })
     .join('\n');
 
@@ -819,7 +825,7 @@ export function formatProgramBrief(ctx) {
     : '';
 
   return `
-BRIEF PROGRAMME (pré-calculé — respecter ces valeurs exactes) :
+BRIEF PROGRAMME (référence scientifique — adapter si le profil le justifie) :
 
 STRUCTURE : ${SPLIT_DESCRIPTIONS[ctx.structure]?.label || ctx.structure.toUpperCase()} — ${ctx.plannedWeeks} semaines — Phase ${ctx.phase}
 ORGANISATION DES SÉANCES : ${SPLIT_DESCRIPTIONS[ctx.structure]?.sessions || ''}
@@ -832,7 +838,7 @@ ${ctx.focusMovement ? `MOUVEMENT FOCUS : ${ctx.focusMovement}` : ''}
 
 VOLUME HEBDOMADAIRE CIBLE : ${ctx.weeklyVolumeTarget} séries/muscle (MRV : ${ctx.weeklyVolumeMax})
 
-PLAN DE PHASES PAR SEMAINE (respecter OBLIGATOIREMENT) :
+PLAN DE PHASES RECOMMANDÉ (±1 série / ±2 reps si le profil le justifie) :
 ${(ctx.weeklyPhasePlan || []).map(w => `  ${w.volumeInstruction}`).join('\n')}
 
 ${ctx.availabilityOptimal

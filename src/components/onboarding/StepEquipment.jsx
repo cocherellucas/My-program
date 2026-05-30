@@ -3,6 +3,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { Dumbbell, Home, PersonStanding, Settings2, Search, ChevronDown, ChevronUp, ArrowRight, CheckCheck } from 'lucide-react';
+import { GYM_CHAINS_UI, getGymPreset } from '@/lib/gym-presets';
 
 const CONTEXTS = [
   { key: 'full_gym',    label: 'Salle complète', icon: Dumbbell,       desc: 'Tout le matériel' },
@@ -156,6 +157,8 @@ export default function StepEquipment({ data, onChange }) {
   const [view, setView] = useState('material');
   const [validated, setValidated] = useState(false);
   const [fading, setFading] = useState(false);
+  const [showGymPicker, setShowGymPicker] = useState(false);
+  const [selectedChain, setSelectedChain] = useState(null);
   const lastValidatedRef = useRef(context ? equipment : null);
 
   useEffect(() => { lastValidatedRef.current = context ? equipment : null; }, [context]); // eslint-disable-line
@@ -174,7 +177,24 @@ export default function StepEquipment({ data, onChange }) {
     }, 1800);
   };
 
-  const selectContext = (ctx) => { onChange({ training_context: ctx, equipment: PRESETS[ctx] || [], equipment_validated: false }); setSearch(''); };
+  const selectContext = (ctx) => {
+    if (ctx === 'full_gym') {
+      setShowGymPicker(true);
+      setSelectedChain(null);
+      onChange({ training_context: 'full_gym', equipment: [], equipment_validated: false });
+    } else {
+      setShowGymPicker(false);
+      setSelectedChain(null);
+      onChange({ training_context: ctx, equipment: PRESETS[ctx] || [], equipment_validated: false });
+    }
+    setSearch('');
+  };
+  const selectGymChain = (chainKey) => {
+    setShowGymPicker(false);
+    setSelectedChain(chainKey);
+    const eq = chainKey === 'all' ? ALL_EQUIPMENT : (getGymPreset(chainKey)?.equipment ?? ALL_EQUIPMENT);
+    onChange({ equipment: eq, equipment_validated: false });
+  };
   const verifyPreset = () => { onChange({ training_context: 'custom', equipment_validated: false }); setSearch(''); };
   const toggleEquip = (item) => {
     onChange({ equipment: equipment.includes(item) ? equipment.filter(e => e !== item) : [...equipment, item], equipment_validated: false });
@@ -222,17 +242,45 @@ export default function StepEquipment({ data, onChange }) {
         ))}
       </div>
 
-      {context && CONTEXT_SUMMARY[context] && (
+      {context === 'full_gym' && showGymPicker && (
+        <div className="space-y-2">
+          <p className="text-sm font-semibold text-white/80 mb-1">Quelle est ta salle ?</p>
+          <div className="grid grid-cols-2 gap-2">
+            {GYM_CHAINS_UI.map(chain => (
+              <button key={chain.key} type="button" onClick={() => selectGymChain(chain.key)}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-white/25 bg-white/10 hover:bg-white/20 transition-all text-left">
+                <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: chain.color }} />
+                <span className="text-xs font-semibold text-white">{chain.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {context && CONTEXT_SUMMARY[context] && !showGymPicker && (
         <div className="bg-white/10 rounded-xl border border-white/20 overflow-hidden">
           <div className="flex items-center justify-between px-4 pt-3 pb-2">
-            <div className="flex items-center gap-2">
-              <CheckCheck className="w-4 h-4 text-green-400" />
-              <p className="text-xs font-semibold text-white/70 uppercase tracking-wider">
-                {equipment.length} équipements sélectionnés
+            <div className="flex items-center gap-2 min-w-0">
+              <CheckCheck className="w-4 h-4 text-green-400 flex-shrink-0" />
+              <p className="text-xs font-semibold text-white/70 uppercase tracking-wider whitespace-nowrap">
+                {equipment.length} équipements
               </p>
+              {selectedChain && selectedChain !== 'all' && (
+                <button type="button" onClick={() => setShowGymPicker(true)}
+                  className="flex items-center gap-1 text-[10px] font-semibold text-violet-700 bg-white hover:bg-white/90 px-2 py-0.5 rounded-md shadow-sm transition-all">
+                  {selectedChain}
+                  <span className="text-violet-400 text-[10px]">✕</span>
+                </button>
+              )}
+              {(!selectedChain || selectedChain === 'all') && context === 'full_gym' && (
+                <button type="button" onClick={() => setShowGymPicker(true)}
+                  className="flex items-center gap-1 text-xs text-white/70 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-all">
+                  Ma salle →
+                </button>
+              )}
             </div>
             <button type="button" onClick={verifyPreset}
-              className="flex items-center gap-1 text-xs text-white/70 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-all">
+              className="flex items-center gap-1 text-xs text-white/70 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-all flex-shrink-0">
               Vérifier
               <ArrowRight className="w-3 h-3" />
             </button>
@@ -279,9 +327,18 @@ export default function StepEquipment({ data, onChange }) {
                 </button>
               ))}
             </div>
-            {equipment.length > 0 && (
-              <span className="text-xs text-white/50">{equipment.length} sélectionné{equipment.length > 1 ? 's' : ''}</span>
-            )}
+            <button type="button"
+              onClick={() => onChange({ equipment: equipment.length === ALL_EQUIPMENT.length ? [] : ALL_EQUIPMENT, equipment_validated: false })}
+              className="flex items-center gap-2">
+              <span className="text-xs text-white/60">Tout</span>
+              <div className={cn('relative w-10 h-5 rounded-full transition-colors duration-200',
+                equipment.length === ALL_EQUIPMENT.length ? 'bg-white' : 'bg-white/20')}>
+                <div className={cn('absolute top-0.5 w-4 h-4 rounded-full shadow transition-transform duration-200',
+                  equipment.length === ALL_EQUIPMENT.length
+                    ? 'translate-x-5 bg-violet-600'
+                    : 'translate-x-0.5 bg-white/70')} />
+              </div>
+            </button>
           </div>
 
           {/* Vue Matériel — par type d'équipement */}

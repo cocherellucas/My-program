@@ -70,7 +70,6 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
         clearInterval(intervalRef.current);
         setRunning(false);
         setRemaining(0);
-        playBeep();
         setTimeout(() => onComplete?.(), 500);
       } else {
         setRemaining(left);
@@ -126,22 +125,17 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
     try {
       const audioContext = getAudioCtx();
       if (audioContext.state === 'suspended') audioContext.resume();
-      const playSingleBeep = (delayMs) => {
-        const now = audioContext.currentTime + delayMs / 1000;
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        oscillator.frequency.value = 800;
-        oscillator.type = 'sine';
-        gainNode.gain.setValueAtTime(0.3, now);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-        oscillator.start(now);
-        oscillator.stop(now + 0.3);
-      };
-      playSingleBeep(0);
-      playSingleBeep(400);
-      playSingleBeep(800);
+      const now = audioContext.currentTime;
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      oscillator.frequency.value = 800;
+      oscillator.type = 'sine';
+      gainNode.gain.setValueAtTime(0.3, now);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+      oscillator.start(now);
+      oscillator.stop(now + 0.4);
     } catch {}
   };
 

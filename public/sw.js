@@ -30,15 +30,19 @@ const showCountdownNotif = (endTime) => {
 };
 
 const showDoneNotif = () => {
-  self.registration.showNotification('💪 C\'est parti !', {
-    body: 'Temps de repos terminé — reprends la séance !',
-    icon: '/apple-touch-icon.png',
-    badge: '/apple-touch-icon.png',
-    tag: 'rest-timer',
-    renotify: true,
-    silent: false,
-    vibrate: [200, 100, 200, 100, 400],
-    requireInteraction: true,
+  self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
+    const appVisible = clientList.some(c => c.visibilityState === 'visible');
+    if (appVisible) return; // app ouverte au premier plan — pas de notif
+    self.registration.showNotification('💪 C\'est parti !', {
+      body: 'Temps de repos terminé — reprends la séance !',
+      icon: '/apple-touch-icon.png',
+      badge: '/apple-touch-icon.png',
+      tag: 'rest-timer',
+      renotify: true,
+      silent: false,
+      vibrate: [200, 100, 200, 100, 400],
+      requireInteraction: true,
+    });
   });
 };
 
@@ -50,30 +54,9 @@ self.addEventListener('message', (event) => {
     if (timerTimeout) clearTimeout(timerTimeout);
     if (timerInterval) clearInterval(timerInterval);
 
-    // Notification à la fin via setTimeout SW (Android)
+    // Notification à la fin via setTimeout SW
     const delay = Math.max(0, endTime - Date.now());
     timerTimeout = setTimeout(() => { showDoneNotif(); }, delay);
-
-    // Pour iOS : chaîner des appels serveur toutes les 55s, push uniquement sur le dernier chunk
-    const scheduleChain = (remainingMs) => {
-      if (remainingMs <= 0) return;
-      const chunk = Math.min(remainingMs, 55000);
-      if (remainingMs <= 55000) {
-        // Dernier chunk — envoyer le vrai push de fin
-        self.registration.pushManager.getSubscription().then(sub => {
-          if (!sub) return;
-          fetch('/api/push', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ subscription: sub.toJSON(), delay: Math.ceil(chunk / 1000) }),
-          }).catch(() => {});
-        }).catch(() => {});
-      } else {
-        // Chunk intermédiaire — attendre puis relancer la chaîne
-        setTimeout(() => scheduleChain(remainingMs - chunk), chunk);
-      }
-    };
-    if (delay > 0) scheduleChain(delay);
 
   } else if (event.data.type === 'CANCEL_REST_TIMER') {
     if (timerTimeout) { clearTimeout(timerTimeout); timerTimeout = null; }
