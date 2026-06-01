@@ -85,8 +85,11 @@ export default function Program() {
   const [pendingImportSessions, setPendingImportSessions] = useState(null);
 
   const openEditDialog = async () => {
-    if (!activeProgram) return;
     try { localStorage.removeItem('_import_form'); localStorage.removeItem('_import_scroll'); } catch {}
+    if (!activeProgram) {
+      setPendingImportSessions({ sessions: [], isEditing: false, initialWeeks: 4 });
+      return;
+    }
     try {
       const existing = await base44.entities.Session.filter({ program_id: activeProgram.id, week_number: 1 });
       const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
@@ -628,7 +631,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
               Régénérer
             </button>
           )}
-          {activeProgram && isImported({ program_id: activeProgram.id }) && (
+          {(!activeProgram || isImported({ program_id: activeProgram.id })) && (
             <button
               onClick={openEditDialog}
               className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-xl font-semibold text-xs bg-white text-violet-700 hover:bg-white/90 shadow transition-all"

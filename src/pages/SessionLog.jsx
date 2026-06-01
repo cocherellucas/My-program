@@ -9,7 +9,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Loader2, LayoutList, ChevronRight, ChevronLeft, Timer, Eye, HelpCircle, TrendingDown, TrendingUp, Bot, MessageSquare, X } from 'lucide-react';
+import { CheckCircle, Loader2, LayoutList, ChevronRight, ChevronLeft, ChevronDown, Timer, Eye, HelpCircle, TrendingDown, TrendingUp, Bot, MessageSquare, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -636,6 +636,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 // ─── Overview Panel ────────────────────────────────────────────────────────────
 function OverviewPanel({ exercises, logs, updateLog, onClose, fragileZones = [] }) {
   const getLogKey = (exIdx, setIdx) => `${exIdx}-${setIdx}`;
+  const [openIdx, setOpenIdx] = useState(null);
 
   return (
     <div className="space-y-4">
@@ -648,33 +649,40 @@ function OverviewPanel({ exercises, logs, updateLog, onClose, fragileZones = [] 
 
       {exercises.filter((ex) => ex && ex.name).map((exercise, exIdx) => {
         const sets = Math.max(1, exercise.sets || 3);
+        const isOpen = openIdx === exIdx;
+        const filledSets = Array.from({ length: sets }).filter((_, s) => logs[getLogKey(exIdx, s)]?.reps).length;
         return (
-          <Card key={exIdx} className="p-4 space-y-3 bg-white/15 backdrop-blur-sm border-white/20">
-            <div className="flex items-center justify-between">
+          <Card key={exIdx} className="bg-white/15 backdrop-blur-sm border-white/20 overflow-hidden">
+            <button
+              type="button"
+              className="w-full flex items-center justify-between p-4 text-left"
+              onClick={() => setOpenIdx(isOpen ? null : exIdx)}
+            >
               <div>
                 <span className="font-semibold text-sm text-white">{exercise.name}</span>
                 <div className="flex gap-2 mt-0.5">
                   <Badge variant="outline" className="text-xs border-white/30 text-white">{exercise.muscle_group}</Badge>
                   <span className="text-xs text-white/60">{sets}×{exercise.target_reps}</span>
+                  {filledSets > 0 && <span className="text-xs text-green-400">{filledSets}/{sets} séries</span>}
                 </div>
               </div>
-            </div>
-            <div className="space-y-1.5">
-              {Array.from({ length: sets }).map((_, setIdx) =>
-              <SetRow
-                key={`${exIdx}-${setIdx}`}
-                setIdx={setIdx}
-                log={logs[getLogKey(exIdx, setIdx)] || {}}
-                onUpdate={(field, value) => updateLog(exIdx, setIdx, field, value)}
-                exerciseFragileZones={getExerciseFragileZones(exercise, fragileZones)} />
-
-              )}
-            </div>
+              <ChevronDown className={`w-4 h-4 text-white/50 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {isOpen && (
+              <div className="px-4 pb-4 space-y-1.5">
+                {Array.from({ length: sets }).map((_, setIdx) =>
+                  <SetRow
+                    key={`${exIdx}-${setIdx}`}
+                    setIdx={setIdx}
+                    log={logs[getLogKey(exIdx, setIdx)] || {}}
+                    onUpdate={(field, value) => updateLog(exIdx, setIdx, field, value)}
+                    exerciseFragileZones={getExerciseFragileZones(exercise, fragileZones)} />
+                )}
+              </div>
+            )}
           </Card>);
-
       })}
     </div>);
-
 }
 
 // ─── End of session panel ──────────────────────────────────────────────────────
