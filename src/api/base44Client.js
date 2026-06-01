@@ -132,9 +132,12 @@ const auth = {
   },
 };
 
+const AI_BLOCKED = true; // TODO: passer à false pour réactiver l'IA
+
 const integrations = {
   Core: {
     async InvokeLLM({ prompt, response_json_schema, model, add_context_from_images }) {
+      if (AI_BLOCKED) throw new Error('IA temporairement désactivée.');
       // @ts-ignore
       return base44SDK.integrations.Core.InvokeLLM(
         add_context_from_images?.length

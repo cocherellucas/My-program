@@ -902,6 +902,29 @@ export default function SessionLog() {
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const { startTimer } = useRestTimer();
 
+  // Clavier mobile : scroll l'élément actif dans la zone visible
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const handler = () => {
+      const isOpen = vv.height < window.innerHeight * 0.75;
+      document.body.classList.toggle('keyboard-open', isOpen);
+      if (isOpen) {
+        setTimeout(() => {
+          const el = document.activeElement;
+          if (el && el !== document.body) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 80);
+      }
+    };
+    vv.addEventListener('resize', handler);
+    return () => {
+      vv.removeEventListener('resize', handler);
+      document.body.classList.remove('keyboard-open');
+    };
+  }, []);
+
   // Restore timer from localStorage on mount (e.g. after page refresh)
   useEffect(() => {
     try {

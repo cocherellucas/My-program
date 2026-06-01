@@ -64,6 +64,11 @@ export default function CoachIA() {
       if (savedPending) {
         try { setPendingImportSessions(JSON.parse(savedPending)); } catch {}
       }
+      // Import direct depuis l'onboarding (texte collé)
+      if (location.state?.importText) {
+        setInput(location.state.importText);
+        navigate('/coach', { replace: true, state: {} });
+      }
     });
   }, []);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
@@ -215,7 +220,7 @@ export default function CoachIA() {
     try { localStorage.removeItem('_import_form'); localStorage.removeItem('_import_scroll'); } catch {}
     if (!activeImportedProgram) { setPendingImportSessions({ json: '{}', sessions: [], isEditing: true }); return; }
     try {
-      const existing = await base44.entities.Session.filter({ program_id: activeImportedProgram.id, status: 'planned', week_number: 1 });
+      const existing = await base44.entities.Session.filter({ program_id: activeImportedProgram.id, week_number: 1 });
       const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
       const formatted = existing
         .sort((a, b) => new Date(a.planned_date) - new Date(b.planned_date))
@@ -714,18 +719,8 @@ export default function CoachIA() {
           <Send className="w-4 h-4" />
         </button>
         </div>
-        <div className="flex items-center justify-between px-1 pt-1 pb-2">
+        <div className="flex items-center px-1 pt-1 pb-2">
           <p className="text-xs text-white/50"><span className="font-bold text-white">Coach IA</span> · Ton assistant entraînement</p>
-          <button
-            onClick={() => {
-              if (activeImportedProgram) openEditDialog();
-              else if (hasActiveProgram) setShowImportBlocked(true);
-              else setPendingImportSessions({ json: '{}', sessions: [] });
-            }}
-            className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all"
-            style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
-            Importer / Modifier
-          </button>
         </div>
       </div>
 

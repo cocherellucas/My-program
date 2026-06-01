@@ -83,7 +83,8 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
       const f = JSON.parse(localStorage.getItem('_import_form') || 'null');
       if (f?.sessions?.length && f.sessionCount === _expLen) return f.sessions;
     } catch {}
-    return (initialSessions || [{ label: '', day: 'monday', exercises: [] }]).map(s => ({
+    return (initialSessions || [{ label: '', day: 'monday', exercises: [] }]).map((s, i) => ({
+      _id: i,
       label: s.day_label || s.label || '',
       day: s.day || 'monday',
       exercises: s.exercises || [],
@@ -97,6 +98,8 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
     return initialWeeks !== undefined ? initialWeeks : 4;
   });
 
+  const DAY_ORDER = { monday:0, tuesday:1, wednesday:2, thursday:3, friday:4, saturday:5, sunday:6 };
+
   const updateSession = (i, field, value) => {
     setSessions(prev => {
       const updated = prev.map((s, idx) => idx === i ? { ...s, [field]: value } : s);
@@ -105,6 +108,13 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
         const day = updated[i].day;
         const sibling = updated.findIndex((s, idx) => idx !== i && s.day === day);
         if (sibling !== -1) updated[sibling] = { ...updated[sibling], order: value === 1 ? 2 : 1 };
+      }
+      // Si on change le jour, recalculer l'ordre et réordonner
+      if (field === 'day') {
+        const countOnNewDay = updated.filter((s, idx) => idx !== i && s.day === value).length;
+        updated[i] = { ...updated[i], order: countOnNewDay + 1 };
+        setScrollToId(updated[i]._id);
+        return [...updated].sort((a, b) => (DAY_ORDER[a.day] ?? 7) - (DAY_ORDER[b.day] ?? 7));
       }
       return updated;
     });
@@ -117,7 +127,13 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
     const nextDay = DAYS.find(d => (dayCounts[d.value] || 0) === 0)?.value
       || DAYS.find(d => (dayCounts[d.value] || 0) < 2)?.value
       || 'monday';
-    setSessions(prev => [...prev, { label: '', day: nextDay, exercises: [], content: '', type: 'mixed', estimated_duration: 60, order: 1 }]);
+    const order = (dayCounts[nextDay] || 0) + 1;
+    const newId = Date.now();
+    setScrollToId(newId);
+    setSessions(prev => {
+      const next = [...prev, { _id: newId, label: '', day: nextDay, exercises: [], content: '', type: 'mixed', estimated_duration: 60, order }];
+      return next.sort((a, b) => (DAY_ORDER[a.day] ?? 7) - (DAY_ORDER[b.day] ?? 7));
+    });
   };
 
   const countForDay = (day, excludeIdx) => sessions.filter((s, i) => i !== excludeIdx && s.day === day).length;
@@ -151,6 +167,9 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
   }, []); // eslint-disable-line
 
   const listRef = useRef(null);
+  const sessionRefs = useRef([]);
+  const [scrollToId, setScrollToId] = useState(null);
+  const [highlightId, setHighlightId] = useState(null);
   const [initialSnapshot] = useState({ sessions, weeks });
   const isDirty = useMemo(
     () => JSON.stringify(sessions) !== JSON.stringify(initialSnapshot.sessions) || weeks !== initialSnapshot.weeks,
@@ -176,6 +195,20 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
     } catch {}
   }, []);
 
+  // Scroll + highlight vers la session ajoutée ou déplacée
+  useEffect(() => {
+    if (scrollToId === null) return;
+    const idx = sessions.findIndex(s => s._id === scrollToId);
+    if (idx !== -1 && sessionRefs.current[idx]) {
+      requestAnimationFrame(() => {
+        sessionRefs.current[idx]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+      setHighlightId(scrollToId);
+      setTimeout(() => setHighlightId(null), 1200);
+    }
+    setScrollToId(null);
+  }, [sessions, scrollToId]); // eslint-disable-line
+
   return (
     <div data-no-swipe className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm px-3 pb-3" style={{ paddingTop: 'max(env(safe-area-inset-top), 56px)' }} onTouchMove={e => e.stopPropagation()}>
       <div className="w-full max-w-sm rounded-3xl overflow-hidden" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)', height: 'calc(100dvh - max(env(safe-area-inset-top), 56px) - 12px)', display: 'flex', flexDirection: 'column' }}>
@@ -189,7 +222,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
         {/* Sessions */}
         <div ref={listRef} className="flex-1 overflow-y-auto px-5 py-4 space-y-3" style={{ touchAction: 'pan-y', overscrollBehavior: 'contain' }}>
           {sessions.map((s, i) => (
-            <div key={i} className="rounded-2xl p-3 space-y-2" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
+            <div key={i} ref={el => sessionRefs.current[i] = el} className="rounded-2xl p-3 space-y-2 transition-all duration-300" style={{ background: highlightId === s._id ? 'rgba(167,139,250,0.25)' : 'rgba(255,255,255,0.07)', border: highlightId === s._id ? '1px solid rgba(167,139,250,0.6)' : '1px solid rgba(255,255,255,0.12)' }}>
               <div className="flex items-center gap-2">
                 <input
                   value={s.label}
