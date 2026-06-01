@@ -49,6 +49,7 @@ export default function Profile() {
 
   const save = async () => {
     setSaving(true);
+    try {
     const { id, email, full_name, created_date, role, ...editableFields } = form;
     await base44.auth.updateMe(editableFields);
 
@@ -70,9 +71,13 @@ export default function Profile() {
 
     toast.success('Profil mis à jour');
     setUser({ ...user, ...editableFields });
-    setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
+    } catch (e) {
+      toast.error('Erreur lors de la sauvegarde');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const update = (field, value) => { setForm(prev => ({ ...prev, [field]: value })); };

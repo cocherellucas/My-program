@@ -386,7 +386,8 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
         if (filledSeries < 1) return null;
 
         if (badSeries >= 2) {
-          const atBottom = isAtChainBottom(exercise.name);
+          const inChain = findExerciseInChains(exercise.name) !== null;
+          const atBottom = !inChain || isAtChainBottom(exercise.name);
           const currentRest = currentRestSeconds ?? exercise.rest_seconds ?? 90;
           const increasedRest = Math.min(currentRest + 30, 300); // max 5 min
           return (
