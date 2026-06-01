@@ -184,6 +184,14 @@ export default function Program() {
   const activeProgram = programs[0] || null;
   const isImported = (session) =>
     importedProgramIds.includes(session.program_id) || activeProgram?.weekly_structure === 'custom';
+
+  // Nettoyer le staleBanner pour les programmes importés (faux positif)
+  useEffect(() => {
+    if (activeProgram?.weekly_structure === 'custom' || importedProgramIds.includes(activeProgram?.id)) {
+      localStorage.removeItem('pending_program_regen');
+      setStaleBanner(false);
+    }
+  }, [activeProgram?.id]); // eslint-disable-line
   const alreadySaved = activeProgram ? localStorage.getItem(`saved_program_${activeProgram.id}`) === 'true' : false;
 
   const { data: sessions = [], isLoading: sessionsLoading } = useQuery({
