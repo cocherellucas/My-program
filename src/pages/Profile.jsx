@@ -53,20 +53,20 @@ export default function Profile() {
     const { id, email, full_name, created_date, role, ...editableFields } = form;
     await base44.auth.updateMe(editableFields);
 
-    // Comparer vs snapshot de génération (pas vs valeurs précédentes)
-    // → détecte aussi bien les changements que les reverts
-    const snapshot = (() => { try { return JSON.parse(localStorage.getItem('program_generated_snapshot') || '{}'); } catch { return {}; } })();
-    const hasImpact = PROGRAM_IMPACTING_FIELDS.some(
-      field => JSON.stringify(form[field]) !== JSON.stringify(snapshot[field])
-    );
-
-    if (hasImpact) {
-      localStorage.setItem('pending_program_regen', JSON.stringify({ timestamp: Date.now() }));
-      setShowRegenBanner(true);
-    } else {
-      // Revert détecté — les valeurs correspondent à nouveau au programme actuel
-      localStorage.removeItem('pending_program_regen');
-      setShowRegenBanner(false);
+    // Comparer vs snapshot de génération — uniquement pour programmes générés par IA
+    const snapshotRaw = localStorage.getItem('program_generated_snapshot');
+    const snapshot = (() => { try { return JSON.parse(snapshotRaw || 'null'); } catch { return null; } })();
+    if (snapshot) {
+      const hasImpact = PROGRAM_IMPACTING_FIELDS.some(
+        field => JSON.stringify(form[field]) !== JSON.stringify(snapshot[field])
+      );
+      if (hasImpact) {
+        localStorage.setItem('pending_program_regen', JSON.stringify({ timestamp: Date.now() }));
+        setShowRegenBanner(true);
+      } else {
+        localStorage.removeItem('pending_program_regen');
+        setShowRegenBanner(false);
+      }
     }
 
     toast.success('Profil mis à jour');
