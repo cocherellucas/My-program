@@ -1050,14 +1050,15 @@ export default function SessionLog() {
         .filter(s => s.id !== session.id)
         .sort((a, b) => new Date(b.actual_date || b.created_date) - new Date(a.actual_date || a.created_date));
 
-      // previousLogs = dernière séance uniquement (pour affichage poids précédents)
-      const lastSession = sorted[0];
+      // previousLogs = dernière séance du même type (même day_label) — sinon dernière séance
+      const sameType = sorted.filter(s => s.day_label === session.day_label);
+      const lastSession = sameType[0] || sorted[0];
       if (lastSession) {
         const lastLogs = await base44.entities.SeriesLog.filter({ session_id: lastSession.id, user_id: user.id });
         const map = {};
         lastLogs.forEach(sl => {
           if (!map[sl.exercise_name]) map[sl.exercise_name] = {};
-          map[sl.exercise_name][sl.set_number] = { weight: sl.weight, reps: sl.reps_done, mode: sl.mode };
+          map[sl.exercise_name][sl.set_number] = { weight: sl.weight, reps: sl.reps_done, mode: sl.mode, quality: sl.execution_quality };
         });
         setPreviousLogs(map);
       }
