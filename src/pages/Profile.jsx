@@ -45,6 +45,16 @@ export default function Profile() {
       setUser(normalized);
       setForm(normalized);
     });
+    // Si le programme actif est importé, nettoyer tout le contexte de regen
+    base44.entities.Program.filter({ status: 'active' }, '-created_date', 1).then(progs => {
+      const p = progs[0];
+      const importedIds = (() => { try { return JSON.parse(localStorage.getItem('imported_program_ids') || '[]'); } catch { return []; } })();
+      if (p && (p.weekly_structure === 'custom' || importedIds.includes(p.id))) {
+        localStorage.removeItem('pending_program_regen');
+        localStorage.removeItem('program_generated_snapshot');
+        setShowRegenBanner(false);
+      }
+    }).catch(() => {});
   }, []);
 
   const save = async () => {
