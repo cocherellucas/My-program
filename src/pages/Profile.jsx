@@ -67,6 +67,10 @@ export default function Profile() {
         localStorage.removeItem('pending_program_regen');
         setShowRegenBanner(false);
       }
+    } else {
+      // Programme importé — pas de snapshot, aucun impact possible
+      localStorage.removeItem('pending_program_regen');
+      setShowRegenBanner(false);
     }
 
     toast.success('Profil mis à jour');

@@ -11,7 +11,10 @@ const ZONE_LABELS = {
   knees: 'Genoux', lower_back: 'Bas du dos', neck: 'Cervicales',
 };
 
-export default function SetRow({ setIdx, totalSets, log, onUpdate, onWeightBlur, onWeightPropagate, rirContext, previousWeight, previousReps, previousMode, nextWeights, exerciseFragileZones = [], locked = false, onAskCoach }) {
+const QUALITY_LABELS = { good: '✓ Bonne', degraded: '~ Dégradée', bad: '✗ Mauvaise' };
+const MODE_LABELS = { RIR_3: 'RIR 3+', RIR_2: 'RIR 2', RIR_1: 'RIR 1', failure: 'Échec' };
+
+export default function SetRow({ setIdx, totalSets, log, onUpdate, onWeightBlur, onWeightPropagate, rirContext, previousWeight, previousReps, previousMode, previousQuality, nextWeights, exerciseFragileZones = [], locked = false, onAskCoach }) {
   const [manuallyEdited, setManuallyEdited] = useState(false);
   const [propagated, setPropagated] = useState(false);
   const [showPain, setShowPain] = useState(false);
@@ -250,7 +253,8 @@ onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
             </SelectContent>
           </Select>
           <div className="flex items-center justify-center gap-1 mt-1">
-            <span className="text-xs text-white/50">RIR</span>
+            {previousMode && <span className="text-xs text-white/40">↑ {MODE_LABELS[previousMode] || previousMode}</span>}
+            {!previousMode && <span className="text-xs text-white/50">RIR</span>}
             <Popover>
               <PopoverTrigger asChild>
                 <button className="text-white hover:text-white/80 transition-colors cursor-pointer">
@@ -281,7 +285,11 @@ onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
               <SelectItem value="bad">✗ Mauvaise</SelectItem>
             </SelectContent>
           </Select>
-          <span className="text-xs text-white/50 text-center block mt-1">Exécution</span>
+          <span className="text-xs text-center block mt-1">
+            {previousQuality
+              ? <span className="text-white/40">↑ {QUALITY_LABELS[previousQuality] || previousQuality}</span>
+              : <span className="text-white/50">Exécution</span>}
+          </span>
         </div>
       </div>
 

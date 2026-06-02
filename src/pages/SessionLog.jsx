@@ -460,7 +460,20 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 
       {/* Sets — all visible */}
       <Card className="p-4 space-y-3 bg-white/15 backdrop-blur-sm border-white/20">
-        <h3 className="font-semibold text-sm text-white">Tes séries</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="font-semibold text-sm text-white">Tes séries</h3>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="text-white/40 hover:text-white/70 transition-colors">
+                <HelpCircle className="w-3.5 h-3.5" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent avoidCollisions collisionPadding={16} className="w-64 text-xs space-y-2 bg-violet-900/95 backdrop-blur-sm border border-white/20 text-white shadow-xl z-[200]">
+              <p className="font-semibold text-violet-300">Tes données sont enregistrées</p>
+              <p className="text-white/70">Chaque kg, rep, RIR et exécution saisis ici sont mémorisés. À la prochaine séance, tu verras tes performances passées sous chaque champ — essaie de faire mieux pour progresser.</p>
+            </PopoverContent>
+          </Popover>
+        </div>
         <div className="space-y-2">
           {Array.from({ length: sets }).map((_, setIdx) => {
             const isActive = setIdx === activeSetIdx;
@@ -512,6 +525,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
               previousWeight={previousLogs?.[exercise.name]?.[setIdx + 1]?.weight}
               previousReps={previousLogs?.[exercise.name]?.[setIdx + 1]?.reps}
               previousMode={previousLogs?.[exercise.name]?.[setIdx + 1]?.mode}
+              previousQuality={previousLogs?.[exercise.name]?.[setIdx + 1]?.quality}
               locked={setIdx > activeSetIdx}
               onAskCoach={onAskCoach ? (painNote, sIdx, thread) => onAskCoach({ exercise: { ...exercise, _sessionIdx: exIdx }, setIdx: sIdx, painNote, thread, logs: Object.fromEntries(Object.entries(logs).filter(([k]) => k.startsWith(`${exIdx}-`))), allLogs: logs, prevLogs: previousLogs, sessionsHistory }) : undefined} />
             
