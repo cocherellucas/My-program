@@ -121,9 +121,13 @@ export default function Program() {
       thisMon.setDate(today.getDate() - ((today.getDay() + 6) % 7));
       const toLocalDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 
-      // Supprimer les séances planned existantes
-      const oldSessions = await base44.entities.Session.filter({ program_id: activeProgram.id, status: 'planned' });
-      for (const s of oldSessions) await base44.entities.Session.delete(s.id);
+      // Supprimer toutes les séances planned (en boucle car limit 1000 par fetch)
+      let deleted = true;
+      while (deleted) {
+        const batch = await base44.entities.Session.filter({ program_id: activeProgram.id, status: 'planned' });
+        if (!batch.length) { deleted = false; break; }
+        await Promise.all(batch.map(s => base44.entities.Session.delete(s.id)));
+      }
       await base44.entities.Program.update(activeProgram.id, { planned_weeks: CYCLE_WEEKS });
 
       // Recréer en expandant sur CYCLE_WEEKS
