@@ -263,7 +263,7 @@ export default function AppLayout() {
 
       {timerState && createPortal(
         <RestTimer
-          key={timerState.endTime}
+          key={timerState.id || timerState.endTime}
           seconds={timerState.seconds}
           initialEndTime={timerState.endTime}
           onComplete={() => stopTimer(true)}

@@ -948,15 +948,24 @@ export default function SessionLog() {
     };
   }, []);
 
-  // Restore timer from localStorage on mount (e.g. after page refresh)
+  // Restore timer from localStorage on mount (e.g. after page refresh or navigation)
   useEffect(() => {
     try {
       const saved = localStorage.getItem(`rest_timer_${sessionId}`);
       if (saved) {
-        const { endTime } = JSON.parse(saved);
+        const { endTime, totalSeconds } = JSON.parse(saved);
         const left = Math.ceil((endTime - Date.now()) / 1000);
         if (left > 0) {
-          startTimer(left, endTime, null);
+          // Utilise totalSeconds (durée originale) pour le total — pas left — sinon le progress bar est faussé
+          const seconds = totalSeconds || left;
+          startTimer(seconds, endTime, () => {
+            try { localStorage.removeItem(`rest_timer_${sessionId}`); } catch {}
+          }, (newEndTime) => {
+            try {
+              const cur = JSON.parse(localStorage.getItem(`rest_timer_${sessionId}`) || '{}');
+              localStorage.setItem(`rest_timer_${sessionId}`, JSON.stringify({ ...cur, endTime: newEndTime }));
+            } catch {}
+          });
         } else {
           localStorage.removeItem(`rest_timer_${sessionId}`);
         }
@@ -1663,10 +1672,16 @@ Ce que l'utilisateur dit : "${painNote}"`;
           onPrev={() => setCurrentExIdx((i) => Math.max(0, i - 1))}
           onStartRest={(secs, onDone) => {
             const endTime = Date.now() + secs * 1000;
-            try { localStorage.setItem(`rest_timer_${sessionId}`, JSON.stringify({ endTime })); } catch {}
+            try { localStorage.setItem(`rest_timer_${sessionId}`, JSON.stringify({ endTime, totalSeconds: secs })); } catch {}
             startTimer(secs, endTime, () => {
               try { localStorage.removeItem(`rest_timer_${sessionId}`); } catch {}
               onDone?.();
+            }, (newEndTime) => {
+              // Persiste le nouvel endTime quand l'user scrub ou édite
+              try {
+                const saved = JSON.parse(localStorage.getItem(`rest_timer_${sessionId}`) || '{}');
+                localStorage.setItem(`rest_timer_${sessionId}`, JSON.stringify({ ...saved, endTime: newEndTime }));
+              } catch {}
             });
           }}
           isLast={currentExIdx === exercises.length - 1}

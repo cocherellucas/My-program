@@ -192,7 +192,7 @@ onBlur={(e) => {
   if (v) onWeightBlur?.(v);
   setManuallyEdited(false);
 }}
-           className="w-full h-10 text-center bg-white/10 border-white/20 text-white placeholder:text-white/40 text-sm"
+           className="w-full h-10 text-center bg-white/10 border-white/20 text-white placeholder:text-white text-sm"
           />
           <div className="text-xs text-center mt-1 flex items-center justify-center">
             {shouldShowPropagate ? (
@@ -207,8 +207,6 @@ onBlur={(e) => {
   >
     ↓ Propager
   </button>
-) : previousWeight ? (
-  <span className="text-white/40">↑ {previousWeight} kg</span>
 ) : (
   <span className="text-white/50">kg / lbs</span>
 )}
@@ -231,11 +229,9 @@ onBlur={(e) => {
   }
 }}
 onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
-           className="w-full h-10 text-center bg-white/10 border-white/20 text-white placeholder:text-white/40 text-sm"
+           className="w-full h-10 text-center bg-white/10 border-white/20 text-white placeholder:text-white text-sm"
           />
-          <span className="text-xs text-white/50 text-center block mt-1">
-           {previousReps ? <span className="text-white/40">↑ {previousReps} reps (préc.)</span> : 'Reps'}
-          </span>
+          <span className="text-xs text-white/50 text-center block mt-1">Reps</span>
         </div>
       </div>
 
@@ -253,8 +249,7 @@ onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
             </SelectContent>
           </Select>
           <div className="flex items-center justify-center gap-1 mt-1">
-            {previousMode && <span className="text-xs text-white/40">↑ {MODE_LABELS[previousMode] || previousMode}</span>}
-            {!previousMode && <span className="text-xs text-white/50">RIR</span>}
+            <span className="text-xs text-white/50">RIR</span>
             <Popover>
               <PopoverTrigger asChild>
                 <button className="text-white hover:text-white/80 transition-colors cursor-pointer">
@@ -285,11 +280,7 @@ onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
               <SelectItem value="bad">✗ Mauvaise</SelectItem>
             </SelectContent>
           </Select>
-          <span className="text-xs text-center block mt-1">
-            {previousQuality
-              ? <span className="text-white/40">↑ {QUALITY_LABELS[previousQuality] || previousQuality}</span>
-              : <span className="text-white/50">Exécution</span>}
-          </span>
+          <span className="text-xs text-white/50 text-center block mt-1">Exécution</span>
         </div>
       </div>
 

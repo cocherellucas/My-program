@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Timer, X, Play, Pause, Edit2, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRestTimer } from '@/lib/RestTimerContext';
 
 const postToSW = (msg) => {
   if (!('serviceWorker' in navigator)) return;
@@ -21,6 +22,7 @@ const requestNotifPermission = async () => {
 };
 
 export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, initialEndTime }) {
+  const { notifyEndTimeChange } = useRestTimer() || {};
   const endTimeRef = useRef(initialEndTime || Date.now() + seconds * 1000);
   const [remaining, setRemaining] = useState(() => {
     const left = Math.ceil((endTimeRef.current - Date.now()) / 1000);
@@ -34,14 +36,17 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
   const barRef = useRef(null);
   const dragging = useRef(false);
 
+  // Reset le timer uniquement au démarrage d'un NOUVEAU timer (initialEndTime change)
+  // Pas quand seconds change (ce qui arrive si on restore après scrub)
   useEffect(() => {
     endTimeRef.current = initialEndTime || Date.now() + seconds * 1000;
-    setRemaining(seconds);
+    const left = Math.ceil((endTimeRef.current - Date.now()) / 1000);
+    setRemaining(Math.max(0, left));
     setRunning(true);
     requestNotifPermission();
     postToSW({ type: 'SCHEDULE_REST_END', endTime: endTimeRef.current });
     return () => postToSW({ type: 'CANCEL_REST_TIMER' });
-  }, [seconds]);
+  }, [initialEndTime]); // eslint-disable-line
 
   useEffect(() => {
     if (!running) { clearInterval(intervalRef.current); return; }
@@ -147,6 +152,8 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
     setEditing(false);
     setRunning(true);
     onRestTimeChange?.(newValue);
+    notifyEndTimeChange?.(endTimeRef.current);
+    postToSW({ type: 'SCHEDULE_REST_END', endTime: endTimeRef.current });
   };
 
   const total = seconds;
@@ -166,6 +173,8 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
     if (!dragging.current) return;
     dragging.current = false;
     setRunning(true);
+    notifyEndTimeChange?.(endTimeRef.current);
+    postToSW({ type: 'SCHEDULE_REST_END', endTime: endTimeRef.current });
     window.removeEventListener('mousemove', onWindowMouseMove);
     window.removeEventListener('mouseup', onWindowMouseUp);
     window.removeEventListener('touchmove', onWindowTouchMove);
