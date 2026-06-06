@@ -486,8 +486,17 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
 
   const dayOrder = { monday: 0, lundi: 0, tuesday: 1, mardi: 1, wednesday: 2, mercredi: 2, thursday: 3, jeudi: 3, friday: 4, vendredi: 4, saturday: 5, samedi: 5, sunday: 6, dimanche: 6 };
 
+  // En mode infini, on ne montre que les séances de la semaine courante et futures
+  // (les séances complétées des semaines passées restent dans l'historique mais ne polluent pas la vue)
+  const thisMonday = new Date(today);
+  thisMonday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+  thisMonday.setHours(0, 0, 0, 0);
+
   const weeks = {};
   sessions.forEach(s => {
+    // En mode ∞ potentiel : exclure les séances completed dont la date est avant cette semaine
+    const sessionDate = s.planned_date ? new Date(s.planned_date + 'T00:00:00') : null;
+    if (s.status === 'completed' && sessionDate && sessionDate < thisMonday) return;
     const w = s.week_number || 1;
     if (!weeks[w]) weeks[w] = [];
     weeks[w].push(s);
