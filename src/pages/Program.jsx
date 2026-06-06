@@ -486,20 +486,27 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
 
   const dayOrder = { monday: 0, lundi: 0, tuesday: 1, mardi: 1, wednesday: 2, mercredi: 2, thursday: 3, jeudi: 3, friday: 4, vendredi: 4, saturday: 5, samedi: 5, sunday: 6, dimanche: 6 };
 
-  // En mode infini, on ne montre que les séances de la semaine courante et futures
-  // (les séances complétées des semaines passées restent dans l'historique mais ne polluent pas la vue)
+  // Semaine calendaire courante (lundi)
   const thisMonday = new Date(today);
   thisMonday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
   thisMonday.setHours(0, 0, 0, 0);
 
   const weeks = {};
   sessions.forEach(s => {
-    // En mode ∞ potentiel : exclure les séances completed dont la date est avant cette semaine
     const sessionDate = s.planned_date ? new Date(s.planned_date + 'T00:00:00') : null;
-    if (s.status === 'completed' && sessionDate && sessionDate < thisMonday) return;
-    const w = s.week_number || 1;
-    if (!weeks[w]) weeks[w] = [];
-    weeks[w].push(s);
+    // En mode infini : grouper par semaine calendaire (pas week_number)
+    // → calculer combien de semaines depuis le lundi courant
+    if (sessionDate) {
+      const diffMs = sessionDate - thisMonday;
+      const calWeek = Math.floor(diffMs / (7 * 86400000)) + 1; // 1 = semaine courante
+      const w = calWeek > 0 ? calWeek : 'prev';
+      if (!weeks[w]) weeks[w] = [];
+      weeks[w].push(s);
+    } else {
+      const w = s.week_number || 1;
+      if (!weeks[w]) weeks[w] = [];
+      weeks[w].push(s);
+    }
   });
 
   // Sort each week's sessions by day order
@@ -517,7 +524,8 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
 
   // Find the current week tab: first week with an upcoming (non-past, non-completed) session
   const nextUpcoming = sessions.find(s => s.status !== 'completed' && !isPast(s));
-  const currentWeekTab = String(nextUpcoming?.week_number || Object.keys(weeks)[0] || 1);
+  // En mode infini : tab courant = semaine calendaire 1 (cette semaine)
+  const currentWeekTab = Object.keys(weeks).length > 10 ? '1' : String(nextUpcoming?.week_number || Object.keys(weeks)[0] || 1);
 
   const handleRegen = () => {
     localStorage.removeItem('pending_program_regen');
