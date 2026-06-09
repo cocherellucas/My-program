@@ -20,36 +20,48 @@ export default function StepAvailability({ data, onChange }) {
   const durations = data.duration_per_day || {};
 
   const [durationErrors, setDurationErrors] = React.useState({});
+  const [sameDurationAll, setSameDurationAll] = React.useState(false);
   const lastKeyRef = React.useRef(null);
   const holdRef = React.useRef(null);
   const durationsRef = React.useRef(durations);
   durationsRef.current = durations;
 
   const toggleDay = (day) => {
-    const newDays = selectedDays.includes(day)
+    const wasSelected = selectedDays.includes(day);
+    const newDays = wasSelected
       ? selectedDays.filter(d => d !== day)
       : [...selectedDays, day];
-    onChange({ available_days: newDays });
+    const next = { available_days: newDays };
+    // Si on ajoute un nouveau jour sans durée, mettre 60 par défaut
+    if (!wasSelected && !durations[day]) {
+      next.duration_per_day = { ...durations, [day]: 60 };
+    }
+    onChange(next);
   };
 
-  const setDuration = (day, mins) => {
-    if (mins === '') {
-      onChange({ duration_per_day: { ...durationsRef.current, [day]: '' } });
-      setDurationErrors(prev => ({ ...prev, [day]: null }));
-      return;
-    }
+  const setDuration = (day, mins, _propagating) => {
+    // Si toggle "Même partout" actif, propager à tous les jours sélectionnés
+    const targets = (sameDurationAll && !_propagating) ? selectedDays : [day];
+    const applyTo = (val, errorMsg) => {
+      const next = { ...durationsRef.current };
+      targets.forEach(d => { next[d] = val; });
+      onChange({ duration_per_day: next });
+      setDurationErrors(prev => {
+        const upd = { ...prev };
+        targets.forEach(d => { upd[d] = errorMsg; });
+        return upd;
+      });
+    };
+    if (mins === '') { applyTo('', null); return; }
     const val = parseInt(mins);
     if (isNaN(val)) return;
     if (val < 10) {
-      setDurationErrors(prev => ({ ...prev, [day]: 'Minimum 10 min pour progresser' }));
       const blocked = lastKeyRef.current === 'ArrowDown' ? 10 : val;
-      onChange({ duration_per_day: { ...durationsRef.current, [day]: blocked } });
+      applyTo(blocked, 'Minimum 10 min pour progresser');
     } else if (val > 180) {
-      setDurationErrors(prev => ({ ...prev, [day]: "Plus de 3h n'est pas nécessaire pour progresser" }));
-      onChange({ duration_per_day: { ...durationsRef.current, [day]: 180 } });
+      applyTo(180, "Plus de 3h n'est pas nécessaire pour progresser");
     } else {
-      setDurationErrors(prev => ({ ...prev, [day]: null }));
-      onChange({ duration_per_day: { ...durationsRef.current, [day]: val } });
+      applyTo(val, null);
     }
   };
 
@@ -95,7 +107,6 @@ export default function StepAvailability({ data, onChange }) {
           <div className="flex items-center gap-1.5">
             <div className="flex items-center gap-1">
             <p className="text-sm font-semibold text-white">Disponibilités optimales</p>
-            <span className="text-red-400 font-bold">*</span>
           </div>
             <Popover>
               <PopoverTrigger asChild>
@@ -152,85 +163,127 @@ export default function StepAvailability({ data, onChange }) {
       </div>
 
       {data.availability_optimal === false && selectedDays.length > 0 && (
-        <div className="space-y-3">
-          <Label className="text-white">Durée par jour (minutes) <span className="text-red-400">*</span></Label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {DAYS.filter(d => selectedDays.includes(d.key)).map(({ key, label }) => (
-              <div key={key} className="flex flex-col gap-1">
-                <div className="flex items-center gap-2 p-3 bg-white/10 rounded-xl border border-white/20">
-                  <span className="text-sm font-medium w-10 text-white">{label}</span>
-                  <div className="relative flex-1">
-                    <Input
-                      type="text"
-                      inputMode="numeric"
-                      placeholder="60"
-                      value={durations[key] ?? ''}
-                      onChange={(e) => {
-                        const raw = e.target.value.replace(/[^0-9]/g, '');
-                        setDuration(key, raw === '' ? '' : raw);
-                      }}
-                      onBlur={() => blurDuration(key)}
-                      onKeyDown={(e) => {
-                        lastKeyRef.current = e.key;
-                        if (e.key === 'Enter') { e.target.blur(); return; }
-                        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                          e.preventDefault();
-                          const cur = parseInt(durationsRef.current[key]) || 60;
-                          const next = e.key === 'ArrowUp' ? cur + 1 : cur - 1;
-                          setDuration(key, String(next));
-                        }
-                      }}
-                      className={`h-8 pr-6 bg-white/10 border-white/20 text-white placeholder:text-white/30 ${durationErrors[key] ? 'border-red-400' : ''}`}
-                    />
-                    <div className="absolute right-1 top-0 h-full flex flex-col justify-center">
-                      <button type="button" tabIndex={-1}
-                        onMouseDown={(e) => { e.preventDefault(); startHold(key, 'up'); }}
-                        onMouseUp={stopHold} onMouseLeave={stopHold}
-                        className="text-white/50 hover:text-white leading-none">
-                        <ChevronUp className="w-3 h-3" />
-                      </button>
-                      <button type="button" tabIndex={-1}
-                        onMouseDown={(e) => { e.preventDefault(); startHold(key, 'down'); }}
-                        onMouseUp={stopHold} onMouseLeave={stopHold}
-                        className="text-white/50 hover:text-white leading-none">
-                        <ChevronDown className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </div>
-                  <span className="text-xs text-white/60">min</span>
-                </div>
-                {durationErrors[key] && (
-                  <p className="text-xs text-red-300 px-1">{durationErrors[key]}</p>
-                )}
+        <div className="space-y-4">
+          {selectedDays.length > 1 && (
+            <div className="space-y-2">
+              <Label className="text-white">Même durée chaque jour ?</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSameDurationAll(true);
+                    const firstFilled = selectedDays.find(d => durations[d] && !isNaN(parseInt(durations[d])));
+                    const refValue = firstFilled ? durations[firstFilled] : '60';
+                    selectedDays.forEach(d => setDuration(d, String(refValue), true));
+                  }}
+                  className={`py-2.5 rounded-xl border text-sm font-semibold transition-all ${
+                    sameDurationAll
+                      ? 'bg-white text-violet-700 border-white shadow'
+                      : 'bg-white/10 text-white border-white/20 hover:bg-white/15'
+                  }`}
+                >
+                  Oui
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSameDurationAll(false)}
+                  className={`py-2.5 rounded-xl border text-sm font-semibold transition-all ${
+                    !sameDurationAll
+                      ? 'bg-white text-violet-700 border-white shadow'
+                      : 'bg-white/10 text-white border-white/20 hover:bg-white/15'
+                  }`}
+                >
+                  Non
+                </button>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
+
+          {(() => {
+            const PRESETS = [
+              { value: 30, label: '30 min' },
+              { value: 45, label: '45 min' },
+              { value: 60, label: '60 min' },
+              { value: 90, label: '90 min' },
+              { value: 120, label: '2h+' },
+            ];
+            const renderPresets = (day) => (
+              <div className="grid grid-cols-5 gap-1.5">
+                {PRESETS.map(p => {
+                  const cur = parseInt(durations[day]);
+                  const active = cur === p.value || (p.value === 120 && cur >= 120);
+                  return (
+                    <button
+                      key={p.value}
+                      type="button"
+                      onClick={() => setDuration(day, String(p.value))}
+                      className={`py-2 rounded-lg text-xs font-semibold transition-all ${
+                        active
+                          ? 'bg-white text-violet-700 shadow'
+                          : 'bg-white/10 text-white border border-white/20 hover:bg-white/15'
+                      }`}
+                    >
+                      {p.label}
+                    </button>
+                  );
+                })}
+              </div>
+            );
+
+            if (sameDurationAll && selectedDays.length > 1) {
+              return (
+                <div className="space-y-2">
+                  <Label className="text-white">Durée</Label>
+                  {renderPresets(selectedDays[0])}
+                  {durationErrors[selectedDays[0]] && (
+                    <p className="text-xs text-red-300 px-1">{durationErrors[selectedDays[0]]}</p>
+                  )}
+                </div>
+              );
+            }
+            return (
+              <div className="space-y-2">
+                <Label className="text-white">Durée par jour</Label>
+                <div className="p-3 rounded-xl bg-white/5 border border-white/15 space-y-3">
+                  {DAYS.filter(d => selectedDays.includes(d.key)).map(({ key, label }, idx) => (
+                    <div key={key} className={`space-y-1.5 ${idx > 0 ? 'pt-3 border-t border-white/10' : ''}`}>
+                      <span className="text-[11px] uppercase tracking-wider font-bold text-white/50">{label}</span>
+                      {renderPresets(key)}
+                      {durationErrors[key] && (
+                        <p className="text-xs text-red-300 px-1">{durationErrors[key]}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
         </div>
       )}
 
 
-      {/* Avertissement fréquence min vs jours sélectionnés */}
-      {data.availability_optimal === false && data.frequency_min && selectedDays.length < data.frequency_min && (
-        <p className="text-xs text-orange-300 bg-orange-400/10 border border-orange-400/30 rounded-lg px-3 py-2">
-          ⚠️ Tu veux minimum {data.frequency_min}× par semaine mais tu n'as sélectionné que {selectedDays.length} jour{selectedDays.length > 1 ? 's' : ''}. Ajoute au moins {data.frequency_min - selectedDays.length} jour{data.frequency_min - selectedDays.length > 1 ? 's' : ''} supplémentaire{data.frequency_min - selectedDays.length > 1 ? 's' : ''}.
-        </p>
-      )}
-
-      {/* Avertissement fréquence max vs jours sélectionnés */}
-      {data.availability_optimal === false && data.frequency_max && selectedDays.length < data.frequency_max && !(data.frequency_min && selectedDays.length < data.frequency_min) && (
-        <p className="text-xs text-orange-300 bg-orange-400/10 border border-orange-400/30 rounded-lg px-3 py-2">
-          ⚠️ Tu veux jusqu'à {data.frequency_max}× par semaine mais tu n'as sélectionné que {selectedDays.length} jour{selectedDays.length > 1 ? 's' : ''}. Ajoute des jours ou réduis la fréquence maximum.
-        </p>
-      )}
-
-      {data.availability_optimal === false && <div className="grid grid-cols-2 gap-4">
+      {data.availability_optimal === false && <div className="space-y-4">
         {[
-          { field: 'frequency_min', label: 'Fréquence min/sem', placeholder: '3', default: 3 },
-          { field: 'frequency_max', label: 'Fréquence max/sem', placeholder: '5', default: 5 },
+          { field: 'frequency_max', label: 'Fréquence souhaitée par semaine', placeholder: '4', default: 4 },
         ].map(({ field, label, placeholder, default: def }) => (
-          <div key={field} className="space-y-2">
-            <Label className="text-white">{label} <span className="text-red-400">*</span></Label>
-            <div className="relative">
+          <div key={field} className="space-y-1">
+            <div className="flex items-center gap-1.5">
+              <Label className="text-white">{label}</Label>
+              <span className="text-red-400">*</span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button type="button" className="text-white/40 hover:text-white/70 transition-colors flex-shrink-0">
+                    <HelpCircle className="w-3.5 h-3.5" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent avoidCollisions collisionPadding={16} className="w-64 text-xs space-y-1.5 bg-violet-900/95 backdrop-blur-sm border border-white/20 text-white shadow-xl z-[200]">
+                  <p className="font-semibold text-violet-300">Fréquence souhaitée</p>
+                  <p className="text-white/70">Le nombre d'entraînements par semaine que tu vises. Le coach ne planifiera jamais plus — c'est ton plafond.</p>
+                </PopoverContent>
+              </Popover>
+            </div>
+            <p className="text-[11px] text-white/50 pb-1">parmi tes {selectedDays.length} jour{selectedDays.length > 1 ? 's' : ''} libre{selectedDays.length > 1 ? 's' : ''} sélectionné{selectedDays.length > 1 ? 's' : ''}</p>
+            <div className="relative max-w-[120px]">
               <Input
                 type="text"
                 inputMode="numeric"
@@ -240,9 +293,9 @@ export default function StepAvailability({ data, onChange }) {
                   const raw = e.target.value.replace(/[^0-9]/g, '');
                   const val = parseInt(raw);
                   if (raw === '') { onChange({ [field]: '' }); return; }
-                  const min = field === 'frequency_max' ? (parseInt(data.frequency_min) || 1) : 1;
-                  const max = field === 'frequency_min' ? (parseInt(data.frequency_max) || 6) : 6;
-                  onChange({ [field]: Math.min(Math.max(val, min), max) });
+                  const clamped = Math.min(Math.max(val, 1), 6);
+                  // frequency_min calé sur frequency_max pour cohérence
+                  onChange({ [field]: clamped, frequency_min: clamped });
                 }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') { e.target.blur(); return; }
@@ -250,15 +303,19 @@ export default function StepAvailability({ data, onChange }) {
                     e.preventDefault();
                     const cur = parseInt(data[field]) || def;
                     const next = cur + (e.key === 'ArrowUp' ? 1 : -1);
-                    const min = field === 'frequency_max' ? (parseInt(data.frequency_min) || 1) : 1;
-                    onChange({ [field]: Math.min(6, Math.max(min, next)) });
+                    const clamped = Math.min(6, Math.max(1, next));
+                    onChange({ [field]: clamped, frequency_min: clamped });
                   }
                 }}
                 className="pr-6 bg-white/10 border-white/20 text-white placeholder:text-white/30"
               />
               <div className="absolute right-1 top-0 h-full flex flex-col justify-center">
                 <button type="button" tabIndex={-1}
-                  onMouseDown={(e) => { e.preventDefault(); onChange({ [field]: Math.min(6, (parseInt(data[field]) || def) + 1) }); }}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    const clamped = Math.min(6, (parseInt(data[field]) || def) + 1);
+                    onChange({ [field]: clamped, frequency_min: clamped });
+                  }}
                   className="text-white/50 hover:text-white leading-none">
                   <ChevronUp className="w-3 h-3" />
                 </button>
@@ -266,8 +323,8 @@ export default function StepAvailability({ data, onChange }) {
                   onMouseDown={(e) => {
                     e.preventDefault();
                     const cur = parseInt(data[field]) || def;
-                    const min = field === 'frequency_max' ? (parseInt(data.frequency_min) || 1) : 1;
-                    onChange({ [field]: Math.max(min, cur - 1) });
+                    const clamped = Math.max(1, cur - 1);
+                    onChange({ [field]: clamped, frequency_min: clamped });
                   }}
                   className="text-white/50 hover:text-white leading-none">
                   <ChevronDown className="w-3 h-3" />
@@ -277,6 +334,13 @@ export default function StepAvailability({ data, onChange }) {
           </div>
         ))}
       </div>}
+
+      {/* Avertissement fréquence vs jours sélectionnés */}
+      {data.availability_optimal === false && data.frequency_max && selectedDays.length < data.frequency_max && (
+        <p className="text-xs text-orange-300 bg-orange-400/10 border border-orange-400/30 rounded-lg px-3 py-2">
+          ⚠️ Tu veux {data.frequency_max}× par semaine mais tu n'as sélectionné que {selectedDays.length} jour{selectedDays.length > 1 ? 's' : ''}. Ajoute des jours ou réduis la fréquence.
+        </p>
+      )}
 
     </div>
   );

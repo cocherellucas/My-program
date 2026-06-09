@@ -161,7 +161,12 @@ export default function StepObjectives({ data, onChange }) {
   };
 
   const removeObj = (idx) => {
-    onChange({ objectives: objectives.filter((_, i) => i !== idx) });
+    let remaining = objectives.filter((_, i) => i !== idx);
+    // S'il ne reste qu'un seul objectif, le forcer en "primary"
+    if (remaining.length === 1) {
+      remaining = [{ ...remaining[0], priority: 'primary' }];
+    }
+    onChange({ objectives: remaining });
   };
 
   // Muscles déjà pris par un autre objectif du même type en specific_group
@@ -184,12 +189,18 @@ export default function StepObjectives({ data, onChange }) {
         {objectives.map((obj, idx) => (
           <div key={idx} className="p-4 bg-white/10 rounded-xl border border-white/20 space-y-4">
             <div className="flex items-center justify-between">
-              <span className={cn(
-                'text-xs font-bold uppercase px-2.5 py-1 rounded-full',
-                obj.priority === 'primary' ? 'bg-white/30 text-white' : 'bg-white/10 text-white/60'
-              )}>
-                {obj.priority === 'primary' ? 'Primaire' : 'Secondaire'}
-              </span>
+              {objectives.length > 1 ? (
+                <span className={cn(
+                  'text-xs font-bold uppercase px-2.5 py-1 rounded-full',
+                  obj.priority === 'primary' ? 'bg-white/30 text-white' : 'bg-white/10 text-white/60'
+                )}>
+                  {obj.priority === 'primary' ? '🎯 Focus principal' : '📌 Focus secondaire'}
+                </span>
+              ) : (
+                <span className="text-xs font-bold uppercase px-2.5 py-1 rounded-full bg-white/30 text-white">
+                  Objectif
+                </span>
+              )}
               <Button variant="ghost" size="icon" onClick={() => removeObj(idx)} className="h-8 w-8 hover:bg-white/10">
                 <Trash2 className="w-4 h-4 text-red-400" />
               </Button>
@@ -229,11 +240,11 @@ export default function StepObjectives({ data, onChange }) {
                       <DropdownMenuSubContent className="bg-violet-800 border-white/20 text-white">
                         <DropdownMenuItem className="focus:bg-white/20 focus:text-white cursor-pointer"
                           onClick={() => { updateObj(idx, 'type', 'strength'); setStrengthFocus(prev => ({ ...prev, [idx]: 'zone' })); }}>
-                          Par zone
+                          Sur une zone du corps
                         </DropdownMenuItem>
                         <DropdownMenuItem className="focus:bg-white/20 focus:text-white cursor-pointer"
                           onClick={() => { updateObj(idx, 'type', 'strength'); setStrengthFocus(prev => ({ ...prev, [idx]: 'movement' })); }}>
-                          Par mouvement
+                          Sur un exercice (squat, bench…)
                         </DropdownMenuItem>
                       </DropdownMenuSubContent>
                     </DropdownMenuSub>
@@ -268,30 +279,32 @@ export default function StepObjectives({ data, onChange }) {
                 </div>
               )}
 
-              {/* Priorité */}
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1">
-                  <Label className="text-xs text-white">Priorité</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button type="button" className="text-white/40 hover:text-white/70 transition-colors">
-                        <HelpCircle className="w-3 h-3" />
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-56 text-xs space-y-1.5">
-                      <p><span className="font-semibold">Primaire</span> — objectif principal. Le programme lui alloue 60% du volume et structure les séances autour de lui.</p>
-                      <p><span className="font-semibold">Secondaire</span> — objectif complémentaire. Travaillé en accessoire sans empiéter sur le primaire.</p>
-                    </PopoverContent>
-                  </Popover>
+              {/* Priorité — visible uniquement à partir de 2 objectifs */}
+              {objectives.length > 1 && (
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-1">
+                    <Label className="text-xs text-white">Priorité</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button type="button" className="text-white/40 hover:text-white/70 transition-colors">
+                          <HelpCircle className="w-3 h-3" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-56 text-xs space-y-1.5">
+                        <p><span className="font-semibold">🎯 Focus principal</span> — 60% du volume. Le programme s'organise autour de cet objectif.</p>
+                        <p><span className="font-semibold">📌 Focus secondaire</span> — 40% du volume. Travaillé en complément sans empiéter sur le focus principal.</p>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <Select value={obj.priority} onValueChange={(v) => updateObj(idx, 'priority', v)}>
+                    <SelectTrigger className={selectClass}><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="primary">🎯 Principal</SelectItem>
+                      <SelectItem value="secondary">📌 Secondaire</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <Select value={obj.priority} onValueChange={(v) => updateObj(idx, 'priority', v)}>
-                  <SelectTrigger className={selectClass}><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="primary">Primaire</SelectItem>
-                    <SelectItem value="secondary">Secondaire</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              )}
             </div>
 
             {/* Groupes musculaires si specific_group */}
@@ -420,10 +433,18 @@ export default function StepObjectives({ data, onChange }) {
         ))}
       </div>
 
-      <Button variant="outline" onClick={addObjective} className="w-full border-white/30 text-white hover:bg-white/10 hover:text-white">
-        <Plus className="w-4 h-4 mr-2" />
-        Ajouter un objectif
-      </Button>
+      {objectives.length < 3 ? (
+        <Button variant="outline" onClick={addObjective} className="w-full border-white/30 text-white hover:bg-white/10 hover:text-white">
+          <Plus className="w-4 h-4 mr-2" />
+          Ajouter un objectif {objectives.length > 0 && <span className="ml-1 opacity-60">({objectives.length}/3)</span>}
+        </Button>
+      ) : (
+        <div className="text-center py-3 px-4 rounded-xl bg-white/5 border border-white/10">
+          <p className="text-xs text-white/60">
+            <span className="font-semibold text-white">3 objectifs maximum</span> — au-delà, le programme manquerait de focus et chaque objectif progresserait moins.
+          </p>
+        </div>
+      )}
 
       {/* Volume précis — affiché uniquement en mode manuel */}
       {volumeMode === 'manual' && objectiveMuscles.length > 0 && (

@@ -66,18 +66,14 @@ export default function StepPreferences({ data, onChange }) {
   return (
     <div className="space-y-6">
       <div className="text-center mb-2">
-        <h2 className="text-2xl font-heading font-bold text-white">Tes préférences</h2>
-        <p className="text-white/70 mt-2">On adapte l'entraînement à tes goûts</p>
+        <h2 className="text-2xl font-heading font-bold text-white">Zones sensibles</h2>
+        <p className="text-white/70 mt-2">Pour adapter le programme à tes fragilités et anciennes blessures</p>
       </div>
 
-      {/* Zones sensibles */}
       <div className="space-y-3">
-        <div>
-          <p className="text-sm font-semibold text-white">Zones sensibles</p>
-          <p className="text-xs text-white/50 mt-0.5">Sélectionne une zone puis choisis l'intention</p>
-        </div>
+        <p className="text-xs text-white/50">Sélectionne une zone puis choisis l'intention</p>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {FRAGILE_ZONES.map(({ key, label }) => {
             const zone    = getZone(key);
             const goal    = GOALS.find(g => g.key === zone?.goal);
@@ -86,16 +82,18 @@ export default function StepPreferences({ data, onChange }) {
             return (
               <button key={key} type="button" onClick={() => selectZone(key)}
                 className={cn(
-                  'flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all',
+                  'flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-all',
                   zone
                     ? goal?.chip
                     : waiting
                     ? 'border-white bg-violet-500 text-white'
-                    : 'border-violet-400 bg-[#8b45f8] text-white/80 hover:border-white hover:text-white'
+                    : 'border-violet-300/60 bg-[#8b45f8]/70 text-white/80 opacity-75 hover:opacity-100 hover:border-white hover:text-white'
                 )}>
-                {zone && goal && <goal.icon className="w-3 h-3" />}
-                {label}
-                {zone && <X className="w-3 h-3 opacity-60" />}
+                <span className="flex items-center gap-1.5 truncate">
+                  {zone && goal && <goal.icon className="w-3.5 h-3.5 flex-shrink-0" />}
+                  {label}
+                </span>
+                {zone && <X className="w-3.5 h-3.5 opacity-60 flex-shrink-0" />}
               </button>
             );
           })}
@@ -160,74 +158,6 @@ export default function StepPreferences({ data, onChange }) {
         )}
       </div>
 
-      {/* Techniques avancées */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-1.5">
-          <p className="text-sm font-semibold text-white">Techniques avancées</p>
-          <Popover>
-            <PopoverTrigger asChild>
-              <button type="button" className="text-white/40 hover:text-white/70 transition-colors">
-                <HelpCircle className="w-3.5 h-3.5" />
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-64 text-xs space-y-1.5">
-              <p>Supersets, rest-pause, drop sets, séries dégressives. Augmente l'intensité et réduit le temps de séance mais demande plus d'expérience.</p>
-            </PopoverContent>
-          </Popover>
-        </div>
-        {data.level === 'beginner' ? (
-          <div className="p-3 rounded-xl bg-orange-500/15 border border-orange-400/30">
-            <p className="text-xs text-orange-200 font-semibold mb-0.5">Non disponible en débutant</p>
-            <p className="text-xs text-orange-200/70">Les patterns moteurs ne sont pas encore automatisés. Enchaîner des exercices sans maîtriser le geste de base augmente le risque de blessure et ancre de mauvaises habitudes. Passe en intermédiaire pour déverrouiller cette option.</p>
-          </div>
-        ) : (
-          <>
-            <p className="text-xs text-white/50">Autoriser les supersets, rest-pause et drop sets dans ton programme ?</p>
-            <div className="flex gap-2">
-              <button type="button"
-                onClick={() => onChange({ accepts_advanced_techniques: true })}
-                className={cn('flex-1 py-1.5 rounded-lg text-xs font-semibold border transition-colors',
-                  data.accepts_advanced_techniques === true
-                    ? 'bg-white text-violet-700 border-white'
-                    : 'bg-white/10 text-white/60 border-white/20 hover:bg-white/20')}>
-                Oui
-              </button>
-              <button type="button"
-                onClick={() => onChange({ accepts_advanced_techniques: false })}
-                className={cn('flex-1 py-1.5 rounded-lg text-xs font-semibold border transition-colors',
-                  data.accepts_advanced_techniques === false
-                    ? 'bg-white text-violet-700 border-white'
-                    : 'bg-white/10 text-white/60 border-white/20 hover:bg-white/20')}>
-                Non
-              </button>
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Exercices */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="space-y-2">
-          <p className="text-sm font-semibold text-white">Exercices que tu aimes</p>
-          <Textarea
-            placeholder="squat, tractions, développé..."
-            value={(Array.isArray(data.preferred_exercises) ? data.preferred_exercises : (() => { try { return JSON.parse(data.preferred_exercises || '[]'); } catch { return []; } })()).join(', ')}
-            onChange={(e) => onChange({ preferred_exercises: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/25 resize-none text-sm"
-            rows={3}
-          />
-        </div>
-        <div className="space-y-2">
-          <p className="text-sm font-semibold text-white">Exercices que tu évites</p>
-          <Textarea
-            placeholder="fentes, burpees, rowing barre..."
-            value={(Array.isArray(data.disliked_exercises) ? data.disliked_exercises : (() => { try { return JSON.parse(data.disliked_exercises || '[]'); } catch { return []; } })()).join(', ')}
-            onChange={(e) => onChange({ disliked_exercises: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/25 resize-none text-sm"
-            rows={3}
-          />
-        </div>
-      </div>
     </div>
   );
 }

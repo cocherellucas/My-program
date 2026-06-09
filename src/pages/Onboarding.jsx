@@ -225,18 +225,32 @@ export default function Onboarding() {
 
           {step < TOTAL_STEPS - 1 ? (
             <div className="flex flex-col items-end gap-1">
-              {step === 2 && !data.equipment_validated ? (
-                <button type="button" onClick={() => setStep(s => s + 1)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/30 bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-all">
-                  Je n'ai pas d'équipement
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              ) : (
-                <Button onClick={() => { if (validateStep()) setStep(s => s + 1); }}>
-                  Suivant
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              )}
+              {(() => {
+                const eqArr = Array.isArray(data.equipment)
+                  ? data.equipment
+                  : (() => { try { return JSON.parse(data.equipment || '[]'); } catch { return []; } })();
+                const hasEquipment = eqArr.length > 0;
+                if (step === 2 && !hasEquipment) {
+                  return (
+                    <button type="button" onClick={() => setStep(s => s + 1)}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/30 bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-all">
+                      Je n'ai pas d'équipement
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  );
+                }
+                return (
+                  <Button onClick={() => {
+                    if (step === 2 && !data.equipment_validated && hasEquipment) {
+                      update({ equipment_validated: true });
+                    }
+                    if (validateStep()) setStep(s => s + 1);
+                  }}>
+                    Suivant
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                );
+              })()}
             </div>
           ) : (
             <Button onClick={() => setShowFinalChoice(true)} disabled={saving}>

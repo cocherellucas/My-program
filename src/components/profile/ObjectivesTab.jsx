@@ -63,7 +63,14 @@ export default function ObjectivesTab({ userId }) {
     if (obj.id) {
       await base44.entities.Objective.delete(obj.id);
     }
-    setObjectives(prev => prev.filter((_, i) => i !== idx));
+    setObjectives(prev => {
+      let remaining = prev.filter((_, i) => i !== idx);
+      // S'il ne reste qu'un seul objectif, le forcer en "primary"
+      if (remaining.length === 1 && remaining[0].priority !== 'primary') {
+        remaining = [{ ...remaining[0], priority: 'primary' }];
+      }
+      return remaining;
+    });
   };
 
   const save = async () => {
@@ -89,12 +96,18 @@ export default function ObjectivesTab({ userId }) {
       {objectives.map((obj, idx) => (
         <div key={idx} className="p-4 bg-white/10 rounded-xl border border-white/20 space-y-4">
           <div className="flex items-center justify-between">
-            <span className={cn(
-              'text-xs font-bold uppercase px-2.5 py-1 rounded-full',
-              obj.priority === 'primary' ? 'bg-white/30 text-white' : 'bg-white/10 text-white/60'
-            )}>
-              {obj.priority === 'primary' ? 'Primaire' : 'Secondaire'}
-            </span>
+            {objectives.length > 1 ? (
+              <span className={cn(
+                'text-xs font-bold uppercase px-2.5 py-1 rounded-full',
+                obj.priority === 'primary' ? 'bg-white/30 text-white' : 'bg-white/10 text-white/60'
+              )}>
+                {obj.priority === 'primary' ? '🎯 Focus principal' : '📌 Focus secondaire'}
+              </span>
+            ) : (
+              <span className="text-xs font-bold uppercase px-2.5 py-1 rounded-full bg-white/30 text-white">
+                Objectif
+              </span>
+            )}
             <Button variant="ghost" size="icon" onClick={() => removeObj(idx)} className="h-8 w-8">
               <Trash2 className="w-4 h-4 text-destructive" />
             </Button>
@@ -121,16 +134,18 @@ export default function ObjectivesTab({ userId }) {
               </Select>
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs text-white">Priorité</Label>
-              <Select value={obj.priority} onValueChange={(v) => updateObj(idx, 'priority', v)}>
-                <SelectTrigger className="h-9 bg-white/10 border-white/20 text-white"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="primary">Primaire</SelectItem>
-                  <SelectItem value="secondary">Secondaire</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {objectives.length > 1 && (
+              <div className="space-y-1.5">
+                <Label className="text-xs text-white">Priorité</Label>
+                <Select value={obj.priority} onValueChange={(v) => updateObj(idx, 'priority', v)}>
+                  <SelectTrigger className="h-9 bg-white/10 border-white/20 text-white"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="primary">🎯 Principal</SelectItem>
+                    <SelectItem value="secondary">📌 Secondaire</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <div className="space-y-1.5">
               <Label className="text-xs text-white">Statut</Label>
@@ -187,10 +202,18 @@ export default function ObjectivesTab({ userId }) {
         </div>
       ))}
 
-      <Button variant="outline" onClick={addObjective} className="w-full border-white/30 text-white hover:bg-white/10 hover:text-white">
-        <Plus className="w-4 h-4 mr-2" />
-        Ajouter un objectif
-      </Button>
+      {objectives.length < 3 ? (
+        <Button variant="outline" onClick={addObjective} className="w-full border-white/30 text-white hover:bg-white/10 hover:text-white">
+          <Plus className="w-4 h-4 mr-2" />
+          Ajouter un objectif {objectives.length > 0 && <span className="ml-1 opacity-60">({objectives.length}/3)</span>}
+        </Button>
+      ) : (
+        <div className="text-center py-3 px-4 rounded-xl bg-white/5 border border-white/10">
+          <p className="text-xs text-white/60">
+            <span className="font-semibold text-white">3 objectifs maximum</span> — au-delà, le programme manquerait de focus et chaque objectif progresserait moins.
+          </p>
+        </div>
+      )}
 
       <button onClick={save} disabled={saving} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm bg-white text-violet-700 hover:bg-white/90 shadow transition-all disabled:opacity-50">
         {saving && <Loader2 className="w-4 h-4 animate-spin" />}

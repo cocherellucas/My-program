@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { Dumbbell, Home, PersonStanding, Settings2, Search, ChevronDown, ChevronUp, ArrowRight, CheckCheck } from 'lucide-react';
+import { Dumbbell, Home, PersonStanding, Settings2, Search, ChevronDown, ChevronUp, ArrowRight, ArrowLeft, CheckCheck } from 'lucide-react';
 import { GYM_CHAINS_UI, getGymPreset } from '@/lib/gym-presets';
 
 const CONTEXTS = [
@@ -83,10 +83,11 @@ function EquipItem({ item, selected, onToggle }) {
   );
 }
 
-function GroupSection({ group, items, equipment, onToggle, forceOpen }) {
+function GroupSection({ group, items, equipment, onToggle, onToggleAll, forceOpen }) {
   const [open, setOpen] = useState(false);
   const selectedCount = items.filter(i => equipment.includes(i)).length;
   const isOpen = forceOpen || open;
+  const allSelected = selectedCount === items.length;
 
   return (
     <div className="border border-white/15 rounded-lg overflow-hidden">
@@ -100,7 +101,17 @@ function GroupSection({ group, items, equipment, onToggle, forceOpen }) {
             </span>
           )}
         </div>
-        {!forceOpen && (isOpen ? <ChevronUp className="w-3.5 h-3.5 text-white/40" /> : <ChevronDown className="w-3.5 h-3.5 text-white/40" />)}
+        <div className="flex items-center gap-2">
+          {isOpen && (
+            <span
+              role="button"
+              onClick={(e) => { e.stopPropagation(); onToggleAll?.(items, allSelected); }}
+              className="text-[10px] font-semibold px-2 py-0.5 rounded-md text-white/80 bg-white/10 hover:bg-white/20 transition-colors">
+              {allSelected ? 'Tout décocher' : 'Tout cocher'}
+            </span>
+          )}
+          {!forceOpen && (isOpen ? <ChevronUp className="w-3.5 h-3.5 text-white/40" /> : <ChevronDown className="w-3.5 h-3.5 text-white/40" />)}
+        </div>
       </button>
       {isOpen && (
         <div className="p-3 flex flex-wrap gap-2 bg-white/3">
@@ -157,8 +168,14 @@ export default function StepEquipment({ data, onChange }) {
   const [view, setView] = useState('material');
   const [validated, setValidated] = useState(false);
   const [fading, setFading] = useState(false);
-  const [showGymPicker, setShowGymPicker] = useState(false);
-  const [selectedChain, setSelectedChain] = useState(null);
+  const [showContextPicker, setShowContextPicker] = useState(false);
+  const [verifyingPreset, setVerifyingPreset] = useState(false);
+  const [showGymPicker, setShowGymPicker] = useState(() => {
+    // Si full_gym sans équipement (retour de step), réafficher le picker d'enseignes
+    return data.training_context === 'full_gym' && (!data.equipment || data.equipment.length === 0);
+  });
+  const selectedChain = data.gym_chain || null;
+  const setSelectedChain = (chain) => onChange({ gym_chain: chain });
   const lastValidatedRef = useRef(context ? equipment : null);
 
   useEffect(() => { lastValidatedRef.current = context ? equipment : null; }, [context]); // eslint-disable-line
@@ -178,6 +195,7 @@ export default function StepEquipment({ data, onChange }) {
   };
 
   const selectContext = (ctx) => {
+    setVerifyingPreset(false);
     if (ctx === 'full_gym') {
       setShowGymPicker(true);
       setSelectedChain(null);
@@ -195,7 +213,7 @@ export default function StepEquipment({ data, onChange }) {
     const eq = chainKey === 'all' ? ALL_EQUIPMENT : (getGymPreset(chainKey)?.equipment ?? ALL_EQUIPMENT);
     onChange({ equipment: eq, equipment_validated: false });
   };
-  const verifyPreset = () => { onChange({ training_context: 'custom', equipment_validated: false }); setSearch(''); };
+  const verifyPreset = () => { setVerifyingPreset(true); setSearch(''); onChange({ equipment_validated: false }); };
   const toggleEquip = (item) => {
     onChange({ equipment: equipment.includes(item) ? equipment.filter(e => e !== item) : [...equipment, item], equipment_validated: false });
   };
@@ -225,28 +243,67 @@ export default function StepEquipment({ data, onChange }) {
         <p className="text-white/70 mt-2">Où t'entraînes-tu ?</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        {CONTEXTS.map(({ key, label, icon: Icon, desc }) => (
-          <button key={key} type="button" onClick={() => selectContext(key)}
-            className={cn('flex flex-col items-center gap-2 p-3 rounded-xl border-2 text-center transition-all',
-              context === key ? 'border-white bg-violet-500' : 'border-violet-300 bg-[#8b45f8] hover:border-white')}>
-            <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center',
-              context === key ? 'bg-white text-violet-600' : 'bg-violet-500 text-white')}>
-              <Icon className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="font-semibold text-sm text-white block">{label}</span>
-              <p className="text-xs text-white/70">{desc}</p>
-            </div>
+      {context && !showGymPicker && !showContextPicker ? (
+        /* Mode compact — ligne unique récapitulative avec bouton Changer */
+        <div className="flex items-center justify-between gap-2 px-4 py-3 rounded-xl bg-white/10 border border-white/20">
+          <p className="text-sm text-white/90 truncate">
+            Tu t'entraînes en <span className="font-bold text-white">{CONTEXTS.find(c => c.key === context)?.label}</span>
+          </p>
+          <button type="button" onClick={() => setShowContextPicker(true)}
+            className="flex items-center gap-1 text-xs text-white/70 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-all flex-shrink-0">
+            Changer
           </button>
-        ))}
-      </div>
+        </div>
+      ) : (
+        /* Mode initial / Changer — 4 grosses cartes avec bouton retour */
+        <div className="space-y-3">
+          {context && showContextPicker && (
+            <button type="button" onClick={() => setShowContextPicker(false)}
+              className="flex items-center gap-1 text-xs text-white/60 hover:text-white transition-colors">
+              <ArrowLeft className="w-3.5 h-3.5" /> Retour
+            </button>
+          )}
+          <div className="grid grid-cols-2 gap-3">
+            {CONTEXTS.map(({ key, label, icon: Icon, desc }) => (
+              <button key={key} type="button" onClick={() => { selectContext(key); setShowContextPicker(false); }}
+                className={cn('flex flex-col items-center gap-2 p-3 rounded-xl border-2 text-center transition-all',
+                  context === key
+                    ? 'border-white bg-violet-500'
+                    : 'border-violet-300/60 bg-[#8b45f8]/70 opacity-75 hover:opacity-100 hover:border-white')}>
+                <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center',
+                  context === key ? 'bg-white text-violet-600' : 'bg-violet-500 text-white')}>
+                  <Icon className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="font-semibold text-sm text-white block">{label}</span>
+                  <p className="text-xs text-white/70">{desc}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {context === 'full_gym' && showGymPicker && (
         <div className="space-y-2">
           <p className="text-sm font-semibold text-white/80 mb-1">Quelle est ta salle ?</p>
+
+          {/* Enseigne actuellement sélectionnée — pinnée en haut en mode "sélectionné" */}
+          {selectedChain && selectedChain !== 'all' && (() => {
+            const cur = GYM_CHAINS_UI.find(c => c.key === selectedChain);
+            if (!cur) return null;
+            return (
+              <button type="button" onClick={() => selectGymChain(cur.key)}
+                className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 border-white bg-white/20 transition-all text-left mb-2">
+                <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: cur.color }} />
+                <span className="text-xs font-semibold text-white">{cur.label}</span>
+                <span className="ml-auto text-[10px] uppercase tracking-wider text-white/60 font-bold">Sélectionnée</span>
+              </button>
+            );
+          })()}
+
           <div className="grid grid-cols-2 gap-2">
-            {GYM_CHAINS_UI.map(chain => (
+            {GYM_CHAINS_UI.filter(chain => chain.key !== selectedChain).map(chain => (
               <button key={chain.key} type="button" onClick={() => selectGymChain(chain.key)}
                 className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-white/25 bg-white/10 hover:bg-white/20 transition-all text-left">
                 <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: chain.color }} />
@@ -257,46 +314,64 @@ export default function StepEquipment({ data, onChange }) {
         </div>
       )}
 
-      {context && CONTEXT_SUMMARY[context] && !showGymPicker && (
+      {context && CONTEXT_SUMMARY[context] && !showGymPicker && !showContextPicker && !verifyingPreset && (
         <div className="bg-white/10 rounded-xl border border-white/20 overflow-hidden">
-          <div className="flex items-center justify-between px-4 pt-3 pb-2">
-            <div className="flex items-center gap-2 min-w-0">
+          {/* Chip enseigne au-dessus */}
+          {(selectedChain && selectedChain !== 'all') || ((!selectedChain || selectedChain === 'all') && context === 'full_gym') ? (
+            <div className="px-4 pt-3 pb-1">
+              {selectedChain && selectedChain !== 'all' && (() => {
+                const cur = GYM_CHAINS_UI.find(c => c.key === selectedChain);
+                return (
+                  <button type="button" onClick={() => {
+                    setShowGymPicker(true);
+                    setSelectedChain(null);
+                    onChange({ equipment: [], equipment_validated: false });
+                  }}
+                    className="w-full flex items-center gap-2 text-sm font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/25 px-3 py-2 rounded-lg transition-all">
+                    {cur?.color && <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: cur.color }} />}
+                    <span className="flex-1 text-left">{selectedChain}</span>
+                    <span className="text-white/50 text-xs">✕</span>
+                  </button>
+                );
+              })()}
+              {(!selectedChain || selectedChain === 'all') && context === 'full_gym' && (
+                <button type="button" onClick={() => {
+                  setShowGymPicker(true);
+                  setSelectedChain(null);
+                  onChange({ equipment: [], equipment_validated: false });
+                }}
+                  className="w-full flex items-center justify-between gap-2 text-sm font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/25 px-3 py-2 rounded-lg transition-all">
+                  <span>Ma salle</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          ) : null}
+
+          <div className="flex items-center justify-between gap-2 px-4 pt-2 pb-2">
+            <div className="flex items-center gap-1.5 min-w-0 flex-1">
               <CheckCheck className="w-4 h-4 text-green-400 flex-shrink-0" />
               <p className="text-xs font-semibold text-white/70 uppercase tracking-wider whitespace-nowrap">
                 {equipment.length} équipements
               </p>
-              {selectedChain && selectedChain !== 'all' && (
-                <button type="button" onClick={() => setShowGymPicker(true)}
-                  className="flex items-center gap-1 text-[10px] font-semibold text-violet-700 bg-white hover:bg-white/90 px-2 py-0.5 rounded-md shadow-sm transition-all">
-                  {selectedChain}
-                  <span className="text-violet-400 text-[10px]">✕</span>
-                </button>
-              )}
-              {(!selectedChain || selectedChain === 'all') && context === 'full_gym' && (
-                <button type="button" onClick={() => setShowGymPicker(true)}
-                  className="flex items-center gap-1 text-xs text-white/70 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-all">
-                  Ma salle →
-                </button>
-              )}
             </div>
-            <button type="button" onClick={verifyPreset}
-              className="flex items-center gap-1 text-xs text-white/70 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-all flex-shrink-0">
-              Vérifier
-              <ArrowRight className="w-3 h-3" />
-            </button>
           </div>
           <div className="px-4 pb-3 flex flex-wrap gap-1.5">
             {equipment.slice(0, 10).map(item => (
               <span key={item} className="text-[10px] bg-white/15 text-white/80 px-2 py-0.5 rounded-full">{item}</span>
             ))}
-            {equipment.length > 10 && (
-              <span className="text-[10px] bg-white/8 text-white/40 px-2 py-0.5 rounded-full">+{equipment.length - 10} autres</span>
-            )}
+          </div>
+          <div className="px-4 pb-3">
+            <button type="button" onClick={verifyPreset}
+              className="w-full flex items-center justify-center gap-2 text-sm font-semibold text-white border border-white/40 hover:bg-white/10 px-3 py-2.5 rounded-lg transition-all">
+              Vérifier l'équipement sélectionné
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
       )}
 
-      {context === 'bodyweight' && (
+      {context === 'bodyweight' && !showContextPicker && (
         <div className="space-y-3">
           <Label className="text-white">Équipement du parc</Label>
           <p className="text-xs text-white/50">Les éléments cochés sont présents dans la plupart des parcs.</p>
@@ -308,8 +383,21 @@ export default function StepEquipment({ data, onChange }) {
         </div>
       )}
 
-      {context === 'custom' && (
+      {(context === 'custom' || verifyingPreset) && !showContextPicker && (
         <div className="space-y-3">
+          {verifyingPreset && (
+            <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-white/10 border border-white/20">
+              <p className="text-xs text-white/80">
+                Tu modifies <span className="font-semibold text-white">{CONTEXTS.find(c => c.key === context)?.label}</span>
+                {selectedChain && selectedChain !== 'all' && <span> · <span className="font-semibold text-white">{selectedChain}</span></span>}
+              </p>
+              <button type="button" onClick={() => setVerifyingPreset(false)}
+                className="flex items-center gap-1 text-xs font-semibold text-white/70 hover:text-white bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-md transition-all">
+                <ArrowLeft className="w-3 h-3" /> Retour
+              </button>
+            </div>
+          )}
+
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
             <Input placeholder="Rechercher un équipement..." value={search}
@@ -330,7 +418,7 @@ export default function StepEquipment({ data, onChange }) {
             <button type="button"
               onClick={() => onChange({ equipment: equipment.length === ALL_EQUIPMENT.length ? [] : ALL_EQUIPMENT, equipment_validated: false })}
               className="flex items-center gap-2">
-              <span className="text-xs text-white/60">Tout</span>
+              <span className="text-xs text-white/60">{equipment.length === ALL_EQUIPMENT.length ? 'Tout décocher' : 'Tout cocher'}</span>
               <div className={cn('relative w-10 h-5 rounded-full transition-colors duration-200',
                 equipment.length === ALL_EQUIPMENT.length ? 'bg-white' : 'bg-white/20')}>
                 <div className={cn('absolute top-0.5 w-4 h-4 rounded-full shadow transition-transform duration-200',
@@ -346,7 +434,14 @@ export default function StepEquipment({ data, onChange }) {
             <div className="space-y-2">
               {filteredByType.map(({ group, items }) => (
                 <GroupSection key={group} group={group} items={items} equipment={equipment}
-                  onToggle={toggleEquip} forceOpen={!!search} />
+                  onToggle={toggleEquip}
+                  onToggleAll={(grpItems, allSelected) => {
+                    const next = allSelected
+                      ? equipment.filter(e => !grpItems.includes(e))
+                      : [...new Set([...equipment, ...grpItems])];
+                    onChange({ equipment: next, equipment_validated: false });
+                  }}
+                  forceOpen={!!search} />
               ))}
               {filteredByType.length === 0 && (
                 <p className="text-sm text-white/50 text-center py-6">Aucun résultat pour "{search}"</p>
@@ -377,20 +472,6 @@ export default function StepEquipment({ data, onChange }) {
         </div>
       )}
 
-      {context && (hasChanged || validated || fading) && (
-        <button type="button" onClick={handleValidate}
-          className={cn(
-            'w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm shadow-lg',
-            'transition-all duration-500',
-            fading && !validated ? 'opacity-0 scale-95' : 'opacity-100 scale-100',
-            validated
-              ? 'bg-white text-violet-700 scale-[0.97] ring-4 ring-white/60 shadow-[0_0_24px_rgba(255,255,255,0.5)]'
-              : 'bg-white text-violet-700 hover:bg-white/90'
-          )}>
-          <CheckCheck className={cn('w-4 h-4 transition-transform duration-300', validated && 'scale-125')} />
-          {validated ? 'Équipement enregistré !' : 'Valider mon équipement'}
-        </button>
-      )}
     </div>
   );
 }
