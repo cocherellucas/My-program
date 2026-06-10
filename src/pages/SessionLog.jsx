@@ -978,6 +978,41 @@ export default function SessionLog() {
   const [sessionExercises, setSessionExercises] = useState(() => _draft.sessionExercises || null);
   const [editingObjectif, setEditingObjectif] = useState(false);
   const [previousLogs, setPreviousLogs] = useState({});
+
+  // Auto-save des logs en BDD (debounce 2s) pour persister même sans "Terminer la séance"
+  useEffect(() => {
+    if (!session || !user || saving) return;
+    if (Object.keys(logs).length === 0) return;
+    const timer = setTimeout(async () => {
+      try {
+        // Vider d'abord les logs auto-sauvegardés pour cette session
+        const existing = await base44.entities.SeriesLog.filter({ session_id: session.id });
+        await Promise.all(existing.map(l => base44.entities.SeriesLog.delete(l.id)));
+        // Créer les logs non-vides
+        await Promise.all(Object.entries(logs).map(([key, log]) => {
+          if (!log.weight && !log.reps) return Promise.resolve();
+          const [exIdx, setIdx] = key.split('-').map(Number);
+          const exercise = exercises[exIdx];
+          if (!exercise) return Promise.resolve();
+          return base44.entities.SeriesLog.create({
+            session_id: session.id,
+            user_id: user.id,
+            exercise_name: exercise.name,
+            exercise_variant: exercise.name,
+            set_number: setIdx + 1,
+            weight: log.weight || 0,
+            reps_done: log.reps || 0,
+            reps_target: exercise.target_reps || '',
+            rest_seconds: restTimeForEx[exIdx] || exercise.rest_seconds || 90,
+            mode: log.mode || 'RIR_2',
+            execution_quality: log.quality || 'good',
+            feedback: log.feedback || null,
+          });
+        }));
+      } catch (e) { /* silent — auto-save is best-effort */ }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [logs]); // eslint-disable-line
   const [sessionsHistory, setSessionsHistory] = useState(''); // résumé textuel pour l'IA
   const [proposal, setProposal] = useState(null);
   const [coachPainQuery, setCoachPainQuery] = useState(null); // {zone, message} notification coach après douleur
@@ -1054,31 +1089,32 @@ export default function SessionLog() {
   useEffect(() => {
     if (!session || !user) return;
     const fetchPreviousLogs = async () => {
-      const allSessions = await base44.entities.Session.filter({ program_id: session.program_id, status: 'completed' });
+      // On inclut aussi les séances "planned" car elles peuvent avoir des logs auto-sauvegardés
+      const allSessions = await base44.entities.Session.filter({ program_id: session.program_id });
       const sorted = allSessions
         .filter(s => s.id !== session.id)
         .sort((a, b) => {
-          // Tri principal : actual_date desc
-          const dateA = new Date(a.actual_date || a.created_date).getTime();
-          const dateB = new Date(b.actual_date || b.created_date).getTime();
-          if (dateA !== dateB) return dateB - dateA;
-          // Tie-breaker : timestamp de complétion (updated_date desc)
-          const upA = new Date(a.updated_date || a.created_date).getTime();
-          const upB = new Date(b.updated_date || b.created_date).getTime();
-          return upB - upA;
+          // Tri par actual_date (complétées) ou updated_date (drafts) — plus récent en premier
+          const dateA = new Date(a.actual_date || a.updated_date || a.created_date).getTime();
+          const dateB = new Date(b.actual_date || b.updated_date || b.created_date).getTime();
+          return dateB - dateA;
         });
 
-      // previousLogs = dernière séance du même type (même day_label) — sinon dernière séance
+      // previousLogs = dernière séance du même type (même day_label) AVEC des logs
+      // On itère du plus récent au plus ancien et on prend la première qui a des données
       const sameType = sorted.filter(s => s.day_label === session.day_label);
-      const lastSession = sameType[0] || sorted[0];
-      if (lastSession) {
-        const lastLogs = await base44.entities.SeriesLog.filter({ session_id: lastSession.id, user_id: user.id });
-        const map = {};
-        lastLogs.forEach(sl => {
-          if (!map[sl.exercise_name]) map[sl.exercise_name] = {};
-          map[sl.exercise_name][sl.set_number] = { weight: sl.weight, reps: sl.reps_done, mode: sl.mode, quality: sl.execution_quality };
-        });
-        setPreviousLogs(map);
+      const candidates = sameType.length > 0 ? sameType : sorted;
+      for (const candidate of candidates) {
+        const candidateLogs = await base44.entities.SeriesLog.filter({ session_id: candidate.id, user_id: user.id });
+        if (candidateLogs.length > 0) {
+          const map = {};
+          candidateLogs.forEach(sl => {
+            if (!map[sl.exercise_name]) map[sl.exercise_name] = {};
+            map[sl.exercise_name][sl.set_number] = { weight: sl.weight, reps: sl.reps_done, mode: sl.mode, quality: sl.execution_quality };
+          });
+          setPreviousLogs(map);
+          break;
+        }
       }
 
       // sessionsHistory = toutes les séances condensées pour l'IA coach
@@ -1494,6 +1530,12 @@ Ce que l'utilisateur dit : "${painNote}"`;
         return base44.entities.Session.update(fs.id, { exercises: updated });
       }));
     }
+
+    // Supprimer d'éventuels logs auto-sauvegardés pour éviter les doublons
+    try {
+      const existingLogs = await base44.entities.SeriesLog.filter({ session_id: session.id });
+      await Promise.all(existingLogs.map(l => base44.entities.SeriesLog.delete(l.id)));
+    } catch {}
 
     await Promise.all(Object.entries(logs).map(([key, log]) => {
       const [exIdx, setIdx] = key.split('-').map(Number);
