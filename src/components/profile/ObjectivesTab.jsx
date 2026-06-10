@@ -5,13 +5,14 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { Plus, Trash2, Loader2, Save } from 'lucide-react';
+import { Plus, Trash2, Loader2, Save, ChevronDown, HelpCircle } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from 'sonner';
 
 const TYPES = [
-  { value: 'strength', label: 'Force' },
-  { value: 'hypertrophy', label: 'Hypertrophie' },
-  { value: 'endurance', label: 'Endurance' },
+  { value: 'hypertrophy', label: '💪 Prendre du muscle' },
+  { value: 'strength', label: '🏋️ Devenir plus fort' },
+  { value: 'endurance', label: '🏃 Améliorer l\'endurance' },
 ];
 
 const ZONES = [
@@ -96,18 +97,43 @@ export default function ObjectivesTab({ userId }) {
       {objectives.map((obj, idx) => (
         <div key={idx} className="p-4 bg-white/10 rounded-xl border border-white/20 space-y-4">
           <div className="flex items-center justify-between">
-            {objectives.length > 1 ? (
-              <span className={cn(
-                'text-xs font-bold uppercase px-2.5 py-1 rounded-full',
-                obj.priority === 'primary' ? 'bg-white/30 text-white' : 'bg-white/10 text-white/60'
-              )}>
-                {obj.priority === 'primary' ? '🎯 Focus principal' : '📌 Focus secondaire'}
-              </span>
-            ) : (
-              <span className="text-xs font-bold uppercase px-2.5 py-1 rounded-full bg-white/30 text-white">
-                Objectif
-              </span>
-            )}
+            <div className="flex items-center gap-1.5">
+              {objectives.length > 1 ? (
+                <button type="button"
+                  onClick={() => updateObj(idx, 'priority', obj.priority === 'primary' ? 'secondary' : 'primary')}
+                  className={cn(
+                    'flex items-center gap-1 text-xs font-bold uppercase px-2.5 py-1 rounded-full transition-colors',
+                    obj.priority === 'primary' ? 'bg-white/30 text-white hover:bg-white/40' : 'bg-white/10 text-white/60 hover:bg-white/20'
+                  )}>
+                  {obj.priority === 'primary' ? '🎯 Focus principal' : '📌 Focus secondaire'}
+                  <ChevronDown className="w-3 h-3 opacity-60" />
+                </button>
+              ) : (
+                <span className="text-xs font-bold uppercase px-2.5 py-1 rounded-full bg-white/30 text-white">
+                  Objectif
+                </span>
+              )}
+              {objectives.length > 1 && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button type="button" className="text-white/40 hover:text-white/70 transition-colors">
+                      <HelpCircle className="w-3.5 h-3.5" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-72 text-xs space-y-2">
+                    <p className="text-white/60 text-[10px] uppercase tracking-wider font-semibold">Clique sur le badge pour basculer</p>
+                    <div>
+                      <p className="font-semibold">🎯 Focus principal</p>
+                      <p className="text-white/70 mt-0.5">Objectif central, progression plus rapide. Tu peux en avoir plusieurs s'ils ont la même importance pour toi.</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold">📌 Focus secondaire</p>
+                      <p className="text-white/70 mt-0.5">Objectif d'appoint, en complément. Un focus principal aura toujours plus de volume qu'un secondaire.</p>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              )}
+            </div>
             <Button variant="ghost" size="icon" onClick={() => removeObj(idx)} className="h-8 w-8">
               <Trash2 className="w-4 h-4 text-destructive" />
             </Button>
@@ -134,18 +160,6 @@ export default function ObjectivesTab({ userId }) {
               </Select>
             </div>
 
-            {objectives.length > 1 && (
-              <div className="space-y-1.5">
-                <Label className="text-xs text-white">Priorité</Label>
-                <Select value={obj.priority} onValueChange={(v) => updateObj(idx, 'priority', v)}>
-                  <SelectTrigger className="h-9 bg-white/10 border-white/20 text-white"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="primary">🎯 Principal</SelectItem>
-                    <SelectItem value="secondary">📌 Secondaire</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
 
             <div className="space-y-1.5">
               <Label className="text-xs text-white">Statut</Label>

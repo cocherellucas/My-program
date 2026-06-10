@@ -195,38 +195,53 @@ function calcSessionVolume(durationMinutes, objective, level = 'intermediate') {
 // Alloue les séries disponibles par groupe selon priorité + objectif
 // ─────────────────────────────────────────────────────────────────────────────
 function allocateVolumeByMuscle(objectives, totalSetsPerSession, level, phase, structure) {
-  const primary   = objectives.find(o => o.priority === 'primary');
-  const secondary = objectives.find(o => o.priority === 'secondary');
+  // Premier objectif principal (pour déterminer le type "dominant" et la cible hebdo)
+  const primary   = objectives.find(o => o.priority === 'primary') || objectives[0];
   const objType   = primary?.type || 'hypertrophy';
   const objTable  = VOLUME_TABLES[objType] || VOLUME_TABLES.hypertrophy;
-  // Utilise la moyenne large/small au niveau donné comme cible hebdomadaire
   const largeMEV  = objTable.large?.[level]?.MAV || objTable.large?.intermediate?.MAV || 14;
   const smallMEV  = objTable.small?.[level]?.MAV || objTable.small?.intermediate?.MAV || 10;
   const weeklyTarget = Math.round((largeMEV + smallMEV) / 2);
 
-  // Muscles principaux selon objectif
-  const primaryMuscles = primary?.zone === 'specific_group'
-    ? (Array.isArray(primary.focus_group) ? primary.focus_group : [primary.focus_group])
-    : ZONE_MUSCLES[primary?.zone] || ZONE_MUSCLES.full_body;
+  const getMuscles = (obj) => obj.zone === 'specific_group'
+    ? (Array.isArray(obj.focus_group) ? obj.focus_group : [obj.focus_group])
+    : ZONE_MUSCLES[obj.zone] || (obj.priority === 'primary' ? ZONE_MUSCLES.full_body : []);
 
-  const secondaryMuscles = secondary
-    ? (secondary.zone === 'specific_group'
-      ? (Array.isArray(secondary.focus_group) ? secondary.focus_group : [secondary.focus_group])
-      : ZONE_MUSCLES[secondary.zone] || [])
-    : [];
+  // Allocation PAR OBJECTIF (pas par muscle) :
+  // chaque primary = poids 1, chaque secondary = poids 2/3
+  // L'allocation d'un objectif est répartie sur ses muscles
+  const objWeights = objectives.map(o => o.priority === 'primary' ? 1 : 2/3);
+  const totalWeight = objWeights.reduce((a, b) => a + b, 0) || 1;
 
-  // Ratio d'allocation : 60% primaire, 40% secondaire/accessoire
-  const allMuscles = [...new Set([...primaryMuscles, ...secondaryMuscles])];
+  // Pour chaque muscle, choisir l'objectif "gagnant" :
+  // - priorité au "primary" si présent dans plusieurs objectifs
+  // - sinon, premier trouvé
+  const muscleToObj = {};
+  objectives.forEach((obj, idx) => {
+    for (const m of getMuscles(obj)) {
+      const current = muscleToObj[m];
+      if (!current || (obj.priority === 'primary' && objectives[current.objIdx].priority !== 'primary')) {
+        muscleToObj[m] = { objIdx: idx, priority: obj.priority };
+      }
+    }
+  });
 
-  return allMuscles.map(muscle => {
-    const isPrimary = primaryMuscles.includes(muscle);
-    const ratio     = isPrimary ? 0.6 / primaryMuscles.length : 0.4 / Math.max(secondaryMuscles.length, 1);
-    const weekly    = Math.round(weeklyTarget * ratio);
+  // Compter combien de muscles chaque objectif "possède" après attribution
+  const objMuscleCount = {};
+  for (const { objIdx } of Object.values(muscleToObj)) {
+    objMuscleCount[objIdx] = (objMuscleCount[objIdx] || 0) + 1;
+  }
+
+  return Object.entries(muscleToObj).map(([muscle, { objIdx, priority }]) => {
+    const objShare = objWeights[objIdx] / totalWeight;
+    const count    = objMuscleCount[objIdx] || 1;
+    const ratio    = objShare / count;
+    const weekly   = Math.round(weeklyTarget * ratio);
     const perSession = structure === 'full_body'
       ? Math.ceil(weekly / (objectives[0]?.pref_frequency || 2))
       : Math.ceil(weekly / 2);
 
-    return { muscle, weekly, perSession: Math.min(perSession, 8), isPrimary };
+    return { muscle, weekly, perSession: Math.min(perSession, 8), isPrimary: priority === 'primary' };
   });
 }
 
@@ -355,20 +370,15 @@ function buildPeakingWeek(objectives, level, enabled) {
   let targetMovement = /** @type {string|null} */ (null);
   let targetDescription = '';
 
-  if (strengthObj.focus_movement) {
-    targetMovement = strengthObj.focus_movement;
-    targetDescription = `mouvement : ${strengthObj.focus_movement}`;
-    const MOVEMENT_MUSCLES = /** @type {Record<string, string[]>} */ ({
-      'Squat barre':          ['Quadriceps', 'Fessiers', 'Ischio-jambiers'],
-      'Bench press':          ['Poitrine', 'Triceps', 'Épaules'],
-      'Soulevé de terre':     ['Dos', 'Ischio-jambiers', 'Fessiers', 'Quadriceps'],
-      'Développé militaire':  ['Épaules', 'Triceps'],
-      'Rowing barre':         ['Dos', 'Biceps'],
-      'Traction lestée':      ['Dos', 'Biceps'],
-      'Fente barre':          ['Quadriceps', 'Fessiers', 'Ischio-jambiers'],
-      'Hip thrust barre':     ['Fessiers', 'Ischio-jambiers'],
-    });
-    targetMuscles = MOVEMENT_MUSCLES[strengthObj.focus_movement] || [];
+  if (strengthObj.focus_movement && (Array.isArray(strengthObj.focus_movement) ? strengthObj.focus_movement.length > 0 : true)) {
+    // Multi-select : focus sur les mouvements eux-mêmes (l'IA priorise ces exercices),
+    // pas un mapping muscle. La progression cible directement la barre.
+    const movements = Array.isArray(strengthObj.focus_movement)
+      ? strengthObj.focus_movement
+      : [strengthObj.focus_movement];
+    targetMovement = movements.join(' + ');
+    targetDescription = `mouvement(s) : ${movements.join(', ')}`;
+    targetMuscles = []; // pas de mapping — l'objectif est de progresser sur le mouvement directement
   } else {
     const zoneMap = /** @type {Record<string, string[]>} */ (ZONE_MUSCLES);
     targetMuscles = zoneMap[strengthObj.zone] || ZONE_MUSCLES.full_body;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -48,9 +48,9 @@ const TRANSITION = 1.5 / 4;
 const WARMUP_MIN = 8;
 
 const TYPES = [
-  { value: 'strength', label: 'Force' },
-  { value: 'hypertrophy', label: 'Hypertrophie' },
-  { value: 'endurance', label: 'Endurance' },
+  { value: 'strength', label: 'Devenir plus fort' },
+  { value: 'hypertrophy', label: 'Prendre du muscle' },
+  { value: 'endurance', label: 'Améliorer l\'endurance' },
 ];
 
 const ZONES = [
@@ -66,7 +66,7 @@ const GROUPS = [
 ];
 
 const MUSCLE_DETAILS = {
-  'Pectoraux':       ['Grand pectoral — faisceau claviculaire (haut)', 'Grand pectoral — faisceau sternal (milieu)', 'Grand pectoral — faisceau abdominal (bas)', 'Petit pectoral'],
+  'Pectoraux':       ['Faisceau claviculaire (haut)', 'Faisceau sternal (milieu)', 'Faisceau abdominal (bas)', 'Petit pectoral'],
   'Dos':             ['Grand dorsal', 'Trapèze (sup. / moy. / inf.)', 'Rhomboïdes', 'Grand rond', 'Érecteurs spinaux (thoracique)', 'Lombaires'],
   'Épaules':         ['Deltoïde antérieur (devant)', 'Deltoïde médian (côté)', 'Deltoïde postérieur (derrière)', 'Coiffe des rotateurs'],
   'Biceps':          ['Chef long (longue portion)', 'Chef court (courte portion)', 'Brachial antérieur', 'Brachio-radial'],
@@ -91,6 +91,15 @@ export default function StepObjectives({ data, onChange }) {
   const [strengthFocus, setStrengthFocus] = useState({});
   const [detailMode, setDetailMode] = useState({});
   const [expandedGroup, setExpandedGroup] = useState({});
+
+  // Au premier montage avec aucun objectif : créer un objectif par défaut (hypertrophie corps entier)
+  useEffect(() => {
+    if (objectives.length === 0) {
+      onChange({
+        objectives: [{ type: 'hypertrophy', zone: 'full_body', priority: 'primary', focus_group: '', focus_movement: '' }]
+      });
+    }
+  }, []); // eslint-disable-line
 
   // Union des muscles couverts par les objectifs actuels (noms moteur)
   const objectiveMuscles = [...new Set(
@@ -169,12 +178,24 @@ export default function StepObjectives({ data, onChange }) {
     onChange({ objectives: remaining });
   };
 
-  // Muscles déjà pris par un autre objectif du même type en specific_group
-  const getTakenMuscles = (idx) => new Set(
-    objectives
-      .filter((o, i) => i !== idx && o.type === objectives[idx].type && o.zone === 'specific_group' && Array.isArray(o.focus_group))
-      .flatMap(o => o.focus_group)
-  );
+  // Muscles déjà pris par un autre objectif du même type (toutes zones confondues)
+  const ZONE_TO_GROUPS = {
+    upper_body: ['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps'],
+    lower_body: ['Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets'],
+    full_body:  ['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Abdominaux'],
+  };
+  const getTakenMuscles = (idx) => {
+    const taken = new Set();
+    objectives.forEach((o, i) => {
+      if (i === idx || o.type !== objectives[idx].type) return;
+      if (o.zone === 'specific_group' && Array.isArray(o.focus_group)) {
+        o.focus_group.forEach(m => taken.add(m));
+      } else if (ZONE_TO_GROUPS[o.zone]) {
+        ZONE_TO_GROUPS[o.zone].forEach(m => taken.add(m));
+      }
+    });
+    return taken;
+  };
 
   return (
     <div className="space-y-6">
@@ -189,129 +210,271 @@ export default function StepObjectives({ data, onChange }) {
         {objectives.map((obj, idx) => (
           <div key={idx} className="p-4 bg-white/10 rounded-xl border border-white/20 space-y-4">
             <div className="flex items-center justify-between">
-              {objectives.length > 1 ? (
-                <span className={cn(
-                  'text-xs font-bold uppercase px-2.5 py-1 rounded-full',
-                  obj.priority === 'primary' ? 'bg-white/30 text-white' : 'bg-white/10 text-white/60'
-                )}>
-                  {obj.priority === 'primary' ? '🎯 Focus principal' : '📌 Focus secondaire'}
-                </span>
-              ) : (
-                <span className="text-xs font-bold uppercase px-2.5 py-1 rounded-full bg-white/30 text-white">
-                  Objectif
-                </span>
-              )}
+              <div className="flex items-center gap-1.5">
+                {objectives.length > 1 ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button type="button"
+                        className={cn(
+                          'flex items-center gap-1 text-xs font-bold uppercase px-2.5 py-1 rounded-full transition-colors',
+                          obj.priority === 'primary' ? 'bg-white/30 text-white hover:bg-white/40' : 'bg-white/10 text-white/60 hover:bg-white/20'
+                        )}>
+                        {obj.priority === 'primary' ? '🎯 Focus principal' : '📌 Focus secondaire'}
+                        <ChevronDown className="w-3 h-3 opacity-60" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="bg-violet-800 border-white/20 text-white min-w-[170px]">
+                      <DropdownMenuItem
+                        className="focus:bg-white/20 focus:text-white cursor-pointer"
+                        onClick={() => {
+                          // Swap : si un autre objectif du même type est primaire, on l'inverse
+                          const otherPrimaryIdx = objectives.findIndex((o, i) => i !== idx && o.type === obj.type && o.priority === 'primary');
+                          if (otherPrimaryIdx !== -1) {
+                            const updated = objectives.map((o, i) => {
+                              if (i === idx) return { ...o, priority: 'primary' };
+                              if (i === otherPrimaryIdx) return { ...o, priority: 'secondary' };
+                              return o;
+                            });
+                            onChange({ objectives: updated });
+                          } else {
+                            updateObj(idx, 'priority', 'primary');
+                          }
+                        }}>
+                        🎯 Focus principal
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="focus:bg-white/20 focus:text-white cursor-pointer"
+                        onClick={() => updateObj(idx, 'priority', 'secondary')}>
+                        📌 Focus secondaire
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <span className="text-xs font-bold uppercase px-2.5 py-1 rounded-full bg-white/30 text-white">
+                    Objectif
+                  </span>
+                )}
+                {objectives.length > 1 && (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button type="button" className="text-white/40 hover:text-white/70 transition-colors">
+                        <HelpCircle className="w-3.5 h-3.5" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-72 text-xs space-y-2">
+                      <p className="text-white/60 text-[10px] uppercase tracking-wider font-semibold">Clique sur le badge pour basculer</p>
+                      <div>
+                        <p className="font-semibold">🎯 Focus principal</p>
+                        <p className="text-white/70 mt-0.5">Objectif central, progression plus rapide. Tu peux en avoir plusieurs s'ils ont la même importance pour toi.</p>
+                      </div>
+                      <div>
+                        <p className="font-semibold">📌 Focus secondaire</p>
+                        <p className="text-white/70 mt-0.5">Objectif d'appoint, en complément. Un focus principal aura toujours plus de volume qu'un secondaire.</p>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                )}
+              </div>
               <Button variant="ghost" size="icon" onClick={() => removeObj(idx)} className="h-8 w-8 hover:bg-white/10">
                 <Trash2 className="w-4 h-4 text-red-400" />
               </Button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              {/* Type — avec sous-menu flyout pour Force */}
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1">
-                  <Label className="text-xs text-white">Type</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button type="button" className="text-white/40 hover:text-white/70 transition-colors">
-                        <HelpCircle className="w-3 h-3" />
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-64 text-xs space-y-1.5">
-                      <p><span className="font-semibold">Force</span> — progresser sur des charges maximales (1–5 reps). Adaptations neurologiques et gain de force brute.</p>
-                      <p><span className="font-semibold">Hypertrophie</span> — augmenter le volume musculaire (6–12 reps). L'objectif le plus courant.</p>
-                      <p><span className="font-semibold">Endurance</span> — résistance musculaire à la fatigue (12+ reps, repos courts).</p>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button type="button" className={cn(selectClass, 'flex items-center justify-between w-full px-3 h-9 rounded-md border text-sm')}>
-                      <span>{TYPES.find(t => t.value === obj.type)?.label || 'Sélectionner'}</span>
-                      <ChevronDown className="w-4 h-4 opacity-50" />
+            {/* Type — 3 grandes cartes visuelles */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-1">
+                <Label className="text-xs text-white/70">Que veux-tu faire ?</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button type="button" className="text-white/40 hover:text-white/70 transition-colors">
+                      <HelpCircle className="w-3 h-3" />
                     </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="bg-violet-800 border-white/20 text-white min-w-[160px]">
-                    {/* Force avec sous-menu */}
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger className="focus:bg-white/20 focus:text-white data-[state=open]:bg-white/20 data-[state=open]:text-white cursor-pointer">
-                        Force
-                      </DropdownMenuSubTrigger>
-                      <DropdownMenuSubContent className="bg-violet-800 border-white/20 text-white">
-                        <DropdownMenuItem className="focus:bg-white/20 focus:text-white cursor-pointer"
-                          onClick={() => { updateObj(idx, 'type', 'strength'); setStrengthFocus(prev => ({ ...prev, [idx]: 'zone' })); }}>
-                          Sur une zone du corps
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="focus:bg-white/20 focus:text-white cursor-pointer"
-                          onClick={() => { updateObj(idx, 'type', 'strength'); setStrengthFocus(prev => ({ ...prev, [idx]: 'movement' })); }}>
-                          Sur un exercice (squat, bench…)
-                        </DropdownMenuItem>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuSub>
-                    {/* Hypertrophie */}
-                    <DropdownMenuItem
-                      className="focus:bg-white/20 focus:text-white cursor-pointer"
-                      onClick={() => { updateObj(idx, 'type', 'hypertrophy'); setStrengthFocus(prev => ({ ...prev, [idx]: null })); }}>
-                      Hypertrophie
-                    </DropdownMenuItem>
-                    {/* Endurance */}
-                    <DropdownMenuItem
-                      className="focus:bg-white/20 focus:text-white cursor-pointer"
-                      onClick={() => { updateObj(idx, 'type', 'endurance'); setStrengthFocus(prev => ({ ...prev, [idx]: null })); }}>
-                      Endurance
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-72 text-xs space-y-2.5">
+                    <div>
+                      <p className="font-semibold mb-1">💪 Prendre du muscle <span className="text-white/50 font-normal">(hypertrophie)</span></p>
+                      <p className="text-white/70">Volume musculaire visible, meilleure composition corporelle, métabolisme plus élevé. L'objectif le plus courant.</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold mb-1">🏋️ Devenir plus fort <span className="text-white/50 font-normal">(force)</span></p>
+                      <p className="text-white/70">Soulever plus lourd, articulations et tendons renforcés, meilleure posture, performance sportive.</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold mb-1">🏃 Améliorer l'endurance</p>
+                      <p className="text-white/70">Tenir plus longtemps sans fatigue, meilleure récupération entre les séries, cardio renforcé.</p>
+                    </div>
+                    <div className="pt-2 border-t border-white/15">
+                      <p className="font-semibold text-violet-300">🔥 Tu veux perdre du poids ?</p>
+                      <p className="text-white/70 mt-0.5">Choisis <span className="font-semibold text-white">Prendre du muscle</span>. Le muscle brûle des calories au repos et préserve ton physique en déficit. La perte de poids = 80% diététique.</p>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="space-y-2">
+                {[
+                  { type: 'hypertrophy', emoji: '💪', label: 'Prendre du muscle',   advantages: ['Look tonique', 'Métabolisme ↑', 'Brûle les graisses au repos'] },
+                  { type: 'strength',    emoji: '🏋️', label: 'Devenir plus fort',   advantages: ['Articulations solides', 'Meilleure posture', 'Performance sportive'] },
+                  { type: 'endurance',   emoji: '🏃', label: 'Améliorer endurance', advantages: ['Cardio renforcé', 'Récupération rapide', 'Tenir plus longtemps'] },
+                ].map(({ type, emoji, label, advantages }) => {
+                  const selected = obj.type === type;
+                  // Vérifier si tous les muscles de ce type sont déjà pris par un autre objectif
+                  const ZONE_TO_GROUPS_LOC = {
+                    upper_body: ['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps'],
+                    lower_body: ['Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets'],
+                    full_body:  ['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Abdominaux'],
+                  };
+                  const TYPE_LABEL = { hypertrophy: 'Prendre du muscle', strength: 'Devenir plus fort', endurance: 'Améliorer endurance' };
+                  const takenBy = []; // indices des objectifs qui prennent ce type
+                  const taken = new Set();
+                  objectives.forEach((o, i) => {
+                    if (i === idx || o.type !== type) return;
+                    let muscles = [];
+                    if (o.zone === 'specific_group' && Array.isArray(o.focus_group)) muscles = o.focus_group;
+                    else if (ZONE_TO_GROUPS_LOC[o.zone]) muscles = ZONE_TO_GROUPS_LOC[o.zone];
+                    if (muscles.length > 0) {
+                      takenBy.push(i);
+                      muscles.forEach(m => taken.add(m));
+                    }
+                  });
+                  const allTaken = taken.size >= GROUPS.length;
+
+                  return (
+                    <button key={type} type="button"
+                      disabled={allTaken}
+                      onClick={() => {
+                        if (allTaken) return;
+                        updateObj(idx, 'type', type);
+                        setStrengthFocus(prev => ({ ...prev, [idx]: type === 'strength' ? 'zone' : null }));
+                      }}
+                      className={cn(
+                        'w-full flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-all relative',
+                        selected
+                          ? 'border-white bg-violet-500'
+                          : allTaken
+                            ? 'border-white/10 bg-white/5 opacity-40 cursor-not-allowed'
+                            : 'border-violet-300/60 bg-[#8b45f8]/70 opacity-75 hover:opacity-100 hover:border-white'
+                      )}>
+                      <span className="text-3xl leading-none flex-shrink-0 mt-0.5">{emoji}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-white leading-tight">{label}</p>
+                        {allTaken && !selected ? (
+                          <p className="text-[11px] text-white/50 mt-1 italic">
+                            Tous les muscles sont déjà couverts par l'objectif {takenBy.map(i => `#${i + 1}`).join(', ')} ({TYPE_LABEL[type]}). Réduis sa zone pour libérer ce type.
+                          </p>
+                        ) : (
+                          <ul className="mt-1.5 space-y-0.5">
+                            {advantages.map(a => (
+                              <li key={a} className="text-xs text-white/75 leading-tight flex items-start gap-1">
+                                <span className="text-white/40 flex-shrink-0">·</span>
+                                <span>{a}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
 
-              {/* Zone — sauf pour Force */}
-              {obj.type !== 'strength' && (
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-1">
-                    <Label className="text-xs text-white">Zone</Label>
-                  </div>
-                  <Select value={obj.zone} onValueChange={(v) => updateObj(idx, 'zone', v)}>
-                    <SelectTrigger className={selectClass}><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {ZONES.map(z => <SelectItem key={z.value} value={z.value}>{z.label}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              {/* Priorité — visible uniquement à partir de 2 objectifs */}
-              {objectives.length > 1 && (
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-1">
-                    <Label className="text-xs text-white">Priorité</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <button type="button" className="text-white/40 hover:text-white/70 transition-colors">
-                          <HelpCircle className="w-3 h-3" />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-56 text-xs space-y-1.5">
-                        <p><span className="font-semibold">🎯 Focus principal</span> — 60% du volume. Le programme s'organise autour de cet objectif.</p>
-                        <p><span className="font-semibold">📌 Focus secondaire</span> — 40% du volume. Travaillé en complément sans empiéter sur le focus principal.</p>
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <Select value={obj.priority} onValueChange={(v) => updateObj(idx, 'priority', v)}>
-                    <SelectTrigger className={selectClass}><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="primary">🎯 Principal</SelectItem>
-                      <SelectItem value="secondary">📌 Secondaire</SelectItem>
-                    </SelectContent>
-                  </Select>
+              {/* Sous-choix Force : Zone ou Exercice */}
+              {obj.type === 'strength' && (
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <button type="button"
+                    onClick={() => setStrengthFocus(prev => ({ ...prev, [idx]: 'zone' }))}
+                    className={cn('px-3 py-2 rounded-lg border text-xs font-medium transition-all',
+                      (strengthFocus[idx] || 'zone') === 'zone'
+                        ? 'bg-white text-violet-700 border-white'
+                        : 'bg-white/10 text-white border-white/20')}>
+                    Sur une zone du corps
+                  </button>
+                  <button type="button"
+                    onClick={() => setStrengthFocus(prev => ({ ...prev, [idx]: 'movement' }))}
+                    className={cn('px-3 py-2 rounded-lg border text-xs font-medium transition-all',
+                      strengthFocus[idx] === 'movement'
+                        ? 'bg-white text-violet-700 border-white'
+                        : 'bg-white/10 text-white border-white/20')}>
+                    Sur un exercice
+                  </button>
                 </div>
               )}
             </div>
 
+            {/* Zone — visible pour tous sauf Force en mode "exercice" */}
+            {(obj.type !== 'strength' || (strengthFocus[idx] || 'zone') === 'zone') && (() => {
+              // Filtre les zones pour éviter les overlaps avec autres objectifs du même type
+              const ZONE_TO_MUSCLES = {
+                upper_body: new Set(['Poitrine', 'Dos', 'Épaules', 'Biceps', 'Triceps']),
+                lower_body: new Set(['Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Adducteurs']),
+                full_body:  new Set(['Poitrine', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Abdos']),
+              };
+              const otherMuscles = new Set();
+              let hasSameTypeOther = false;
+              objectives.forEach((o, i) => {
+                if (i === idx || o.type !== obj.type) return;
+                hasSameTypeOther = true;
+                if (o.zone === 'specific_group') {
+                  const fg = Array.isArray(o.focus_group) ? o.focus_group : (o.focus_group ? [o.focus_group] : []);
+                  fg.forEach(m => otherMuscles.add(m));
+                } else if (ZONE_TO_MUSCLES[o.zone]) {
+                  ZONE_TO_MUSCLES[o.zone].forEach(m => otherMuscles.add(m));
+                }
+              });
+              const availableZones = ZONES.filter(z => {
+                // Si un autre objectif du même type existe, exclure Corps entier (overlap garanti)
+                if (hasSameTypeOther && z.value === 'full_body') return false;
+                if (z.value === 'specific_group') return true; // toujours dispo (filtrage muscle plus fin)
+                const muscles = ZONE_TO_MUSCLES[z.value];
+                if (!muscles) return true;
+                // Zone OK si AUCUN de ses muscles n'est déjà pris
+                return ![...muscles].some(m => otherMuscles.has(m));
+              });
+              // Si la zone courante n'est plus valide, basculer automatiquement vers la première dispo
+              const currentZoneInvalid = !availableZones.some(z => z.value === obj.zone);
+              if (currentZoneInvalid && availableZones.length > 0 && obj.zone !== availableZones[0].value) {
+                const newZone = availableZones[0].value;
+                Promise.resolve().then(() => {
+                  updateObj(idx, 'zone', newZone);
+                  // Si on bascule sur specific_group, auto-fill focus_group avec les muscles dispos
+                  if (newZone === 'specific_group') {
+                    const currentFg = Array.isArray(obj.focus_group) ? obj.focus_group : [];
+                    if (currentFg.length === 0) {
+                      const allAvailable = GROUPS.filter(g => !getTakenMuscles(idx).has(g));
+                      updateObj(idx, 'focus_group', allAvailable);
+                    }
+                  }
+                });
+              }
+              return (
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-white/70">Sur quoi ?</Label>
+                  <Select value={obj.zone} onValueChange={(v) => {
+                    updateObj(idx, 'zone', v);
+                    // Si passage en specific_group, auto-fill focus_group avec tous les muscles dispos
+                    // (sinon le système croit qu'aucun muscle n'est pris alors que l'UI affiche tout sélectionné)
+                    if (v === 'specific_group') {
+                      const taken = getTakenMuscles(idx);
+                      const currentFg = Array.isArray(obj.focus_group) ? obj.focus_group : [];
+                      if (currentFg.length === 0) {
+                        const allAvailable = GROUPS.filter(g => !taken.has(g));
+                        updateObj(idx, 'focus_group', allAvailable);
+                      }
+                    }
+                  }}>
+                    <SelectTrigger className={selectClass}><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {availableZones.map(z => <SelectItem key={z.value} value={z.value}>{z.label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              );
+            })()}
+
             {/* Groupes musculaires si specific_group */}
-            {obj.zone === 'specific_group' && obj.type !== 'strength' && (() => {
-              const base       = Array.isArray(obj.focus_group) ? obj.focus_group : GROUPS;
+            {obj.zone === 'specific_group' && (obj.type !== 'strength' || (strengthFocus[idx] || 'zone') === 'zone') && (() => {
               const taken      = getTakenMuscles(idx);
-              const conflicted = base.filter(g => taken.has(g));
+              // Base par défaut : tous les muscles MOINS ceux pris ailleurs
+              const base       = Array.isArray(obj.focus_group) ? obj.focus_group.filter(g => !taken.has(g)) : GROUPS.filter(g => !taken.has(g));
               const isDetail   = !!detailMode[idx];
               const expanded   = expandedGroup[idx] || null;
 
@@ -321,8 +484,19 @@ export default function StepObjectives({ data, onChange }) {
                     <Label className="text-xs text-white">Groupes musculaires</Label>
                     <button type="button"
                       onClick={() => {
+                        const turningOn = !detailMode[idx];
                         setDetailMode(prev => ({ ...prev, [idx]: !prev[idx] }));
                         setExpandedGroup(prev => ({ ...prev, [idx]: null }));
+                        // En activant Précis : auto-remplir tous les chefs de tous les muscles sélectionnés
+                        if (turningOn) {
+                          const currentMuscles = Array.isArray(obj.focus_muscles) ? obj.focus_muscles : [];
+                          const selectedGroups = Array.isArray(obj.focus_group) ? obj.focus_group : GROUPS;
+                          const allChefsToAdd = selectedGroups.flatMap(g => MUSCLE_DETAILS[g] || []);
+                          const merged = [...new Set([...currentMuscles, ...allChefsToAdd])];
+                          if (merged.length !== currentMuscles.length) {
+                            updateObj(idx, 'focus_muscles', merged);
+                          }
+                        }
                       }}
                       className={cn(
                         'flex items-center gap-1 text-xs px-2 py-0.5 rounded-md border transition-all',
@@ -334,24 +508,40 @@ export default function StepObjectives({ data, onChange }) {
                       Précis
                     </button>
                   </div>
+                  <p className="text-[11px] text-white/50">Clique sur un muscle pour le retirer du programme.</p>
 
                   <div className="flex flex-wrap gap-2">
                     {GROUPS.map(g => {
+                      const isTaken    = taken.has(g);
                       const isChecked  = base.includes(g);
-                      const isConflict = isChecked && taken.has(g);
+                      const isConflict = isTaken; // pris ailleurs → toujours barré, jamais cliquable
                       const isExpanded = isDetail && expanded === g;
+                      // En mode Précis : si tous les chefs sont décochés, le parent est considéré décoché visuellement
+                      const focusMuscles = Array.isArray(obj.focus_muscles) ? obj.focus_muscles : [];
+                      const allChefs     = MUSCLE_DETAILS[g] || [];
+                      const allChefsOff  = isDetail && isChecked && allChefs.length > 0 && !allChefs.some(c => focusMuscles.includes(c));
                       return (
                         <button key={g} type="button"
+                          disabled={isTaken}
                           onClick={() => {
+                            if (isTaken) return; // pris ailleurs : non interactif
                             if (isDetail) {
                               setExpandedGroup(prev => ({ ...prev, [idx]: prev[idx] === g ? null : g }));
                               if (!isChecked) updateObj(idx, 'focus_group', [...base, g]);
+                              // Auto-sélectionner tous les chefs du muscle au premier dépli
+                              const currentMuscles = Array.isArray(obj.focus_muscles) ? obj.focus_muscles : [];
+                              const allChefs = MUSCLE_DETAILS[g] || [];
+                              const hasAnyChef = allChefs.some(c => currentMuscles.includes(c));
+                              if (allChefs.length > 0 && !hasAnyChef) {
+                                updateObj(idx, 'focus_muscles', [...currentMuscles, ...allChefs]);
+                              }
                             } else {
                               updateObj(idx, 'focus_group', isChecked ? base.filter(x => x !== g) : [...base, g]);
                             }
                           }}
                           className={cn('px-3 py-1.5 rounded-lg text-xs font-medium border transition-all',
-                            isConflict  ? 'bg-orange-400/20 text-orange-200 border-orange-400/50'
+                            isConflict  ? 'bg-white/5 text-white/30 border-white/15 line-through cursor-not-allowed'
+                            : allChefsOff ? 'bg-white/10 text-white/40 border-white/20 line-through'
                             : isExpanded ? 'bg-white/40 text-white border-white/60 ring-1 ring-white/30'
                             : isChecked  ? 'bg-white/30 text-white border-white/40'
                             : 'bg-white/10 text-white/40 border-white/20 line-through')}>
@@ -377,7 +567,7 @@ export default function StepObjectives({ data, onChange }) {
                               className={cn('px-2.5 py-1 rounded-md text-xs border transition-all',
                                 isSelected
                                   ? 'bg-white/25 text-white border-white/50'
-                                  : 'bg-white/5 text-white/40 border-white/10 hover:border-white/30 hover:text-white/70')}>
+                                  : 'bg-white/5 text-white/40 border-white/10 hover:border-white/30 hover:text-white/70 line-through')}>
                               {m}
                             </button>
                           );
@@ -386,46 +576,42 @@ export default function StepObjectives({ data, onChange }) {
                     </div>
                   )}
 
-                  {conflicted.length > 0 && (
-                    <p className="text-xs text-orange-200 bg-orange-400/10 border border-orange-400/30 rounded-lg px-3 py-2">
-                      ⚠️ {conflicted.join(', ')} {conflicted.length > 1 ? 'sont déjà sélectionnés' : 'est déjà sélectionné'} dans un autre objectif {obj.type === 'hypertrophy' ? 'Hypertrophie' : 'Force'} — désélectionne-{conflicted.length > 1 ? 'les' : 'le'} pour continuer.
-                    </p>
-                  )}
                 </div>
               );
             })()}
 
-            {/* Force : sélecteur selon le focus choisi dans le menu */}
-            {obj.type === 'strength' && strengthFocus[idx] === 'zone' && (
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1">
-                  <Label className="text-xs text-white">Zone</Label>
-                </div>
-                <Select value={obj.zone} onValueChange={(v) => updateObj(idx, 'zone', v)}>
-                  <SelectTrigger className={selectClass}><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {ZONES.map(z => <SelectItem key={z.value} value={z.value}>{z.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
             {obj.type === 'strength' && strengthFocus[idx] === 'movement' && (
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <Label className="text-xs text-white">Mouvement focus</Label>
-                <div className="flex flex-wrap gap-2">
-                  {['Squat barre','Bench press','Soulevé de terre','Développé militaire','Rowing barre','Traction lestée','Fente barre','Hip thrust barre'].map(mv => (
-                    <button key={mv} type="button"
-                      onClick={() => updateObj(idx, 'focus_movement', obj.focus_movement === mv ? '' : mv)}
-                      className={cn(
-                        'px-3 py-1.5 rounded-lg text-xs font-medium border transition-all',
-                        obj.focus_movement === mv
-                          ? 'bg-white text-violet-700 border-white'
-                          : 'bg-white/10 text-white/60 border-white/20 hover:border-white/40'
-                      )}>
-                      {mv}
-                    </button>
-                  ))}
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { label: 'Squat',            value: 'Squat barre' },
+                    { label: 'Développé couché', value: 'Développé couché' },
+                    { label: 'Soulevé de terre', value: 'Soulevé de terre' },
+                    { label: 'Traction',         value: 'Traction lestée' },
+                  ].map(({ label, value }) => {
+                    const current = Array.isArray(obj.focus_movement)
+                      ? obj.focus_movement
+                      : (obj.focus_movement ? [obj.focus_movement] : []);
+                    const selected = current.includes(value);
+                    return (
+                      <button key={value} type="button"
+                        onClick={() => {
+                          const next = selected
+                            ? current.filter(v => v !== value)
+                            : [...current, value];
+                          updateObj(idx, 'focus_movement', next);
+                        }}
+                        className={cn(
+                          'flex items-center justify-center px-3 py-3 rounded-xl border-2 transition-all text-center text-sm font-semibold',
+                          selected
+                            ? 'bg-white text-violet-700 border-white shadow'
+                            : 'bg-white/10 text-white border-white/20 hover:border-white/40'
+                        )}>
+                        {label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -488,8 +674,8 @@ export default function StepObjectives({ data, onChange }) {
         </div>
       )}
 
-      {/* Peaking — affiché uniquement si au moins un objectif force */}
-      {objectives.some(o => o.type === 'strength') && (
+      {/* Peaking — affiché uniquement si au moins un objectif force ET pas débutant */}
+      {objectives.some(o => o.type === 'strength') && data.level !== 'beginner' && (
         <div className="p-4 bg-white/10 rounded-xl border border-white/20 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -526,11 +712,6 @@ export default function StepObjectives({ data, onChange }) {
           <p className="text-xs text-white/50">
             Test 1RM en fin de cycle · réalisé uniquement sur les muscles et mouvements de ton objectif force
           </p>
-          {data.peaking_enabled && data.level === 'beginner' && (
-            <p className="text-xs text-orange-300 bg-orange-400/10 border border-orange-400/30 rounded-lg px-3 py-2">
-              Pour un débutant, les phases de peaking ne sont pas optimales pour la progression — ton système nerveux et tes fondations techniques ne sont pas encore prêts pour des charges maximales. Tu peux l'activer, mais des cycles classiques te feront progresser plus vite.
-            </p>
-          )}
         </div>
       )}
     </div>

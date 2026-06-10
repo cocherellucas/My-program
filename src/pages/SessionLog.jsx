@@ -1057,7 +1057,16 @@ export default function SessionLog() {
       const allSessions = await base44.entities.Session.filter({ program_id: session.program_id, status: 'completed' });
       const sorted = allSessions
         .filter(s => s.id !== session.id)
-        .sort((a, b) => new Date(b.actual_date || b.created_date) - new Date(a.actual_date || a.created_date));
+        .sort((a, b) => {
+          // Tri principal : actual_date desc
+          const dateA = new Date(a.actual_date || a.created_date).getTime();
+          const dateB = new Date(b.actual_date || b.created_date).getTime();
+          if (dateA !== dateB) return dateB - dateA;
+          // Tie-breaker : timestamp de complétion (updated_date desc)
+          const upA = new Date(a.updated_date || a.created_date).getTime();
+          const upB = new Date(b.updated_date || b.created_date).getTime();
+          return upB - upA;
+        });
 
       // previousLogs = dernière séance du même type (même day_label) — sinon dernière séance
       const sameType = sorted.filter(s => s.day_label === session.day_label);

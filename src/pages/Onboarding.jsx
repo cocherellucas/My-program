@@ -134,7 +134,7 @@ export default function Onboarding() {
           zone: obj.zone,
           priority: obj.priority,
           focus_group: Array.isArray(obj.focus_group) ? obj.focus_group.join(', ') : (obj.focus_group || null),
-          focus_movement: obj.focus_movement || null,
+          focus_movement: Array.isArray(obj.focus_movement) ? obj.focus_movement.join(', ') : (obj.focus_movement || null),
           status: 'active',
         });
       }
