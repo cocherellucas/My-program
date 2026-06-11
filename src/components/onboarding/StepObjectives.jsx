@@ -472,42 +472,13 @@ export default function StepObjectives({ data, onChange }) {
 
             {/* Groupes musculaires si specific_group */}
             {obj.zone === 'specific_group' && (obj.type !== 'strength' || (strengthFocus[idx] || 'zone') === 'zone') && (() => {
-              const taken      = getTakenMuscles(idx);
+              const taken = getTakenMuscles(idx);
               // Base par défaut : tous les muscles MOINS ceux pris ailleurs
-              const base       = Array.isArray(obj.focus_group) ? obj.focus_group.filter(g => !taken.has(g)) : GROUPS.filter(g => !taken.has(g));
-              const isDetail   = !!detailMode[idx];
-              const expanded   = expandedGroup[idx] || null;
+              const base  = Array.isArray(obj.focus_group) ? obj.focus_group.filter(g => !taken.has(g)) : GROUPS.filter(g => !taken.has(g));
 
               return (
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs text-white">Groupes musculaires</Label>
-                    <button type="button"
-                      onClick={() => {
-                        const turningOn = !detailMode[idx];
-                        setDetailMode(prev => ({ ...prev, [idx]: !prev[idx] }));
-                        setExpandedGroup(prev => ({ ...prev, [idx]: null }));
-                        // En activant Précis : auto-remplir tous les chefs de tous les muscles sélectionnés
-                        if (turningOn) {
-                          const currentMuscles = Array.isArray(obj.focus_muscles) ? obj.focus_muscles : [];
-                          const selectedGroups = Array.isArray(obj.focus_group) ? obj.focus_group : GROUPS;
-                          const allChefsToAdd = selectedGroups.flatMap(g => MUSCLE_DETAILS[g] || []);
-                          const merged = [...new Set([...currentMuscles, ...allChefsToAdd])];
-                          if (merged.length !== currentMuscles.length) {
-                            updateObj(idx, 'focus_muscles', merged);
-                          }
-                        }
-                      }}
-                      className={cn(
-                        'flex items-center gap-1 text-xs px-2 py-0.5 rounded-md border transition-all',
-                        isDetail
-                          ? 'bg-white/20 text-white border-white/40'
-                          : 'bg-white/5 text-white/40 border-white/20 hover:text-white/60 hover:border-white/30'
-                      )}>
-                      <SlidersHorizontal className="w-3 h-3" />
-                      Précis
-                    </button>
-                  </div>
+                  <Label className="text-xs text-white">Groupes musculaires</Label>
                   <p className="text-[11px] text-white/50">Clique sur un muscle pour le retirer du programme.</p>
 
                   <div className="flex flex-wrap gap-2">
@@ -515,34 +486,15 @@ export default function StepObjectives({ data, onChange }) {
                       const isTaken    = taken.has(g);
                       const isChecked  = base.includes(g);
                       const isConflict = isTaken; // pris ailleurs → toujours barré, jamais cliquable
-                      const isExpanded = isDetail && expanded === g;
-                      // En mode Précis : si tous les chefs sont décochés, le parent est considéré décoché visuellement
-                      const focusMuscles = Array.isArray(obj.focus_muscles) ? obj.focus_muscles : [];
-                      const allChefs     = MUSCLE_DETAILS[g] || [];
-                      const allChefsOff  = isDetail && isChecked && allChefs.length > 0 && !allChefs.some(c => focusMuscles.includes(c));
                       return (
                         <button key={g} type="button"
                           disabled={isTaken}
                           onClick={() => {
-                            if (isTaken) return; // pris ailleurs : non interactif
-                            if (isDetail) {
-                              setExpandedGroup(prev => ({ ...prev, [idx]: prev[idx] === g ? null : g }));
-                              if (!isChecked) updateObj(idx, 'focus_group', [...base, g]);
-                              // Auto-sélectionner tous les chefs du muscle au premier dépli
-                              const currentMuscles = Array.isArray(obj.focus_muscles) ? obj.focus_muscles : [];
-                              const allChefs = MUSCLE_DETAILS[g] || [];
-                              const hasAnyChef = allChefs.some(c => currentMuscles.includes(c));
-                              if (allChefs.length > 0 && !hasAnyChef) {
-                                updateObj(idx, 'focus_muscles', [...currentMuscles, ...allChefs]);
-                              }
-                            } else {
-                              updateObj(idx, 'focus_group', isChecked ? base.filter(x => x !== g) : [...base, g]);
-                            }
+                            if (isTaken) return;
+                            updateObj(idx, 'focus_group', isChecked ? base.filter(x => x !== g) : [...base, g]);
                           }}
                           className={cn('px-3 py-1.5 rounded-lg text-xs font-medium border transition-all',
                             isConflict  ? 'bg-white/5 text-white/30 border-white/15 line-through cursor-not-allowed'
-                            : allChefsOff ? 'bg-white/10 text-white/40 border-white/20 line-through'
-                            : isExpanded ? 'bg-white/40 text-white border-white/60 ring-1 ring-white/30'
                             : isChecked  ? 'bg-white/30 text-white border-white/40'
                             : 'bg-white/10 text-white/40 border-white/20 line-through')}>
                           {g}
@@ -550,31 +502,6 @@ export default function StepObjectives({ data, onChange }) {
                       );
                     })}
                   </div>
-
-                  {/* Détail du groupe sélectionné en mode précis */}
-                  {isDetail && expanded && (
-                    <div className="p-3 bg-white/5 rounded-lg border border-white/10 space-y-2">
-                      <p className="text-xs text-white/60">{expanded} — sélectionne les chefs à cibler :</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {(MUSCLE_DETAILS[expanded] || []).map(m => {
-                          const focusMuscles = Array.isArray(obj.focus_muscles) ? obj.focus_muscles : [];
-                          const isSelected   = focusMuscles.includes(m);
-                          return (
-                            <button key={m} type="button"
-                              onClick={() => updateObj(idx, 'focus_muscles', isSelected
-                                ? focusMuscles.filter(x => x !== m)
-                                : [...focusMuscles, m])}
-                              className={cn('px-2.5 py-1 rounded-md text-xs border transition-all',
-                                isSelected
-                                  ? 'bg-white/25 text-white border-white/50'
-                                  : 'bg-white/5 text-white/40 border-white/10 hover:border-white/30 hover:text-white/70 line-through')}>
-                              {m}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
 
                 </div>
               );

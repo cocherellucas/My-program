@@ -39,6 +39,16 @@ export default function Onboarding() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ step, data }));
   }, [step, data]);
 
+  // Synchronise body/html avec le fond de l'onboarding (#5b21b6 = violet-800)
+  useEffect(() => {
+    document.body.classList.add('onboarding-active');
+    document.documentElement.classList.add('onboarding-active');
+    return () => {
+      document.body.classList.remove('onboarding-active');
+      document.documentElement.classList.remove('onboarding-active');
+    };
+  }, []);
+
   const validateStep = () => {
     // Étape 0 : Profil — niveau obligatoire
     if (step === 0) {

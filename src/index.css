@@ -139,6 +139,11 @@ button:focus, button:focus-visible {
   html {
     background-color: #7c3aed;
   }
+  /* Onboarding : fond violet-800 (#5b21b6) pour matcher la page */
+  html.onboarding-active,
+  body.onboarding-active {
+    background-color: #5b21b6 !important;
+  }
 }
 
 /* Clavier ouvert (CoachIA) : cache la nav et supprime le padding réservé */
