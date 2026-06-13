@@ -36,7 +36,7 @@ const TRANSITION_PER_SET = 1.5 / 4;
 
 // ─── Muscles ciblés par zone d'objectif ───
 const ZONE_MUSCLES = {
-  upper_body:  ['Poitrine', 'Dos', 'Épaules', 'Biceps', 'Triceps'],
+  upper_body:  ['Poitrine', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Abdos'],
   lower_body:  ['Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Adducteurs'],
   full_body:   ['Poitrine', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Abdos'],
   specific_group: [], // défini par focus_group
@@ -402,11 +402,12 @@ function buildPeakingWeek(objectives, level, enabled) {
     singlesMax:      3,
     protocol,
     rules: [
-      `Peaking UNIQUEMENT sur : ${targetDescription}`,
-      'Autres objectifs (hypertrophie, endurance) : volume RÉDUIT de 20–30% — l\'athlète doit être reposé pour exprimer son maximum au test 1RM',
-      'Volume sur muscles cibles : −60% (garder uniquement les composés principaux)',
-      'Pas d\'échec, pas d\'accessoires lourds — qualité d\'exécution maximale',
-      'Repos entre singles : 5–8 min minimum',
+      `Peaking : test 1RM sur ${targetDescription}`,
+      'TOUS les objectifs (hypertrophie, endurance, force) sont en deload : volume RÉDUIT de 50% partout — la fatigue accumulée par n\'importe quel entraînement empêche d\'exprimer le max au test 1RM',
+      'Force : intensité MAINTENUE haute (85-102% 1RM) mais volume coupé à -60% — garder uniquement les composés principaux',
+      'Hypertrophie/Endurance : volume coupé à -50%, intensité légère (RIR 3+, charges modérées) — maintenir le pattern sans accumuler de fatigue',
+      'Pas d\'échec nulle part — qualité d\'exécution maximale',
+      'Repos entre singles force : 5–8 min minimum',
       'Annuler la tentative si technique défaillante — ne pas grinder',
     ],
   };

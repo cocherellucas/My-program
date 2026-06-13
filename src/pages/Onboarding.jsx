@@ -57,8 +57,8 @@ export default function Onboarding() {
         return false;
       }
     }
-    // Étape 4 : Objectifs
-    if (step === 4) {
+    // Étape 1 : Objectifs
+    if (step === 1) {
       if (!data.objectives?.length) {
         setStepError('Ajoute au moins un objectif pour continuer.');
         return false;
@@ -78,8 +78,8 @@ export default function Onboarding() {
         }
       }
     }
-    // Étape 1 : Disponibilités
-    if (step === 1) {
+    // Étape 2 : Disponibilités
+    if (step === 2) {
       if (data.availability_optimal !== true && !data.available_days?.length) {
         setStepError('Sélectionne au moins un jour d\'entraînement.');
         return false;
@@ -192,10 +192,10 @@ export default function Onboarding() {
 
   const steps = [
     <StepProfile data={data} onChange={update} />,
+    <StepObjectives data={data} onChange={update} />,
     <StepAvailability data={data} onChange={update} />,
     <StepEquipment data={data} onChange={update} />,
     <StepPreferences data={data} onChange={update} />,
-    <StepObjectives data={data} onChange={update} />,
     <StepMeasurements data={data} onChange={update} />,
   ];
 
@@ -240,7 +240,7 @@ export default function Onboarding() {
                   ? data.equipment
                   : (() => { try { return JSON.parse(data.equipment || '[]'); } catch { return []; } })();
                 const hasEquipment = eqArr.length > 0;
-                if (step === 2 && !hasEquipment) {
+                if (step === 3 && !hasEquipment) {
                   return (
                     <button type="button" onClick={() => setStep(s => s + 1)}
                       className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/30 bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-all">
@@ -251,7 +251,7 @@ export default function Onboarding() {
                 }
                 return (
                   <Button onClick={() => {
-                    if (step === 2 && !data.equipment_validated && hasEquipment) {
+                    if (step === 3 && !data.equipment_validated && hasEquipment) {
                       update({ equipment_validated: true });
                     }
                     if (validateStep()) setStep(s => s + 1);

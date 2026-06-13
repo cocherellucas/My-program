@@ -11,7 +11,7 @@ import { VOLUME_TABLES, LARGE_MUSCLES } from '@/lib/coaching-engine';
 
 // Muscles par zone (noms du moteur, pas noms affichés)
 const ZONE_MUSCLES_MAP = {
-  upper_body: ['Poitrine', 'Dos', 'Épaules', 'Biceps', 'Triceps'],
+  upper_body: ['Poitrine', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Abdos'],
   lower_body: ['Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Adducteurs'],
   full_body:  ['Poitrine', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Abdos'],
 };
@@ -61,8 +61,8 @@ const ZONES = [
 ];
 
 const GROUPS = [
-  'Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps',
-  'Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Abdominaux'
+  'Épaules', 'Pectoraux', 'Dos', 'Biceps', 'Triceps', 'Abdominaux',
+  'Fessiers', 'Quadriceps', 'Ischio-jambiers', 'Mollets'
 ];
 
 const MUSCLE_DETAILS = {
@@ -180,7 +180,7 @@ export default function StepObjectives({ data, onChange }) {
 
   // Muscles déjà pris par un autre objectif du même type (toutes zones confondues)
   const ZONE_TO_GROUPS = {
-    upper_body: ['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps'],
+    upper_body: ['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Abdominaux'],
     lower_body: ['Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets'],
     full_body:  ['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Abdominaux'],
   };
@@ -188,6 +188,9 @@ export default function StepObjectives({ data, onChange }) {
     const taken = new Set();
     objectives.forEach((o, i) => {
       if (i === idx || o.type !== objectives[idx].type) return;
+      // Si l'objectif est en mode "exercice", il ne prend pas de muscles
+      const movs = Array.isArray(o.focus_movement) ? o.focus_movement : (o.focus_movement ? [o.focus_movement] : []);
+      if (o.type === 'strength' && movs.length > 0) return;
       if (o.zone === 'specific_group' && Array.isArray(o.focus_group)) {
         o.focus_group.forEach(m => taken.add(m));
       } else if (ZONE_TO_GROUPS[o.zone]) {
@@ -319,7 +322,7 @@ export default function StepObjectives({ data, onChange }) {
                   const selected = obj.type === type;
                   // Vérifier si tous les muscles de ce type sont déjà pris par un autre objectif
                   const ZONE_TO_GROUPS_LOC = {
-                    upper_body: ['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps'],
+                    upper_body: ['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Abdominaux'],
                     lower_body: ['Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets'],
                     full_body:  ['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Abdominaux'],
                   };
@@ -328,6 +331,9 @@ export default function StepObjectives({ data, onChange }) {
                   const taken = new Set();
                   objectives.forEach((o, i) => {
                     if (i === idx || o.type !== type) return;
+                    // Si l'objectif est en mode "exercice" (force + focus_movement), il ne prend pas de muscles
+                    const movs = Array.isArray(o.focus_movement) ? o.focus_movement : (o.focus_movement ? [o.focus_movement] : []);
+                    if (o.type === 'strength' && movs.length > 0) return;
                     let muscles = [];
                     if (o.zone === 'specific_group' && Array.isArray(o.focus_group)) muscles = o.focus_group;
                     else if (ZONE_TO_GROUPS_LOC[o.zone]) muscles = ZONE_TO_GROUPS_LOC[o.zone];
@@ -359,7 +365,7 @@ export default function StepObjectives({ data, onChange }) {
                         <p className="text-sm font-bold text-white leading-tight">{label}</p>
                         {allTaken && !selected ? (
                           <p className="text-[11px] text-white/50 mt-1 italic">
-                            Tous les muscles sont déjà couverts par l'objectif {takenBy.map(i => `#${i + 1}`).join(', ')} ({TYPE_LABEL[type]}). Réduis sa zone pour libérer ce type.
+                            Tous les muscles sont déjà couverts par ton autre objectif {TYPE_LABEL[type]}. Retire des muscles pour libérer ce type.
                           </p>
                         ) : (
                           <ul className="mt-1.5 space-y-0.5">
@@ -404,7 +410,7 @@ export default function StepObjectives({ data, onChange }) {
             {(obj.type !== 'strength' || (strengthFocus[idx] || 'zone') === 'zone') && (() => {
               // Filtre les zones pour éviter les overlaps avec autres objectifs du même type
               const ZONE_TO_MUSCLES = {
-                upper_body: new Set(['Poitrine', 'Dos', 'Épaules', 'Biceps', 'Triceps']),
+                upper_body: new Set(['Poitrine', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Abdos']),
                 lower_body: new Set(['Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Adducteurs']),
                 full_body:  new Set(['Poitrine', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Abdos']),
               };
@@ -413,6 +419,9 @@ export default function StepObjectives({ data, onChange }) {
               objectives.forEach((o, i) => {
                 if (i === idx || o.type !== obj.type) return;
                 hasSameTypeOther = true;
+                // Si l'objectif est en mode "exercice", il ne prend pas de muscles
+                const movs = Array.isArray(o.focus_movement) ? o.focus_movement : (o.focus_movement ? [o.focus_movement] : []);
+                if (o.type === 'strength' && movs.length > 0) return;
                 if (o.zone === 'specific_group') {
                   const fg = Array.isArray(o.focus_group) ? o.focus_group : (o.focus_group ? [o.focus_group] : []);
                   fg.forEach(m => otherMuscles.add(m));
@@ -521,9 +530,17 @@ export default function StepObjectives({ data, onChange }) {
                       ? obj.focus_movement
                       : (obj.focus_movement ? [obj.focus_movement] : []);
                     const selected = current.includes(value);
+                    // Détection : ce mouvement est-il déjà pris par un autre objectif force ?
+                    const takenByOther = objectives.some((o, i) => {
+                      if (i === idx || o.type !== 'strength') return false;
+                      const oMovs = Array.isArray(o.focus_movement) ? o.focus_movement : (o.focus_movement ? [o.focus_movement] : []);
+                      return oMovs.includes(value);
+                    });
                     return (
                       <button key={value} type="button"
+                        disabled={takenByOther}
                         onClick={() => {
+                          if (takenByOther) return;
                           const next = selected
                             ? current.filter(v => v !== value)
                             : [...current, value];
@@ -533,7 +550,9 @@ export default function StepObjectives({ data, onChange }) {
                           'flex items-center justify-center px-3 py-3 rounded-xl border-2 transition-all text-center text-sm font-semibold',
                           selected
                             ? 'bg-white text-violet-700 border-white shadow'
-                            : 'bg-white/10 text-white border-white/20 hover:border-white/40'
+                            : takenByOther
+                              ? 'bg-white/5 text-white/30 border-white/15 line-through cursor-not-allowed'
+                              : 'bg-white/10 text-white border-white/20 hover:border-white/40'
                         )}>
                         {label}
                       </button>
@@ -614,9 +633,14 @@ export default function StepObjectives({ data, onChange }) {
                     <HelpCircle className="w-3 h-3" />
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-64 text-xs space-y-1.5">
-                  <p><span className="font-semibold">Semaine de peaking</span> — dernière semaine du cycle dédiée à tester ton 1RM. Volume réduit de 60%, intensité montée à 90–102% sur les muscles/mouvements force uniquement.</p>
-                  <p>Les autres objectifs (hypertrophie, endurance) continuent normalement.</p>
+                <PopoverContent className="w-72 text-xs space-y-2">
+                  <div>
+                    <p className="font-semibold">⚡ Semaine de peaking</p>
+                    <p className="text-white/70 mt-0.5">La dernière semaine du cycle d'entraînement, tu testes ta force max <span className="font-semibold text-white">sur une répétition</span>.</p>
+                  </div>
+                  <div>
+                    <p className="text-white/70">On réduit fortement le volume <span className="font-semibold text-white">sur tous tes objectifs</span> (force, hypertrophie, endurance) pour que ton corps soit complètement reposé. La fatigue accumulée par n'importe quel entraînement empêche d'exprimer sa vraie force max.</p>
+                  </div>
                 </PopoverContent>
               </Popover>
             </div>
@@ -637,7 +661,7 @@ export default function StepObjectives({ data, onChange }) {
             </button>
           </div>
           <p className="text-xs text-white/50">
-            Test 1RM en fin de cycle · réalisé uniquement sur les muscles et mouvements de ton objectif force
+            Tester ta force max en fin de cycle d'entraînement · volume réduit partout pour optimiser ta récupération
           </p>
         </div>
       )}
