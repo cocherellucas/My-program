@@ -522,7 +522,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
               nextWeights={Array.from({ length: sets - setIdx - 1 }, (_, i) => logs[`${exIdx}-${setIdx + 1 + i}`]?.weight)}
               rirContext={rirContext ? { ...rirContext, block: exercise.block } : null}
               exerciseFragileZones={getExerciseFragileZones(exercise, fragileZones)}
-              previousWeight={previousLogs?.[exercise.name]?.[setIdx + 1]?.weight}
+              previousWeight={(previousLogs?.[exercise.name]?.[setIdx + 1]?.weight) || exercise.target_weight}
               previousReps={previousLogs?.[exercise.name]?.[setIdx + 1]?.reps}
               previousMode={previousLogs?.[exercise.name]?.[setIdx + 1]?.mode}
               previousQuality={previousLogs?.[exercise.name]?.[setIdx + 1]?.quality}
@@ -1189,10 +1189,10 @@ export default function SessionLog() {
           const cur = updated[key] || {};
           const prevLog = previousLogs?.[ex.name]?.[s + 1]; // set_number commence à 1
           const next = { ...cur };
-          // Poids : log précédent en priorité, sinon target_weight
-          if (cur.weight === undefined || cur.weight === '') {
-            const w = prevLog?.weight ?? ex.target_weight;
-            if (w !== undefined && w !== null) next.weight = w;
+          // Poids : log précédent en priorité, sinon target_weight (on ignore 0 — "non saisi")
+          if (cur.weight === undefined || cur.weight === '' || cur.weight === 0) {
+            const w = (prevLog?.weight && prevLog.weight !== 0) ? prevLog.weight : ex.target_weight;
+            if (w) next.weight = w;
           }
           // Reps : log précédent (on ignore 0 — c'est "non saisi" en base)
           if ((cur.reps === undefined || cur.reps === '') && prevLog?.reps) {

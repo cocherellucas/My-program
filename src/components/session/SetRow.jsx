@@ -21,10 +21,11 @@ function LocalNumberInput({ value, onCommit, placeholder, decimal = false, readO
   const focusedRef = React.useRef(false);
 
   // Sync prop → DOM UNIQUEMENT quand on n'est pas focus (pour ne pas casser la frappe)
+  // Note : 0 est traité comme "vide" — un poids/reps de 0 n'a aucun sens
   React.useEffect(() => {
     if (!ref.current) return;
     if (focusedRef.current) return; // ne touche pas pendant la frappe
-    const next = (value === undefined || value === null || value === '') ? '' : String(value);
+    const next = (value === undefined || value === null || value === '' || value === 0) ? '' : String(value);
     if (ref.current.value !== next) ref.current.value = next;
   }, [value]);
 
@@ -52,7 +53,7 @@ function LocalNumberInput({ value, onCommit, placeholder, decimal = false, readO
       type="text"
       inputMode={decimal ? 'decimal' : 'numeric'}
       placeholder={placeholder}
-      defaultValue={(value === undefined || value === null || value === '') ? '' : String(value)}
+      defaultValue={(value === undefined || value === null || value === '' || value === 0) ? '' : String(value)}
       readOnly={readOnly}
       onFocus={() => { focusedRef.current = true; }}
       onInput={(e) => {
@@ -237,7 +238,7 @@ const shouldShowPropagate =
              setManuallyEdited(false);
            }}
            onEnter={() => setManuallyEdited(false)}
-           className="flex h-10 w-full rounded-md border bg-white/10 border-white/20 text-white placeholder:text-white text-sm text-center px-3 py-1 shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+           className="flex h-10 w-full rounded-md border bg-white/10 border-white/20 text-white placeholder:text-white/35 text-sm text-center px-3 py-1 shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           />
           <div className="text-xs text-center mt-1 flex items-center justify-center">
             {shouldShowPropagate ? (
@@ -263,7 +264,7 @@ const shouldShowPropagate =
            value={log.reps}
            readOnly={locked}
            onCommit={(v) => onUpdate('reps', v === '' ? '' : v)}
-           className="flex h-10 w-full rounded-md border bg-white/10 border-white/20 text-white placeholder:text-white text-sm text-center px-3 py-1 shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+           className="flex h-10 w-full rounded-md border bg-white/10 border-white/20 text-white placeholder:text-white/35 text-sm text-center px-3 py-1 shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           />
           <span className="text-xs text-white/50 text-center block mt-1">Reps</span>
         </div>
