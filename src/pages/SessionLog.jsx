@@ -149,7 +149,7 @@ function WarmupAccordion({ exercise, logs, exIdx, sets: totalSets }) {
 }
 
 // ─── Single Exercise Focus View ───────────────────────────────────────────────
-function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, suggestion, onClearSuggestion, onApplyVariant, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach, sessionsHistory }) {
+function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, suggestion, onClearSuggestion, onApplyVariant, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach, sessionsHistory, isKeyboardOpen }) {
   const sets = Math.max(1, exercise.sets || 3);
   const [editSets, setEditSets] = useState(Math.max(1, originalExercise?.sets || 3));
   const [editReps, setEditReps] = useState(originalExercise?.target_reps || '');
@@ -592,7 +592,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
     </motion.div>
 
     {/* Bannière objectifs dépassés — hors motion.div pour fixed positioning correct */}
-    {showObjectifBanner && (
+    {showObjectifBanner && !isKeyboardOpen && (
       <div className="fixed bottom-20 left-4 right-4 z-40 flex items-center gap-3 p-4 rounded-2xl shadow-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #1e0050 0%, #3b0764 50%, #1e0050 100%)', border: '1px solid rgba(139,92,246,0.5)', boxShadow: '0 0 30px rgba(139,92,246,0.3), 0 8px 32px rgba(0,0,0,0.4)' }}>
         {/* Shimmer */}
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(105deg, transparent 10%, rgba(255,255,255,0.02) 30%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.02) 70%, transparent 90%)', animation: 'shimmer 4s infinite' }} />
@@ -925,12 +925,14 @@ export default function SessionLog() {
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const { startTimer } = useRestTimer();
 
-  // Clavier mobile : scroll l'élément actif dans la zone visible
+  // Clavier mobile : scroll l'élément actif dans la zone visible + state pour masquer bannière
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return;
     const handler = () => {
       const isOpen = vv.height < window.innerHeight * 0.75;
+      setIsKeyboardOpen(isOpen);
       document.body.classList.toggle('keyboard-open', isOpen);
       if (isOpen) {
         setTimeout(() => {
@@ -941,9 +943,22 @@ export default function SessionLog() {
         }, 80);
       }
     };
+    // Détection aussi via focus pour le clavier numérique court (visualViewport peut ne pas trigger)
+    const isEditable = (el) => {
+      if (!el) return false;
+      const t = el.tagName;
+      if (t === 'INPUT') return !['checkbox','radio','button','submit','reset','file','range','color'].includes((el.getAttribute('type')||'').toLowerCase());
+      return t === 'TEXTAREA' || el.isContentEditable === true;
+    };
+    const onFocusIn = (e) => { if (isEditable(e.target)) setIsKeyboardOpen(true); };
+    const onFocusOut = () => setTimeout(() => { if (!isEditable(document.activeElement)) setIsKeyboardOpen(false); }, 50);
     vv.addEventListener('resize', handler);
+    document.addEventListener('focusin', onFocusIn);
+    document.addEventListener('focusout', onFocusOut);
     return () => {
       vv.removeEventListener('resize', handler);
+      document.removeEventListener('focusin', onFocusIn);
+      document.removeEventListener('focusout', onFocusOut);
       document.body.classList.remove('keyboard-open');
     };
   }, []);
@@ -1783,6 +1798,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
           forcePropagateWeight={forcePropagateWeight}
           fragileZones={fragileZones}
           sessionsHistory={sessionsHistory}
+          isKeyboardOpen={isKeyboardOpen}
           onAskCoach={handleAskCoach} />
 
         }
