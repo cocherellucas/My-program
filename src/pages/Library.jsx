@@ -9,7 +9,8 @@ import { BookOpen, Dumbbell, Trash2, Play, Clock, ChevronDown, ChevronUp, Calend
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
-import { addDays, startOfWeek } from 'date-fns';
+import { addDays, startOfWeek, endOfWeek, parseISO, format as fmtDate } from 'date-fns';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const STRUCTURE_LABELS = {
   full_body: 'Full Body',
@@ -119,13 +120,18 @@ function SessionHistoryCard({ session }) {
     <Card className="p-4 bg-white/15 backdrop-blur-sm border-white/20">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/20 flex flex-col items-center justify-center flex-shrink-0">
-            <span className="text-[10px] text-white/70 capitalize">
+          <div className="w-12 rounded-xl bg-white/20 flex flex-col items-center justify-center flex-shrink-0 py-1.5">
+            <span className="text-[10px] text-white/70 capitalize leading-none">
               {session.actual_date && format(new Date(session.actual_date), 'EEE', { locale: fr })}
             </span>
-            <span className="text-sm font-bold text-white">
+            <span className="text-sm font-bold text-white leading-none mt-1">
               {session.actual_date && format(new Date(session.actual_date), 'd')}
             </span>
+            {session.week_number && (
+              <span className="text-[9px] text-white/50 leading-none mt-1.5 uppercase tracking-wider">
+                S{session.week_number}
+              </span>
+            )}
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
@@ -142,7 +148,8 @@ function SessionHistoryCard({ session }) {
           </div>
         </div>
         {session.exercises?.length > 0 && (
-          <Button size="sm" variant="ghost" onClick={() => setExpanded(!expanded)}>
+          <Button size="sm" variant="ghost" onClick={() => setExpanded(!expanded)}
+            className="text-white/70 hover:text-white hover:bg-white/10">
             {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </Button>
         )}
@@ -159,6 +166,152 @@ function SessionHistoryCard({ session }) {
         </div>
       )}
     </Card>
+  );
+}
+
+// Onglet Séances : filtres jour/mois/année (style calendrier) + regroupement par semaine
+function SessionsTab({ sessions }) {
+  const [dayFilter, setDayFilter] = useState('all');
+  const [monthFilter, setMonthFilter] = useState('all');
+  const [yearFilter, setYearFilter] = useState('all');
+
+  // Années disponibles : à partir des dates de séances
+  const availableYears = React.useMemo(() => {
+    const set = new Set();
+    sessions.forEach(s => { if (s.actual_date) set.add(s.actual_date.slice(0, 4)); });
+    return [...set].sort().reverse();
+  }, [sessions]);
+
+  const MONTHS = [
+    { value: '01', label: 'Janvier' },   { value: '02', label: 'Février' },
+    { value: '03', label: 'Mars' },      { value: '04', label: 'Avril' },
+    { value: '05', label: 'Mai' },       { value: '06', label: 'Juin' },
+    { value: '07', label: 'Juillet' },   { value: '08', label: 'Août' },
+    { value: '09', label: 'Septembre' }, { value: '10', label: 'Octobre' },
+    { value: '11', label: 'Novembre' },  { value: '12', label: 'Décembre' },
+  ];
+
+  const DAYS = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0'));
+
+  const filtered = sessions.filter(s => {
+    if (!s.actual_date) return false;
+    const [y, m, d] = s.actual_date.split('-');
+    if (yearFilter !== 'all' && y !== yearFilter) return false;
+    if (monthFilter !== 'all' && m !== monthFilter) return false;
+    if (dayFilter !== 'all' && d !== dayFilter) return false;
+    return true;
+  });
+
+  // Regrouper par semaine (clé = lundi de la semaine)
+  const weeks = React.useMemo(() => {
+    const map = new Map();
+    filtered.forEach(s => {
+      if (!s.actual_date) return;
+      const d = parseISO(s.actual_date);
+      const monday = startOfWeek(d, { weekStartsOn: 1 });
+      const key = fmtDate(monday, 'yyyy-MM-dd');
+      if (!map.has(key)) map.set(key, { monday, sessions: [] });
+      map.get(key).sessions.push(s);
+    });
+    // Tri par date desc + sessions intra-semaine par date desc
+    return [...map.values()]
+      .sort((a, b) => b.monday - a.monday)
+      .map(w => ({
+        ...w,
+        sessions: w.sessions.sort((a, b) => new Date(a.actual_date) - new Date(b.actual_date)),
+      }));
+  }, [filtered]);
+
+  if (sessions.length === 0) {
+    return (
+      <Card className="p-12 text-center bg-white/15 backdrop-blur-sm border-white/20">
+        <Dumbbell className="w-10 h-10 mx-auto text-white/30 mb-3" />
+        <p className="font-medium mb-1 text-white">Aucune séance complétée</p>
+        <p className="text-sm text-white/60">Tes séances terminées apparaîtront ici.</p>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Filtres : Jour · Mois · Année */}
+      <div className="grid grid-cols-3 gap-2">
+        <Select value={dayFilter} onValueChange={setDayFilter}>
+          <SelectTrigger className="bg-white/10 border-white/20 text-white text-sm">
+            <SelectValue placeholder="Jour" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Jour</SelectItem>
+            {DAYS.map(d => (
+              <SelectItem key={d} value={d}>{parseInt(d)}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={monthFilter} onValueChange={setMonthFilter}>
+          <SelectTrigger className="bg-white/10 border-white/20 text-white text-sm">
+            <SelectValue placeholder="Mois" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Mois</SelectItem>
+            {MONTHS.map(m => (
+              <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={yearFilter} onValueChange={setYearFilter}>
+          <SelectTrigger className="bg-white/10 border-white/20 text-white text-sm">
+            <SelectValue placeholder="Année" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Année</SelectItem>
+            {availableYears.map(y => (
+              <SelectItem key={y} value={y}>{y}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Compteur résultat */}
+      <p className="text-xs text-white/50">
+        {filtered.length} séance{filtered.length > 1 ? 's' : ''}
+        {(monthFilter !== 'all' || dayFilter !== 'all' || yearFilter !== 'all') && ' filtrée' + (filtered.length > 1 ? 's' : '')}
+      </p>
+
+      {/* Liste regroupée par semaine */}
+      {weeks.length === 0 ? (
+        <Card className="p-8 text-center bg-white/10 border-white/15">
+          <p className="text-sm text-white/60">Aucune séance avec ces filtres.</p>
+        </Card>
+      ) : (
+        <div className="space-y-5">
+          {weeks.map(week => {
+            const sunday = endOfWeek(week.monday, { weekStartsOn: 1 });
+            return (
+              <div key={fmtDate(week.monday, 'yyyy-MM-dd')} className="space-y-2">
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-white/40"
+                  style={{
+                    background: 'radial-gradient(ellipse at center, rgba(46,16,101,0.55) 0%, rgba(46,16,101,0.25) 70%, transparent 100%)',
+                  }}>
+                  <span className="text-[11px] font-semibold text-white/90 uppercase tracking-wider whitespace-nowrap">
+                    Semaine du {fmtDate(week.monday, 'd MMM', { locale: fr })} au {fmtDate(sunday, 'd MMM', { locale: fr })}
+                  </span>
+                  <span className="text-[11px] text-white/60 ml-auto whitespace-nowrap">
+                    {week.sessions.length} séance{week.sessions.length > 1 ? 's' : ''}
+                  </span>
+                </div>
+                {week.sessions.map((s, i) => (
+                  <motion.div key={s.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }}>
+                    <SessionHistoryCard session={s} />
+                  </motion.div>
+                ))}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -278,21 +431,7 @@ export default function Library() {
         </TabsContent>
 
         <TabsContent value="sessions" className="mt-4">
-          {completedSessions.length === 0 ? (
-            <Card className="p-12 text-center bg-white/15 backdrop-blur-sm border-white/20">
-              <Dumbbell className="w-10 h-10 mx-auto text-white/30 mb-3" />
-              <p className="font-medium mb-1 text-white">Aucune séance complétée</p>
-              <p className="text-sm text-white/60">Tes séances terminées apparaîtront ici.</p>
-            </Card>
-          ) : (
-            <div className="space-y-3">
-              {completedSessions.map((s, i) => (
-                <motion.div key={s.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
-                  <SessionHistoryCard session={s} />
-                </motion.div>
-              ))}
-            </div>
-          )}
+          <SessionsTab sessions={completedSessions} />
         </TabsContent>
       </Tabs>
     </div>

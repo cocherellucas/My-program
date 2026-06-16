@@ -1,8 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useTutorial } from '@/lib/TutorialContext';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ChevronUp, ChevronDown, HelpCircle } from 'lucide-react';
 
 const FIELDS = {
   age:    { min: 18,  max: 120, label: 'Âge',    unit: 'ans', placeholder: '25',  default: 25  },
@@ -13,6 +15,43 @@ const FIELDS = {
 export default function StepProfile({ data, onChange }) {
   const [errors, setErrors] = useState({});
   const holdRef = useRef(null);
+  const { startTutorial } = useTutorial() || {};
+
+  // Démarre les tutos pour cette étape (icône ?, input numérique, dropdown)
+  useEffect(() => {
+    if (!startTutorial) return;
+    const t = setTimeout(() => {
+      startTutorial('profile-intro', [
+        {
+          target: 'gender-cards',
+          title: 'Salut ! 👋',
+          description: 'Bienvenue ! Pour commencer, choisis ton genre en cliquant sur une carte. La carte sélectionnée a une bordure blanche.',
+        },
+        {
+          target: 'numeric-input',
+          title: 'Saisir un nombre',
+          description: 'Tape directement au clavier, OU utilise les petites flèches ↑↓ à droite. Reste appuyé pour défiler plus vite.',
+        },
+        {
+          target: 'help-icon',
+          title: 'Besoin d\'aide ?',
+          description: 'Tu vas voir des "?" partout dans l\'app. Clique dessus pour avoir l\'explication détaillée du champ à côté.',
+        },
+        {
+          target: 'dropdown',
+          title: 'Menu déroulant',
+          description: 'Clique pour ouvrir la liste, puis choisis ton option. Tu peux toujours changer plus tard.',
+        },
+        {
+          target: 'next-button',
+          title: 'Boutons avec flèche →',
+          description: "Chaque bouton avec une flèche → t'emmène à l'endroit indiqué par son texte. Ici, \"Suivant\" t'emmènera à l'étape suivante.",
+          nonInteractive: true,
+        },
+      ]);
+    }, 600);
+    return () => clearTimeout(t);
+  }, [startTutorial]);
   const dataRef = useRef(data);
   dataRef.current = data;
 
@@ -76,7 +115,7 @@ export default function StepProfile({ data, onChange }) {
     return (
       <div className="space-y-2">
         <Label className="text-white">{labelText}</Label>
-        <div className="relative">
+        <div className="relative" data-tutorial={field === 'age' ? 'numeric-input' : undefined}>
           <Input
             type="text"
             inputMode="numeric"
@@ -132,7 +171,7 @@ export default function StepProfile({ data, onChange }) {
       {/* Genre */}
       <div className="space-y-2">
         <Label className="text-white">Genre</Label>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3" data-tutorial="gender-cards">
           {[{ value: 'male', label: 'Homme' }, { value: 'female', label: 'Femme' }].map(({ value, label }) => (
             <button key={value} type="button" onClick={() => onChange({ gender: value })}
               className={`py-2.5 rounded-xl border-2 text-sm font-semibold transition-all ${data.gender === value ? 'border-white bg-white/20 text-white' : 'border-white/20 bg-white/10 text-white/50 hover:border-white/40'}`}>
@@ -146,9 +185,32 @@ export default function StepProfile({ data, onChange }) {
         {numInput('age')}
 
         <div className="space-y-2">
-          <Label className="text-white">Niveau <span className="text-red-400">*</span></Label>
+          <div className="flex items-center gap-1.5">
+            <Label className="text-white">Niveau <span className="text-red-400">*</span></Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button type="button" data-tutorial="help-icon" className="text-white/40 hover:text-white/70 transition-colors">
+                  <HelpCircle className="w-3.5 h-3.5" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72 text-xs space-y-2">
+                <div>
+                  <p className="font-semibold">🌱 Débutant</p>
+                  <p className="text-white/70 mt-0.5">Tu progresses facilement séance après séance. Valable pour les premières années de pratique.</p>
+                </div>
+                <div>
+                  <p className="font-semibold">💪 Intermédiaire</p>
+                  <p className="text-white/70 mt-0.5">Plusieurs années d'entraînement sérieux. La progression demande maintenant de l'optimisation (volume, intensité, récupération).</p>
+                </div>
+                <div>
+                  <p className="font-semibold">🔥 Avancé</p>
+                  <p className="text-white/70 mt-0.5">Chaque détail compte pour progresser. Les gains sont rares et complexes à obtenir.</p>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
           <Select value={data.level || ''} onValueChange={(v) => onChange({ level: v })}>
-            <SelectTrigger className="bg-white/20 border-white/40 text-white [&>span]:text-white [&>span[data-placeholder]]:text-white/50 [&>svg]:opacity-100 [&>svg]:text-white">
+            <SelectTrigger data-tutorial="dropdown" className="bg-white/20 border-white/40 text-white [&>span]:text-white [&>span[data-placeholder]]:text-white/50 [&>svg]:opacity-100 [&>svg]:text-white">
               <SelectValue placeholder="Sélectionner" />
             </SelectTrigger>
             <SelectContent>

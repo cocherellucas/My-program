@@ -11,6 +11,7 @@ import StepEquipment from '@/components/onboarding/StepEquipment';
 import StepObjectives from '@/components/onboarding/StepObjectives';
 import StepPreferences from '@/components/onboarding/StepPreferences';
 import StepMeasurements from '@/components/onboarding/StepMeasurements';
+import WelcomeIntro from '@/components/onboarding/WelcomeIntro';
 
 const TOTAL_STEPS = 6;
 const STORAGE_KEY = 'onboarding_draft';
@@ -18,7 +19,16 @@ const STORAGE_KEY = 'onboarding_draft';
 export default function Onboarding() {
   const navigate = useNavigate();
 
+  // ?resetOnboarding → le nettoyage localStorage est fait par TutorialProvider (qui mount avant).
+  // Ici on retire juste le paramètre de l'URL après coup.
   const savedDraft = (() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('resetOnboarding')) {
+      params.delete('resetOnboarding');
+      const q = params.toString();
+      window.history.replaceState({}, '', window.location.pathname + (q ? '?' + q : ''));
+      return {};
+    }
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
   })();
 
@@ -34,6 +44,10 @@ export default function Onboarding() {
   const [saving, setSaving] = useState(false);
   const [stepError, setStepError] = useState('');
   const [showFinalChoice, setShowFinalChoice] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(() => {
+    // Affiché uniquement si aucun brouillon n'existe encore
+    return !savedDraft.step && !savedDraft.data;
+  });
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ step, data }));
@@ -85,6 +99,10 @@ export default function Onboarding() {
         return false;
       }
       if (data.availability_optimal === true) return true;
+      if (data.available_days.length > 1 && data.same_duration_all == null) {
+        setStepError('Indique si tu veux la même durée chaque jour ou non.');
+        return false;
+      }
       const missingDuration = data.available_days.some(
         d => !data.duration_per_day?.[d] || parseInt(data.duration_per_day[d]) < 10
       );
@@ -199,6 +217,23 @@ export default function Onboarding() {
     <StepMeasurements data={data} onChange={update} />,
   ];
 
+  if (showWelcome) {
+    return <WelcomeIntro
+      onFinish={() => setShowWelcome(false)}
+      onImport={async () => {
+        // Marque l'onboarding comme complété (avec valeurs vides) puis envoie sur /program
+        // L'utilisateur pourra compléter son profil plus tard et importera son programme depuis /program
+        setSaving(true);
+        try {
+          await base44.auth.updateMe({ onboarding_completed: true, onboarding_step: TOTAL_STEPS });
+          localStorage.removeItem(STORAGE_KEY);
+          navigate('/program');
+        } finally {
+          setSaving(false);
+        }
+      }} />;
+  }
+
   return (
     <>
     <div className="min-h-screen bg-violet-800 flex items-center justify-center p-4">
@@ -233,36 +268,24 @@ export default function Onboarding() {
             <div />
           )}
 
-          {step < TOTAL_STEPS - 1 ? (
-            <div className="flex flex-col items-end gap-1">
-              {(() => {
-                const eqArr = Array.isArray(data.equipment)
-                  ? data.equipment
-                  : (() => { try { return JSON.parse(data.equipment || '[]'); } catch { return []; } })();
-                const hasEquipment = eqArr.length > 0;
-                if (step === 3 && !hasEquipment) {
-                  return (
-                    <button type="button" onClick={() => setStep(s => s + 1)}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/30 bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-all">
-                      Je n'ai pas d'équipement
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  );
+          {step < TOTAL_STEPS - 1 ? (() => {
+            const eqArr = Array.isArray(data.equipment)
+              ? data.equipment
+              : (() => { try { return JSON.parse(data.equipment || '[]'); } catch { return []; } })();
+            const hasEquipment = eqArr.length > 0;
+            const isEmptyEquipStep = step === 3 && !hasEquipment;
+            return (
+              <Button data-tutorial="next-button" onClick={() => {
+                if (step === 3 && !data.equipment_validated && hasEquipment) {
+                  update({ equipment_validated: true });
                 }
-                return (
-                  <Button onClick={() => {
-                    if (step === 3 && !data.equipment_validated && hasEquipment) {
-                      update({ equipment_validated: true });
-                    }
-                    if (validateStep()) setStep(s => s + 1);
-                  }}>
-                    Suivant
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                );
-              })()}
-            </div>
-          ) : (
+                if (validateStep()) setStep(s => s + 1);
+              }}>
+                {isEmptyEquipStep ? 'Aucun équipement' : 'Suivant'}
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            );
+          })() : (
             <Button onClick={() => setShowFinalChoice(true)} disabled={saving}>
               Valider
               <ArrowRight className="w-4 h-4 ml-2" />

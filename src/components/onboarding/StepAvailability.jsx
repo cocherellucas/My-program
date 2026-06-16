@@ -20,7 +20,8 @@ export default function StepAvailability({ data, onChange }) {
   const durations = data.duration_per_day || {};
 
   const [durationErrors, setDurationErrors] = React.useState({});
-  const [sameDurationAll, setSameDurationAll] = React.useState(false);
+  const sameDurationAll = data.same_duration_all ?? null;
+  const setSameDurationAll = (v) => onChange({ same_duration_all: v });
   const lastKeyRef = React.useRef(null);
   const holdRef = React.useRef(null);
   const durationsRef = React.useRef(durations);
@@ -166,7 +167,7 @@ export default function StepAvailability({ data, onChange }) {
         <div className="space-y-4">
           {selectedDays.length > 1 && (
             <div className="space-y-2">
-              <Label className="text-white">Même durée chaque jour ?</Label>
+              <Label className="text-white">Même durée chaque jour ? <span className="text-red-400">*</span></Label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
@@ -177,7 +178,7 @@ export default function StepAvailability({ data, onChange }) {
                     selectedDays.forEach(d => setDuration(d, String(refValue), true));
                   }}
                   className={`py-2.5 rounded-xl border text-sm font-semibold transition-all ${
-                    sameDurationAll
+                    sameDurationAll === true
                       ? 'bg-white text-violet-700 border-white shadow'
                       : 'bg-white/10 text-white border-white/20 hover:bg-white/15'
                   }`}
@@ -188,7 +189,7 @@ export default function StepAvailability({ data, onChange }) {
                   type="button"
                   onClick={() => setSameDurationAll(false)}
                   className={`py-2.5 rounded-xl border text-sm font-semibold transition-all ${
-                    !sameDurationAll
+                    sameDurationAll === false
                       ? 'bg-white text-violet-700 border-white shadow'
                       : 'bg-white/10 text-white border-white/20 hover:bg-white/15'
                   }`}
@@ -199,7 +200,8 @@ export default function StepAvailability({ data, onChange }) {
             </div>
           )}
 
-          {(() => {
+          {/* Si plusieurs jours sélectionnés, on attend la réponse avant d'afficher les durées */}
+          {(selectedDays.length === 1 || sameDurationAll !== null) && (() => {
             const PRESETS = [
               { value: 30, label: '30 min' },
               { value: 45, label: '45 min' },

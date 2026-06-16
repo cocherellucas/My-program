@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
-import { AlertTriangle, TrendingDown, Zap, SkipForward, Calendar, Check } from 'lucide-react';
+import { AlertTriangle, TrendingDown, Zap, CalendarX, Calendar, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const DISMISS_DURATION_MS = 4 * 7 * 24 * 60 * 60 * 1000; // 4 semaines
@@ -9,7 +9,7 @@ const DISMISS_DURATION_MS = 4 * 7 * 24 * 60 * 60 * 1000; // 4 semaines
 const ALERT_CONFIG = {
   fatigue:            { icon: Zap,           color: 'text-destructive',      bg: 'bg-destructive/10' },
   plateau:            { icon: TrendingDown,   color: 'text-chart-4',          bg: 'bg-chart-4/10' },
-  missed:             { icon: SkipForward,    color: 'text-muted-foreground', bg: 'bg-muted' },
+  missed:             { icon: CalendarX,      color: 'text-muted-foreground', bg: 'bg-muted' },
   imbalance:          { icon: AlertTriangle,  color: 'text-chart-5',          bg: 'bg-chart-5/10' },
   structural_plateau: { icon: Calendar,       color: 'text-orange-400',       bg: 'bg-orange-400/10' },
   cycle_end:          { icon: Calendar,       color: 'text-violet-300',       bg: 'bg-violet-400/10' },

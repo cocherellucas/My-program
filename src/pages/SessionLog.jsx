@@ -1162,24 +1162,33 @@ export default function SessionLog() {
 
   const exercises = (sessionExercises ?? (session?.exercises || [])).filter((ex) => ex && ex.name);
 
-  // Pré-remplir les logs avec target_weight si défini et pas encore de log
+  // Pré-remplir les logs : priorité au log précédent (séance précédente), fallback sur target_weight
   useEffect(() => {
     if (!exercises.length) return;
     setLogs(prev => {
       const updated = { ...prev };
       exercises.forEach((ex, exIdx) => {
-        if (!ex.target_weight) return;
         const sets = Math.max(1, ex.sets || 3);
         for (let s = 0; s < sets; s++) {
           const key = `${exIdx}-${s}`;
-          if (!updated[key]?.weight) {
-            updated[key] = { ...(updated[key] || {}), weight: ex.target_weight };
+          const cur = updated[key] || {};
+          const prevLog = previousLogs?.[ex.name]?.[s + 1]; // set_number commence à 1
+          const next = { ...cur };
+          // Poids : log précédent en priorité, sinon target_weight
+          if (cur.weight === undefined || cur.weight === '') {
+            const w = prevLog?.weight ?? ex.target_weight;
+            if (w !== undefined && w !== null) next.weight = w;
           }
+          // RIR (mode) : log précédent
+          if (!cur.mode && prevLog?.mode) next.mode = prevLog.mode;
+          // Exécution (quality) : log précédent
+          if (!cur.quality && prevLog?.quality) next.quality = prevLog.quality;
+          if (Object.keys(next).length > 0) updated[key] = next;
         }
       });
       return updated;
     });
-  }, [exercises.length]);
+  }, [exercises.length, previousLogs]);
 
   const updateLog = (exIdx, setIdx, field, value, totalSets) => {
     setLogs((prev) => {

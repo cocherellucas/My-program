@@ -548,7 +548,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
       )}
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
+        <div className="flex flex-col items-center sm:items-start">
           <div className="flex items-center gap-2">
             <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white leading-none">Programme</h1>
             {activeProgram && (
@@ -584,7 +584,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
               sessionLabel = totalCount > 0 ? `${completedCount}/${totalCount} séances` : null;
             }
             return (
-              <div className="flex flex-wrap items-center gap-2 mt-1">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-1">
                 <span className="text-white/60 text-sm">{progressLabel}</span>
                 {daysUntil !== null && (
                   <span className="text-white/60 text-sm">·</span>
@@ -600,7 +600,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
             );
           })()}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center sm:justify-end gap-2">
           {activeProgram && (
             <>
               <AlertDialog>

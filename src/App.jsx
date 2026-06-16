@@ -28,6 +28,8 @@ import { ThemeProvider } from '@/lib/ThemeContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import AppLayout from '@/components/layout/AppLayout';
 import { RestTimerProvider } from '@/lib/RestTimerContext';
+import { TutorialProvider } from '@/lib/TutorialContext';
+import TutorialOverlay from '@/components/TutorialOverlay';
 import Dashboard from '@/pages/Dashboard';
 import Onboarding from '@/pages/Onboarding';
 import Program from '@/pages/Program';
@@ -122,12 +124,15 @@ function App() {
         <QueryClientProvider client={queryClientInstance}>
           <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <RestTimerProvider>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/*" element={<AuthenticatedApp />} />
-              </Routes>
-              <Toaster />
-              <SonnerToaster position="top-center" />
+              <TutorialProvider>
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/*" element={<AuthenticatedApp />} />
+                </Routes>
+                <Toaster />
+                <SonnerToaster position="top-center" />
+                <TutorialOverlay />
+              </TutorialProvider>
             </RestTimerProvider>
           </Router>
         </QueryClientProvider>

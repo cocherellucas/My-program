@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { useTutorial } from '@/lib/TutorialContext';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -54,9 +56,9 @@ const TYPES = [
 ];
 
 const ZONES = [
+  { value: 'full_body', label: 'Corps entier' },
   { value: 'upper_body', label: 'Haut du corps' },
   { value: 'lower_body', label: 'Bas du corps' },
-  { value: 'full_body', label: 'Corps entier' },
   { value: 'specific_group', label: 'Groupe spécifique' },
 ];
 
@@ -78,7 +80,7 @@ const MUSCLE_DETAILS = {
   'Abdominaux':      ['Droit abdominal', 'Oblique externe', 'Oblique interne', 'Transverse'],
 };
 
-const selectClass = 'h-9 bg-white/20 border-white/40 text-white [&>svg]:opacity-100 [&>svg]:text-white';
+const selectClass = 'h-9 bg-white/20 border-white/40 text-white [&>span]:text-white [&>span[data-placeholder]]:text-white/50 [&>svg]:opacity-100 [&>svg]:text-white';
 
 
 export default function StepObjectives({ data, onChange }) {
@@ -91,15 +93,58 @@ export default function StepObjectives({ data, onChange }) {
   const [strengthFocus, setStrengthFocus] = useState({});
   const [detailMode, setDetailMode] = useState({});
   const [expandedGroup, setExpandedGroup] = useState({});
+  const [mergePrompt, setMergePrompt] = useState(null); // { idx, otherIdx }
+  const { startTutorial } = useTutorial() || {};
 
-  // Au premier montage avec aucun objectif : créer un objectif par défaut (hypertrophie corps entier)
+  // Tuto Step 2 : grosses cartes à choisir
+  useEffect(() => {
+    if (!startTutorial) return;
+    const t = setTimeout(() => {
+      startTutorial('objectives-intro', [
+        {
+          target: 'big-card',
+          title: 'Sélectionner une option',
+          description: 'Clique sur une carte pour la choisir. La carte sélectionnée a une bordure blanche bien visible. Tu peux changer à tout moment.',
+        },
+      ]);
+    }, 700);
+    return () => clearTimeout(t);
+  }, [startTutorial]);
+  const dismissedPairs = React.useRef(new Set());
+
+  // Auto-détection : 2 objectifs du même type + MÊME priorité + zones complémentaires → propose fusion
+  useEffect(() => {
+    if (mergePrompt) return; // déjà un prompt ouvert
+    for (let i = 0; i < objectives.length; i++) {
+      for (let j = i + 1; j < objectives.length; j++) {
+        const a = objectives[i], b = objectives[j];
+        if (a.type !== b.type) continue;
+        if (a.priority !== b.priority) continue; // ne pas fusionner principal + secondaire
+        // Ignorer si l'un des 2 est en mode "exercice" (force + focus_movement)
+        const aMovs = Array.isArray(a.focus_movement) ? a.focus_movement : (a.focus_movement ? [a.focus_movement] : []);
+        const bMovs = Array.isArray(b.focus_movement) ? b.focus_movement : (b.focus_movement ? [b.focus_movement] : []);
+        if (a.type === 'strength' && (aMovs.length > 0 || bMovs.length > 0)) continue;
+        const zones = new Set([a.zone, b.zone]);
+        const isComplementary = (zones.has('upper_body') && zones.has('lower_body')) || zones.has('full_body');
+        const isSameZone = a.zone === b.zone && a.zone !== 'specific_group';
+        if (!isComplementary && !isSameZone) continue;
+        const pairKey = `${i}-${j}-${a.type}`;
+        if (dismissedPairs.current.has(pairKey)) continue;
+        setMergePrompt({ idx: j, otherIdx: i });
+        return;
+      }
+    }
+  }, [objectives, mergePrompt]);
+
+  // Au premier montage avec aucun objectif : créer un objectif "vide" (aucun type, aucune zone)
   useEffect(() => {
     if (objectives.length === 0) {
       onChange({
-        objectives: [{ type: 'hypertrophy', zone: 'full_body', priority: 'primary', focus_group: '', focus_movement: '' }]
+        objectives: [{ type: '', zone: '', priority: 'primary', focus_group: '', focus_movement: '' }]
       });
     }
   }, []); // eslint-disable-line
+
 
   // Union des muscles couverts par les objectifs actuels (noms moteur)
   const objectiveMuscles = [...new Set(
@@ -129,37 +174,24 @@ export default function StepObjectives({ data, onChange }) {
   };
 
   const addObjective = () => {
-    const PREFERRED = [
-      ['hypertrophy', 'full_body'],
-      ['strength',    'full_body'],
-      ['endurance',   'full_body'],
-      ['hypertrophy', 'upper_body'],
-      ['strength',    'upper_body'],
-      ['endurance',   'upper_body'],
-      ['hypertrophy', 'lower_body'],
-      ['strength',    'lower_body'],
-      ['endurance',   'lower_body'],
-    ];
-    let newType = 'strength';
-    let newZone = 'full_body';
-    for (const [t, z] of PREFERRED) {
-      if (!objectives.some(o => o.type === t && o.zone === z)) {
-        newType = t; newZone = z; break;
-      }
-    }
     onChange({
-      objectives: [...objectives, { type: newType, zone: newZone, priority: objectives.length === 0 ? 'primary' : 'secondary', focus_group: '', focus_movement: '' }]
+      objectives: [...objectives, { type: '', zone: '', priority: objectives.length === 0 ? 'primary' : 'secondary', focus_group: '', focus_movement: '' }]
     });
   };
 
   const isDuplicate = (idx, field, value) => {
     const current = { ...objectives[idx], [field]: value };
-    return objectives.some((o, i) =>
-      i !== idx &&
-      o.type === current.type &&
-      o.zone === current.zone &&
-      (o.zone !== 'specific_group' || o.focus_group === current.focus_group)
-    );
+    const currentMovs = Array.isArray(current.focus_movement) ? current.focus_movement : (current.focus_movement ? [current.focus_movement] : []);
+    return objectives.some((o, i) => {
+      if (i === idx) return false;
+      if (o.type !== current.type) return false;
+      // Si l'un des 2 objectifs est en mode "exercice", ils ne sont pas duplicates (les exos sont différents)
+      const oMovs = Array.isArray(o.focus_movement) ? o.focus_movement : (o.focus_movement ? [o.focus_movement] : []);
+      if (o.type === 'strength' && (oMovs.length > 0 || currentMovs.length > 0)) return false;
+      // Sinon : duplicate si même zone (et même focus_group pour specific)
+      if (o.zone !== current.zone) return false;
+      return o.zone !== 'specific_group' || o.focus_group === current.focus_group;
+    });
   };
 
   const updateObj = (idx, field, value) => {
@@ -218,6 +250,7 @@ export default function StepObjectives({ data, onChange }) {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button type="button"
+                        data-tutorial={idx === 0 ? 'badge-dropdown' : undefined}
                         className={cn(
                           'flex items-center gap-1 text-xs font-bold uppercase px-2.5 py-1 rounded-full transition-colors',
                           obj.priority === 'primary' ? 'bg-white/30 text-white hover:bg-white/40' : 'bg-white/10 text-white/60 hover:bg-white/20'
@@ -230,9 +263,24 @@ export default function StepObjectives({ data, onChange }) {
                       <DropdownMenuItem
                         className="focus:bg-white/20 focus:text-white cursor-pointer"
                         onClick={() => {
-                          // Swap : si un autre objectif du même type est primaire, on l'inverse
-                          const otherPrimaryIdx = objectives.findIndex((o, i) => i !== idx && o.type === obj.type && o.priority === 'primary');
+                          // Swap : si un autre objectif du même type est primaire ET sur la même cible (zone OU exercice), on l'inverse
+                          const curMovs = Array.isArray(obj.focus_movement) ? obj.focus_movement : (obj.focus_movement ? [obj.focus_movement] : []);
+                          const curIsMovement = obj.type === 'strength' && curMovs.length > 0;
+                          const otherPrimaryIdx = objectives.findIndex((o, i) => {
+                            if (i === idx || o.type !== obj.type || o.priority !== 'primary') return false;
+                            // Ne pas swap entre deux strength si l'un est zone et l'autre exercice
+                            if (obj.type === 'strength') {
+                              const oMovs = Array.isArray(o.focus_movement) ? o.focus_movement : (o.focus_movement ? [o.focus_movement] : []);
+                              const otherIsMovement = oMovs.length > 0;
+                              if (curIsMovement !== otherIsMovement) return false;
+                            }
+                            return true;
+                          });
                           if (otherPrimaryIdx !== -1) {
+                            // Proposer la fusion au lieu du swap
+                            setMergePrompt({ idx, otherIdx: otherPrimaryIdx });
+                            return;
+                            // (code de swap conservé en backup, jamais atteint)
                             const updated = objectives.map((o, i) => {
                               if (i === idx) return { ...o, priority: 'primary' };
                               if (i === otherPrimaryIdx) return { ...o, priority: 'secondary' };
@@ -286,7 +334,7 @@ export default function StepObjectives({ data, onChange }) {
             {/* Type — 3 grandes cartes visuelles */}
             <div className="space-y-2">
               <div className="flex items-center gap-1">
-                <Label className="text-xs text-white/70">Que veux-tu faire ?</Label>
+                <Label className="text-sm font-bold text-white">Que veux-tu faire ?</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <button type="button" className="text-white/40 hover:text-white/70 transition-colors">
@@ -313,7 +361,7 @@ export default function StepObjectives({ data, onChange }) {
                   </PopoverContent>
                 </Popover>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2" data-tutorial={idx === 0 ? 'big-card' : undefined}>
                 {[
                   { type: 'hypertrophy', emoji: '💪', label: 'Prendre du muscle',   advantages: ['Look tonique', 'Métabolisme ↑', 'Brûle les graisses au repos'] },
                   { type: 'strength',    emoji: '🏋️', label: 'Devenir plus fort',   advantages: ['Articulations solides', 'Meilleure posture', 'Performance sportive'] },
@@ -395,7 +443,23 @@ export default function StepObjectives({ data, onChange }) {
                     Sur une zone du corps
                   </button>
                   <button type="button"
-                    onClick={() => setStrengthFocus(prev => ({ ...prev, [idx]: 'movement' }))}
+                    onClick={() => {
+                      setStrengthFocus(prev => ({ ...prev, [idx]: 'movement' }));
+                      // Auto-sélectionner SBD (Squat, Bench, Deadlift) si focus_movement est vide
+                      const curMovs = Array.isArray(obj.focus_movement) ? obj.focus_movement : (obj.focus_movement ? [obj.focus_movement] : []);
+                      if (curMovs.length === 0) {
+                        // Filtrer ce qui n'est pas déjà pris par un autre objectif force
+                        const SBD = ['Squat barre', 'Développé couché', 'Soulevé de terre'];
+                        const takenByOthers = new Set(
+                          objectives.flatMap((o, i) => {
+                            if (i === idx || o.type !== 'strength') return [];
+                            return Array.isArray(o.focus_movement) ? o.focus_movement : (o.focus_movement ? [o.focus_movement] : []);
+                          })
+                        );
+                        const available = SBD.filter(m => !takenByOthers.has(m));
+                        if (available.length > 0) updateObj(idx, 'focus_movement', available);
+                      }
+                    }}
                     className={cn('px-3 py-2 rounded-lg border text-xs font-medium transition-all',
                       strengthFocus[idx] === 'movement'
                         ? 'bg-white text-violet-700 border-white'
@@ -406,8 +470,8 @@ export default function StepObjectives({ data, onChange }) {
               )}
             </div>
 
-            {/* Zone — visible pour tous sauf Force en mode "exercice" */}
-            {(obj.type !== 'strength' || (strengthFocus[idx] || 'zone') === 'zone') && (() => {
+            {/* Zone — visible quand un type est choisi, sauf Force en mode "exercice" */}
+            {obj.type && (obj.type !== 'strength' || (strengthFocus[idx] || 'zone') === 'zone') && (() => {
               // Filtre les zones pour éviter les overlaps avec autres objectifs du même type
               const ZONE_TO_MUSCLES = {
                 upper_body: new Set(['Poitrine', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Abdos']),
@@ -438,13 +502,13 @@ export default function StepObjectives({ data, onChange }) {
                 // Zone OK si AUCUN de ses muscles n'est déjà pris
                 return ![...muscles].some(m => otherMuscles.has(m));
               });
-              // Si la zone courante n'est plus valide, basculer automatiquement vers la première dispo
-              const currentZoneInvalid = !availableZones.some(z => z.value === obj.zone);
-              if (currentZoneInvalid && availableZones.length > 0 && obj.zone !== availableZones[0].value) {
+              // Si la zone courante n'est plus valide (déjà choisie + devenue invalide), basculer.
+              // En revanche, on NE PRÉ-SÉLECTIONNE PAS si l'utilisateur n'a rien choisi (zone vide).
+              const currentZoneInvalid = obj.zone && !availableZones.some(z => z.value === obj.zone);
+              if (currentZoneInvalid && availableZones.length > 0) {
                 const newZone = availableZones[0].value;
                 Promise.resolve().then(() => {
                   updateObj(idx, 'zone', newZone);
-                  // Si on bascule sur specific_group, auto-fill focus_group avec les muscles dispos
                   if (newZone === 'specific_group') {
                     const currentFg = Array.isArray(obj.focus_group) ? obj.focus_group : [];
                     if (currentFg.length === 0) {
@@ -456,7 +520,7 @@ export default function StepObjectives({ data, onChange }) {
               }
               return (
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-white/70">Sur quoi ?</Label>
+                  <Label className="text-sm font-bold text-white">Sur quoi ?</Label>
                   <Select value={obj.zone} onValueChange={(v) => {
                     updateObj(idx, 'zone', v);
                     // Si passage en specific_group, auto-fill focus_group avec tous les muscles dispos
@@ -470,7 +534,7 @@ export default function StepObjectives({ data, onChange }) {
                       }
                     }
                   }}>
-                    <SelectTrigger className={selectClass}><SelectValue /></SelectTrigger>
+                    <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner" /></SelectTrigger>
                     <SelectContent>
                       {availableZones.map(z => <SelectItem key={z.value} value={z.value}>{z.label}</SelectItem>)}
                     </SelectContent>
@@ -519,6 +583,7 @@ export default function StepObjectives({ data, onChange }) {
             {obj.type === 'strength' && strengthFocus[idx] === 'movement' && (
               <div className="space-y-2">
                 <Label className="text-xs text-white">Mouvement focus</Label>
+                <p className="text-[11px] text-white/50">Clique sur un exercice pour le retirer du programme.</p>
                 <div className="grid grid-cols-2 gap-2">
                   {[
                     { label: 'Squat',            value: 'Squat barre' },
@@ -552,7 +617,7 @@ export default function StepObjectives({ data, onChange }) {
                             ? 'bg-white text-violet-700 border-white shadow'
                             : takenByOther
                               ? 'bg-white/5 text-white/30 border-white/15 line-through cursor-not-allowed'
-                              : 'bg-white/10 text-white border-white/20 hover:border-white/40'
+                              : 'bg-white/10 text-white/40 border-white/20 hover:border-white/40 line-through'
                         )}>
                         {label}
                       </button>
@@ -665,6 +730,83 @@ export default function StepObjectives({ data, onChange }) {
           </p>
         </div>
       )}
+
+      {/* Modal proposant la fusion de 2 objectifs au lieu du swap principal/secondaire */}
+      {mergePrompt && (() => {
+        const curObj = objectives[mergePrompt.idx];
+        const otherObj = objectives[mergePrompt.otherIdx];
+        const TYPE_LABEL = { hypertrophy: 'Prendre du muscle', strength: 'Devenir plus fort', endurance: 'Améliorer endurance' };
+        return createPortal(
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+            <div className="w-full max-w-sm rounded-2xl p-5 space-y-4" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.2)' }}>
+              <div>
+                <p className="text-base font-bold text-white">Deux objectifs identiques</p>
+                <p className="text-xs text-white/70 mt-1">
+                  Tu as déjà un objectif <span className="font-semibold text-white">{TYPE_LABEL[curObj.type]}</span> en focus principal. Tu peux les combiner en un seul pour réunir tous tes exercices ou muscles au même endroit.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    // Fusion : merger l'autre dans cur (cur garde l'idx, l'autre est supprimé)
+                    // Priorité = primary si au moins un des deux était primary, sinon secondary
+                    const mergedPriority = (curObj.priority === 'primary' || otherObj.priority === 'primary') ? 'primary' : 'secondary';
+                    const merged = { ...otherObj, priority: mergedPriority };
+                    // Merge focus_movement (arrays/strings)
+                    const curMovs = Array.isArray(curObj.focus_movement) ? curObj.focus_movement : (curObj.focus_movement ? [curObj.focus_movement] : []);
+                    const otherMovs = Array.isArray(otherObj.focus_movement) ? otherObj.focus_movement : (otherObj.focus_movement ? [otherObj.focus_movement] : []);
+                    merged.focus_movement = [...new Set([...otherMovs, ...curMovs])];
+                    // Détection de zones complémentaires
+                    const zones = new Set([curObj.zone, otherObj.zone]);
+                    if (zones.has('full_body') || (zones.has('upper_body') && zones.has('lower_body'))) {
+                      // Combo qui couvre tout le corps → Corps entier
+                      merged.zone = 'full_body';
+                      merged.focus_group = '';
+                    } else if (zones.has('specific_group')) {
+                      // Au moins un est specific_group → merger en specific_group
+                      const expandToGroups = (o) => {
+                        if (o.zone === 'specific_group' && Array.isArray(o.focus_group)) return o.focus_group;
+                        if (o.zone === 'upper_body') return ['Épaules', 'Pectoraux', 'Dos', 'Biceps', 'Triceps', 'Abdominaux'];
+                        if (o.zone === 'lower_body') return ['Fessiers', 'Quadriceps', 'Ischio-jambiers', 'Mollets'];
+                        if (o.zone === 'full_body') return GROUPS;
+                        return [];
+                      };
+                      merged.zone = 'specific_group';
+                      merged.focus_group = [...new Set([...expandToGroups(curObj), ...expandToGroups(otherObj)])];
+                    } else if (curObj.zone === otherObj.zone) {
+                      // Même zone → on garde
+                      merged.zone = curObj.zone;
+                    } else {
+                      // Zones différentes mais pas couvrant tout → garder la plus large
+                      merged.zone = otherObj.zone;
+                    }
+                    // Supprimer cur, garder l'autre fusionné
+                    const next = objectives.map((o, i) => i === mergePrompt.otherIdx ? merged : o).filter((_, i) => i !== mergePrompt.idx);
+                    onChange({ objectives: next });
+                    setMergePrompt(null);
+                  }}
+                  className="w-full py-2.5 rounded-xl text-sm font-semibold bg-white text-violet-700 hover:bg-white/90 transition-colors">
+                  ✨ Fusionner en un seul objectif
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    // Mémoriser le dismiss pour ne pas re-prompter
+                    const i = Math.min(mergePrompt.idx, mergePrompt.otherIdx);
+                    const j = Math.max(mergePrompt.idx, mergePrompt.otherIdx);
+                    dismissedPairs.current.add(`${i}-${j}-${curObj.type}`);
+                    setMergePrompt(null);
+                  }}
+                  className="w-full py-2.5 rounded-xl text-sm font-medium bg-white/10 text-white/70 hover:bg-white/20 transition-colors">
+                  Annuler
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        );
+      })()}
     </div>
   );
 }

@@ -281,6 +281,7 @@ export default function StepEquipment({ data, onChange }) {
               </button>
             ))}
           </div>
+
         </div>
       )}
 
@@ -416,6 +417,7 @@ export default function StepEquipment({ data, onChange }) {
               ))}
             </div>
             <button type="button"
+              data-tutorial="toggle-slider"
               onClick={() => onChange({ equipment: equipment.length === ALL_EQUIPMENT.length ? [] : ALL_EQUIPMENT, equipment_validated: false })}
               className="flex items-center gap-2">
               <span className="text-xs text-white/60">{equipment.length === ALL_EQUIPMENT.length ? 'Tout décocher' : 'Tout cocher'}</span>
