@@ -208,7 +208,7 @@ export default function AppLayout() {
   const numPages = NAV_PATHS.length;
 
   return (
-    <div className={`min-h-screen transition-colors duration-150 ${keyboardOpen ? 'bg-violet-800' : 'bg-violet-600'}`}>
+    <div className="min-h-screen bg-violet-600">
       <div className="hidden md:block">
         <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
       </div>
