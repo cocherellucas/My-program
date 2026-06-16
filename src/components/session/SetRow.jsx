@@ -169,6 +169,14 @@ const shouldShowPropagate =
            inputMode="decimal"
            placeholder={previousWeight ? `${previousWeight}` : ''}
            value={log.weight || ''}
+           onFocus={(e) => {
+             // Curseur à la fin (pas de sélection complète) — édition naturelle au backspace
+             const t = e.target;
+             requestAnimationFrame(() => {
+               const len = (t.value || '').length;
+               try { t.setSelectionRange(len, len); } catch {}
+             });
+           }}
            onChange={(e) => {
   const v = parseFloat(e.target.value);
   if (!isNaN(v) && v >= 0) {
@@ -219,6 +227,14 @@ onBlur={(e) => {
            placeholder={previousReps ? `${previousReps}` : ''}
            value={log.reps || ''}
            readOnly={locked}
+           onFocus={(e) => {
+             // Curseur à la fin (pas de sélection complète) — édition naturelle au backspace
+             const t = e.target;
+             requestAnimationFrame(() => {
+               const len = (t.value || '').length;
+               try { t.setSelectionRange(len, len); } catch {}
+             });
+           }}
            onChange={(e) => {
   const v = parseInt(e.target.value);
 
