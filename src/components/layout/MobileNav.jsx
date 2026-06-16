@@ -20,10 +20,37 @@ export default function MobileNav({ swipeX, swipeCurrentIdx = 0 }) {
   ];
 
   const [keyboardOpen, setKeyboardOpen] = React.useState(false);
+  // Détection 1 : focus sur input éditable (couvre les claviers courts comme numérique)
+  useEffect(() => {
+    const isEditable = (el) => {
+      if (!el) return false;
+      const tag = el.tagName;
+      if (tag === 'INPUT') {
+        const type = (el.getAttribute('type') || '').toLowerCase();
+        // Exclut les inputs non-clavier
+        return !['checkbox', 'radio', 'button', 'submit', 'reset', 'file', 'range', 'color'].includes(type);
+      }
+      if (tag === 'TEXTAREA') return true;
+      if (el.isContentEditable) return true;
+      return false;
+    };
+    const onFocusIn = (e) => { if (isEditable(e.target)) setKeyboardOpen(true); };
+    const onFocusOut = () => {
+      // Laisse le temps au focus de passer à un autre input avant de cacher
+      setTimeout(() => { if (!isEditable(document.activeElement)) setKeyboardOpen(false); }, 50);
+    };
+    document.addEventListener('focusin', onFocusIn);
+    document.addEventListener('focusout', onFocusOut);
+    return () => {
+      document.removeEventListener('focusin', onFocusIn);
+      document.removeEventListener('focusout', onFocusOut);
+    };
+  }, []);
+  // Détection 2 (fallback) : variation de la hauteur du visualViewport (claviers tiers)
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return;
-    const handler = () => setKeyboardOpen(vv.height < window.innerHeight * 0.75);
+    const handler = () => { if (vv.height < window.innerHeight * 0.85) setKeyboardOpen(true); };
     vv.addEventListener('resize', handler);
     return () => vv.removeEventListener('resize', handler);
   }, []);
