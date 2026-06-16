@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { toast } from 'sonner';
 import { useRestTimer } from '@/lib/RestTimerContext';
@@ -1085,9 +1085,14 @@ export default function SessionLog() {
     }
   }, [session?.status, coachPainQuery]); // eslint-disable-line
 
-  // Fetch previous session logs for the same program
+  // Fetch previous session logs for the same program — UNE SEULE FOIS au mount.
+  // (sinon le refetch de TanStack Query au focus de fenêtre re-déclenche tout le pipeline
+  // de pré-remplissage et reset le curseur des inputs pendant la frappe)
+  const previousLogsFetched = useRef(false);
   useEffect(() => {
     if (!session || !user) return;
+    if (previousLogsFetched.current) return;
+    previousLogsFetched.current = true;
     const fetchPreviousLogs = async () => {
       // On inclut aussi les séances "planned" car elles peuvent avoir des logs auto-sauvegardés
       const allSessions = await base44.entities.Session.filter({ program_id: session.program_id });
@@ -1162,9 +1167,13 @@ export default function SessionLog() {
 
   const exercises = (sessionExercises ?? (session?.exercises || [])).filter((ex) => ex && ex.name);
 
-  // Pré-remplir les logs : priorité au log précédent (séance précédente), fallback sur target_weight
+  // Pré-remplir les logs : priorité au log précédent (séance précédente), fallback sur target_weight.
+  // Garde-fou : exécuté UNE SEULE FOIS — sinon le re-render reset le curseur de l'input pendant qu'on tape.
+  const prefilledRef = useRef(false);
   useEffect(() => {
     if (!exercises.length) return;
+    if (prefilledRef.current) return;
+    prefilledRef.current = true;
     setLogs(prev => {
       const updated = { ...prev };
       exercises.forEach((ex, exIdx) => {

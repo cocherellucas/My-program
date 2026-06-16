@@ -14,6 +14,66 @@ const ZONE_LABELS = {
 const QUALITY_LABELS = { good: '✓ Bonne', degraded: '~ Dégradée', bad: '✗ Mauvaise' };
 const MODE_LABELS = { RIR_3: 'RIR 3+', RIR_2: 'RIR 2', RIR_1: 'RIR 1', failure: 'Échec' };
 
+// Champ numérique UNCONTROLLED : React n'écrit jamais value pendant la frappe.
+// Le DOM gère le curseur nativement, et on commit au blur.
+function LocalNumberInput({ value, onCommit, placeholder, decimal = false, readOnly, className, onEnter }) {
+  const ref = React.useRef(null);
+  const focusedRef = React.useRef(false);
+
+  // Sync prop → DOM UNIQUEMENT quand on n'est pas focus (pour ne pas casser la frappe)
+  React.useEffect(() => {
+    if (!ref.current) return;
+    if (focusedRef.current) return; // ne touche pas pendant la frappe
+    const next = (value === undefined || value === null || value === '') ? '' : String(value);
+    if (ref.current.value !== next) ref.current.value = next;
+  }, [value]);
+
+  const sanitize = (raw) => {
+    if (decimal) {
+      let cleaned = raw.replace(/[^0-9.,]/g, '').replace(',', '.');
+      const parts = cleaned.split('.');
+      if (parts.length > 2) cleaned = parts[0] + '.' + parts.slice(1).join('');
+      return cleaned;
+    }
+    return raw.replace(/[^0-9]/g, '');
+  };
+
+  const commit = () => {
+    if (!ref.current) return;
+    const raw = ref.current.value;
+    if (raw === '') { onCommit(''); return; }
+    const v = decimal ? parseFloat(raw) : parseInt(raw, 10);
+    if (!isNaN(v) && v >= 0) onCommit(v);
+  };
+
+  return (
+    <input
+      ref={ref}
+      type="text"
+      inputMode={decimal ? 'decimal' : 'numeric'}
+      placeholder={placeholder}
+      defaultValue={(value === undefined || value === null || value === '') ? '' : String(value)}
+      readOnly={readOnly}
+      onFocus={() => { focusedRef.current = true; }}
+      onInput={(e) => {
+        // Sanitise en réécrivant la value (le curseur peut sauter à la fin pour un caractère
+        // invalide, c'est OK — c'était une frappe rejetée)
+        const cleaned = sanitize(e.currentTarget.value);
+        if (cleaned !== e.currentTarget.value) e.currentTarget.value = cleaned;
+      }}
+      onBlur={() => { focusedRef.current = false; commit(); }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          commit();
+          e.currentTarget.blur();
+          onEnter?.();
+        }
+      }}
+      className={className}
+    />
+  );
+}
+
 export default function SetRow({ setIdx, totalSets, log, onUpdate, onWeightBlur, onWeightPropagate, rirContext, previousWeight, previousReps, previousMode, previousQuality, nextWeights, exerciseFragileZones = [], locked = false, onAskCoach }) {
   const [manuallyEdited, setManuallyEdited] = useState(false);
   const [propagated, setPropagated] = useState(false);
@@ -164,43 +224,20 @@ const shouldShowPropagate =
 
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <Input
-           type="text"
-           inputMode="decimal"
+          <LocalNumberInput
+           decimal
            placeholder={previousWeight ? `${previousWeight}` : ''}
-           value={log.weight || ''}
-           onFocus={(e) => {
-             // Curseur à la fin (pas de sélection complète) — édition naturelle au backspace
-             const t = e.target;
-             requestAnimationFrame(() => {
-               const len = (t.value || '').length;
-               try { t.setSelectionRange(len, len); } catch {}
-             });
+           value={log.weight}
+           onCommit={(v) => {
+             if (v === '') { onUpdate('weight', ''); return; }
+             onUpdate('weight', v);
+             setPropagated(false);
+             setManuallyEdited(true);
+             if (v) onWeightBlur?.(v);
+             setManuallyEdited(false);
            }}
-           onChange={(e) => {
-  const v = parseFloat(e.target.value);
-  if (!isNaN(v) && v >= 0) {
-    onUpdate('weight', v);
-    setPropagated(false);
-    setManuallyEdited(true);
-  } else if (e.target.value === '') {
-    onUpdate('weight', '');
-  }
-}}
-onKeyDown={(e) => {
-  if (e.key === 'Enter') {
-    const v = parseFloat(e.target.value);
-    if (v) onWeightBlur?.(v);
-    e.target.blur();
-    setManuallyEdited(false);
-  }
-}}
-onBlur={(e) => {
-  const v = parseFloat(e.target.value);
-  if (v) onWeightBlur?.(v);
-  setManuallyEdited(false);
-}}
-           className="w-full h-10 text-center bg-white/10 border-white/20 text-white placeholder:text-white text-sm"
+           onEnter={() => setManuallyEdited(false)}
+           className="flex h-10 w-full rounded-md border bg-white/10 border-white/20 text-white placeholder:text-white text-sm text-center px-3 py-1 shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           />
           <div className="text-xs text-center mt-1 flex items-center justify-center">
             {shouldShowPropagate ? (
@@ -221,31 +258,12 @@ onBlur={(e) => {
           </div>
         </div>
         <div>
-          <Input
-           type="text"
-           inputMode="numeric"
+          <LocalNumberInput
            placeholder={previousReps ? `${previousReps}` : ''}
-           value={log.reps || ''}
+           value={log.reps}
            readOnly={locked}
-           onFocus={(e) => {
-             // Curseur à la fin (pas de sélection complète) — édition naturelle au backspace
-             const t = e.target;
-             requestAnimationFrame(() => {
-               const len = (t.value || '').length;
-               try { t.setSelectionRange(len, len); } catch {}
-             });
-           }}
-           onChange={(e) => {
-  const v = parseInt(e.target.value);
-
-  if (!isNaN(v) && v >= 0) {
-    onUpdate('reps', v);
-  } else if (e.target.value === '') {
-    onUpdate('reps', '');
-  }
-}}
-onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
-           className="w-full h-10 text-center bg-white/10 border-white/20 text-white placeholder:text-white text-sm"
+           onCommit={(v) => onUpdate('reps', v === '' ? '' : v)}
+           className="flex h-10 w-full rounded-md border bg-white/10 border-white/20 text-white placeholder:text-white text-sm text-center px-3 py-1 shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           />
           <span className="text-xs text-white/50 text-center block mt-1">Reps</span>
         </div>
