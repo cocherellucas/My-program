@@ -51,6 +51,32 @@ export default function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Détection clavier mobile pour retirer le padding-bas (réservé à la nav cachée)
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+  useEffect(() => {
+    const isEditable = (el) => {
+      if (!el) return false;
+      const tag = el.tagName;
+      if (tag === 'INPUT') {
+        const type = (el.getAttribute('type') || '').toLowerCase();
+        return !['checkbox', 'radio', 'button', 'submit', 'reset', 'file', 'range', 'color'].includes(type);
+      }
+      if (tag === 'TEXTAREA') return true;
+      return el.isContentEditable === true;
+    };
+    const onFocusIn = (e) => { if (isEditable(e.target)) setKeyboardOpen(true); };
+    const onFocusOut = () => setTimeout(() => {
+      if (!isEditable(document.activeElement)) setKeyboardOpen(false);
+    }, 50);
+    document.addEventListener('focusin', onFocusIn);
+    document.addEventListener('focusout', onFocusOut);
+    return () => {
+      document.removeEventListener('focusin', onFocusIn);
+      document.removeEventListener('focusout', onFocusOut);
+    };
+  }, []);
+  useEffect(() => { setKeyboardOpen(false); }, [location.pathname]);
+
   const mainRef = useRef(null);
 
   // x  = offset de swipe en cours (0 au repos)
@@ -239,8 +265,9 @@ export default function AppLayout() {
                   overflowY: idx === currentIdx ? 'auto' : 'hidden',
                   overscrollBehavior: 'contain',
                 }}
-                // Réserve la place de la mobile nav + le safe-area-inset-bottom (notch iPhone)
-                className="pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0"
+                // Réserve la place de la mobile nav + safe-area-inset-bottom (notch iPhone)
+                // — mais retire ce padding quand le clavier est ouvert (nav cachée)
+                className={keyboardOpen ? 'pb-2' : 'pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0'}
               >
                 <div className="max-w-7xl mx-auto p-4 md:p-8">
                   {Pre
