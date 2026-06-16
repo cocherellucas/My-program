@@ -994,14 +994,17 @@ export default function SessionLog() {
           const [exIdx, setIdx] = key.split('-').map(Number);
           const exercise = exercises[exIdx];
           if (!exercise) return Promise.resolve();
+          // Convertit log.weight/reps en nombre ou null (et pas 0 qui pollue le pré-remplissage de la séance suivante)
+          const w = parseFloat(log.weight);
+          const r = parseInt(log.reps, 10);
           return base44.entities.SeriesLog.create({
             session_id: session.id,
             user_id: user.id,
             exercise_name: exercise.name,
             exercise_variant: exercise.name,
             set_number: setIdx + 1,
-            weight: log.weight || 0,
-            reps_done: log.reps || 0,
+            weight: isNaN(w) ? null : w,
+            reps_done: isNaN(r) ? null : r,
             reps_target: exercise.target_reps || '',
             rest_seconds: restTimeForEx[exIdx] || exercise.rest_seconds || 90,
             mode: log.mode || 'RIR_2',
@@ -1190,6 +1193,10 @@ export default function SessionLog() {
           if (cur.weight === undefined || cur.weight === '') {
             const w = prevLog?.weight ?? ex.target_weight;
             if (w !== undefined && w !== null) next.weight = w;
+          }
+          // Reps : log précédent (on ignore 0 — c'est "non saisi" en base)
+          if ((cur.reps === undefined || cur.reps === '') && prevLog?.reps) {
+            next.reps = prevLog.reps;
           }
           // RIR (mode) : log précédent
           if (!cur.mode && prevLog?.mode) next.mode = prevLog.mode;
