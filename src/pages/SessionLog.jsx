@@ -1089,6 +1089,7 @@ export default function SessionLog() {
   // (sinon le refetch de TanStack Query au focus de fenêtre re-déclenche tout le pipeline
   // de pré-remplissage et reset le curseur des inputs pendant la frappe)
   const previousLogsFetched = useRef(false);
+  const [previousLogsLoaded, setPreviousLogsLoaded] = useState(false);
   useEffect(() => {
     if (!session || !user) return;
     if (previousLogsFetched.current) return;
@@ -1140,7 +1141,7 @@ export default function SessionLog() {
       });
       setSessionsHistory(lines.join('\n'));
     };
-    fetchPreviousLogs();
+    fetchPreviousLogs().finally(() => setPreviousLogsLoaded(true));
   }, [session, user]);
 
   const { data: activeProgram } = useQuery({
@@ -1168,10 +1169,12 @@ export default function SessionLog() {
   const exercises = (sessionExercises ?? (session?.exercises || [])).filter((ex) => ex && ex.name);
 
   // Pré-remplir les logs : priorité au log précédent (séance précédente), fallback sur target_weight.
-  // Garde-fou : exécuté UNE SEULE FOIS — sinon le re-render reset le curseur de l'input pendant qu'on tape.
+  // Garde-fou : exécuté UNE SEULE FOIS, et UNIQUEMENT après que previousLogs ait fini de charger
+  // — sinon on raterait les valeurs de la séance précédente et on réécrirait le curseur ensuite.
   const prefilledRef = useRef(false);
   useEffect(() => {
     if (!exercises.length) return;
+    if (!previousLogsLoaded) return;
     if (prefilledRef.current) return;
     prefilledRef.current = true;
     setLogs(prev => {
@@ -1197,7 +1200,7 @@ export default function SessionLog() {
       });
       return updated;
     });
-  }, [exercises.length, previousLogs]);
+  }, [exercises.length, previousLogs, previousLogsLoaded]);
 
   const updateLog = (exIdx, setIdx, field, value, totalSets) => {
     setLogs((prev) => {
