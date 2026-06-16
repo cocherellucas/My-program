@@ -925,21 +925,15 @@ export default function SessionLog() {
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const { startTimer } = useRestTimer();
 
-  // Clavier mobile : scroll l'élément actif dans la zone visible
+  // Clavier mobile : on laisse iOS gérer le scroll natif (place l'input juste au-dessus
+  // du clavier, sans gap en bas). Le scrollIntoView({block:'center'}) précédent forçait
+  // l'input au centre → laissait de l'espace vide en bas quand le contenu se terminait.
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return;
     const handler = () => {
       const isOpen = vv.height < window.innerHeight * 0.75;
       document.body.classList.toggle('keyboard-open', isOpen);
-      if (isOpen) {
-        setTimeout(() => {
-          const el = document.activeElement;
-          if (el && el !== document.body) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }, 80);
-      }
     };
     vv.addEventListener('resize', handler);
     return () => {
