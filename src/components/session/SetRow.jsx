@@ -227,7 +227,7 @@ const shouldShowPropagate =
         <div>
           <LocalNumberInput
            decimal
-           placeholder={previousWeight ? `${previousWeight}` : ''}
+           placeholder={(log.weight && log.weight !== 0) ? String(log.weight) : (previousWeight ? `${previousWeight}` : '')}
            value={log.weight}
            onCommit={(v) => {
              if (v === '') { onUpdate('weight', ''); return; }
@@ -260,7 +260,7 @@ const shouldShowPropagate =
         </div>
         <div>
           <LocalNumberInput
-           placeholder={previousReps ? `${previousReps}` : ''}
+           placeholder={(log.reps && log.reps !== 0) ? String(log.reps) : (previousReps ? `${previousReps}` : '')}
            value={log.reps}
            readOnly={locked}
            onCommit={(v) => onUpdate('reps', v === '' ? '' : v)}
