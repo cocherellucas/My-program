@@ -99,7 +99,7 @@ export default function MobileNav({ swipeX, swipeCurrentIdx = 0 }) {
 
   return (
     <nav className="mobile-nav fixed bottom-0 left-0 right-0 z-50 pb-safe"
-      style={{ background: 'linear-gradient(to bottom, rgba(109,40,217,0.13) 0%, white 100%)' }}>
+      style={{ background: 'linear-gradient(to bottom, rgba(109,40,217,0.13) 0%, white 100%)', borderTop: '1px solid rgba(109,40,217,0.12)' }}>
       <div
         ref={containerRef}
         className="flex px-1 py-1.5"
