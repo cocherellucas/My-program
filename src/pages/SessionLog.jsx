@@ -945,12 +945,11 @@ export default function SessionLog() {
       const isOpen = vv.height < window.innerHeight * 0.75;
       document.body.classList.toggle('keyboard-open', isOpen);
       setKbOpen(isOpen);
-      // La zone visible est en HAUT de l'écran (top:0) jusqu'au clavier ;
-      // sa hauteur = vv.height. (vv.offsetTop = scroll interne, PAS la position
-      // écran → ne pas l'utiliser pour le top, sinon bande violette constante.)
+      // Position/taille du conteneur = rect exact du visualViewport, écrit
+      // directement (sans attendre un re-render React)
       const el = scrollRootRef.current;
       if (el) {
-        el.style.top = '0px';
+        el.style.top = (vv.offsetTop || 0) + 'px';
         el.style.height = vv.height + 'px';
       }
       if (isOpen) {
