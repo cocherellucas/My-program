@@ -77,14 +77,21 @@ export default function AppLayout() {
   }, []);
   useEffect(() => { setKeyboardOpen(false); }, [location.pathname]);
 
-  // Mesure la hauteur réelle de la mobile nav (inclut safe-area via pb-safe)
-  // pour appliquer pile ce padding-bas au contenu → aucun gap violet, aucun
-  // contenu caché derrière la nav.
-  const [navH, setNavH] = useState(0);
+  const mainRef = useRef(null);
+
+  // Mesure l'OVERLAP réel entre le bas de <main> et le haut de la nav.
+  // main est remonté de safe-area-bottom (padding body) mais la nav est
+  // positionnée au bas du viewport → l'overlap exact = le padding-bas à
+  // appliquer au contenu pour qu'il s'arrête pile sur la nav (zéro gap violet).
+  const [navOverlap, setNavOverlap] = useState(0);
   useEffect(() => {
     const measure = () => {
       const nav = document.querySelector('.mobile-nav');
-      setNavH(nav ? nav.offsetHeight : 0);
+      const main = mainRef.current;
+      if (!nav || !main) { setNavOverlap(0); return; }
+      const navTop = nav.getBoundingClientRect().top;
+      const mainBottom = main.getBoundingClientRect().bottom;
+      setNavOverlap(Math.max(0, Math.round(mainBottom - navTop)));
     };
     measure();
     const t1 = setTimeout(measure, 100);
@@ -96,9 +103,7 @@ export default function AppLayout() {
       window.removeEventListener('resize', measure);
       window.removeEventListener('orientationchange', measure);
     };
-  }, [keyboardOpen]);
-
-  const mainRef = useRef(null);
+  }, [keyboardOpen, collapsed]);
 
   // x  = offset de swipe en cours (0 au repos)
   // baseX = position de repos du carousel (-currentIdx × W)
@@ -285,9 +290,9 @@ export default function AppLayout() {
                   // Seule la page active peut scroller — empêche l'inertie de contaminer les pages adjacentes
                   overflowY: idx === currentIdx ? 'auto' : 'hidden',
                   overscrollBehavior: 'contain',
-                  // Padding-bas = hauteur EXACTE de la nav (mesurée) → pas de gap violet,
+                  // Padding-bas = overlap réel main/nav (mesuré) → pas de gap violet,
                   // pas de contenu caché. 0 quand le clavier est ouvert (nav cachée).
-                  paddingBottom: keyboardOpen ? 0 : navH,
+                  paddingBottom: keyboardOpen ? 0 : navOverlap,
                 }}
               >
                 <div className="max-w-7xl mx-auto p-4 md:p-8">
