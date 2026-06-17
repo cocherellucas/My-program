@@ -53,6 +53,9 @@ export default function AppLayout() {
 
   // Détection clavier mobile pour retirer le padding-bas (réservé à la nav cachée)
   const [keyboardOpen, setKeyboardOpen] = useState(false);
+  // Hauteur réelle de la zone visible (sert quand clavier ouvert pour matcher vv comme CoachIA)
+  const [visibleHeight, setVisibleHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 0);
+  const [visibleTop, setVisibleTop] = useState(0);
   useEffect(() => {
     const isEditable = (el) => {
       if (!el) return false;
@@ -70,9 +73,21 @@ export default function AppLayout() {
     }, 50);
     document.addEventListener('focusin', onFocusIn);
     document.addEventListener('focusout', onFocusOut);
+    // Suit la taille du visual viewport (iOS shrink quand clavier ouvert)
+    const vv = window.visualViewport;
+    const onVV = () => {
+      if (!vv) return;
+      setVisibleHeight(vv.height);
+      setVisibleTop(vv.offsetTop || 0);
+    };
+    onVV();
+    vv?.addEventListener('resize', onVV);
+    vv?.addEventListener('scroll', onVV);
     return () => {
       document.removeEventListener('focusin', onFocusIn);
       document.removeEventListener('focusout', onFocusOut);
+      vv?.removeEventListener('resize', onVV);
+      vv?.removeEventListener('scroll', onVV);
     };
   }, []);
   useEffect(() => { setKeyboardOpen(false); }, [location.pathname]);
@@ -221,7 +236,10 @@ export default function AppLayout() {
         className="transition-all duration-250 ease-in-out"
         style={{
           marginLeft: collapsed ? 72 : 260,
-          height: '100dvh',
+          // Clavier ouvert : on prend EXACTEMENT la zone visible du visual viewport
+          // (comme CoachIA) → pas de gap possible en bas
+          height: keyboardOpen ? visibleHeight : '100dvh',
+          marginTop: keyboardOpen ? visibleTop : 0,
           overflow: 'hidden',
           position: 'relative',
         }}

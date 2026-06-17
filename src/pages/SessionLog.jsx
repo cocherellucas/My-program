@@ -938,7 +938,7 @@ export default function SessionLog() {
         setTimeout(() => {
           const el = document.activeElement;
           if (el && el !== document.body) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           }
         }, 120);
       }
