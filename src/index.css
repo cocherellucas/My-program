@@ -135,10 +135,13 @@ button:focus, button:focus-visible {
     /* Couvre les zones safe-area iPhone (encoche + barre bas) */
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
-    /* Empêche le scroll au niveau document : sinon iOS scrolle toute la page
-       (et les éléments fixed comme la nav partent vers le haut, révélant le
-       fond violet) quand un input est focus. Le scroll se fait dans le
-       conteneur interne de chaque page. NB : pas de changement de hauteur ici. */
+    /* PIN du body au viewport (technique iOS robuste) : empêche iOS de
+       scroller toute la page quand un input est focus — sinon les éléments
+       fixed (nav) partent vers le haut et le fond violet apparaît.
+       Le scroll se fait dans le conteneur interne de chaque page (main 100dvh).
+       NB : on ne touche PAS aux hauteurs internes, le scroll interne marche. */
+    position: fixed;
+    inset: 0;
     overflow: hidden;
   }
   html {
