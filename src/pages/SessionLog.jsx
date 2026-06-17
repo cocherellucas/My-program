@@ -925,15 +925,24 @@ export default function SessionLog() {
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const { startTimer } = useRestTimer();
 
-  // Clavier mobile : on laisse iOS gérer le scroll natif. Le scrollIntoView manuel
-  // faisait scroller la page → la zone violette (wrapper bg) montait avec, et
-  // ne redescendait pas à la fermeture du clavier → résidu visible derrière la nav.
+  // Clavier mobile : iOS scrolle le champ JUSTE au-dessus du clavier → rien
+  // en dessous, donc du violet. On scrolle le champ plus haut (block:'center')
+  // pour que les séries suivantes remplissent l'espace sous le champ au lieu
+  // du violet.
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return;
     const handler = () => {
       const isOpen = vv.height < window.innerHeight * 0.75;
       document.body.classList.toggle('keyboard-open', isOpen);
+      if (isOpen) {
+        setTimeout(() => {
+          const el = document.activeElement;
+          if (el && el !== document.body && typeof el.scrollIntoView === 'function') {
+            el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          }
+        }, 250);
+      }
     };
     vv.addEventListener('resize', handler);
     return () => {
