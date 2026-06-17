@@ -1692,7 +1692,9 @@ Ce que l'utilisateur dit : "${painNote}"`;
         top: containerTop,
         left: 0,
         right: 0,
-        height: containerH,
+        // bottom:0 (CSS natif) suit le redimensionnement du clavier instantanément,
+        // sans le retard d'un état React → pas de violet transitoire.
+        bottom: 0,
         overflowY: 'auto',
         WebkitOverflowScrolling: 'touch',
         overscrollBehavior: 'contain',
