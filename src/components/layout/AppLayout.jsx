@@ -77,6 +77,27 @@ export default function AppLayout() {
   }, []);
   useEffect(() => { setKeyboardOpen(false); }, [location.pathname]);
 
+  // Mesure la hauteur réelle de la mobile nav (inclut safe-area via pb-safe)
+  // pour appliquer pile ce padding-bas au contenu → aucun gap violet, aucun
+  // contenu caché derrière la nav.
+  const [navH, setNavH] = useState(0);
+  useEffect(() => {
+    const measure = () => {
+      const nav = document.querySelector('.mobile-nav');
+      setNavH(nav ? nav.offsetHeight : 0);
+    };
+    measure();
+    const t1 = setTimeout(measure, 100);
+    const t2 = setTimeout(measure, 400);
+    window.addEventListener('resize', measure);
+    window.addEventListener('orientationchange', measure);
+    return () => {
+      clearTimeout(t1); clearTimeout(t2);
+      window.removeEventListener('resize', measure);
+      window.removeEventListener('orientationchange', measure);
+    };
+  }, [keyboardOpen]);
+
   const mainRef = useRef(null);
 
   // x  = offset de swipe en cours (0 au repos)
@@ -264,10 +285,10 @@ export default function AppLayout() {
                   // Seule la page active peut scroller — empêche l'inertie de contaminer les pages adjacentes
                   overflowY: idx === currentIdx ? 'auto' : 'hidden',
                   overscrollBehavior: 'contain',
+                  // Padding-bas = hauteur EXACTE de la nav (mesurée) → pas de gap violet,
+                  // pas de contenu caché. 0 quand le clavier est ouvert (nav cachée).
+                  paddingBottom: keyboardOpen ? 0 : navH,
                 }}
-                // Réserve la place de la mobile nav + safe-area-inset-bottom (notch iPhone)
-                // — mais retire ce padding quand le clavier est ouvert (nav cachée)
-                className={keyboardOpen ? 'pb-2' : 'pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0'}
               >
                 <div className="max-w-7xl mx-auto p-4 md:p-8">
                   {Pre
