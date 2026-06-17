@@ -929,16 +929,15 @@ export default function SessionLog() {
   // pour pouvoir se pinner au viewport visible quand le clavier s'ouvre).
   const scrollRootRef = useRef(null);
   const [kbOpen, setKbOpen] = useState(false);
-  const [kbHeight, setKbHeight] = useState(0);
   const [navHeight, setNavHeight] = useState(0);
   useEffect(() => {
     const nav = document.querySelector('.mobile-nav');
     if (nav) setNavHeight(nav.offsetHeight);
   }, []);
 
-  // Aligne le conteneur sur le visualViewport (gère le scroll iOS au focus input,
-  // identique à CoachIA). Le conteneur fixe = zone visible → pas de fond violet,
-  // et l'input focus est scrollé dans la vue.
+  // Aligne le conteneur sur le visualViewport EN DIRECT DANS LE DOM (pas via état
+  // React = zéro retard). Safari décale la zone visible (vv.offsetTop) quand le
+  // clavier s'ouvre ; le conteneur la suit au pixel près → aucune bande violette.
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return;
@@ -946,15 +945,18 @@ export default function SessionLog() {
       const isOpen = vv.height < window.innerHeight * 0.75;
       document.body.classList.toggle('keyboard-open', isOpen);
       setKbOpen(isOpen);
-      // Hauteur du clavier = espace pris en bas (pour le padding du contenu)
-      setKbHeight(isOpen ? Math.max(0, Math.round(window.innerHeight - vv.height - (vv.offsetTop || 0))) : 0);
+      // Position/taille du conteneur = rect exact du visualViewport, écrit
+      // directement (sans attendre un re-render React)
+      const el = scrollRootRef.current;
+      if (el) {
+        el.style.top = (vv.offsetTop || 0) + 'px';
+        el.style.height = vv.height + 'px';
+      }
       if (isOpen) {
         setTimeout(() => {
-          const el = document.activeElement;
-          if (el && el !== document.body && typeof el.scrollIntoView === 'function') {
-            // 'nearest' = scroll minimal ; 'auto' = instantané (pas d'animation
-            // pendant laquelle le violet se verrait)
-            el.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+          const active = document.activeElement;
+          if (active && active !== document.body && typeof active.scrollIntoView === 'function') {
+            active.scrollIntoView({ block: 'nearest', behavior: 'auto' });
           }
         }, 80);
       }
@@ -1687,21 +1689,21 @@ Ce que l'utilisateur dit : "${painNote}"`;
     <div
       ref={scrollRootRef}
       style={{
-        // Conteneur PLEIN ÉCRAN constant (top:0/bottom:0, ne suit PAS le scroll
-        // iOS) : il couvre toujours tout l'écran, donc aucun violet ne peut
-        // apparaître quoi que fasse iOS. Le clavier se pose par-dessus.
+        // Conteneur = rect EXACT du visualViewport (top/height pilotés en direct
+        // dans le DOM par le handler vv = zéro retard). Couvre pile la zone
+        // visible, le clavier se pose juste en dessous → aucune bande violette.
         position: 'fixed',
-        top: 0,
+        top: 0,            // valeur initiale, écrasée en direct par le handler
         left: 0,
         right: 0,
-        bottom: 0,
+        height: '100dvh',  // valeur initiale, écrasée en direct par le handler
         overflowY: 'auto',
         WebkitOverflowScrolling: 'touch',
         overscrollBehavior: 'contain',
         // Encoche en haut (position:fixed ignore le padding du body).
-        // Bas : place du clavier quand ouvert, sinon place de la nav.
+        // Bas : place de la nav (clavier ouvert → conteneur = zone visible, pas besoin)
         paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: kbOpen ? kbHeight : navHeight,
+        paddingBottom: kbOpen ? 0 : navHeight,
         zIndex: 5,
         opacity: scrollReady ? 1 : 0,
         transition: 'opacity 0.2s ease',
