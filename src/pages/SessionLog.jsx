@@ -953,9 +953,9 @@ export default function SessionLog() {
         setTimeout(() => {
           const el = document.activeElement;
           if (el && el !== document.body && typeof el.scrollIntoView === 'function') {
-            // 'nearest' = scroll minimal pour rendre l'input visible (évite de sauter
-            // loin et de découvrir du violet)
-            el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            // 'nearest' = scroll minimal ; 'auto' = instantané (pas d'animation
+            // pendant laquelle le violet se verrait)
+            el.scrollIntoView({ block: 'nearest', behavior: 'auto' });
           }
         }, 80);
       }
