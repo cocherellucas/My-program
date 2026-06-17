@@ -77,23 +77,6 @@ export default function AppLayout() {
   }, []);
   useEffect(() => { setKeyboardOpen(false); }, [location.pathname]);
 
-  // iOS scrolle la layout viewport pour révéler l'input focus (vv.offsetTop > 0),
-  // et rien en CSS ne l'empêche. On suit visualViewport pour repositionner <main>
-  // sur la zone visible quand le clavier est ouvert (principe CoachIA).
-  const [vv, setVv] = useState({ top: 0, height: 0 });
-  useEffect(() => {
-    const visualVp = window.visualViewport;
-    if (!visualVp) return;
-    const update = () => setVv({ top: visualVp.offsetTop || 0, height: visualVp.height });
-    update();
-    visualVp.addEventListener('resize', update);
-    visualVp.addEventListener('scroll', update);
-    return () => {
-      visualVp.removeEventListener('resize', update);
-      visualVp.removeEventListener('scroll', update);
-    };
-  }, []);
-
   const mainRef = useRef(null);
 
   // Mesure l'OVERLAP réel entre le bas de <main> et le haut de la nav.
@@ -262,26 +245,12 @@ export default function AppLayout() {
       <main
         ref={mainRef}
         className="transition-all duration-250 ease-in-out"
-        style={
-          keyboardOpen && vv.height
-            ? {
-                // Clavier ouvert : iOS a scrollé la layout viewport (vv.top > 0).
-                // On pinne main sur la zone réellement visible pour que le contenu
-                // reste cadré et que le fond violet n'apparaisse pas.
-                position: 'fixed',
-                top: vv.top,
-                left: 0,
-                right: 0,
-                height: vv.height,
-                overflow: 'hidden',
-              }
-            : {
-                marginLeft: collapsed ? 72 : 260,
-                height: '100dvh',
-                overflow: 'hidden',
-                position: 'relative',
-              }
-        }
+        style={{
+          marginLeft: collapsed ? 72 : 260,
+          height: '100dvh',
+          overflow: 'hidden',
+          position: 'relative',
+        }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
