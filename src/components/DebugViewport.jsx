@@ -5,7 +5,18 @@ import { createPortal } from 'react-dom';
 // Affiche en direct les mesures liées au viewport / scroll / clavier
 // pour diagnostiquer les bugs iOS qu'on ne peut pas inspecter depuis Windows.
 export default function DebugViewport() {
-  const enabled = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('debug');
+  // ?debug active le panneau ET le mémorise (sinon perdu en navigant dans la SPA).
+  // ?debug=off le désactive.
+  const enabled = (() => {
+    if (typeof window === 'undefined') return false;
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('debug')) {
+      if (params.get('debug') === 'off') { try { localStorage.removeItem('debug_viewport'); } catch {} return false; }
+      try { localStorage.setItem('debug_viewport', '1'); } catch {}
+      return true;
+    }
+    try { return localStorage.getItem('debug_viewport') === '1'; } catch { return false; }
+  })();
   const [m, setM] = useState({});
 
   useEffect(() => {
