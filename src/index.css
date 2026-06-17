@@ -135,9 +135,20 @@ button:focus, button:focus-visible {
     /* Couvre les zones safe-area iPhone (encoche + barre bas) */
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
+    /* Verrouille le document : aucun scroll au niveau body/html (chaque page
+       scrolle dans son propre conteneur). Évite que le scroll-document iOS
+       découvre le fond violet sous l'app. */
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
   }
   html {
     background-color: #7c3aed;
+    height: 100dvh;
+    overflow: hidden;
+  }
+  #root {
+    height: 100%;
   }
   /* Onboarding : fond violet-800 (#5b21b6) pour matcher la page */
   html.onboarding-active,
