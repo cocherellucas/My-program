@@ -28,6 +28,7 @@ export default function DebugViewport() {
       const scroller = document.scrollingElement || document.documentElement;
       const active = document.activeElement;
       setM({
+        offTop: vv ? Math.round(vv.offsetTop) : 0,
         innerH: window.innerHeight,
         innerW: window.innerWidth,
         vvH: vv ? Math.round(vv.height) : '—',
@@ -64,9 +65,11 @@ export default function DebugViewport() {
 
   return createPortal(
     <div style={{
-      position: 'fixed', top: 'env(safe-area-inset-top, 0px)', left: 0, zIndex: 99999,
-      background: 'rgba(0,0,0,0.85)', color: '#0f0', font: '11px/1.4 monospace',
-      padding: '6px 8px', pointerEvents: 'none', maxWidth: '60vw', borderBottomRightRadius: 8,
+      // Suit le viewport visible : top = offsetTop du visualViewport → toujours
+      // visible en haut de la zone affichée même quand le document scrolle.
+      position: 'fixed', top: (m.offTop || 0) + 4, left: 4, zIndex: 99999,
+      background: 'rgba(0,0,0,0.9)', color: '#0f0', font: '11px/1.4 monospace',
+      padding: '6px 8px', pointerEvents: 'none', maxWidth: '70vw', borderRadius: 8,
     }}>
       <div>innerH: {m.innerH} · innerW: {m.innerW}</div>
       <div>vvH: {m.vvH} · vvW: {m.vvW}</div>
