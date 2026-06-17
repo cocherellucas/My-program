@@ -208,7 +208,7 @@ export default function AppLayout() {
   const numPages = NAV_PATHS.length;
 
   return (
-    <div className="h-full bg-violet-600">
+    <div className="min-h-screen bg-violet-600">
       <div className="hidden md:block">
         <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
       </div>
@@ -221,9 +221,7 @@ export default function AppLayout() {
         className="transition-all duration-250 ease-in-out"
         style={{
           marginLeft: collapsed ? 72 : 260,
-          // 100% du body (qui fait pile la zone visible : border-box + padding safe-area,
-          // body en overflow:hidden). Plus de 100dvh qui débordait sous l'écran.
-          height: '100%',
+          height: '100dvh',
           overflow: 'hidden',
           position: 'relative',
         }}
@@ -268,11 +266,8 @@ export default function AppLayout() {
                   overscrollBehavior: 'contain',
                 }}
                 // Réserve la place de la mobile nav + safe-area-inset-bottom (notch iPhone)
-                // — mais retire ce padding entièrement quand le clavier est ouvert
-                // (sinon le bg-violet du wrapper apparaît en scrollant)
-                // 3rem = ~47px (hauteur réelle de la nav sans safe-area)
-                // + safe-area = total ≈ hauteur de la nav, plus de bg-violet exposé au-dessus de la nav
-                className={keyboardOpen ? 'pb-0' : 'pb-[calc(3rem+env(safe-area-inset-bottom))] md:pb-0'}
+                // — mais retire ce padding quand le clavier est ouvert (nav cachée)
+                className={keyboardOpen ? 'pb-2' : 'pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0'}
               >
                 <div className="max-w-7xl mx-auto p-4 md:p-8">
                   {Pre
