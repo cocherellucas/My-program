@@ -925,22 +925,15 @@ export default function SessionLog() {
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const { startTimer } = useRestTimer();
 
-  // Clavier mobile : scroll juste ce qu'il faut pour que l'input soit visible
-  // (block:'nearest' évite le vide en bas du précédent block:'center')
+  // Clavier mobile : on laisse iOS gérer le scroll natif. Le scrollIntoView manuel
+  // faisait scroller la page → la zone violette (wrapper bg) montait avec, et
+  // ne redescendait pas à la fermeture du clavier → résidu visible derrière la nav.
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return;
     const handler = () => {
       const isOpen = vv.height < window.innerHeight * 0.75;
       document.body.classList.toggle('keyboard-open', isOpen);
-      if (isOpen) {
-        setTimeout(() => {
-          const el = document.activeElement;
-          if (el && el !== document.body) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          }
-        }, 80);
-      }
     };
     vv.addEventListener('resize', handler);
     return () => {
