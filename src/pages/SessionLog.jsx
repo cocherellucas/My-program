@@ -1684,6 +1684,19 @@ Ce que l'utilisateur dit : "${painNote}"`;
   }
 
   return (
+    <>
+    {/* Bande sombre derrière le contenu, au-dessus du clavier : quand le clavier
+        est ouvert, l'éventuelle bande entre le contenu et le clavier se fond
+        avec le clavier (sombre) au lieu d'apparaître en violet. */}
+    {kbOpen && (
+      <div style={{
+        position: 'fixed', left: 0, right: 0, bottom: 0,
+        height: kbHeight + 40,
+        background: '#1a1820',
+        zIndex: 1,
+        pointerEvents: 'none',
+      }} />
+    )}
     <div
       ref={scrollRootRef}
       style={{
@@ -1836,6 +1849,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
         }
       </AnimatePresence>
       </div>
-    </div>);
+    </div>
+    </>);
 
 }
