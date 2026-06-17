@@ -19,10 +19,15 @@ import CoachIA     from '@/pages/CoachIA';
 
 const NAV_PATHS = ['/', '/program', '/session', '/coach', '/library', '/profile'];
 const COACH_IDX = NAV_PATHS.indexOf('/coach');
+const SESSION_IDX = NAV_PATHS.indexOf('/session');
 const PAGE_LABELS = {
   '/': 'Accueil', '/program': 'Programme', '/session': 'Séance',
   '/coach': 'Coach', '/library': 'Biblio', '/profile': 'Profil',
 };
+
+// Pages rendues HORS du carrousel (position:fixed propre, hors du transform) :
+// Coach et Séance — pour pouvoir se pinner au viewport visible (clavier).
+const OUTSIDE_CAROUSEL = new Set(['/coach', '/session']);
 
 // Toujours montées (données fraîches au swipe)
 const PRERENDER = {
@@ -34,7 +39,6 @@ const PRERENDER = {
 // Montées uniquement quand la page est active, ghost pendant le swipe
 const ON_DEMAND = {
   '/':        Dashboard,
-  '/session': SessionLog,
 };
 
 const SNAP_THRESHOLD = 65;
@@ -244,11 +248,12 @@ export default function AppLayout() {
             const Pre      = PRERENDER[path];
             const OnDemand = ON_DEMAND[path];
             const isActive = idx === currentIdx;
-            // CoachIA a un position:fixed à la racine — doit être rendu HORS du carousel
-            if (path === '/coach') {
+            // Coach & Séance ont un position:fixed à la racine (pin viewport clavier)
+            // → rendus HORS du carrousel (le transform du carrousel casse position:fixed)
+            if (OUTSIDE_CAROUSEL.has(path)) {
               return (
                 <div key={path} style={{ width: `${100 / numPages}%`, height: '100%', flexShrink: 0 }}>
-                  <PageGhost label="Coach" />
+                  <PageGhost label={PAGE_LABELS[path]} />
                 </div>
               );
             }
@@ -281,8 +286,9 @@ export default function AppLayout() {
           })}
         </motion.div>
 
-        {/* CoachIA monté uniquement quand on est sur la page Coach */}
+        {/* CoachIA et SessionLog montés HORS du carrousel (position:fixed propre) */}
         {currentIdx === COACH_IDX && <CoachIA />}
+        {currentIdx === SESSION_IDX && <SessionLog />}
       </main>
 
       <style>{`

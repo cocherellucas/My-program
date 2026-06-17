@@ -925,28 +925,45 @@ export default function SessionLog() {
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const { startTimer } = useRestTimer();
 
-  // Clavier mobile : iOS scrolle le champ JUSTE au-dessus du clavier → rien
-  // en dessous, donc du violet. On scrolle le champ plus haut (block:'center')
-  // pour que les séries suivantes remplissent l'espace sous le champ au lieu
-  // du violet.
+  // Conteneur scrollable propre (Séance est rendue HORS du carrousel, comme CoachIA,
+  // pour pouvoir se pinner au viewport visible quand le clavier s'ouvre).
+  const scrollRootRef = useRef(null);
+  const [containerTop, setContainerTop] = useState(0);
+  const [containerH, setContainerH] = useState(() => window.innerHeight);
+  const [kbOpen, setKbOpen] = useState(false);
+  const [navHeight, setNavHeight] = useState(0);
+  useEffect(() => {
+    const nav = document.querySelector('.mobile-nav');
+    if (nav) setNavHeight(nav.offsetHeight);
+  }, []);
+
+  // Aligne le conteneur sur le visualViewport (gère le scroll iOS au focus input,
+  // identique à CoachIA). Le conteneur fixe = zone visible → pas de fond violet,
+  // et l'input focus est scrollé dans la vue.
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return;
-    const handler = () => {
+    const update = () => {
       const isOpen = vv.height < window.innerHeight * 0.75;
       document.body.classList.toggle('keyboard-open', isOpen);
+      setKbOpen(isOpen);
+      setContainerH(vv.height);
+      setContainerTop(vv.offsetTop || 0);
       if (isOpen) {
         setTimeout(() => {
           const el = document.activeElement;
           if (el && el !== document.body && typeof el.scrollIntoView === 'function') {
             el.scrollIntoView({ block: 'center', behavior: 'smooth' });
           }
-        }, 250);
+        }, 80);
       }
     };
-    vv.addEventListener('resize', handler);
+    update();
+    vv.addEventListener('resize', update);
+    vv.addEventListener('scroll', update);
     return () => {
-      vv.removeEventListener('resize', handler);
+      vv.removeEventListener('resize', update);
+      vv.removeEventListener('scroll', update);
       document.body.classList.remove('keyboard-open');
     };
   }, []);
@@ -1036,34 +1053,36 @@ export default function SessionLog() {
   useEffect(() => {
     if (!sessionId) return;
     const key = `session_scroll_${sessionId}`;
+    const el = scrollRootRef.current;
     const saved = parseInt(localStorage.getItem(key) || '0');
-    if (saved > 0) {
+    if (saved > 0 && el) {
       setTimeout(() => {
-        window.scrollTo({ top: saved, behavior: 'instant' });
+        el.scrollTo({ top: saved, behavior: 'instant' });
         setScrollReady(true);
       }, 200);
     } else {
       setScrollReady(true);
     }
+    if (!el) return;
     let pauseSave = false;
     let resizeTimer = null;
     const onScroll = () => {
       if (pauseSave) return;
-      try { localStorage.setItem(key, String(window.scrollY)); } catch {}
+      try { localStorage.setItem(key, String(el.scrollTop)); } catch {}
     };
     const onResize = () => {
       pauseSave = true;
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
         const pos = parseInt(localStorage.getItem(key) || '0');
-        if (pos > 0) window.scrollTo({ top: pos, behavior: 'instant' });
+        if (pos > 0) el.scrollTo({ top: pos, behavior: 'instant' });
         pauseSave = false;
       }, 350);
     };
-    window.addEventListener('scroll', onScroll, { passive: true });
+    el.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
     return () => {
-      window.removeEventListener('scroll', onScroll);
+      el.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
       clearTimeout(resizeTimer);
     };
@@ -1661,7 +1680,26 @@ Ce que l'utilisateur dit : "${painNote}"`;
   }
 
   return (
-    <div className="space-y-4 max-w-2xl mx-auto" style={{ opacity: scrollReady ? 1 : 0, transition: 'opacity 0.2s ease' }}>
+    <div
+      ref={scrollRootRef}
+      style={{
+        position: 'fixed',
+        top: containerTop,
+        left: 0,
+        right: 0,
+        height: containerH,
+        overflowY: 'auto',
+        WebkitOverflowScrolling: 'touch',
+        overscrollBehavior: 'contain',
+        // Encoche en haut (position:fixed ignore le padding du body) + place de la
+        // nav en bas (cachée quand clavier ouvert → 0)
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: kbOpen ? 0 : navHeight,
+        zIndex: 5,
+        opacity: scrollReady ? 1 : 0,
+        transition: 'opacity 0.2s ease',
+      }}>
+      <div className="space-y-4 max-w-2xl mx-auto p-4 md:p-8">
       {/* Top bar */}
       <div className="space-y-2">
         <div>
@@ -1790,7 +1828,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
 
         }
       </AnimatePresence>
-
+      </div>
     </div>);
 
 }
