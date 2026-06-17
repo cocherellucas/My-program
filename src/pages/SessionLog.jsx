@@ -1659,7 +1659,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
   }
 
   return (
-    <div className="space-y-4 max-w-2xl mx-auto pb-24" style={{ opacity: scrollReady ? 1 : 0, transition: 'opacity 0.2s ease' }}>
+    <div className="space-y-4 max-w-2xl mx-auto" style={{ opacity: scrollReady ? 1 : 0, transition: 'opacity 0.2s ease' }}>
       {/* Top bar */}
       <div className="space-y-2">
         <div>
