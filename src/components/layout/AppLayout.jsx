@@ -77,6 +77,19 @@ export default function AppLayout() {
   }, []);
   useEffect(() => { setKeyboardOpen(false); }, [location.pathname]);
 
+  // Hauteur réelle visible : 100dvh peut dépasser la zone affichée sur iOS
+  // (barre Safari, etc.) → on suit visualViewport pour que le scroll atteigne
+  // tout le contenu sans laisser apparaître le bg-violet du wrapper en dessous.
+  const [viewportH, setViewportH] = useState(null);
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => setViewportH(vv.height);
+    update();
+    vv.addEventListener('resize', update);
+    return () => vv.removeEventListener('resize', update);
+  }, []);
+
   const mainRef = useRef(null);
 
   // x  = offset de swipe en cours (0 au repos)
@@ -221,7 +234,10 @@ export default function AppLayout() {
         className="transition-all duration-250 ease-in-out"
         style={{
           marginLeft: collapsed ? 72 : 260,
-          height: '100dvh',
+          // viewportH = vraie zone visible (évite que 100dvh dépasse l'écran sur iOS
+          // et laisse apparaître le bg-violet du wrapper). Fallback 100dvh.
+          // Quand le clavier est ouvert, on garde 100dvh (cas géré séparément).
+          height: (viewportH && !keyboardOpen) ? `${viewportH}px` : '100dvh',
           overflow: 'hidden',
           position: 'relative',
         }}
