@@ -953,7 +953,9 @@ export default function SessionLog() {
         setTimeout(() => {
           const el = document.activeElement;
           if (el && el !== document.body && typeof el.scrollIntoView === 'function') {
-            el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            // 'nearest' = scroll minimal pour rendre l'input visible (évite de sauter
+            // loin et de découvrir du violet)
+            el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
           }
         }, 80);
       }
@@ -1068,6 +1070,9 @@ export default function SessionLog() {
     let resizeTimer = null;
     const onScroll = () => {
       if (pauseSave) return;
+      // Ne pas sauver la position pendant que le clavier est ouvert (iOS scrolle
+      // vers le bas pour l'input → on restaurerait à tort sur la dernière série)
+      if (document.body.classList.contains('keyboard-open')) return;
       try { localStorage.setItem(key, String(el.scrollTop)); } catch {}
     };
     const onResize = () => {
