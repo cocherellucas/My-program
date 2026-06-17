@@ -268,7 +268,9 @@ export default function AppLayout() {
                 // Réserve la place de la mobile nav + safe-area-inset-bottom (notch iPhone)
                 // — mais retire ce padding entièrement quand le clavier est ouvert
                 // (sinon le bg-violet du wrapper apparaît en scrollant)
-                className={keyboardOpen ? 'pb-0' : 'pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0'}
+                // 3rem = ~47px (hauteur réelle de la nav sans safe-area)
+                // + safe-area = total ≈ hauteur de la nav, plus de bg-violet exposé au-dessus de la nav
+                className={keyboardOpen ? 'pb-0' : 'pb-[calc(3rem+env(safe-area-inset-bottom))] md:pb-0'}
               >
                 <div className="max-w-7xl mx-auto p-4 md:p-8">
                   {Pre
