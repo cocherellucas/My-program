@@ -925,9 +925,8 @@ export default function SessionLog() {
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const { startTimer } = useRestTimer();
 
-  // Clavier mobile : on aligne le scroll pour que l'input focus soit collé au bas
-  // de la zone visible (juste au-dessus du clavier), pas de gap, et le contenu
-  // au-dessus reste visible. block:'end' = comme CoachIA.
+  // Clavier mobile : scroll juste ce qu'il faut pour que l'input soit visible
+  // (block:'nearest' évite le vide en bas du précédent block:'center')
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return;
@@ -940,7 +939,7 @@ export default function SessionLog() {
           if (el && el !== document.body) {
             el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           }
-        }, 120);
+        }, 80);
       }
     };
     vv.addEventListener('resize', handler);
