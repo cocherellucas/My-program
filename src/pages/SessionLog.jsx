@@ -928,9 +928,8 @@ export default function SessionLog() {
   // Conteneur scrollable propre (Séance est rendue HORS du carrousel, comme CoachIA,
   // pour pouvoir se pinner au viewport visible quand le clavier s'ouvre).
   const scrollRootRef = useRef(null);
-  const [containerTop, setContainerTop] = useState(0);
-  const [containerH, setContainerH] = useState(() => window.innerHeight);
   const [kbOpen, setKbOpen] = useState(false);
+  const [kbHeight, setKbHeight] = useState(0);
   const [navHeight, setNavHeight] = useState(0);
   useEffect(() => {
     const nav = document.querySelector('.mobile-nav');
@@ -947,8 +946,8 @@ export default function SessionLog() {
       const isOpen = vv.height < window.innerHeight * 0.75;
       document.body.classList.toggle('keyboard-open', isOpen);
       setKbOpen(isOpen);
-      setContainerH(vv.height);
-      setContainerTop(vv.offsetTop || 0);
+      // Hauteur du clavier = espace pris en bas (pour le padding du contenu)
+      setKbHeight(isOpen ? Math.max(0, Math.round(window.innerHeight - vv.height - (vv.offsetTop || 0))) : 0);
       if (isOpen) {
         setTimeout(() => {
           const el = document.activeElement;
@@ -1688,20 +1687,21 @@ Ce que l'utilisateur dit : "${painNote}"`;
     <div
       ref={scrollRootRef}
       style={{
+        // Conteneur PLEIN ÉCRAN constant (top:0/bottom:0, ne suit PAS le scroll
+        // iOS) : il couvre toujours tout l'écran, donc aucun violet ne peut
+        // apparaître quoi que fasse iOS. Le clavier se pose par-dessus.
         position: 'fixed',
-        top: containerTop,
+        top: 0,
         left: 0,
         right: 0,
-        // bottom:0 (CSS natif) suit le redimensionnement du clavier instantanément,
-        // sans le retard d'un état React → pas de violet transitoire.
         bottom: 0,
         overflowY: 'auto',
         WebkitOverflowScrolling: 'touch',
         overscrollBehavior: 'contain',
-        // Encoche en haut (position:fixed ignore le padding du body) + place de la
-        // nav en bas (cachée quand clavier ouvert → 0)
+        // Encoche en haut (position:fixed ignore le padding du body).
+        // Bas : place du clavier quand ouvert, sinon place de la nav.
         paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: kbOpen ? 0 : navHeight,
+        paddingBottom: kbOpen ? kbHeight : navHeight,
         zIndex: 5,
         opacity: scrollReady ? 1 : 0,
         transition: 'opacity 0.2s ease',
