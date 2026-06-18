@@ -910,7 +910,11 @@ export default function SessionLog() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const urlParams = new URLSearchParams(window.location.search);
-  const sessionId = urlParams.get('id');
+  // Fallback : le swipe navigue vers /session SANS le ?id= → on récupère la
+  // séance active depuis localStorage pour ne pas afficher l'écran vide.
+  const sessionId = urlParams.get('id') || (() => {
+    try { return localStorage.getItem('active_session_id'); } catch { return null; }
+  })();
 
   const [user, setUser] = useState(null);
   const _draft = (() => { try { const s = localStorage.getItem(`session_draft_${sessionId}`); return s ? JSON.parse(s) : {}; } catch { return {}; } })();
