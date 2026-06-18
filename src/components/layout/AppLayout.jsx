@@ -250,11 +250,11 @@ export default function AppLayout() {
             const isActive = idx === currentIdx;
             // Coach & Séance ont un position:fixed à la racine (pin viewport clavier)
             // → rendus HORS du carrousel (le transform du carrousel casse position:fixed)
+            // Fantôme VIDE (pas de label) : leurs conteneurs fixes sont transparents,
+            // un label transparaîtrait au milieu de la page.
             if (OUTSIDE_CAROUSEL.has(path)) {
               return (
-                <div key={path} style={{ width: `${100 / numPages}%`, height: '100%', flexShrink: 0 }}>
-                  <PageGhost label={PAGE_LABELS[path]} />
-                </div>
+                <div key={path} style={{ width: `${100 / numPages}%`, height: '100%', flexShrink: 0 }} />
               );
             }
             return (
