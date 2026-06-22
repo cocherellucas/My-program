@@ -48,7 +48,7 @@ export default function GenerateProgramDialog({ open, onClose, onGenerate }) {
         {/* Header */}
         <div className="px-5 pt-5 pb-3 border-b border-white/10">
           <h2 className="font-heading font-bold text-white text-lg">Configurer le programme</h2>
-          <p className="text-xs text-white/50 mt-0.5">Tous les choix sont optionnels — l'IA décide si tu laisses.</p>
+          <p className="text-xs text-white/50 mt-0.5">Laisse sur Auto et le programme sera optimisé selon ton profil.</p>
         </div>
 
         <div className="px-5 py-4 space-y-5">

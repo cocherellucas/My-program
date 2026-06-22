@@ -228,7 +228,7 @@ export default function CoachIA() {
           label: s.day_label || '',
           day: s.planned_date ? dayNames[new Date(s.planned_date + 'T12:00:00').getDay()] : 'monday',
           exercises: s.exercises || [],
-          content: (s.exercises || []).map(e => `${e.sets || 3}×${e.target_reps || 10} ${e.name}${e.target_weight ? ` (${e.target_weight}kg)` : ''} ${e.rest_seconds || 90}s`).join('\n'),
+          content: (s.exercises || []).map(e => `${e.sets || 3}×${e.target_reps || 10} ${e.name}${e.target_weight ? ` (${e.target_weight}${e.weight_unit || 'kg'})` : ''} ${e.rest_seconds || 90}s`).join('\n'),
           type: s.type || 'mixed',
           estimated_duration: s.estimated_duration || calcDuration(s.exercises || []),
         }));

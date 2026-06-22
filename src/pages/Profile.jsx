@@ -61,7 +61,12 @@ export default function Profile() {
     setSaving(true);
     try {
     const { id, email, full_name, created_date, role, ...editableFields } = form;
-    await base44.auth.updateMe(editableFields);
+    // Les champs vides ('') doivent partir en null — sinon les colonnes numériques
+    // (âge, taille, poids, mensurations…) rejettent la chaîne vide.
+    const sanitized = Object.fromEntries(
+      Object.entries(editableFields).map(([k, v]) => [k, v === '' ? null : v])
+    );
+    await base44.auth.updateMe(sanitized);
 
     // Comparer vs snapshot de génération — uniquement pour programmes générés par IA
     const snapshotRaw = localStorage.getItem('program_generated_snapshot');
@@ -97,9 +102,17 @@ export default function Profile() {
   const update = (field, value) => { setForm(prev => ({ ...prev, [field]: value })); };
 
   const IGNORED = new Set(['id', 'email', 'full_name', 'created_date', 'role']);
-  const isDirty = user ? Object.keys(form).some(k => !IGNORED.has(k) && JSON.stringify(form[k]) !== JSON.stringify(user[k])) : false;
+  // Normalise les valeurs "vides" : undefined / null / '' sont équivalents → un champ
+  // vidé puis re-vidé ne compte pas comme un changement.
+  const normVal = (v) => (v === undefined || v === null || v === '') ? null : v;
+  const isDirty = user
+    ? Object.keys(form).some(k => !IGNORED.has(k) && JSON.stringify(normVal(form[k])) !== JSON.stringify(normVal(user[k])))
+    : false;
 
   if (!user) return null;
+
+  // Profil non renseigné (ex: import d'un programme sans avoir fait l'onboarding)
+  const profileIncomplete = !user.level;
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
@@ -117,14 +130,31 @@ export default function Profile() {
         <SubscriptionBadge fullWidth />
       </div>
 
+      {profileIncomplete && (
+        <div className="rounded-2xl p-6 text-center space-y-4 bg-white/10 border border-white/20">
+          <div className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.12)' }}>
+            <User className="w-8 h-8 text-white/70" />
+          </div>
+          <div className="space-y-1">
+            <p className="text-white font-bold text-lg">Complète ton profil</p>
+            <p className="text-white/60 text-sm">Tu as importé un programme sans renseigner ton profil. Complète-le pour des séances et un coaching adaptés à toi.</p>
+          </div>
+          <button onClick={() => navigate('/onboarding?skipIntro=true')}
+            className="w-full py-3 rounded-xl text-sm font-bold text-violet-700 bg-white hover:bg-white/90 shadow transition-all active:scale-[0.98]">
+            Compléter mon profil
+          </button>
+        </div>
+      )}
+
+      {!profileIncomplete && (
       <Tabs defaultValue={searchParams.get('tab') || 'basics'} onValueChange={setActiveTab}>
         <TabsList className="bg-white/10 text-white w-full overflow-x-auto flex">
           <TabsTrigger value="basics" className="flex-1"><User className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">Base</span></TabsTrigger>
-          <TabsTrigger value="measurements" className="flex-1"><Ruler className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">Mensurations</span></TabsTrigger>
-          <TabsTrigger value="equipment" className="flex-1"><Dumbbell className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">Équipement</span></TabsTrigger>
-          <TabsTrigger value="availability" className="flex-1"><Calendar className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">Dispo</span></TabsTrigger>
           <TabsTrigger value="objectives" className="flex-1"><Target className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">Objectifs</span></TabsTrigger>
+          <TabsTrigger value="availability" className="flex-1"><Calendar className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">Dispo</span></TabsTrigger>
+          <TabsTrigger value="equipment" className="flex-1"><Dumbbell className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">Équipement</span></TabsTrigger>
           <TabsTrigger value="preferences" className="flex-1"><SlidersHorizontal className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">VIF</span></TabsTrigger>
+          <TabsTrigger value="measurements" className="flex-1"><Ruler className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">Mensurations</span></TabsTrigger>
         </TabsList>
 
         <TabsContent value="basics">
@@ -132,12 +162,12 @@ export default function Profile() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-white">Âge</Label>
-                <NumInput value={form.age} onChange={(v) => update('age', v === '' ? '' : parseInt(v))} min={10} max={100} step={1} defaultValue={20} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
+                <NumInput value={form.age} onChange={(v) => update('age', v === '' ? '' : parseInt(v))} min={18} max={120} step={1} defaultValue={25} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
               </div>
               <div className="space-y-2">
                 <Label className="text-white">Niveau</Label>
                 <Select value={form.level || ''} onValueChange={(v) => update('level', v)}>
-                  <SelectTrigger className="bg-white/10 border-white/20 text-white"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="bg-white/10 border-white/20 text-white [&>span]:text-white [&>span[data-placeholder]]:text-white/50 [&>svg]:opacity-100 [&>svg]:text-white"><SelectValue placeholder="Sélectionner" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="beginner">Débutant</SelectItem>
                     <SelectItem value="intermediate">Intermédiaire</SelectItem>
@@ -147,11 +177,11 @@ export default function Profile() {
               </div>
               <div className="space-y-2">
                 <Label className="text-white">Taille (cm)</Label>
-                <NumInput value={form.height} onChange={(v) => update('height', v === '' ? '' : parseInt(v))} min={100} max={250} step={1} defaultValue={170} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
+                <NumInput value={form.height} onChange={(v) => update('height', v === '' ? '' : parseInt(v))} min={50} max={250} step={1} defaultValue={175} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
               </div>
               <div className="space-y-2">
                 <Label className="text-white">Poids (kg)</Label>
-                <NumInput value={form.weight} onChange={(v) => update('weight', v === '' ? '' : parseFloat(v))} min={30} max={250} step={0.5} defaultValue={70} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
+                <NumInput value={form.weight} onChange={(v) => update('weight', v === '' ? '' : parseFloat(v))} min={20} max={300} step={0.5} defaultValue={70} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
               </div>
             </div>
           </Card>
@@ -177,6 +207,7 @@ export default function Profile() {
           <StepPreferences data={form} onChange={(fields) => setForm(prev => ({ ...prev, ...fields }))} />
         </TabsContent>
       </Tabs>
+      )}
 
       {showRegenBanner && (
         <div className="p-4 rounded-xl bg-violet-500/20 border border-violet-400/30 space-y-3">
@@ -200,7 +231,7 @@ export default function Profile() {
         </div>
       )}
 
-      {!NO_SAVE_TABS.includes(activeTab) && (isDirty || saving || saved) && (
+      {!profileIncomplete && !NO_SAVE_TABS.includes(activeTab) && (isDirty || saving || saved) && (
         <button
           onClick={save}
           disabled={saving || saved}

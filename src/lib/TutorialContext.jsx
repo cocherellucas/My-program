@@ -13,12 +13,16 @@ function saveState(s) {
 
 export function TutorialProvider({ children }) {
   // ?resetOnboarding → vide tuto + onboarding AVANT le premier render des Steps
+  // ?resetTutorial  → vide uniquement l'état des tutos (sans toucher l'onboarding)
   // (fait synchrone ici car TutorialProvider mount avant les routes/pages)
   if (typeof window !== 'undefined') {
     const params = new URLSearchParams(window.location.search);
     if (params.has('resetOnboarding')) {
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem('onboarding_draft');
+    }
+    if (params.has('resetTutorial')) {
+      localStorage.removeItem(STORAGE_KEY);
     }
   }
 
@@ -49,10 +53,26 @@ export function TutorialProvider({ children }) {
   }, []);
 
   const skipStep = useCallback(() => {
-    // Skip uniquement cette étape de tuto (marque complété)
     setActiveTutorial(prev => {
       if (!prev) return null;
-      setState(s => ({ ...s, completed: { ...(s.completed || {}), [prev.id]: true } }));
+      if (prev.currentStep + 1 >= prev.steps.length) {
+        setState(s => ({ ...s, completed: { ...(s.completed || {}), [prev.id]: true } }));
+        return null;
+      }
+      // Avance au step suivant mais en mode dormant (invisible jusqu'au réveil)
+      return { ...prev, currentStep: prev.currentStep + 1, dormant: true };
+    });
+  }, []);
+
+  const wakeTutorial = useCallback(() => {
+    setActiveTutorial(prev => prev ? { ...prev, dormant: false } : null);
+  }, []);
+
+  // Termine un tuto (le marque comme vu) sans en montrer la fin — ex: fermeture d'un écran
+  const endTutorial = useCallback((id) => {
+    setActiveTutorial(prev => {
+      if (!prev || prev.id !== id) return prev;
+      setState(s => ({ ...s, completed: { ...(s.completed || {}), [id]: true } }));
       return null;
     });
   }, []);
@@ -73,16 +93,20 @@ export function TutorialProvider({ children }) {
       if (el) setTargetRect(el.getBoundingClientRect());
       else setTargetRect(null);
     };
-    // Scroll : place l'élément assez bas pour qu'une bulle d'environ 220px tienne au-dessus avec marge
+    // Scroll : place l'élément à ~260px du haut pour qu'une bulle (~220px) tienne au-dessus.
+    // On utilise el.scrollIntoView (gère les conteneurs scrollables imbriqués comme les dialogs)
+    // + scroll-margin-top pour conserver l'offset. window.scrollTo ne marcherait pas dans un dialog
+    // dont le contenu scrolle en interne (overflow-y:auto).
     const scrollIntoView = () => {
       const el = document.querySelector(`[data-tutorial="${step.target}"]`);
       if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const desiredTopFromViewport = 260; // px depuis le haut du viewport → laisse ~244px de marge au-dessus
-      const targetY = rect.top + window.scrollY - desiredTopFromViewport;
-      window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+      const prevMargin = el.style.scrollMarginTop;
+      el.style.scrollMarginTop = '260px';
+      el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      // Restaure la valeur d'origine après le scroll
+      setTimeout(() => { el.style.scrollMarginTop = prevMargin; }, 400);
     };
-    setTimeout(scrollIntoView, 50);
+    if (!activeTutorial.dormant) setTimeout(scrollIntoView, 50);
     update();
     // ResizeObserver sur la cible ET sur document.body (capte tout changement de layout)
     const observer = new ResizeObserver(update);
@@ -103,7 +127,7 @@ export function TutorialProvider({ children }) {
   }, [activeTutorial]);
 
   return (
-    <TutorialContext.Provider value={{ activeTutorial, targetRect, startTutorial, nextStep, skipStep, skipAll, state }}>
+    <TutorialContext.Provider value={{ activeTutorial, targetRect, startTutorial, nextStep, skipStep, skipAll, wakeTutorial, endTutorial, state }}>
       {children}
     </TutorialContext.Provider>
   );

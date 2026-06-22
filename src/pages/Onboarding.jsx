@@ -45,6 +45,9 @@ export default function Onboarding() {
   const [stepError, setStepError] = useState('');
   const [showFinalChoice, setShowFinalChoice] = useState(false);
   const [showWelcome, setShowWelcome] = useState(() => {
+    // ?skipIntro → on saute la présentation et on va direct au formulaire
+    // (ex: "Compléter mon profil" depuis le Profil après un import)
+    if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('skipIntro')) return false;
     // Affiché uniquement si aucun brouillon n'existe encore
     return !savedDraft.step && !savedDraft.data;
   });
@@ -205,7 +208,7 @@ export default function Onboarding() {
     }
   };
 
-  const finish = () => saveAndNavigate('/program?autoGenerate=true');
+  const finish = () => saveAndNavigate('/program?configureProgram=true');
   const finishAndImport = (programText) => saveAndNavigate('/coach', { importText: programText });
 
   const steps = [
@@ -227,7 +230,7 @@ export default function Onboarding() {
         try {
           await base44.auth.updateMe({ onboarding_completed: true, onboarding_step: TOTAL_STEPS });
           localStorage.removeItem(STORAGE_KEY);
-          navigate('/program');
+          navigate('/program?openImport=true');
         } finally {
           setSaving(false);
         }

@@ -8,6 +8,7 @@ export default function TutorialOverlay() {
   const { activeTutorial, targetRect, nextStep, skipStep, skipAll } = useTutorial() || {};
   const bubbleRef = useRef(null);
   const [bubbleH, setBubbleH] = useState(0);
+  const [bubbleBelow, setBubbleBelow] = useState(false);
   const [confirmSkipAll, setConfirmSkipAll] = useState(false);
 
   // Mesure la vraie hauteur de la bulle pour la positionner pile au-dessus
@@ -20,13 +21,15 @@ export default function TutorialOverlay() {
     return () => ro.disconnect();
   }, [activeTutorial?.currentStep]);
 
-  if (!activeTutorial) return null;
+  if (!activeTutorial || activeTutorial.dormant) return null;
 
   const step = activeTutorial.steps[activeTutorial.currentStep];
   const isLast = activeTutorial.currentStep === activeTutorial.steps.length - 1;
   const padding = 8; // espace autour de l'élément spotlighté
   const hasTarget = !!targetRect;
   const nonInteractive = !!step?.nonInteractive;
+  const hideNext = !!step?.hideNext;
+  const forceBelow = !!step?.forceBelow;
 
 
   return createPortal(
@@ -66,7 +69,7 @@ export default function TutorialOverlay() {
               }} />
           </>
         ) : (
-          <div className="absolute inset-0 bg-black/70 pointer-events-auto" />
+          <div className="absolute inset-0 bg-black/70 pointer-events-none" />
         )}
 
         {/* Anneau qui pulse autour de l'élément */}
@@ -112,24 +115,37 @@ export default function TutorialOverlay() {
             const vh = window.innerHeight;
             const bubbleW = Math.min(320, vw - 24);
             if (!hasTarget || !bubbleH) {
-              // Pas de cible ou pas encore mesuré → en haut de l'écran
               return { top: 16, left: (vw - bubbleW) / 2 };
             }
             const gap = 16;
+            const ROBOT = 32; // le 🤖 dépasse de ~28px au-dessus de la bulle → marge pour ne pas le couper
             const spaceAbove = targetRect.top - padding;
-            // Si la bulle rentre au-dessus de l'élément → on l'y colle
-            if (spaceAbove >= bubbleH + gap) {
-              const top = targetRect.top - padding - gap - bubbleH;
-              const idealLeft = targetRect.left + targetRect.width / 2 - bubbleW / 2;
-              const left = Math.max(12, Math.min(vw - bubbleW - 12, idealLeft));
-              return { top: Math.max(12, top), left };
+            const spaceBelow = vh - targetRect.bottom - padding;
+            const idealLeft = targetRect.left + targetRect.width / 2 - bubbleW / 2;
+            const left = Math.max(12, Math.min(vw - bubbleW - 12, idealLeft));
+            // Forcé en dessous (ex: textarea avec indications)
+            if (forceBelow && spaceBelow >= bubbleH + gap) {
+              if (!bubbleBelow) setBubbleBelow(true);
+              return { top: targetRect.bottom + padding + gap, left };
             }
-            // Sinon → fixée en haut de l'écran, centrée
-            return { top: 16, left: (vw - bubbleW) / 2 };
+            // Assez de place au-dessus (en comptant le dépassement du robot)
+            if (!forceBelow && spaceAbove >= bubbleH + gap + ROBOT) {
+              if (bubbleBelow) setBubbleBelow(false);
+              const top = targetRect.top - padding - gap - bubbleH;
+              return { top: Math.max(ROBOT, top), left };
+            }
+            // Assez de place en dessous
+            if (spaceBelow >= bubbleH + gap) {
+              if (!bubbleBelow) setBubbleBelow(true);
+              return { top: targetRect.bottom + padding + gap, left };
+            }
+            // Fallback haut d'écran (sous le robot)
+            if (bubbleBelow) setBubbleBelow(false);
+            return { top: ROBOT, left: (vw - bubbleW) / 2 };
           })()}>
 
-          {/* Coach IA — petit, à gauche du titre */}
-          <div className="absolute -top-7 left-3 z-10">
+          {/* Coach IA — au-dessus si bulle au-dessus, en-dessous si bulle en-dessous */}
+          <div className={`absolute ${bubbleBelow ? '-bottom-4' : '-top-7'} left-3 z-10`}>
             <motion.div
               initial={{ scale: 0, rotate: -15 }}
               animate={{ scale: 1, rotate: 0, y: [0, -3, 0] }}
@@ -176,16 +192,12 @@ export default function TutorialOverlay() {
               )}
 
               <div className="flex items-center gap-2 pt-1">
-                {!isLast && (
-                  <button type="button" onClick={skipStep}
-                    className="text-[10px] text-white/60 hover:text-white transition-colors flex-shrink-0">
-                    Passer cette étape →
+                {!hideNext && (
+                  <button type="button" onClick={step?.dormantNext ? skipStep : nextStep}
+                    className="ml-auto text-xs font-bold text-violet-700 bg-white hover:bg-white/95 px-4 py-1.5 rounded-lg shadow transition-all active:scale-[0.97]">
+                    {isLast ? "C'est parti !" : "Suivant →"}
                   </button>
                 )}
-                <button type="button" onClick={nextStep}
-                  className="ml-auto text-xs font-bold text-violet-700 bg-white hover:bg-white/95 px-4 py-1.5 rounded-lg shadow transition-all active:scale-[0.97]">
-                  {isLast ? "C'est parti !" : "Suivant →"}
-                </button>
               </div>
             </div>
           </div>

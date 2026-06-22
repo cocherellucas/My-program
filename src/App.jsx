@@ -21,6 +21,7 @@ class ErrorBoundary extends React.Component {
 }
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
+import { base44 } from '@/api/base44Client';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
@@ -44,8 +45,64 @@ import Library from '@/pages/Library';
 import GifCheck from '@/pages/GifCheck';
 import Login from '@/pages/Login';
 
+// Champs de profil remis à zéro par ?resetProfile (on préserve identité, rôle, abonnement)
+const PROFILE_RESET_FIELDS = {
+  gender: null, age: null, height: null, weight: null, level: null,
+  equipment: null, equipment_validated: null,
+  available_days: null, duration_per_day: null, same_duration_all: null,
+  frequency_min: null, frequency_max: null, availability_optimal: null,
+  shoulders: null, waist: null, hips: null,
+  right_arm: null, left_arm: null, right_thigh: null, left_thigh: null,
+  preferred_exercises: null, disliked_exercises: null, no_volume_muscles: null, fragile_zones: null,
+  morphology_arm_length: null, morphology_leg_length: null, morphology_silhouette: null, morphology_posture: null,
+  accepts_advanced_techniques: null, peaking_enabled: null,
+  pref_volume: null, pref_intensity: null, pref_frequency: null,
+  volume_mode: null, volume_overrides: null,
+  onboarding_completed: false, onboarding_step: 0,
+};
+const RESET_USER_ENTITIES = ['Objective', 'SeriesLog', 'Session', 'Program', 'Measurement', 'SavedProgram', 'UserMemory'];
+const RESET_LOCALSTORAGE_KEYS = [
+  'onboarding_draft', 'tutorial_state', 'program_generated_snapshot', 'pending_program_regen',
+  'imported_program_ids', '_import_form', '_import_scroll', 'active_session_id',
+];
+
+// ?resetProfile → repart à neuf : efface profil + objectifs + programme + séances, puis onboarding
+async function runProfileReset() {
+  const me = await base44.auth.me();
+  const uid = me.id;
+  // Données générées par l'utilisateur (chaque entité isolée pour qu'un échec n'arrête pas tout)
+  for (const name of RESET_USER_ENTITIES) {
+    try {
+      let batch;
+      do {
+        batch = await base44.entities[name].filter({ user_id: uid });
+        if (!batch.length) break;
+        await Promise.all(batch.map(r => base44.entities[name].delete(r.id)));
+      } while (batch.length);
+    } catch (err) { console.warn('[resetProfile] entité ignorée :', name, err); }
+  }
+  await base44.auth.updateMe(PROFILE_RESET_FIELDS);
+  RESET_LOCALSTORAGE_KEYS.forEach(k => { try { localStorage.removeItem(k); } catch {} });
+}
+
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+
+  // Réinitialisation complète via ?resetProfile
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('resetProfile')) return;
+    (async () => {
+      try {
+        await runProfileReset();
+        window.location.href = '/onboarding';
+      } catch (e) {
+        console.error('[resetProfile] erreur :', e);
+        alert(`Erreur lors de la réinitialisation : ${e?.message || e}`);
+      }
+    })();
+  }, []);
+
   const [minDelay, setMinDelay] = React.useState(true);
   const [splashVisible, setSplashVisible] = React.useState(true);
   const [splashOpacity, setSplashOpacity] = React.useState(1);

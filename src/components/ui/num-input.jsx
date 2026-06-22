@@ -5,6 +5,10 @@ import { ChevronUp, ChevronDown } from 'lucide-react';
 export function NumInput({ value, onChange, placeholder = '—', step = 1, min = 0, max = Infinity, defaultValue = 0, className = '' }) {
   const inputRef = useRef(null);
   const holdRef  = useRef(null);
+  // Valeur la plus récente — lue pendant le maintien (sinon la closure du setInterval
+  // garderait la valeur initiale et l'incrément ne s'accumulerait pas).
+  const valueRef = useRef(value);
+  valueRef.current = value;
   const [display, setDisplay] = useState(value != null && value !== '' ? String(value) : '');
 
   // Sync display only when the input is not focused (user not actively typing)
@@ -14,17 +18,26 @@ export function NumInput({ value, onChange, placeholder = '—', step = 1, min =
     }
   }, [value]);
 
-  const doStep = (dir) => {
-    const cur  = parseFloat(value) || defaultValue;
-    const next = Math.min(max, Math.max(min, parseFloat((cur + dir * step).toFixed(2))));
+  const doStep = (dir, mult = 1) => {
+    const cur  = parseFloat(valueRef.current) || defaultValue;
+    const next = Math.min(max, Math.max(min, parseFloat((cur + dir * step * mult).toFixed(2))));
+    valueRef.current = next; // maj immédiate pour le tick suivant du maintien
     setDisplay(String(next));
     onChange(next);
   };
 
+  const holdCount = useRef(0);
   const startHold = (dir) => {
+    holdCount.current = 0;
     doStep(dir);
     holdRef.current = setTimeout(() => {
-      holdRef.current = setInterval(() => doStep(dir), 80);
+      holdRef.current = setInterval(() => {
+        holdCount.current += 1;
+        // Accélération : le pas grossit plus on maintient longtemps
+        const c = holdCount.current;
+        const mult = c > 45 ? 10 : c > 25 ? 5 : c > 10 ? 2 : 1;
+        doStep(dir, mult);
+      }, 60);
     }, 400);
   };
 

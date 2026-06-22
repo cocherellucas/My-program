@@ -33,11 +33,18 @@ export default function ObjectivesTab({ userId }) {
   const [saving, setSaving] = useState(false);
   // track original ids for delete
   const [originalIds, setOriginalIds] = useState([]);
+  // instantané de l'état enregistré → pour désactiver "Sauvegarder" si rien n'a changé
+  const [savedSnapshot, setSavedSnapshot] = useState('[]');
+
+  const snapshotOf = (objs) => JSON.stringify(objs);
+  const isDirty = snapshotOf(objectives) !== savedSnapshot;
 
   useEffect(() => {
     if (!userId) return;
     base44.entities.Objective.filter({ user_id: userId }).then(data => {
-      setObjectives(data.map(o => ({ ...o, _local: false })));
+      const loaded = data.map(o => ({ ...o, _local: false }));
+      setObjectives(loaded);
+      setSavedSnapshot(snapshotOf(loaded));
       setOriginalIds(data.map(o => o.id));
       setLoading(false);
     });
@@ -64,14 +71,17 @@ export default function ObjectivesTab({ userId }) {
     if (obj.id) {
       await base44.entities.Objective.delete(obj.id);
     }
-    setObjectives(prev => {
-      let remaining = prev.filter((_, i) => i !== idx);
-      // S'il ne reste qu'un seul objectif, le forcer en "primary"
-      if (remaining.length === 1 && remaining[0].priority !== 'primary') {
-        remaining = [{ ...remaining[0], priority: 'primary' }];
-      }
-      return remaining;
-    });
+    let remaining = objectives.filter((_, i) => i !== idx);
+    // S'il ne reste qu'un seul objectif, le forcer en "primary"
+    let priorityForced = false;
+    if (remaining.length === 1 && remaining[0].priority !== 'primary') {
+      remaining = [{ ...remaining[0], priority: 'primary' }];
+      priorityForced = true;
+    }
+    setObjectives(remaining);
+    // La suppression est déjà persistée → si aucun changement de priorité à enregistrer,
+    // on recale l'instantané pour que "Sauvegarder" reste désactivé.
+    if (!priorityForced) setSavedSnapshot(snapshotOf(remaining));
   };
 
   const save = async () => {
@@ -86,6 +96,7 @@ export default function ObjectivesTab({ userId }) {
         await base44.entities.Objective.create(fields);
       }
     }
+    setSavedSnapshot(snapshotOf(objectives));
     toast.success('Objectifs mis à jour');
     setSaving(false);
   };
@@ -229,10 +240,12 @@ export default function ObjectivesTab({ userId }) {
         </div>
       )}
 
-      <button onClick={save} disabled={saving} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm bg-white text-violet-700 hover:bg-white/90 shadow transition-all disabled:opacity-50">
-        {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-        Sauvegarder les objectifs
-      </button>
+      {isDirty && (
+        <button onClick={save} disabled={saving} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm bg-white text-violet-700 hover:bg-white/90 shadow transition-all disabled:opacity-50">
+          {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+          Sauvegarder les objectifs
+        </button>
+      )}
     </div>
   );
 }

@@ -3,13 +3,13 @@ import { Label } from '@/components/ui/label';
 import { NumInput } from '@/components/ui/num-input';
 
 const FIELDS = [
-  { key: 'shoulders',   label: 'Tour d\'épaules' },
-  { key: 'waist',       label: 'Tour de taille' },
-  { key: 'hips',        label: 'Tour de hanches' },
-  { key: 'right_arm',   label: 'Bras droit' },
-  { key: 'left_arm',    label: 'Bras gauche' },
-  { key: 'right_thigh', label: 'Cuisse droite' },
-  { key: 'left_thigh',  label: 'Cuisse gauche' },
+  { key: 'shoulders',   label: 'Tour d\'épaules', max: 200 },
+  { key: 'waist',       label: 'Tour de taille',  max: 200 },
+  { key: 'hips',        label: 'Tour de hanches', max: 200 },
+  { key: 'right_arm',   label: 'Bras droit',      max: 80 },
+  { key: 'left_arm',    label: 'Bras gauche',     max: 80 },
+  { key: 'right_thigh', label: 'Cuisse droite',   max: 120 },
+  { key: 'left_thigh',  label: 'Cuisse gauche',   max: 120 },
 ];
 
 const DEFAULTS = {
@@ -36,16 +36,17 @@ export default function StepMeasurements({ data, onChange }) {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        {FIELDS.map(({ key, label }) => (
+        {FIELDS.map(({ key, label, max }) => (
           <div key={key} className="space-y-1.5">
             <Label className="text-sm text-white">{label} (cm)</Label>
             <NumInput
               value={data[key] || ''}
               onChange={(val) => onChange({ [key]: val === '' ? '' : parseFloat(val) || '' })}
               defaultValue={defaults[key]}
-              placeholder={String(defaults[key])}
+              placeholder="—"
               step={0.5}
               min={1}
+              max={max}
               className="bg-white/10 border-white/20 text-white placeholder:text-white/30"
             />
           </div>

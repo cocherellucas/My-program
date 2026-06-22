@@ -9,7 +9,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Loader2, LayoutList, ChevronRight, ChevronLeft, ChevronDown, Timer, Eye, HelpCircle, TrendingDown, TrendingUp, Bot, MessageSquare, X } from 'lucide-react';
+import { CheckCircle, Loader2, LayoutList, ChevronRight, ChevronLeft, ChevronDown, Timer, Eye, HelpCircle, TrendingDown, TrendingUp, Bot, MessageSquare, X, Dumbbell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -1112,6 +1112,13 @@ export default function SessionLog() {
     enabled: !!sessionId
   });
 
+  // Pour l'état vide : sait-on s'il existe un programme actif ?
+  const { data: activePrograms = [] } = useQuery({
+    queryKey: ['programs'],
+    queryFn: () => base44.entities.Program.filter({ status: 'active' }, '-created_date', 1),
+  });
+  const hasProgram = activePrograms.length > 0;
+
   // Redirige si la séance est déjà validée (retour arrière, mise en veille, changement d'onglet)
   useEffect(() => {
     if (session?.status === 'completed' && !coachPainQuery) {
@@ -1673,20 +1680,38 @@ Ce que l'utilisateur dit : "${painNote}"`;
     }
   };
 
-  if (!session) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-white/70">Sélectionne une séance depuis le programme</p>
-      </div>);
+  // États vides — conteneur fixe centré (SessionLog est rendu hors carrousel, un div
+  // en flux normal passerait sous la ligne de flottaison et resterait invisible).
+  const EmptyState = ({ title, text, cta }) => (
+    <div style={{
+      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 5,
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
+      paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'calc(6rem + env(safe-area-inset-bottom))',
+    }}>
+      <div className="text-center space-y-4 max-w-xs">
+        <div className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.1)' }}>
+          <Dumbbell className="w-8 h-8 text-white/70" />
+        </div>
+        <div className="space-y-1">
+          <p className="text-white font-bold text-lg">{title}</p>
+          <p className="text-white/60 text-sm">{text}</p>
+        </div>
+        <button onClick={() => navigate('/program')}
+          className="w-full py-3 rounded-xl text-sm font-bold text-violet-700 bg-white hover:bg-white/90 shadow transition-all active:scale-[0.98]">
+          {cta}
+        </button>
+      </div>
+    </div>
+  );
 
+  if (!session) {
+    return hasProgram
+      ? <EmptyState title="Aucune séance en cours" text="Choisis une séance dans ton programme pour commencer." cta="Voir mon programme" />
+      : <EmptyState title="Pas encore de programme" text="Crée ou importe ton programme pour générer tes séances." cta="Créer ou importer" />;
   }
 
   if (exercises.length === 0) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-white/70">Aucun exercice dans cette séance</p>
-      </div>);
-
+    return <EmptyState title="Séance vide" text="Cette séance ne contient aucun exercice." cta="Voir mon programme" />;
   }
 
   return (

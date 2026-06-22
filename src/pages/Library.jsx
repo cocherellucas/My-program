@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Dumbbell, Trash2, Play, Clock, ChevronDown, ChevronUp, CalendarDays } from 'lucide-react';
+import { BookOpen, Dumbbell, Trash2, Play, Clock, ChevronDown, ChevronUp, CalendarDays, Loader2, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -37,8 +39,9 @@ const TYPE_COLORS = {
   mixed: 'bg-white/20 text-white border-white/20',
 };
 
-function SavedProgramCard({ prog, onDelete, onReapply }) {
+function SavedProgramCard({ prog, onDelete, onReapply, isReapplying }) {
   const [expanded, setExpanded] = useState(false);
+  const [openSessions, setOpenSessions] = useState({});
   const label = STRUCTURE_LABELS[prog.structure_type];
   const color = STRUCTURE_COLORS[prog.structure_type] || '';
   const sessions = prog.sessions_templates || [];
@@ -58,8 +61,8 @@ function SavedProgramCard({ prog, onDelete, onReapply }) {
           <Button size="sm" variant="outline" onClick={() => setExpanded(!expanded)} className="border-white/30 text-white hover:bg-white/10 hover:text-white">
             {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </Button>
-          <Button size="sm" onClick={() => onReapply(prog)} className="bg-white/20 text-white hover:bg-white/30 border-0">
-            <Play className="w-3.5 h-3.5 mr-1" /> Relancer
+          <Button size="sm" onClick={() => onReapply(prog)} disabled={isReapplying} className="bg-white/20 text-white hover:bg-white/30 border-0 disabled:opacity-70">
+            {isReapplying ? <><Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> Lancement…</> : <><Play className="w-3.5 h-3.5 mr-1" /> Relancer</>}
           </Button>
           <Button size="sm" variant="ghost" className="text-red-300 hover:text-red-200 hover:bg-red-500/20" onClick={() => onDelete(prog.id)}>
             <Trash2 className="w-4 h-4" />
@@ -88,15 +91,33 @@ function SavedProgramCard({ prog, onDelete, onReapply }) {
                       <div className="flex-1 h-px bg-white/20" />
                     </div>
                   )}
-                  <div className="bg-white/10 rounded-lg px-3 py-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-medium text-white text-sm truncate flex-1">{s.day_label || s.day}</span>
-                      <Badge className={`text-xs flex-shrink-0 ${TYPE_COLORS[s.type] || 'bg-muted'}`}>{TYPE_LABELS[s.type] || s.type}</Badge>
-                    </div>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-white/60">
-                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{s.estimated_duration} min</span>
-                      <span>{s.exercises?.length || 0} exercices</span>
-                    </div>
+                  <div className="bg-white/10 rounded-lg overflow-hidden">
+                    <button type="button" onClick={() => setOpenSessions(o => ({ ...o, [i]: !o[i] }))}
+                      className="w-full px-3 py-2 text-left hover:bg-white/5 transition-colors">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-medium text-white text-sm truncate flex-1">{s.day_label || s.day}</span>
+                        <Badge className={`text-xs flex-shrink-0 ${TYPE_COLORS[s.type] || 'bg-muted'}`}>{TYPE_LABELS[s.type] || s.type}</Badge>
+                        {(s.exercises?.length > 0) && <ChevronDown className={`w-4 h-4 text-white/50 flex-shrink-0 transition-transform ${openSessions[i] ? 'rotate-180' : ''}`} />}
+                      </div>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-white/60">
+                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{s.estimated_duration} min</span>
+                        <span>{s.exercises?.length || 0} exercices</span>
+                      </div>
+                    </button>
+                    {openSessions[i] && s.exercises?.length > 0 && (
+                      <div className="px-3 pb-2.5 pt-1 space-y-2 border-t border-white/10">
+                        {s.exercises.map((ex, ei) => (
+                          <div key={ei} className="flex flex-col gap-0.5">
+                            <span className="text-white text-sm font-medium">{ex.name}</span>
+                            <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-white/50">
+                              <span>{ex.sets} × {ex.target_reps}</span>
+                              {ex.target_weight ? <span>· {ex.target_weight} {ex.weight_unit || 'kg'}</span> : null}
+                              {ex.rest_seconds ? <span>· {ex.rest_seconds}s repos</span> : null}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </React.Fragment>
               );
@@ -318,13 +339,23 @@ function SessionsTab({ sessions }) {
 export default function Library() {
   const [user, setUser] = useState(null);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
   useEffect(() => { base44.auth.me().then(setUser); }, []);
 
+  const [relaunchGate, setRelaunchGate] = useState(null); // programme sauvegardé en attente de relance
+  const [gateBusy, setGateBusy] = useState(false);
+
   const { data: savedPrograms = [] } = useQuery({
     queryKey: ['saved-programs'],
     queryFn: () => base44.entities.SavedProgram.filter({ user_id: user.id }, '-created_date'),
+    enabled: !!user,
+  });
+
+  const { data: activePrograms = [] } = useQuery({
+    queryKey: ['programs'],
+    queryFn: () => base44.entities.Program.filter({ status: 'active' }, '-created_date', 1),
     enabled: !!user,
   });
 
@@ -382,10 +413,81 @@ export default function Library() {
         });
       }
 
-      queryClient.invalidateQueries({ queryKey: ['programs'] });
-      queryClient.invalidateQueries({ queryKey: ['program-sessions'] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['programs'] }),
+        queryClient.invalidateQueries({ queryKey: ['program-sessions'] }),
+      ]);
     },
+    onSuccess: () => navigate('/program'),
+    onError: (e) => { console.error('[reapply] erreur :', e); alert(`Erreur lors du lancement : ${e?.message || e}`); },
   });
+
+  // Clic "Relancer" : si un programme est déjà actif, on demande quoi en faire
+  const handleReapply = (prog) => {
+    if (activePrograms.length > 0) setRelaunchGate(prog);
+    else reapplyMutation.mutate(prog);
+  };
+
+  // Supprime le(s) programme(s) actif(s) + leurs séances non complétées
+  const deleteActivePrograms = async () => {
+    for (const p of activePrograms) {
+      await base44.entities.Program.update(p.id, { status: 'completed' });
+      let toDelete;
+      do {
+        const batch = await base44.entities.Session.filter({ program_id: p.id });
+        toDelete = batch.filter(s => s.status !== 'completed');
+        await Promise.all(toDelete.map(s => base44.entities.Session.delete(s.id)));
+      } while (toDelete.length > 0);
+    }
+  };
+
+  // Sauvegarde le programme actif en Bibliothèque avant de le remplacer
+  const saveActivePrograms = async () => {
+    for (const p of activePrograms) {
+      const existing = await base44.entities.Session.filter({ program_id: p.id });
+      const seen = new Set();
+      const templates = existing
+        .filter(s => { const k = (s.week_number || 1) + '|' + (s.day_label || ''); if (seen.has(k)) return false; seen.add(k); return true; })
+        .map(s => ({
+          day: s.planned_date ? new Date(s.planned_date).toLocaleDateString('en', { weekday: 'long' }).toLowerCase() : '',
+          day_label: s.day_label, week_number: s.week_number, type: s.type,
+          estimated_duration: s.estimated_duration, active_zones: s.active_zones, exercises: s.exercises,
+        }));
+      const weeksCount = new Set(existing.map(s => s.week_number).filter(Boolean)).size || p.planned_weeks || 1;
+      await base44.entities.SavedProgram.create({
+        user_id: user.id,
+        name: `Programme — ${weeksCount} sem.`,
+        structure_type: p.weekly_structure || 'custom',
+        weekly_structure: p.weekly_structure,
+        planned_weeks: weeksCount,
+        active_phase: p.active_phase,
+        multi_objective_mode: p.multi_objective_mode,
+        objective_ids: p.objective_ids,
+        program_data: p.program_data,
+        sessions_templates: templates,
+      });
+    }
+  };
+
+  const runRelaunch = async (saveFirst) => {
+    setGateBusy(true);
+    try {
+      if (saveFirst) await saveActivePrograms();
+      await deleteActivePrograms();
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['saved-programs'] }),
+        queryClient.invalidateQueries({ queryKey: ['programs'] }),
+      ]);
+      const prog = relaunchGate;
+      setRelaunchGate(null);
+      await reapplyMutation.mutateAsync(prog);
+    } catch (e) {
+      console.error('[relaunch] erreur :', e);
+      alert(`Erreur : ${e?.message || e}`);
+    } finally {
+      setGateBusy(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -421,7 +523,8 @@ export default function Library() {
                   <SavedProgramCard
                     prog={prog}
                     onDelete={(id) => deleteMutation.mutate(id)}
-                    onReapply={(p) => reapplyMutation.mutate(p)}
+                    onReapply={handleReapply}
+                    isReapplying={(reapplyMutation.isPending || (gateBusy && relaunchGate?.id === prog.id)) && (reapplyMutation.variables?.id === prog.id || relaunchGate?.id === prog.id)}
                   />
                 </motion.div>
               ))}
@@ -434,6 +537,41 @@ export default function Library() {
           <SessionsTab sessions={completedSessions} />
         </TabsContent>
       </Tabs>
+
+      {/* Gate de relance — porté dans body (sinon le transform du carrousel casse le position:fixed) */}
+      {relaunchGate && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+          onClick={() => { if (!gateBusy) setRelaunchGate(null); }}>
+          <div onClick={e => e.stopPropagation()} className="w-full max-w-sm rounded-2xl p-5 space-y-3"
+            style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)' }}>
+            <div>
+              <p className="font-bold text-white text-lg">Tu as déjà un programme actif</p>
+              <p className="text-white/70 text-sm mt-1">Pour relancer ce programme, choisis quoi faire avec le programme actuel.</p>
+            </div>
+            <button type="button" disabled={gateBusy} onClick={() => runRelaunch(true)}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 transition-colors text-left disabled:opacity-50">
+              <BookOpen className="w-5 h-5 text-violet-300 flex-shrink-0" />
+              <div>
+                <p className="font-semibold text-sm text-white">Sauvegarder puis relancer</p>
+                <p className="text-xs text-white/60 mt-0.5">Le programme actuel sera conservé dans Bibliothèque</p>
+              </div>
+            </button>
+            <button type="button" disabled={gateBusy} onClick={() => runRelaunch(false)}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/20 border border-red-400/30 hover:bg-red-500/30 transition-colors text-left disabled:opacity-50">
+              <Trash2 className="w-5 h-5 text-red-400 flex-shrink-0" />
+              <div>
+                <p className="font-semibold text-sm text-white">Supprimer et relancer</p>
+                <p className="text-xs text-red-300 mt-0.5">Le programme actuel sera définitivement supprimé</p>
+              </div>
+            </button>
+            <button type="button" disabled={gateBusy} onClick={() => setRelaunchGate(null)}
+              className="w-full py-2.5 rounded-xl border border-white/15 text-white/60 text-sm font-semibold hover:bg-white/10 transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+              {gateBusy ? <><Loader2 className="w-4 h-4 animate-spin" /> Lancement…</> : 'Annuler'}
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

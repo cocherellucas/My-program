@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Plus, Trash2, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Plus, Trash2, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { calcDuration } from '@/lib/duration';
+import { useTutorial } from '@/lib/TutorialContext';
 
 const DAYS = [
   { value: 'monday', label: 'Lundi' },
@@ -16,12 +17,26 @@ const DAYS = [
 const parseExercises = (text) => {
   if (!text) return [];
   return text.split(/[,\n;]+/).map(line => line.trim()).filter(Boolean).map(line => {
-    const setsReps = line.match(/(\d+)\s*[×x\*]\s*(\d+(?:\s*[-–]\s*\d+)?)/);
-    const weight = line.match(/\((\d+(?:[.,]\d+)?)\s*kg\)/i) || line.match(/(\d+(?:[.,]\d+)?)\s*kg/i);
+    // Séries × reps : accepte ×, x, *, "fois", "séries (de)", "series (de)", "sets (de)"
+    const setsReps = line.match(/(\d+)\s*(?:[×x*]|fois|séries?(?:\s*de)?|series?(?:\s*de)?|sets?(?:\s*de)?)\s*(\d+(?:\s*[-–]\s*\d+)?)/i);
+    // On retire la partie séries×reps AVANT de chercher poids/repos (sinon le "s" de
+    // "séries" serait confondu avec des secondes).
+    let rest = setsReps ? line.replace(setsReps[0], ' ') : line;
+
+    // Poids : kg ou lbs/livres — on garde la valeur saisie et on note l'unité
+    const weightMatch = rest.match(/\(?\s*(\d+(?:[.,]\d+)?)\s*(kg|lbs?|livres?)\s*\)?/i);
+    let parsedWeight = null;
+    let weightUnit = 'kg';
+    if (weightMatch) {
+      parsedWeight = parseFloat(weightMatch[1].replace(',', '.'));
+      weightUnit = weightMatch[2].toLowerCase()[0] === 'l' ? 'lbs' : 'kg';
+      rest = rest.replace(weightMatch[0], ' ');
+    }
+
     const restMatch =
-      line.match(/(\d+)\s*m(?:in|n)?\s*(\d+)\s*s?/i) || // 2m30, 2min30, 2mn30
-      line.match(/(\d+)\s*(?:mn|min)/i) ||               // 2min, 2mn
-      line.match(/(\d+)\s*s(?:ec)?(?!\w)/i);             // 90s, 90sec
+      rest.match(/(\d+)\s*m(?:in|n)?\s*(\d+)\s*s?/i) || // 2m30, 2min30, 2mn30
+      rest.match(/(\d+)\s*(?:mn|min)/i) ||               // 2min, 2mn
+      rest.match(/(\d+)\s*s(?:ec)?(?!\w)/i);             // 90s, 90sec
     const restSeconds = restMatch
       ? restMatch[2] != null
         ? parseInt(restMatch[1]) * 60 + parseInt(restMatch[2]) // 2m30 = 150s
@@ -29,20 +44,71 @@ const parseExercises = (text) => {
           ? parseInt(restMatch[1]) * 60
           : parseInt(restMatch[1])
       : 90;
-    const restStr = restMatch ? restMatch[0] : '';
-    const name = line.replace(/\d+\s*[×x\*]\s*\d+(?:\s*[-–]\s*\d+)?/, '').replace(/\(\d+(?:[.,]\d+)?\s*kg\)/i, '').replace(/\d+(?:[.,]\d+)?\s*kg/i, '').replace(restStr, '').replace(/[,;()]/g, '').trim();
+    if (restMatch) rest = rest.replace(restMatch[0], ' ');
+
+    // Nettoie les mots/chiffres résiduels pour ne garder que le nom de l'exercice
+    const name = rest
+      .replace(/\b(?:répétitions?|réps?|reps?|séries?|series?|sets?|fois|repos|kg|lbs?|livres?)\b/gi, ' ')
+      .replace(/[,;()]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
     return {
       name: name || line.trim(),
       sets: setsReps ? parseInt(setsReps[1]) : 3,
       target_reps: setsReps ? setsReps[2].replace(/\s/g, '') : '10',
-      target_weight: weight ? parseFloat(weight[1].replace(',', '.')) : null,
+      target_weight: parsedWeight,
+      weight_unit: weightUnit,
       rest_seconds: restSeconds,
       muscle_group: '',
     };
   }).filter(e => e.name);
 };
 
-export default function ImportSessionDialog({ sessions: initialSessions, onImport, onClose, isEditing = false, initialWeeks }) {
+const IMPORT_TUTORIAL_STEPS = [
+  {
+    target: 'add-session-btn',
+    title: 'Ajouter une séance',
+    description: 'Appuie ici pour créer une nouvelle séance dans ton programme. Tu peux en ajouter jusqu\'à 14 au total.',
+    hideNext: true,
+  },
+  {
+    target: 'session-title-input',
+    title: 'Titre de la séance',
+    description: 'Donne un nom à ta séance, par exemple "Pectoraux & Triceps" ou "Jambes". Ça t\'aide à t\'y retrouver dans ton programme.',
+  },
+  {
+    target: 'session-content-area',
+    title: 'Écris ta séance ici',
+    description: 'Entre tes exercices un par ligne. Les indications juste au-dessus te rappellent le format : exercice, séries × reps, repos. Le poids est optionnel.',
+    forceBelow: true,
+  },
+  {
+    target: 'session-day-picker',
+    title: 'Choisis le jour',
+    description: 'Sélectionne le jour où tu veux placer cette séance dans la semaine. Tu peux en mettre deux le même jour si besoin.',
+  },
+  {
+    target: 'session-verify-btn',
+    title: 'Vérifie ta séance',
+    description: 'Une fois ta séance écrite, appuie sur "Vérifier" pour voir si tous tes exercices ont bien été compris. Tu pourras corriger avant d\'importer.',
+    hideNext: true,
+  },
+  {
+    target: 'session-content-area',
+    title: 'Tu peux corriger',
+    description: 'Voici comment ta séance a été comprise. Si quelque chose ne te convient pas, appuie sur "Modifier" pour réécrire ta séance.',
+  },
+  {
+    target: 'cycle-weeks-slider',
+    title: 'Durée du cycle',
+    description: 'Choisis sur combien de semaines ton programme se répète. Mets ∞ si tu veux qu\'il tourne en boucle indéfiniment.',
+  },
+];
+
+export default function ImportSessionDialog({ sessions: initialSessions, onPersist, onClose, isEditing = false, initialWeeks }) {
+  const { startTutorial, nextStep, skipStep, wakeTutorial, endTutorial, activeTutorial } = useTutorial() || {};
+  const activeTutorialRef = useRef(null);
+  activeTutorialRef.current = activeTutorial;
   const _expLen = (initialSessions || []).length || 1;
   const [verified, setVerified] = useState(() => {
     try {
@@ -54,29 +120,11 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
     (initialSessions || []).forEach((s, i) => { if (s.exercises?.length || s.content?.trim()) v[i] = true; });
     return v;
   });
-  const [importError, setImportError] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [saving, setSaving] = useState(false);
   const [collapsed, setCollapsed] = useState(() => {
     try { const f = JSON.parse(localStorage.getItem('_import_form') || 'null'); return f?.collapsed || {}; } catch { return {}; }
   });
-
-  const validateAndImport = (parsedSessions, weeks) => {
-    for (let i = 0; i < parsedSessions.length; i++) {
-      const exercises = parsedSessions[i].exercises;
-      if (!exercises || exercises.length === 0) {
-        setImportError(`Séance ${i + 1} : aucun exercice détecté. Clique sur "Vérifier" pour contrôler.`);
-        return;
-      }
-      for (const ex of exercises) {
-        if (!ex.sets || !ex.target_reps || !ex.rest_seconds) {
-          setImportError(`Séance ${i + 1} — "${ex.name}" : séries, répétitions ou temps de repos manquant.`);
-          return;
-        }
-      }
-    }
-    setImportError(null);
-    onImport(parsedSessions, weeks);
-  };
 
   const [sessions, setSessions] = useState(() => {
     try {
@@ -95,10 +143,37 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
   });
   const [weeks, setWeeks] = useState(() => {
     try { const f = JSON.parse(localStorage.getItem('_import_form') || 'null'); if (f?.weeks !== undefined && f?.sessionCount === _expLen) return f.weeks; } catch {}
-    return initialWeeks !== undefined ? initialWeeks : 4;
+    return initialWeeks !== undefined ? initialWeeks : 'infinite';
   });
 
   const DAY_ORDER = { monday:0, tuesday:1, wednesday:2, thursday:3, friday:4, saturday:5, sunday:6 };
+
+  // Sauvegarde à la fermeture : on capture l'état initial pour ne persister que s'il
+  // y a eu un changement (évite un delete+recreate inutile quand on ne touche à rien).
+  const initialRef = useRef(null);
+  if (initialRef.current === null) initialRef.current = JSON.stringify({ sessions, weeks });
+
+  // Construit la liste à persister : seules les séances "complètes" (avec exercices)
+  // entrent dans le programme — une séance non vérifiée/vide n'y apparaît pas.
+  const buildPersistList = () => sessions
+    .map(s => {
+      const exs = s.exercises?.length ? s.exercises : parseExercises(s.content || '');
+      return { ...s, exercises: exs, estimated_duration: calcDuration(exs) };
+    })
+    .filter(s => s.exercises.length > 0);
+
+  // Appelé à la fermeture : persiste tout si quelque chose a changé, en affichant
+  // un chargement → on ne rouvre le programme qu'une fois la mise à jour terminée
+  // (l'utilisateur voit un programme propre, pas le delete+recreate en cours).
+  const handleClose = async () => {
+    if (saving) return;
+    const changed = initialRef.current !== JSON.stringify({ sessions, weeks });
+    if (changed) {
+      setSaving(true);
+      try { await onPersist?.(buildPersistList(), weeks); } catch {}
+    }
+    onClose?.();
+  };
 
   const updateSession = (i, field, value) => {
     setSessions(prev => {
@@ -166,15 +241,19 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
     };
   }, []); // eslint-disable-line
 
+  useEffect(() => {
+    startTutorial?.('import-dialog', IMPORT_TUTORIAL_STEPS);
+    // À la fermeture du dialog, marque le tuto comme vu s'il est encore en cours
+    // (évite qu'il recommence si l'utilisateur ferme avant d'avoir touché le slider de durée)
+    return () => {
+      if (activeTutorialRef.current?.id === 'import-dialog') endTutorial?.('import-dialog');
+    };
+  }, []); // eslint-disable-line
+
   const listRef = useRef(null);
   const sessionRefs = useRef([]);
   const [scrollToId, setScrollToId] = useState(null);
   const [highlightId, setHighlightId] = useState(null);
-  const [initialSnapshot] = useState({ sessions, weeks });
-  const isDirty = useMemo(
-    () => JSON.stringify(sessions) !== JSON.stringify(initialSnapshot.sessions) || weeks !== initialSnapshot.weeks,
-    [sessions, weeks] // eslint-disable-line
-  );
 
   // Sauvegarde la position de scroll à chaque défilement
   useEffect(() => {
@@ -228,7 +307,9 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                   value={s.label}
                   onChange={e => updateSession(i, 'label', e.target.value)}
                   placeholder="Titre de la séance"
+                  maxLength={30}
                   className="flex-1 bg-transparent text-white text-sm font-semibold outline-none placeholder-white/30 min-w-0"
+                  {...(i === 0 ? { 'data-tutorial': 'session-title-input' } : {})}
                 />
                 <div className="flex items-center gap-1.5 flex-shrink-0">
                   <button onClick={() => setConfirmDelete(i)} className="text-white/30 hover:text-red-400 transition-colors">
@@ -256,7 +337,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
               {!collapsed[i] && (verified[i] ? (() => {
                 const exs = s.exercises?.length ? s.exercises : parseExercises(s.content || '');
                 return (
-                <div className="w-full bg-white/5 rounded-xl px-3 py-2 mb-2 border border-white/10 space-y-2">
+                <div className="w-full bg-white/5 rounded-xl px-3 py-2 mb-2 border border-white/10 space-y-2" {...(i === 0 ? { 'data-tutorial': 'session-content-area' } : {})}>
                   {exs.length > 0 && (
                     <p className="text-white/40 text-xs font-medium">{exs.length} exercices · {calcDuration(exs)} min estimées</p>
                   )}
@@ -267,7 +348,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                         <p className="text-white text-sm font-semibold">{ex.name}</p>
                         <div className="flex gap-3 text-xs text-white/50">
                           <span>{ex.sets} séries × {ex.target_reps} reps</span>
-                          {ex.target_weight && <span>· {ex.target_weight} kg</span>}
+                          {ex.target_weight && <span>· {ex.target_weight} {ex.weight_unit || 'kg'}</span>}
                           <span>· {ex.rest_seconds}s repos</span>
                         </div>
                       </div>
@@ -282,23 +363,30 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                 );
               })() : (
                 <div className="mb-2">
-                  <p className="text-white/40 text-xs mb-1.5">Séries × reps, exercice, repos. <span className="text-white/25">Le poids est optionnel.</span></p>
-                  <textarea
-                    value={s.content || ''}
-                    onChange={e => updateSession(i, 'content', e.target.value)}
-                    placeholder={"Écris ta séance puis appuie sur Vérifier pour voir si tout est bien compris."}
-                    rows={6}
-                    className="w-full bg-white/5 rounded-xl px-3 py-2 text-white text-sm outline-none placeholder-white/25 resize-none leading-relaxed border border-white/10"
-                  />
+                  <div {...(i === 0 ? { 'data-tutorial': 'session-content-area' } : {})}>
+                    <p className="text-white/40 text-xs mb-1.5">Exercice, séries × reps, repos. <span className="text-white/25">Le poids est optionnel.</span></p>
+                    <textarea
+                      value={s.content || ''}
+                      onChange={e => updateSession(i, 'content', e.target.value)}
+                      placeholder={"Écris ta séance (1 exercice par ligne) puis appuie sur Vérifier pour voir si tout est bien compris."}
+                      rows={6}
+                      className="w-full bg-white/5 rounded-xl px-3 py-2 text-white text-sm outline-none placeholder-white/25 resize-none leading-relaxed border border-white/10"
+                    />
+                  </div>
                   <button
-                    onClick={() => setVerified(v => ({ ...v, [i]: true }))}
+                    onClick={() => {
+                      setVerified(v => ({ ...v, [i]: true }));
+                      // Avance vers l'étape "Tu peux corriger" (état vérifié, bouton Modifier visible)
+                      if (i === 0 && activeTutorial?.id === 'import-dialog' && activeTutorial?.currentStep === 4) nextStep?.();
+                    }}
                     className="w-full mt-1.5 py-2 rounded-xl text-xs font-semibold transition-all"
-                    style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white' }}>
+                    style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white' }}
+                    {...(i === 0 ? { 'data-tutorial': 'session-verify-btn' } : {})}>
                     Vérifier
                   </button>
                 </div>
               ))}
-              {!collapsed[i] && (<div className="grid grid-cols-7 gap-1">
+              {!collapsed[i] && (<div className="grid grid-cols-7 gap-1" {...(i === 0 ? { 'data-tutorial': 'session-day-picker' } : {})}>
                 {DAYS.map(d => {
                   const alreadyTwo = countForDay(d.value, i) >= 2;
                   const isSelected = s.day === d.value;
@@ -338,7 +426,13 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
 
           {/* Ajouter une séance */}
           {sessions.length < 14 && (
-            <button onClick={addSession}
+            <button data-tutorial="add-session-btn" onClick={() => {
+              addSession();
+              if (activeTutorial?.id === 'import-dialog') {
+                if (activeTutorial.currentStep === 0) nextStep?.();
+                else if (activeTutorial.dormant) wakeTutorial?.();
+              }
+            }}
               className="w-full py-3 rounded-2xl border border-dashed border-white/20 text-white/40 text-sm font-semibold flex items-center justify-center gap-2 hover:border-white/40 hover:text-white/60 transition-all">
               <Plus className="w-4 h-4" />
               Ajouter une séance ({sessions.length}/14)
@@ -346,7 +440,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
           )}
 
           {/* Durée — slider */}
-          <div className="pt-1">
+          <div className="pt-1" data-tutorial="cycle-weeks-slider">
             <div className="flex items-center justify-between mb-3">
               <p className="text-white/40 text-xs font-semibold uppercase tracking-wider">Durée du cycle</p>
               <span className="font-bold text-white text-lg" style={{ minWidth: 28, textAlign: 'right' }}>
@@ -388,7 +482,10 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
                   className="flex-1 py-3 rounded-xl text-sm font-semibold border border-white/15 text-white/60 hover:bg-white/10 transition-colors"
                 >Annuler</button>
                 <button
-                  onClick={() => { removeSession(confirmDelete); setConfirmDelete(null); }}
+                  onClick={() => {
+                    removeSession(confirmDelete);
+                    setConfirmDelete(null);
+                  }}
                   className="flex-1 py-3 rounded-xl text-sm font-bold text-white bg-red-500/80 hover:bg-red-500 transition-colors"
                 >Supprimer</button>
               </div>
@@ -397,30 +494,25 @@ export default function ImportSessionDialog({ sessions: initialSessions, onImpor
         )}
 
         {/* Footer */}
-        <div className="px-5 pt-3 flex-shrink-0 border-t border-white/10 space-y-2" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 20px)' }}>
-          {sessions.length === 0 && <p className="text-white/30 text-xs text-center">Ajoute au moins une séance pour importer.</p>}
-          {importError && <p className="text-red-400 text-xs text-center">{importError}</p>}
-          <div className="flex gap-2">
-          <button onClick={onClose}
-            className="flex-1 py-3 rounded-xl border border-white/15 text-white/50 text-sm font-semibold hover:bg-white/10 transition-colors">
-            Annuler
+        <div className="px-5 pt-3 flex-shrink-0 border-t border-white/10" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 20px)' }}>
+          <button
+            onClick={handleClose}
+            disabled={saving}
+            className="w-full py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 disabled:opacity-80"
+            style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
+            {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Mise à jour…</> : 'Fermer'}
           </button>
-          {(!isEditing || isDirty) && (
-            <button
-              onClick={() => validateAndImport(sessions.map(s => {
-                const exs = s.exercises?.length ? s.exercises : parseExercises(s.content);
-                return { ...s, exercises: exs, estimated_duration: calcDuration(exs) };
-              }), weeks)}
-              disabled={sessions.length === 0}
-              className="flex-1 py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
-              <Sparkles className="w-4 h-4" />
-              {isEditing ? 'Enregistrer' : 'Importer'}
-            </button>
-          )}
-          </div>
         </div>
       </div>
+
+      {/* Chargement plein écran pendant la mise à jour du programme */}
+      {saving && (
+        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4"
+          style={{ background: 'rgba(15,5,40,0.82)', backdropFilter: 'blur(4px)' }}>
+          <Loader2 className="w-10 h-10 text-violet-300 animate-spin" />
+          <p className="text-white/90 text-sm font-semibold">Mise à jour de ton programme…</p>
+        </div>
+      )}
     </div>
   );
 }
