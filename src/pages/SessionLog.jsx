@@ -1092,6 +1092,11 @@ export default function SessionLog() {
       try { localStorage.setItem(key, String(el.scrollTop)); } catch {}
     };
     const onResize = () => {
+      // Resize dû au clavier (champ en focus) → ne PAS restaurer le scroll,
+      // sinon ça écrase le scrollIntoView qui place le champ au-dessus du clavier.
+      const ae = document.activeElement;
+      const editing = ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable);
+      if (editing || document.body.classList.contains('keyboard-open')) return;
       pauseSave = true;
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
