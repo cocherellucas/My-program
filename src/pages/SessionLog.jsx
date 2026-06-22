@@ -956,37 +956,55 @@ export default function SessionLog() {
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return;
-    const update = () => {
+
+    const isEditable = (el) =>
+      el && el !== document.body &&
+      (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable === true);
+
+    // Recadre le champ focalisé juste au-dessus du clavier (marge 20px).
+    const scrollActiveIntoView = () => {
+      const ae = document.activeElement;
+      if (!isEditable(ae) || typeof ae.scrollIntoView !== 'function') return;
+      ae.style.scrollMarginBottom = '20px';
+      ae.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+    };
+    // Plusieurs passes : le viewport se stabilise sur une durée VARIABLE selon
+    // l'appareil → un seul scroll à délai fixe ratait parfois (bug "de temps en temps").
+    const recenter = () => {
+      scrollActiveIntoView();
+      requestAnimationFrame(scrollActiveIntoView);
+      [120, 300, 500].forEach(d => setTimeout(scrollActiveIntoView, d));
+    };
+
+    // Aligne le conteneur sur le rect exact du visualViewport (anti-bande violette).
+    const syncContainer = () => {
       const isOpen = vv.height < window.innerHeight * 0.75;
       document.body.classList.toggle('keyboard-open', isOpen);
       setKbOpen(isOpen);
-      // Position/taille du conteneur = rect exact du visualViewport, écrit
-      // directement (sans attendre un re-render React)
       const el = scrollRootRef.current;
       if (el) {
         el.style.top = (vv.offsetTop || 0) + 'px';
         el.style.height = vv.height + 'px';
       }
-      if (isOpen) {
-        setTimeout(() => {
-          const active = document.activeElement;
-          if (active && active !== document.body && typeof active.scrollIntoView === 'function') {
-            // Marge basse temporaire → le champ remonte un peu au-dessus du clavier
-            // au lieu d'être collé pile à son bord.
-            const prev = active.style.scrollMarginBottom;
-            active.style.scrollMarginBottom = '20px';
-            active.scrollIntoView({ block: 'nearest', behavior: 'auto' });
-            setTimeout(() => { active.style.scrollMarginBottom = prev; }, 300);
-          }
-        }, 80);
-      }
+      return isOpen;
     };
-    update();
-    vv.addEventListener('resize', update);
-    vv.addEventListener('scroll', update);
+
+    // resize = ouverture/fermeture clavier → on resynchronise ET on recadre
+    const onVVResize = () => { if (syncContainer()) recenter(); };
+    // scroll = le viewport se décale (Safari) → on suit le conteneur SANS recadrer
+    // (pour ne pas combattre un scroll manuel de l'utilisateur)
+    const onVVScroll = () => { syncContainer(); };
+    // Changer de champ clavier déjà ouvert ne déclenche aucun resize → recadrer au focus
+    const onFocusIn = (e) => { if (isEditable(e.target)) recenter(); };
+
+    syncContainer();
+    vv.addEventListener('resize', onVVResize);
+    vv.addEventListener('scroll', onVVScroll);
+    document.addEventListener('focusin', onFocusIn);
     return () => {
-      vv.removeEventListener('resize', update);
-      vv.removeEventListener('scroll', update);
+      vv.removeEventListener('resize', onVVResize);
+      vv.removeEventListener('scroll', onVVScroll);
+      document.removeEventListener('focusin', onFocusIn);
       document.body.classList.remove('keyboard-open');
     };
   }, []);
