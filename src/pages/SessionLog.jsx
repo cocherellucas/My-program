@@ -969,7 +969,7 @@ export default function SessionLog() {
             // Marge basse temporaire → le champ remonte un peu au-dessus du clavier
             // au lieu d'être collé pile à son bord.
             const prev = active.style.scrollMarginBottom;
-            active.style.scrollMarginBottom = '110px';
+            active.style.scrollMarginBottom = '20px';
             active.scrollIntoView({ block: 'nearest', behavior: 'auto' });
             setTimeout(() => { active.style.scrollMarginBottom = prev; }, 300);
           }
