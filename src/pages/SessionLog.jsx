@@ -149,7 +149,7 @@ function WarmupAccordion({ exercise, logs, exIdx, sets: totalSets }) {
 }
 
 // ─── Single Exercise Focus View ───────────────────────────────────────────────
-function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, suggestion, onClearSuggestion, onApplyVariant, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach, sessionsHistory }) {
+function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, openAtLastSet, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, suggestion, onClearSuggestion, onApplyVariant, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach, sessionsHistory }) {
   const sets = Math.max(1, exercise.sets || 3);
   const [editSets, setEditSets] = useState(Math.max(1, originalExercise?.sets || 3));
   const [editReps, setEditReps] = useState(originalExercise?.target_reps || '');
@@ -159,16 +159,20 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
     setEditRest(currentRestSeconds ?? originalExercise?.rest_seconds ?? 90);
   }, [currentRestSeconds]);
 
+  // Un set est "fait" seulement s'il a été validé (flag done), pas s'il est juste
+  // prérempli avec les reps de la séance précédente — sinon on saute direct au dernier set.
   const [completedSets, setCompletedSets] = useState(() => {
     const done = new Set();
     for (let i = 0; i < sets; i++) {
-      if (logs[`${exIdx}-${i}`]?.reps) done.add(i);
+      if (logs[`${exIdx}-${i}`]?.done) done.add(i);
     }
     return done;
   });
   const [activeSetIdx, setActiveSetIdx] = useState(() => {
+    // Retour à l'exercice précédent → on ouvre directement sur la dernière série
+    if (openAtLastSet) return Math.max(0, sets - 1);
     for (let i = 0; i < sets; i++) {
-      if (!logs[`${exIdx}-${i}`]?.reps) return i;
+      if (!logs[`${exIdx}-${i}`]?.done) return i;
     }
     return Math.max(0, sets - 1);
   });
@@ -205,6 +209,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
     const isIsometric  = /planche|gainage|isométr/i.test(exercise.name || '');
 
     markSetComplete(setIdx);
+    updateLog(exIdx, setIdx, 'done', true); // persiste la validation (survit au changement d'exo)
     onStartRest(baseRest, () => {
       if (setIdx < sets - 1) setActiveSetIdx(setIdx + 1);
     });
@@ -924,6 +929,7 @@ export default function SessionLog() {
   const [saving, setSaving] = useState(false);
   const [scrollReady, setScrollReady] = useState(false);
   const [currentExIdx, setCurrentExIdx] = useState(() => _draft.currentExIdx || 0);
+  const [navDir, setNavDir] = useState('next'); // sens de navigation entre exos (prev → ouvre la dernière série)
   const [showOverview, setShowOverview] = useState(false);
   const [showEnd, setShowEnd] = useState(() => _draft.showEnd || false);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
@@ -960,7 +966,12 @@ export default function SessionLog() {
         setTimeout(() => {
           const active = document.activeElement;
           if (active && active !== document.body && typeof active.scrollIntoView === 'function') {
+            // Marge basse temporaire → le champ remonte un peu au-dessus du clavier
+            // au lieu d'être collé pile à son bord.
+            const prev = active.style.scrollMarginBottom;
+            active.style.scrollMarginBottom = '110px';
             active.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+            setTimeout(() => { active.style.scrollMarginBottom = prev; }, 300);
           }
         }, 80);
       }
@@ -1402,6 +1413,7 @@ export default function SessionLog() {
 
   const handleNext = () => {
     if (currentExIdx < exercises.length - 1) {
+      setNavDir('next');
       setCurrentExIdx((i) => i + 1);
     } else {
       setShowEnd(true);
@@ -1825,9 +1837,10 @@ Ce que l'utilisateur dit : "${painNote}"`;
           exIdx={currentExIdx}
           logs={logs}
           updateLog={updateLog}
+          openAtLastSet={navDir === 'prev'}
           totalExercises={exercises.length}
           onNext={handleNext}
-          onPrev={() => setCurrentExIdx((i) => Math.max(0, i - 1))}
+          onPrev={() => { setNavDir('prev'); setCurrentExIdx((i) => Math.max(0, i - 1)); }}
           onStartRest={(secs, onDone) => {
             const endTime = Date.now() + secs * 1000;
             try { localStorage.setItem(`rest_timer_${sessionId}`, JSON.stringify({ endTime, totalSeconds: secs })); } catch {}
