@@ -151,6 +151,9 @@ function WarmupAccordion({ exercise, logs, exIdx, sets: totalSets }) {
 // ─── Single Exercise Focus View ───────────────────────────────────────────────
 function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, openAtLastSet, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, suggestion, onClearSuggestion, onApplyVariant, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach, sessionsHistory }) {
   const sets = Math.max(1, exercise.sets || 3);
+  // L'exercice fait-il partie de la base (chaînes de progression) ? Sinon on ne
+  // propose aucune variante (pas de variante générique inventée).
+  const inChain = findExerciseInChains(exercise.name) !== null;
   const [editSets, setEditSets] = useState(Math.max(1, originalExercise?.sets || 3));
   const [editReps, setEditReps] = useState(originalExercise?.target_reps || '');
   const [editRest, setEditRest] = useState(currentRestSeconds ?? originalExercise?.rest_seconds ?? 90);
@@ -421,11 +424,13 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                     <p className="text-white/70">Ajouter 30s de repos par série va augmenter la durée totale de ta séance.</p>
                   </PopoverContent>
                 </Popover>
-                <button
-                  onClick={() => onRegressionRequest(exIdx)}
-                  className="text-xs px-3 py-1.5 rounded-lg bg-destructive text-white font-medium hover:bg-destructive/80 transition-colors flex items-center gap-1">
-                  Variante simple
-                </button>
+                {inChain && (
+                  <button
+                    onClick={() => onRegressionRequest(exIdx)}
+                    className="text-xs px-3 py-1.5 rounded-lg bg-destructive text-white font-medium hover:bg-destructive/80 transition-colors flex items-center gap-1">
+                    Variante simple
+                  </button>
+                )}
               </div>
             </div>);
 
@@ -636,13 +641,13 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
               className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors">
               +2.5 kg
             </button>
-          ) : (
+          ) : inChain ? (
             <button
               onClick={() => onProgressionRequest(exIdx)}
               className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors flex items-center gap-1">
               Variante plus dure
             </button>
-          )}
+          ) : null}
           <button onClick={() => setAckedGoodSeries(goodAboveSeries)} className="text-xs px-2 py-1.5 text-white/40 hover:text-white/70 transition-colors">✕</button>
         </div>
       </div>
