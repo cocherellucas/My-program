@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Sparkles, Loader2, Calendar, Dumbbell, Clock, ChevronRight, ChevronLeft, Bookmark, BookmarkCheck, Trash2, RefreshCw, Pencil } from 'lucide-react';
+import { Sparkles, Loader2, Calendar, Dumbbell, Clock, ChevronRight, ChevronLeft, Bookmark, BookmarkCheck, Trash2, RefreshCw, Pencil, Download } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { format, addDays, startOfWeek } from 'date-fns';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -20,6 +20,7 @@ import { getContextualKnowledge } from '@/lib/scientific-knowledge-base';
 import { normalizeUser } from '@/lib/utils';
 import ImportSessionDialog from '@/components/coach/ImportSessionDialog';
 import { calcDuration } from '@/lib/duration';
+import { exportProgramPDF } from '@/lib/program-pdf';
 
 function LoadingOrb() {
   return (
@@ -825,6 +826,26 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
             >
               <Pencil className="w-3.5 h-3.5" />
               Modifier
+            </button>
+          )}
+          {activeProgram && sessions.length > 0 && (
+            <button
+              onClick={() => {
+                // Un cycle = les séances de la première semaine du programme
+                const minWeek = Math.min(...sessions.map(s => s.week_number || 1));
+                const cycle = sessions
+                  .filter(s => (s.week_number || 1) === minWeek)
+                  .sort((a, b) => (a.planned_date || '').localeCompare(b.planned_date || ''));
+                exportProgramPDF({
+                  programName: isImported({ program_id: activeProgram.id }) ? 'Mon programme (importé)' : 'Mon programme',
+                  subtitle: programIsInfinite ? 'Cycle hebdomadaire (programme en boucle)' : `Programme sur ${activeProgram.planned_weeks} semaines`,
+                  sessions: cycle,
+                });
+              }}
+              className="flex items-center justify-center px-2.5 py-1.5 rounded-xl font-semibold text-xs bg-white text-violet-700 hover:bg-white/90 shadow transition-all"
+              title="Exporter le programme en PDF"
+            >
+              <Download className="w-3.5 h-3.5" />
             </button>
           )}
         </div>

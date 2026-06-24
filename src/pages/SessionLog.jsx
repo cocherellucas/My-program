@@ -149,7 +149,7 @@ function WarmupAccordion({ exercise, logs, exIdx, sets: totalSets }) {
 }
 
 // ─── Single Exercise Focus View ───────────────────────────────────────────────
-function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, openAtLastSet, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, suggestion, onClearSuggestion, onApplyVariant, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach, sessionsHistory }) {
+function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, openAtLastSet, isImported, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, suggestion, onClearSuggestion, onApplyVariant, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach, sessionsHistory }) {
   const sets = Math.max(1, exercise.sets || 3);
   // L'exercice fait-il partie de la base (chaînes de progression) ? Sinon on ne
   // propose aucune variante (pas de variante générique inventée).
@@ -248,7 +248,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-white uppercase tracking-wider block">OBJECTIF</span>
               <div className="flex items-center gap-1">
-                {(() => {
+                {!isImported && (() => {
                   const originalSets = Math.max(1, originalExercise?.sets || 3);
                   const originalReps = originalExercise?.target_reps || '';
                   const originalRest = originalExercise?.rest_seconds || 90;
@@ -282,18 +282,20 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                   {editingObjectif ? 'Valider' : 'Modifier'}
                 </Button>
               </div>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button className="text-white hover:text-white/80 transition-colors cursor-pointer">
-                    <HelpCircle className="w-3 h-3" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-48 text-xs space-y-2 ">
-                  <p className="font-semibold text-white">Valeurs optimisées</p>
-                  <p>Ces séries, reps et repos sont optimisés pour tes objectifs. Tu peux les modifier si tu le souhaites.</p>
-                  <p className="text-violet-300 font-medium">En validant, les changements s'appliquent aussi aux futures séances.</p>
-                </PopoverContent>
-              </Popover>
+              {!isImported && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="text-white hover:text-white/80 transition-colors cursor-pointer">
+                      <HelpCircle className="w-3 h-3" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-48 text-xs space-y-2 ">
+                    <p className="font-semibold text-white">Valeurs optimisées</p>
+                    <p>Ces séries, reps et repos sont optimisés pour tes objectifs. Tu peux les modifier si tu le souhaites.</p>
+                    <p className="text-violet-300 font-medium">En validant, les changements s'appliquent aussi aux futures séances.</p>
+                  </PopoverContent>
+                </Popover>
+              )}
             </div>
             <div className="grid grid-cols-3 gap-2 p-3 bg-gradient-to-r from-white/20 to-white/10 rounded-lg border border-white/40 overflow-hidden">
               <div className="text-center py-3 bg-white/10 rounded-md border border-white/30 min-w-0">
@@ -1157,6 +1159,14 @@ export default function SessionLog() {
     queryFn: () => base44.entities.Program.filter({ status: 'active' }, '-created_date', 1),
   });
   const hasProgram = activePrograms.length > 0;
+  // Programme importé (vs généré par le coach) → on n'affiche pas le bloc "Valeurs optimisées"
+  const isImportedProgram = (() => {
+    try {
+      const ids = JSON.parse(localStorage.getItem('imported_program_ids') || '[]');
+      if (session?.program_id && ids.includes(session.program_id)) return true;
+    } catch {}
+    return activePrograms[0]?.weekly_structure === 'custom';
+  })();
 
   // Redirige si la séance est déjà validée (retour arrière, mise en veille, changement d'onglet)
   useEffect(() => {
@@ -1406,6 +1416,16 @@ export default function SessionLog() {
     setSessionExercises(updatedExercises);
     if (updates.rest_seconds) {
       setRestTimeForEx((prev) => ({ ...prev, [exIdx]: updates.rest_seconds }));
+    }
+    // Persiste la séance COURANTE en base — sinon le dialog "Modifier" (qui lit la
+    // base) afficherait encore les anciennes valeurs.
+    if (session?.id) {
+      base44.entities.Session.update(session.id, { exercises: updatedExercises })
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ['program-sessions'] });
+          queryClient.invalidateQueries({ queryKey: ['session', sessionId] });
+        })
+        .catch(e => console.error('update session exercises', e));
     }
     const exerciseName = exercises[exIdx]?.name;
     if (exerciseName) handleApplyToFuture(exerciseName, updates);
@@ -1898,6 +1918,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
           editingObjectif={editingObjectif}
           setEditingObjectif={setEditingObjectif}
           onUpdateExercise={handleUpdateExercise}
+          isImported={isImportedProgram}
           previousLogs={previousLogs}
           propagateWeight={propagateWeight}
           forcePropagateWeight={forcePropagateWeight}

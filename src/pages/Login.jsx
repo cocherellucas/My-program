@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
-import { Dumbbell, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -49,9 +49,7 @@ export default function Login() {
     <div className="min-h-screen bg-violet-800 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-violet-400 flex items-center justify-center">
-            <Dumbbell className="w-6 h-6 text-white" />
-          </div>
+          <img src="/robotapp.png" alt="Coach IA" className="w-10 h-10 rounded-xl object-cover" />
           <span className="font-bold text-2xl text-white">Coach IA</span>
         </div>
 

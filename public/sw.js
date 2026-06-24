@@ -20,8 +20,8 @@ const showCountdownNotif = (endTime) => {
   const s = end.getSeconds().toString().padStart(2, '0');
   self.registration.showNotification('Coach IA — Repos en cours', {
     body: `⏱ Se termine à ${h}:${m}:${s}`,
-    icon: '/apple-touch-icon.png',
-    badge: '/apple-touch-icon.png',
+    icon: '/iconapp.png',
+    badge: '/iconapp.png',
     tag: 'rest-timer',
     renotify: false,
     silent: true,
@@ -35,8 +35,8 @@ const showDoneNotif = () => {
     if (appVisible) return; // app ouverte au premier plan — pas de notif
     self.registration.showNotification('💪 C\'est parti !', {
       body: 'Temps de repos terminé — reprends la séance !',
-      icon: '/apple-touch-icon.png',
-      badge: '/apple-touch-icon.png',
+      icon: '/iconapp.png',
+      badge: '/iconapp.png',
       tag: 'rest-timer',
       renotify: true,
       silent: false,
@@ -85,8 +85,8 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: '/apple-touch-icon.png',
-      badge: '/apple-touch-icon.png',
+      icon: '/iconapp.png',
+      badge: '/iconapp.png',
       tag: 'rest-timer',
       renotify: true,
     })

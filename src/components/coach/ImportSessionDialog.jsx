@@ -148,26 +148,31 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
 
   const DAY_ORDER = { monday:0, tuesday:1, wednesday:2, thursday:3, friday:4, saturday:5, sunday:6 };
 
-  // Sauvegarde à la fermeture : on capture l'état initial pour ne persister que s'il
-  // y a eu un changement (évite un delete+recreate inutile quand on ne touche à rien).
-  const initialRef = useRef(null);
-  if (initialRef.current === null) initialRef.current = JSON.stringify({ sessions, weeks });
-
   // Construit la liste à persister : seules les séances "complètes" (avec exercices)
   // entrent dans le programme — une séance non vérifiée/vide n'y apparaît pas.
+  // Pour comparer (a-t-on changé ?) on ne garde que les champs réellement enregistrés
+  // → ignore les redondances de l'état brut (content vs exercices, _id, durée stockée…).
   const buildPersistList = () => sessions
     .map(s => {
       const exs = s.exercises?.length ? s.exercises : parseExercises(s.content || '');
-      return { ...s, exercises: exs, estimated_duration: calcDuration(exs) };
+      return {
+        label: s.label || '', day: s.day, order: s.order, type: s.type,
+        exercises: exs, estimated_duration: calcDuration(exs),
+      };
     })
     .filter(s => s.exercises.length > 0);
+
+  // Sauvegarde à la fermeture : on capture l'instantané de ce qui SERAIT enregistré,
+  // pour ne persister que s'il y a un vrai changement (pas de delete+recreate inutile).
+  const initialRef = useRef(null);
+  if (initialRef.current === null) initialRef.current = JSON.stringify({ list: buildPersistList(), weeks });
 
   // Appelé à la fermeture : persiste tout si quelque chose a changé, en affichant
   // un chargement → on ne rouvre le programme qu'une fois la mise à jour terminée
   // (l'utilisateur voit un programme propre, pas le delete+recreate en cours).
   const handleClose = async () => {
     if (saving) return;
-    const changed = initialRef.current !== JSON.stringify({ sessions, weeks });
+    const changed = initialRef.current !== JSON.stringify({ list: buildPersistList(), weeks });
     if (changed) {
       setSaving(true);
       try { await onPersist?.(buildPersistList(), weeks); } catch {}

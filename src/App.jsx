@@ -162,11 +162,8 @@ const AuthenticatedApp = () => {
             @keyframes splash-glow { 0%, 100% { box-shadow: 0 0 30px rgba(124,58,237,0.5); } 50% { box-shadow: 0 0 60px rgba(124,58,237,0.9), 0 0 100px rgba(168,85,247,0.4); } }
             @keyframes splash-fade { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
           `}</style>
-          <img src="/apple-touch-icon.png" alt="Coach IA" style={{ width: 100, height: 100, borderRadius: 24, animation: 'splash-glow 2s ease-in-out infinite' }} />
-          <div style={{ textAlign: 'center', animation: 'splash-fade 0.5s ease 0.2s both' }}>
-            <p style={{ color: 'white', fontSize: 24, fontWeight: 800, margin: 0, letterSpacing: '-0.3px' }}>Coach IA</p>
-            <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 13, margin: '4px 0 0' }}>Ton assistant entraînement</p>
-          </div>
+          <img src="/logo-complet.png" alt="Coach IA — Ton assistant entraînement"
+            style={{ width: 300, maxWidth: '78vw', animation: 'splash-fade 0.5s ease both' }} />
         </div>
       )}
     </>

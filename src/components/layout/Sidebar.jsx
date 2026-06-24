@@ -56,9 +56,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
       {/* Logo */}
       <div className="h-16 flex items-center px-4 border-b border-violet-900">
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className="w-9 h-9 rounded-xl bg-violet-400 flex items-center justify-center flex-shrink-0">
-            <Dumbbell className="w-5 h-5 text-white" />
-          </div>
+          <img src="/robotapp.png" alt="Coach IA" className="w-9 h-9 rounded-xl object-cover flex-shrink-0" />
           {!collapsed && (
             <motion.span
               initial={{ opacity: 0 }}

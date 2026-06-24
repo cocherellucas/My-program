@@ -469,7 +469,7 @@ export default function CoachIA() {
 
       {importing && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4" style={{ background: 'linear-gradient(160deg, #2e1065 0%, #1e0050 100%)' }}>
-          <img src="/apple-touch-icon.png" alt="Coach IA" style={{ width: 72, height: 72, borderRadius: 18, animation: 'splash-glow 2s ease-in-out infinite' }} />
+          <img src="/robotapp.png" alt="Coach IA" style={{ width: 72, height: 72, borderRadius: 18, objectFit: 'cover', animation: 'splash-glow 2s ease-in-out infinite' }} />
           <div className="text-center space-y-1">
             <p className="text-white font-bold text-base">Import en cours…</p>
             <p className="text-white/40 text-sm">Création des séances</p>

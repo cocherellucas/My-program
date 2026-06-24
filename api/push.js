@@ -22,7 +22,7 @@ export default async function handler(req, res) {
       JSON.stringify({
         title: '💪 C\'est parti !',
         body: 'Temps de repos terminé — reprends la séance !',
-        icon: '/apple-touch-icon.png',
+        icon: '/iconapp.png',
         vibrate: [200, 100, 200, 100, 400],
         requireInteraction: true,
       }),
