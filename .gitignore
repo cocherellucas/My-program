@@ -32,3 +32,5 @@ dist-ssr
 
 desktop.ini
 **/desktop.ini
+public/Capture*
+*.tmp
