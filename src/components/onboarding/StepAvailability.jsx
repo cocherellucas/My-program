@@ -107,7 +107,7 @@ export default function StepAvailability({ data, onChange }) {
         <div className="p-4 rounded-xl border border-white/20 bg-white/5 space-y-2">
           <div className="flex items-center gap-1.5">
             <div className="flex items-center gap-1">
-            <p className="text-sm font-semibold text-white">Disponibilités optimales</p>
+            <p className="text-sm font-semibold text-white">Disponibilités optimales <span className="text-red-400">*</span></p>
           </div>
             <Popover>
               <PopoverTrigger asChild>

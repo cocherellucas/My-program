@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Save, Loader2, User, Ruler, Dumbbell, Calendar, LogOut, Target, SlidersHorizontal, CheckCircle2, RefreshCw } from 'lucide-react';
 import { normalizeUser } from '@/lib/utils';
+import { estimateMaintenanceCalories } from '@/lib/calories';
 
 // Champs dont le changement nécessite une régénération du programme
 const PROGRAM_IMPACTING_FIELDS = [
@@ -184,6 +185,25 @@ export default function Profile() {
                 <NumInput value={form.weight} onChange={(v) => update('weight', v === '' ? '' : parseFloat(v))} min={20} max={300} step={0.5} defaultValue={70} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
               </div>
             </div>
+            {(() => {
+              const days = Array.isArray(form.available_days)
+                ? form.available_days.length
+                : (() => { try { const p = JSON.parse(form.available_days || '[]'); return Array.isArray(p) ? p.length : 0; } catch { return 0; } })();
+              const cal = estimateMaintenanceCalories({
+                gender: form.gender, age: form.age, height: form.height, weight: form.weight,
+                trainingDays: days || form.frequency_max || null,
+              });
+              if (!cal) return null;
+              return (
+                <div className="p-3 rounded-xl bg-white/10 border border-white/15">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-medium text-white">Maintien calorique estimé</span>
+                    <span className="text-lg font-bold text-white whitespace-nowrap">~{cal.maintenance} kcal/j</span>
+                  </div>
+                  <p className="text-[11px] text-white/45 mt-1 leading-snug">Estimation (Mifflin-St Jeor) selon ton profil et ton activité. À ajuster selon tes résultats réels.</p>
+                </div>
+              );
+            })()}
           </Card>
         </TabsContent>
 

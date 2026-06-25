@@ -44,6 +44,13 @@ export default function Onboarding() {
   const [saving, setSaving] = useState(false);
   const [stepError, setStepError] = useState('');
   const [showFinalChoice, setShowFinalChoice] = useState(false);
+  // Un programme actif existe déjà (ex: import préalable) → on ne propose plus d'importer
+  const [hasProgram, setHasProgram] = useState(false);
+  useEffect(() => {
+    base44.entities.Program.filter({ status: 'active' }, '-created_date', 1)
+      .then(progs => setHasProgram((progs || []).length > 0))
+      .catch(() => {});
+  }, []);
   const [showWelcome, setShowWelcome] = useState(() => {
     // ?skipIntro → on saute la présentation et on va direct au formulaire
     // (ex: "Compléter mon profil" depuis le Profil après un import)
@@ -80,6 +87,17 @@ export default function Onboarding() {
         setStepError('Ajoute au moins un objectif pour continuer.');
         return false;
       }
+      // Chaque objectif doit avoir un type ET une cible ("Sur quoi ?")
+      if (data.objectives.some(o => !o.type || !o.zone)) {
+        setStepError('Choisis un objectif et une cible ("Sur quoi ?") pour chaque objectif.');
+        return false;
+      }
+      // Cible "groupe spécifique" → au moins un groupe musculaire sélectionné
+      if (data.objectives.some(o => o.zone === 'specific_group'
+        && !((Array.isArray(o.focus_group) ? o.focus_group.length : (o.focus_group || '').trim())))) {
+        setStepError('Sélectionne au moins un groupe musculaire pour ta cible.');
+        return false;
+      }
       // Vérifier les conflits de muscles entre objectifs specific_group du même type
       const specificObjs = data.objectives.filter(o => o.zone === 'specific_group' && Array.isArray(o.focus_group));
       for (let i = 0; i < specificObjs.length; i++) {
@@ -97,6 +115,10 @@ export default function Onboarding() {
     }
     // Étape 2 : Disponibilités
     if (step === 2) {
+      if (data.availability_optimal !== true && data.availability_optimal !== false) {
+        setStepError('Indique si tu es libre pour un programme optimisé (Oui / Non).');
+        return false;
+      }
       if (data.availability_optimal !== true && !data.available_days?.length) {
         setStepError('Sélectionne au moins un jour d\'entraînement.');
         return false;
@@ -208,7 +230,8 @@ export default function Onboarding() {
     }
   };
 
-  const finish = () => saveAndNavigate('/program?configureProgram=true');
+  // Si un programme existe déjà → on passe par la modale "sauvegarder / supprimer puis générer"
+  const finish = () => saveAndNavigate(hasProgram ? '/program?regenGate=true' : '/program?configureProgram=true');
   const finishAndImport = (programText) => saveAndNavigate('/coach', { importText: programText });
 
   const steps = [
@@ -303,13 +326,23 @@ export default function Onboarding() {
       onClose={() => setShowFinalChoice(false)}
       onGenerate={finish}
       onImport={finishAndImport}
+      hasProgram={hasProgram}
+      onBackToApp={async () => {
+        // Profil déjà complété + programme existant → on marque l'onboarding fini et on retourne à l'app
+        setSaving(true);
+        try {
+          await base44.auth.updateMe({ onboarding_completed: true, onboarding_step: TOTAL_STEPS });
+          localStorage.removeItem(STORAGE_KEY);
+          navigate('/program');
+        } finally { setSaving(false); }
+      }}
       saving={saving}
     />
   </>
   );
 }
 
-function FinalChoiceSheet({ show, onClose, onGenerate, onImport, saving }) {
+function FinalChoiceSheet({ show, onClose, onGenerate, onImport, hasProgram, onBackToApp, saving }) {
   const [importMode, setImportMode] = React.useState(false);
   const [text, setText] = React.useState('');
 
@@ -329,7 +362,7 @@ function FinalChoiceSheet({ show, onClose, onGenerate, onImport, saving }) {
           <>
             <div className="text-center mb-2">
               <p className="text-white font-bold text-lg">Ton profil est prêt !</p>
-              <p className="text-white/50 text-sm mt-1">Plus qu'une étape — comment on commence ?</p>
+              <p className="text-white/50 text-sm mt-1">{hasProgram ? 'Tu as déjà un programme importé.' : 'Plus qu\'une étape — comment on commence ?'}</p>
             </div>
             <button type="button" onClick={onGenerate} disabled={saving}
               className="w-full flex items-center gap-4 p-4 rounded-2xl bg-white text-violet-700 hover:bg-white/90 shadow-xl transition-all disabled:opacity-50">
@@ -338,25 +371,41 @@ function FinalChoiceSheet({ show, onClose, onGenerate, onImport, saving }) {
               </div>
               <div className="text-left">
                 <p className="font-bold text-sm">Créer mon programme</p>
-                <p className="text-xs text-violet-500 mt-0.5">L'IA génère un programme sur mesure</p>
+                <p className="text-xs text-violet-500 mt-0.5">{hasProgram ? 'Remplace ton programme actuel' : 'L\'IA génère un programme sur mesure'}</p>
               </div>
               {saving ? <Loader2 className="w-4 h-4 ml-auto animate-spin" /> : <ArrowRight className="w-4 h-4 ml-auto" />}
             </button>
-            <button type="button" onClick={() => setImportMode(true)} disabled={saving}
-              className="w-full flex items-center gap-4 p-4 rounded-2xl bg-white/10 border border-white/20 text-white hover:bg-white/15 transition-all disabled:opacity-50">
-              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
-                <FolderUp className="w-5 h-5 text-white/80" />
-              </div>
-              <div className="text-left">
-                <p className="font-bold text-sm">Importer un programme</p>
-                <p className="text-xs text-white/50 mt-0.5">Colle ton programme existant</p>
-              </div>
-              <ArrowRight className="w-4 h-4 ml-auto text-white/40" />
-            </button>
-            <button type="button" onClick={onClose}
-              className="w-full py-3 text-sm text-white/40 hover:text-white/60 transition-colors">
-              Annuler
-            </button>
+            {hasProgram ? (
+              <button type="button" onClick={onBackToApp} disabled={saving}
+                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-white/10 border border-white/20 text-white hover:bg-white/15 transition-all disabled:opacity-50">
+                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
+                  <ArrowRight className="w-5 h-5 text-white/80" />
+                </div>
+                <div className="text-left">
+                  <p className="font-bold text-sm">Retour sur l'app</p>
+                  <p className="text-xs text-white/50 mt-0.5">Garde ton programme importé</p>
+                </div>
+                {saving && <Loader2 className="w-4 h-4 ml-auto animate-spin" />}
+              </button>
+            ) : (
+              <>
+                <button type="button" onClick={() => setImportMode(true)} disabled={saving}
+                  className="w-full flex items-center gap-4 p-4 rounded-2xl bg-white/10 border border-white/20 text-white hover:bg-white/15 transition-all disabled:opacity-50">
+                  <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
+                    <FolderUp className="w-5 h-5 text-white/80" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-bold text-sm">Importer un programme</p>
+                    <p className="text-xs text-white/50 mt-0.5">Colle ton programme existant</p>
+                  </div>
+                  <ArrowRight className="w-4 h-4 ml-auto text-white/40" />
+                </button>
+                <button type="button" onClick={onClose}
+                  className="w-full py-3 text-sm text-white/40 hover:text-white/60 transition-colors">
+                  Annuler
+                </button>
+              </>
+            )}
           </>
         ) : (
           <>

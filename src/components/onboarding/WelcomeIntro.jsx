@@ -200,17 +200,18 @@ export default function WelcomeIntro({ onFinish, onImport }) {
             className="w-full max-w-md flex flex-col items-center text-center">
 
             {current.type === 'emoji' && (
-              <motion.div
+              <motion.img
+                src="/robotapp.png"
+                alt="Coach IA"
                 initial={{ scale: 0.5, rotate: -10 }}
                 animate={{ scale: 1, rotate: 0, y: [0, -8, 0] }}
                 transition={{
                   scale: { type: 'spring', stiffness: 300, damping: 15 },
                   y: { repeat: Infinity, duration: 2.6, ease: 'easeInOut' },
                 }}
-                className="text-8xl mb-8"
-                style={{ filter: 'drop-shadow(0 8px 20px rgba(167,139,250,0.5))' }}>
-                {current.emoji}
-              </motion.div>
+                className="w-32 h-32 rounded-3xl object-cover mb-8"
+                style={{ filter: 'drop-shadow(0 8px 20px rgba(167,139,250,0.5))' }}
+              />
             )}
 
             {current.type === 'chart' && (
