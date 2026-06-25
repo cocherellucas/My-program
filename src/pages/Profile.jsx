@@ -8,7 +8,8 @@ import { Label } from '@/components/ui/label';
 import { NumInput } from '@/components/ui/num-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Save, Loader2, User, Ruler, Dumbbell, Calendar, LogOut, Target, SlidersHorizontal, CheckCircle2, RefreshCw } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Save, Loader2, User, Ruler, Dumbbell, Calendar, LogOut, Target, SlidersHorizontal, CheckCircle2, RefreshCw, HelpCircle } from 'lucide-react';
 import { normalizeUser } from '@/lib/utils';
 import { estimateMaintenanceCalories } from '@/lib/calories';
 
@@ -160,6 +161,17 @@ export default function Profile() {
 
         <TabsContent value="basics">
           <Card className="p-6 space-y-4 bg-white/15 backdrop-blur-sm border-white/20">
+            <div className="space-y-2">
+              <Label className="text-white">Genre</Label>
+              <div className="grid grid-cols-2 gap-3">
+                {[{ value: 'male', label: 'Homme' }, { value: 'female', label: 'Femme' }].map(({ value, label }) => (
+                  <button key={value} type="button" onClick={() => update('gender', value)}
+                    className={`py-2.5 rounded-xl border-2 text-sm font-semibold transition-all ${form.gender === value ? 'border-white bg-white/20 text-white' : 'border-white/20 bg-white/10 text-white/50 hover:border-white/40'}`}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-white">Âge</Label>
@@ -184,6 +196,50 @@ export default function Profile() {
                 <Label className="text-white">Poids (kg)</Label>
                 <NumInput value={form.weight} onChange={(v) => update('weight', v === '' ? '' : parseFloat(v))} min={20} max={300} step={0.5} defaultValue={70} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
               </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-1.5">
+                  <Label className="text-white">Activité</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button type="button" className="text-white/40 hover:text-white/70 transition-colors"><HelpCircle className="w-3.5 h-3.5" /></button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-72 text-xs space-y-1.5">
+                      <p className="text-white/60 text-[10px] uppercase tracking-wider font-semibold">Ton activité globale (pas que la muscu)</p>
+                      <p><span className="font-semibold">Sédentaire</span> — travail assis, peu de marche, peu/pas de sport.</p>
+                      <p><span className="font-semibold">Légèrement actif</span> — un peu de marche au quotidien, ou 1-2 séances/sem.</p>
+                      <p><span className="font-semibold">Modérément actif</span> — debout/marche dans la journée, ou 3-4 séances/sem.</p>
+                      <p><span className="font-semibold">Très actif</span> — métier physique, ou 5-6 séances/sem.</p>
+                      <p><span className="font-semibold">Extrêmement actif</span> — métier très physique + entraînement quasi quotidien.</p>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <Select value={form.activity_level || ''} onValueChange={(v) => update('activity_level', v)}>
+                  <SelectTrigger className="bg-white/10 border-white/20 text-white [&>span]:text-white [&>span[data-placeholder]]:text-white/50 [&>svg]:opacity-100 [&>svg]:text-white"><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sedentary">Sédentaire</SelectItem>
+                    <SelectItem value="light">Légèrement actif</SelectItem>
+                    <SelectItem value="moderate">Modérément actif</SelectItem>
+                    <SelectItem value="active">Très actif</SelectItem>
+                    <SelectItem value="very_active">Extrêmement actif</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-1.5">
+                  <Label className="text-white">Masse grasse (%)</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button type="button" className="text-white/40 hover:text-white/70 transition-colors"><HelpCircle className="w-3.5 h-3.5" /></button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-72 text-xs space-y-1.5">
+                      <p className="font-semibold text-white">Ton pourcentage de masse grasse</p>
+                      <p className="text-white/70">Si tu ne le connais pas : balance à impédance, pince à plis cutanés, ou estimation visuelle (photos de référence en ligne).</p>
+                      <p className="text-white/70">Renseigné → calcul du maintien plus précis (Katch-McArdle). Laisse vide si tu n'es pas sûr.</p>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <NumInput value={form.body_fat} onChange={(v) => update('body_fat', v === '' ? '' : parseFloat(v))} min={3} max={60} step={0.5} defaultValue={15} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
+              </div>
             </div>
             {(() => {
               const days = Array.isArray(form.available_days)
@@ -192,6 +248,8 @@ export default function Profile() {
               const cal = estimateMaintenanceCalories({
                 gender: form.gender, age: form.age, height: form.height, weight: form.weight,
                 trainingDays: days || form.frequency_max || null,
+                bodyFat: form.body_fat,
+                activityLevel: form.activity_level,
               });
               if (!cal) return null;
               return (
@@ -200,7 +258,11 @@ export default function Profile() {
                     <span className="text-sm font-medium text-white">Maintien calorique estimé</span>
                     <span className="text-lg font-bold text-white whitespace-nowrap">~{cal.maintenance} kcal/j</span>
                   </div>
-                  <p className="text-[11px] text-white/45 mt-1 leading-snug">Estimation (Mifflin-St Jeor) selon ton profil et ton activité. À ajuster selon tes résultats réels.</p>
+                  <p className="text-[11px] text-white/45 mt-1 leading-snug">
+                    {cal.method === 'katch'
+                      ? 'Estimation (Katch-McArdle, basée sur ta masse grasse) selon ton activité. À ajuster selon tes résultats.'
+                      : 'Estimation (Mifflin-St Jeor) selon ton profil et ton activité. Renseigne ta masse grasse pour plus de précision.'}
+                  </p>
                 </div>
               );
             })()}
