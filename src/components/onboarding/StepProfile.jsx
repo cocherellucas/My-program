@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTutorial } from '@/lib/TutorialContext';
 import { Label } from '@/components/ui/label';
 import { NumInput } from '@/components/ui/num-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { HelpCircle } from 'lucide-react';
+import { HelpCircle, ChevronDown } from 'lucide-react';
+import { estimateMaintenanceCalories } from '@/lib/calories';
 
 // min / max / pas / valeur de départ des flèches — mêmes réglages partout
 const FIELDS = {
@@ -15,6 +16,7 @@ const FIELDS = {
 
 export default function StepProfile({ data, onChange }) {
   const { startTutorial } = useTutorial() || {};
+  const [showMaintenance, setShowMaintenance] = useState(false);
 
   // Démarre les tutos pour cette étape (icône ?, input numérique, dropdown)
   useEffect(() => {
@@ -70,7 +72,7 @@ export default function StepProfile({ data, onChange }) {
     );
     return (
       <div className="space-y-2">
-        <Label className="text-white">{labelText}</Label>
+        <div className="flex items-center gap-1.5 min-h-[20px]"><Label className="text-white">{labelText}</Label></div>
         {field === 'age' ? <div data-tutorial="numeric-input">{node}</div> : node}
       </div>
     );
@@ -97,11 +99,11 @@ export default function StepProfile({ data, onChange }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div className="grid grid-cols-2 gap-4">
         {numInput('age')}
 
         <div className="space-y-2">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 min-h-[20px]">
             <Label className="text-white">Niveau <span className="text-red-400">*</span></Label>
             <Popover>
               <PopoverTrigger asChild>
@@ -139,7 +141,79 @@ export default function StepProfile({ data, onChange }) {
 
         {numInput('height')}
         {numInput('weight')}
+
+        <div className="space-y-2">
+          <div className="flex items-center gap-1.5 min-h-[20px]">
+            <Label className="text-white">Activité</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button type="button" className="text-white/40 hover:text-white/70 transition-colors"><HelpCircle className="w-3.5 h-3.5" /></button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72 text-xs space-y-1.5">
+                <p className="text-white/60 text-[10px] uppercase tracking-wider font-semibold">Ton activité globale (pas que la muscu)</p>
+                <p><span className="font-semibold">Sédentaire</span> — travail assis, peu de marche.</p>
+                <p><span className="font-semibold">Légèrement actif</span> — un peu de marche, ou 1-2 séances/sem.</p>
+                <p><span className="font-semibold">Modérément actif</span> — debout/marche, ou 3-4 séances/sem.</p>
+                <p><span className="font-semibold">Très actif</span> — métier physique, ou 5-6 séances/sem.</p>
+                <p><span className="font-semibold">Extrêmement actif</span> — très physique + entraînement quasi quotidien.</p>
+              </PopoverContent>
+            </Popover>
+          </div>
+          <Select value={data.activity_level || ''} onValueChange={(v) => onChange({ activity_level: v })}>
+            <SelectTrigger className="bg-white/20 border-white/40 text-white [&>span]:text-white [&>span[data-placeholder]]:text-white/50 [&>svg]:opacity-100 [&>svg]:text-white"><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="sedentary">Sédentaire</SelectItem>
+              <SelectItem value="light">Légèrement actif</SelectItem>
+              <SelectItem value="moderate">Modérément actif</SelectItem>
+              <SelectItem value="active">Très actif</SelectItem>
+              <SelectItem value="very_active">Extrêmement actif</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center gap-1.5 min-h-[20px]">
+            <Label className="text-white">Masse grasse (%)</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button type="button" className="text-white/40 hover:text-white/70 transition-colors"><HelpCircle className="w-3.5 h-3.5" /></button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72 text-xs space-y-1.5">
+                <p className="font-semibold text-white">Ton pourcentage de masse grasse</p>
+                <p className="text-white/70">Si tu ne le connais pas : balance à impédance, pince à plis cutanés, ou estimation visuelle. Laisse vide si tu n'es pas sûr.</p>
+              </PopoverContent>
+            </Popover>
+          </div>
+          <NumInput value={data.body_fat} onChange={(v) => onChange({ body_fat: v === '' ? '' : parseFloat(v) })} min={3} max={60} step={0.5} defaultValue={15} className="bg-white/20 border-white/40 text-white placeholder:text-white/50" />
+        </div>
       </div>
+
+      {(() => {
+        const cal = estimateMaintenanceCalories({
+          gender: data.gender, age: data.age, height: data.height, weight: data.weight,
+          bodyFat: data.body_fat, activityLevel: data.activity_level,
+        });
+        if (!cal) return null;
+        return (
+          <div className="rounded-xl bg-white/10 border border-white/20 overflow-hidden">
+            <button type="button" onClick={() => setShowMaintenance(v => !v)}
+              className="w-full flex items-center justify-between gap-2 p-3 text-left hover:bg-white/5 transition-colors">
+              <span className="text-sm font-medium text-white">Maintien calorique estimé</span>
+              <span className="flex items-center gap-1.5 text-white/90 font-semibold whitespace-nowrap">
+                {showMaintenance ? `~${cal.maintenance} kcal/j` : 'Voir'}
+                <ChevronDown className={`w-4 h-4 transition-transform ${showMaintenance ? 'rotate-180' : ''}`} />
+              </span>
+            </button>
+            {showMaintenance && (
+              <p className="text-[11px] text-white/50 px-3 pb-3 leading-snug">
+                {cal.method === 'katch'
+                  ? 'Estimation (Katch-McArdle, basée sur ta masse grasse) selon ton activité. À ajuster selon tes résultats.'
+                  : 'Estimation (Mifflin-St Jeor). Renseigne ta masse grasse pour plus de précision.'}
+              </p>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }

@@ -22,6 +22,16 @@ export default function Login() {
     });
   }, [navigate]);
 
+  // Synchronise le fond body/html avec le violet de la page (évite la bande sombre à l'overscroll)
+  useEffect(() => {
+    document.body.classList.add('login-active');
+    document.documentElement.classList.add('login-active');
+    return () => {
+      document.body.classList.remove('login-active');
+      document.documentElement.classList.remove('login-active');
+    };
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);

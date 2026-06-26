@@ -139,9 +139,12 @@ button:focus, button:focus-visible {
   html {
     background-color: #7c3aed;
   }
-  /* Onboarding : fond violet-800 (#5b21b6) pour matcher la page */
+  /* Onboarding & Login : fond violet-800 (#5b21b6) pour matcher la page
+     (évite la bande sombre du body lors de l'overscroll/rebond) */
   html.onboarding-active,
-  body.onboarding-active {
+  body.onboarding-active,
+  html.login-active,
+  body.login-active {
     background-color: #5b21b6 !important;
   }
 }
