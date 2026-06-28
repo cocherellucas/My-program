@@ -27,6 +27,16 @@ const isBodyweightExercise = (name) => {
   return ex ? ex.equipmentOptions?.every(opt => opt.length === 0) : false;
 };
 
+// Bornes "atteint" d'un objectif de reps :
+//  • plage "8-12"     → { low: 8,  high: 12 } (en dessous = non atteint, au-dessus = dépassé)
+//  • chiffre précis "10" → tolérance ±2 → { low: 8, high: 12 }
+const parseRepRange = (targetReps) => {
+  const nums = String(targetReps || '').split(/[-–]/).map(p => parseInt(p, 10)).filter(n => !isNaN(n));
+  if (nums.length >= 2) return { low: Math.min(nums[0], nums[1]), high: Math.max(nums[0], nums[1]) };
+  if (nums.length === 1) return { low: Math.max(1, nums[0] - 2), high: nums[0] + 2 };
+  return { low: 0, high: 0 };
+};
+
 // Noms d'affichage des zones fragiles
 const ZONE_LABELS = {
   wrists: 'Poignets', shoulders: 'Épaules', elbows: 'Coudes',
@@ -188,10 +198,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 
   // Calcul objectifs dépassés (hors motion.div pour fixed positioning)
   const goodAboveSeries = (() => {
-    const targetRepsStr = exercise.target_reps || '';
-    const parts = targetRepsStr.split('-');
-    const targetLow = parseInt(parts[0]) || 0;
-    const targetHigh = parseInt(parts[1]) || targetLow;
+    const { high: targetHigh } = parseRepRange(exercise.target_reps);
     let count = 0;
     for (let s = 0; s < sets; s++) {
       const l = logs[`${exIdx}-${s}`] || {};
@@ -213,7 +220,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 
   // Séries en-dessous de la cible (reps trop basses ou exécution dégradée)
   const { badSeries, filledSeries } = (() => {
-    const targetLow = parseInt((exercise.target_reps || '').split('-')[0]) || 0;
+    const { low: targetLow } = parseRepRange(exercise.target_reps);
     let bad = 0, filled = 0;
     for (let s = 0; s < sets; s++) {
       const l = logs[`${exIdx}-${s}`] || {};
