@@ -122,15 +122,58 @@ export default function Program() {
       return;
     }
     try {
-      const existing = await base44.entities.Session.filter({ program_id: activeProgram.id, week_number: 1 });
+      const all = await base44.entities.Session.filter({ program_id: activeProgram.id });
       const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
-      const formatted = existing
-        .sort((a, b) => new Date(a.planned_date) - new Date(b.planned_date))
+      const todayStr = new Date().toISOString().split('T')[0];
+      // On veut UNE séance par créneau (même intitulé + même jour de semaine) :
+      // la prochaine séance planifiée à venir en priorité, sinon la plus récente.
+      // → corrige les doublons (séance complétée + recréée le même jour).
+      const bySlot = new Map();
+      for (const s of all) {
+        if (!s.planned_date) continue;
+        const dow = new Date(s.planned_date + 'T12:00:00').getDay();
+        const key = (s.day_label || '').trim().toLowerCase() + '::' + dow;
+        const isUpcoming = s.status === 'planned' && s.planned_date >= todayStr;
+        const cur = bySlot.get(key);
+        if (!cur) { bySlot.set(key, s); continue; }
+        const curUpcoming = cur.status === 'planned' && cur.planned_date >= todayStr;
+        if (isUpcoming && !curUpcoming) bySlot.set(key, s);
+        else if (isUpcoming && curUpcoming) { if (s.planned_date < cur.planned_date) bySlot.set(key, s); }
+        else if (!isUpcoming && !curUpcoming) { if (s.planned_date > cur.planned_date) bySlot.set(key, s); }
+      }
+      // Référence de poids affichée = poids de la DERNIÈRE SÉRIE COMPLÉTÉE de chaque
+      // exercice (lu dans les logs de séance), et non le poids planifié d'origine.
+      const refWeight = {}; // nom d'exo -> dernier poids soulevé (> 0)
+      try {
+        const sessionDate = {};
+        all.forEach(s => { sessionDate[s.id] = s.actual_date || s.planned_date || ''; });
+        const progSessionIds = new Set(all.map(s => s.id));
+        const userLogs = await base44.entities.SeriesLog.filter({ user_id: activeProgram.user_id });
+        const best = {}; // nom -> { date, setNumber }
+        for (const l of userLogs) {
+          if (!progSessionIds.has(l.session_id)) continue;
+          if (!l.weight || Number(l.weight) <= 0) continue;
+          const date = sessionDate[l.session_id] || '';
+          const setN = l.set_number || 0;
+          const cur = best[l.exercise_name];
+          if (!cur || date > cur.date || (date === cur.date && setN >= cur.setNumber)) {
+            best[l.exercise_name] = { date, setNumber: setN };
+            refWeight[l.exercise_name] = Number(l.weight);
+          }
+        }
+      } catch (e) { console.error('ref weight lookup', e); }
+
+      const monFirst = d => (new Date(d + 'T12:00:00').getDay() + 6) % 7;
+      const formatted = Array.from(bySlot.values())
+        .sort((a, b) => monFirst(a.planned_date) - monFirst(b.planned_date) || (a.planned_date < b.planned_date ? -1 : 1))
         .map(s => ({
           label: s.day_label || '',
           day: s.planned_date ? dayNames[new Date(s.planned_date + 'T12:00:00').getDay()] : 'monday',
-          exercises: s.exercises || [],
-          content: (s.exercises || []).map(e => `${e.sets || 3}×${e.target_reps || 10} ${e.name}${e.target_weight ? ` (${e.target_weight}${e.weight_unit || 'kg'})` : ''} ${e.rest_seconds || 90}s`).join('\n'),
+          exercises: (s.exercises || []).map(e => refWeight[e.name] != null ? { ...e, target_weight: refWeight[e.name] } : e),
+          content: (s.exercises || []).map(e => {
+            const w = refWeight[e.name] != null ? refWeight[e.name] : e.target_weight;
+            return `${e.sets || 3}×${e.target_reps || 10} ${e.name}${w ? ` (${w}${e.weight_unit || 'kg'})` : ''} ${e.rest_seconds || 90}s`;
+          }).join('\n'),
           type: s.type || 'mixed',
           estimated_duration: s.estimated_duration || calcDuration(s.exercises || []),
         }));
@@ -163,7 +206,6 @@ export default function Program() {
         return;
       }
       const CYCLE_WEEKS = targetWeeks === 'infinite' ? 52 : (targetWeeks || 4);
-      const isInfinite = targetWeeks === 'infinite';
       const dayMap = { monday:0, tuesday:1, wednesday:2, thursday:3, friday:4, saturday:5, sunday:6 };
       const today = new Date(); today.setHours(0,0,0,0);
       const thisMon = new Date(today);
@@ -199,20 +241,22 @@ export default function Program() {
         editedSessions.map(s => ({ ...s, week_number: i + 1 }))
       ).flat().filter(s => s.week_number <= CYCLE_WEEKS);
 
+      // Ne rien planifier dans le passé : on décale tout le programme par semaines
+      // entières jusqu'à ce que la TOUTE PREMIÈRE séance tombe aujourd'hui ou après
+      // (décalage uniforme → l'ordre des séances est préservé).
+      const minDayOffset = Math.min(...editedSessions.map(s => dayMap[s.day?.toLowerCase()] ?? 0));
+      const startMon = new Date(thisMon);
+      for (;;) {
+        const firstD = new Date(startMon); firstD.setDate(startMon.getDate() + minDayOffset);
+        if (firstD >= today) break;
+        startMon.setDate(startMon.getDate() + 7);
+      }
+
       for (const s of expanded) {
         const dayOffset = dayMap[s.day?.toLowerCase()] ?? 0;
         const weekNum = (s.week_number || 1) - 1;
-        let d;
-        if (isInfinite) {
-          d = new Date(thisMon);
-          d.setDate(thisMon.getDate() + dayOffset + weekNum * 7);
-        } else {
-          const first = new Date(thisMon);
-          first.setDate(thisMon.getDate() + dayOffset);
-          if (first < today) first.setDate(first.getDate() + 7);
-          d = new Date(first);
-          d.setDate(first.getDate() + weekNum * 7);
-        }
+        const d = new Date(startMon);
+        d.setDate(startMon.getDate() + dayOffset + weekNum * 7);
         await base44.entities.Session.create({
           user_id: program.user_id,
           program_id: program.id,
@@ -336,6 +380,13 @@ export default function Program() {
     queryKey: ['program-sessions', activeProgram?.id],
     queryFn: () => base44.entities.Session.filter({ program_id: activeProgram.id }, 'planned_date'),
     enabled: !!activeProgram,
+  });
+
+  // Programmes déjà en Bibliothèque (pour ne pas reproposer d'enregistrer un programme identique)
+  const { data: savedPrograms = [] } = useQuery({
+    queryKey: ['saved-programs'],
+    queryFn: () => base44.entities.SavedProgram.filter({ user_id: user.id }),
+    enabled: !!user,
   });
 
   // Auto-ouverture du dialog d'import après onboarding
@@ -704,6 +755,21 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
   const canGenerate = subscriptionPlan !== 'starter'; // "Générer" réservé aux plans > Starter
   const programFinished = !!activeProgram && !programIsInfinite && sessions.length > 0 && sessions.every(isPast);
 
+  // Signature du contenu d'un programme (séances distinctes : jour + exercices) → pour
+  // détecter qu'un programme identique est déjà enregistré en Bibliothèque.
+  const programSignature = (sessList) => {
+    const set = new Set((sessList || []).map(s => {
+      const exs = (s.exercises || [])
+        .map(e => `${(e.name || '').trim().toLowerCase()}|${e.sets}|${e.target_reps}|${e.rest_seconds}`)
+        .sort().join(';');
+      return `${(s.day_label || s.day || '').trim().toLowerCase()}::${exs}`;
+    }));
+    return [...set].sort().join('||');
+  };
+  const currentSignature = programSignature(sessions);
+  const alreadySavedIdentical = !!currentSignature
+    && savedPrograms.some(sp => programSignature(sp.sessions_templates) === currentSignature);
+
   const weeks = {};
   sessions.forEach(s => {
     const sessionDate = s.planned_date ? new Date(s.planned_date + 'T00:00:00') : null;
@@ -1009,9 +1075,12 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                                    {orderMatch && <span className="text-base">{orderMatch[1] === '1' ? '①' : '②'}</span>}
                                  </>;
                                })()}
-                               <Badge className={`bg-white/20 text-white border-white/20`}>
-                                 {TYPE_LABELS[session.type] || session.type}
-                               </Badge>
+                               {/* Pas de badge de type (Mixte…) sur les séances importées */}
+                               {!isImported(session) && (
+                                 <Badge className={`bg-white/20 text-white border-white/20`}>
+                                   {TYPE_LABELS[session.type] || session.type}
+                                 </Badge>
+                               )}
                                {past && <Badge variant="outline" className="text-xs text-white/50 border-white/20">Passée</Badge>}
                                {session.status === 'completed' && <Badge variant="default" className="text-xs">✓ Fait</Badge>}
                              </div>
@@ -1107,13 +1176,16 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
             </div>
             <div className="space-y-2">
               <div className="grid grid-cols-2 gap-2">
-                <button onClick={alreadySaved ? undefined : saveProgram} disabled={saving || saved || alreadySaved}
-                  className="flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-semibold bg-white text-violet-700 hover:bg-white/90 disabled:opacity-60">
-                  {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : (alreadySaved || saved) ? <BookmarkCheck className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
-                  {(alreadySaved || saved) ? 'Enregistré' : 'Enregistrer'}
-                </button>
+                {/* "Enregistrer" masqué si un programme identique est déjà en Bibliothèque */}
+                {!alreadySavedIdentical && (
+                  <button onClick={alreadySaved ? undefined : saveProgram} disabled={saving || saved || alreadySaved}
+                    className="flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-semibold bg-white text-violet-700 hover:bg-white/90 disabled:opacity-60">
+                    {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : (alreadySaved || saved) ? <BookmarkCheck className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
+                    {(alreadySaved || saved) ? 'Enregistré' : 'Enregistrer'}
+                  </button>
+                )}
                 <button onClick={relaunchSameProgram} disabled={relaunching}
-                  className="flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-semibold bg-white/15 border border-white/25 text-white hover:bg-white/25 disabled:opacity-60">
+                  className={`flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-semibold bg-white/15 border border-white/25 text-white hover:bg-white/25 disabled:opacity-60 ${alreadySavedIdentical ? 'col-span-2' : ''}`}>
                   {relaunching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
                   Relancer le même
                 </button>

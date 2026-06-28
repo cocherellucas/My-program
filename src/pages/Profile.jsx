@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Save, Loader2, User, Ruler, Dumbbell, Calendar, LogOut, Target, SlidersHorizontal, CheckCircle2, RefreshCw, HelpCircle } from 'lucide-react';
 import { normalizeUser } from '@/lib/utils';
+import { useAuth } from '@/lib/AuthContext';
 import { estimateMaintenanceCalories } from '@/lib/calories';
 
 // Champs dont le changement nécessite une régénération du programme
@@ -30,6 +31,7 @@ import SubscriptionBadge from '@/components/profile/SubscriptionBadge';
 export default function Profile() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { user: authUser } = useAuth();
   const [user, setUser] = useState(null);
   const [form, setForm] = useState({});
   const [saving, setSaving] = useState(false);
@@ -46,6 +48,11 @@ export default function Profile() {
       const normalized = normalizeUser(u);
       setUser(normalized);
       setForm(normalized);
+    }).catch(err => {
+      // me() utilise getUser() (validation réseau du token) : peut échouer
+      // transitoirement (ex: juste après un updateMe en onboarding). On évite
+      // la page blanche en repliant sur l'utilisateur déjà chargé par AuthContext.
+      console.error('[Profile] me() a échoué, repli sur AuthContext', err);
     });
     // Si le programme actif est importé, nettoyer tout le contexte de regen
     base44.entities.Program.filter({ status: 'active' }, '-created_date', 1).then(progs => {
@@ -58,6 +65,17 @@ export default function Profile() {
       }
     }).catch(() => {});
   }, []);
+
+  // Repli : si me() n'a pas (encore) abouti mais que le contexte d'auth a déjà
+  // l'utilisateur (chargé via getSession, fiable), on l'utilise pour ne jamais
+  // laisser la page blanche.
+  useEffect(() => {
+    if (!user && authUser) {
+      const normalized = normalizeUser(authUser);
+      setUser(normalized);
+      setForm(normalized);
+    }
+  }, [user, authUser]);
 
   const save = async () => {
     setSaving(true);
@@ -111,7 +129,13 @@ export default function Profile() {
     ? Object.keys(form).some(k => !IGNORED.has(k) && JSON.stringify(normVal(form[k])) !== JSON.stringify(normVal(user[k])))
     : false;
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <Loader2 className="w-6 h-6 animate-spin text-white/60" />
+      </div>
+    );
+  }
 
   // Profil non renseigné (ex: import d'un programme sans avoir fait l'onboarding)
   const profileIncomplete = !user.level;

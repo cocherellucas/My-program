@@ -542,6 +542,15 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
               onAskCoach={onAskCoach ? (painNote, sIdx, thread) => onAskCoach({ exercise: { ...exercise, _sessionIdx: exIdx }, setIdx: sIdx, painNote, thread, logs: Object.fromEntries(Object.entries(logs).filter(([k]) => k.startsWith(`${exIdx}-`))), allLogs: logs, prevLogs: previousLogs, sessionsHistory }) : undefined} />
             
               <div className="space-y-2">
+                {(isLast && setIdx === sets - 1) ? (
+                  // Toute dernière série de la séance → pas de repos, juste valider
+                  <button
+                  onClick={() => { markSetComplete(setIdx); updateLog(exIdx, setIdx, 'done', true); }}
+                  disabled={!isActive}
+                  className="w-full text-xs flex items-center justify-center gap-1 py-1 rounded-lg transition-colors disabled:opacity-0 disabled:pointer-events-none text-white/50 hover:text-white hover:bg-white/10">
+                    <CheckCircle className="w-3 h-3" /> Valider la série
+                  </button>
+                ) : (
                 <button
                 onClick={() => handleSetDone(setIdx)}
                 disabled={!isActive}
@@ -549,6 +558,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 
                   <Timer className="w-3 h-3" /> Lancer le repos
                 </button>
+                )}
                 {setIdx === 0 &&
               <RestTimerControl
                 seconds={currentRestSeconds ?? exercise.rest_seconds ?? 90}
@@ -1684,6 +1694,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
         tempo: log.tempo || null
       });
     }));
+
     await base44.entities.Session.update(session.id, {
       status: 'completed',
       actual_date: new Date().toISOString().split('T')[0],

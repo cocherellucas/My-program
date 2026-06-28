@@ -269,6 +269,10 @@ export default function AppLayout() {
                   // Seule la page active peut scroller — empêche l'inertie de contaminer les pages adjacentes
                   overflowY: idx === currentIdx ? 'auto' : 'hidden',
                   overscrollBehavior: 'contain',
+                  // Scroll vertical natif/instantané (le carrousel gère l'horizontal en JS)
+                  // → corrige le ressenti de "scroll dur" sur les longues listes
+                  touchAction: 'pan-y',
+                  WebkitOverflowScrolling: 'touch',
                 }}
                 // Réserve la place de la mobile nav + safe-area-inset-bottom (notch iPhone)
                 // — mais retire ce padding quand le clavier est ouvert (nav cachée)

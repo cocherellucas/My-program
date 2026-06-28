@@ -45,6 +45,8 @@ function SavedProgramCard({ prog, onDelete, onReapply, isReapplying }) {
   const label = STRUCTURE_LABELS[prog.structure_type];
   const color = STRUCTURE_COLORS[prog.structure_type] || '';
   const sessions = prog.sessions_templates || [];
+  // Programme importé → on ne connaît pas le vrai type des séances, pas de badge (Mixte…)
+  const isImported = prog.weekly_structure === 'custom' || prog.structure_type === 'custom';
 
   return (
     <Card className="p-5 space-y-3 bg-white/15 backdrop-blur-sm border-white/20">
@@ -96,7 +98,7 @@ function SavedProgramCard({ prog, onDelete, onReapply, isReapplying }) {
                       className="w-full px-3 py-2 text-left hover:bg-white/5 transition-colors">
                       <div className="flex items-center justify-between gap-2">
                         <span className="font-medium text-white text-sm truncate flex-1">{s.day_label || s.day}</span>
-                        <Badge className={`text-xs flex-shrink-0 ${TYPE_COLORS[s.type] || 'bg-muted'}`}>{TYPE_LABELS[s.type] || s.type}</Badge>
+                        {!isImported && <Badge className={`text-xs flex-shrink-0 ${TYPE_COLORS[s.type] || 'bg-muted'}`}>{TYPE_LABELS[s.type] || s.type}</Badge>}
                         {(s.exercises?.length > 0) && <ChevronDown className={`w-4 h-4 text-white/50 flex-shrink-0 transition-transform ${openSessions[i] ? 'rotate-180' : ''}`} />}
                       </div>
                       <div className="flex items-center gap-3 mt-1 text-xs text-white/60">
@@ -392,10 +394,23 @@ export default function Library() {
       });
 
       // Recréer les séances depuis les templates
-      const monday = startOfWeek(new Date(), { weekStartsOn: 1 });
       const dayMap = { monday: 0, tuesday: 1, wednesday: 2, thursday: 3, friday: 4, saturday: 5, sunday: 6 };
+      let monday = startOfWeek(new Date(), { weekStartsOn: 1 });
+      // Ne pas replanifier dans le passé : on décale tout le programme par semaines
+      // entières jusqu'à ce que la TOUTE PREMIÈRE séance tombe aujourd'hui ou après.
+      // (décalage uniforme → l'ordre des séances est préservé)
+      const templates = prog.sessions_templates || [];
+      if (templates.length) {
+        const minOffset = Math.min(...templates.map(s =>
+          (((s.week_number || 1) - 1) * 7) + (dayMap[s.day] ?? 0)
+        ));
+        const todayStr = format(new Date(), 'yyyy-MM-dd');
+        while (format(addDays(monday, minOffset), 'yyyy-MM-dd') < todayStr) {
+          monday = addDays(monday, 7);
+        }
+      }
 
-      for (const s of (prog.sessions_templates || [])) {
+      for (const s of templates) {
         const weekNumber = s.week_number || 1;
         const dayOffset = (weekNumber - 1) * 7 + (dayMap[s.day] ?? 0);
         const date = addDays(monday, dayOffset);
