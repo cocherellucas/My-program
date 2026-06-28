@@ -207,7 +207,7 @@ export default function StepProfile({ data, onChange }) {
             {showMaintenance && (
               <p className="text-[11px] text-white/50 px-3 pb-3 leading-snug">
                 {cal.method === 'katch'
-                  ? 'Estimation (Katch-McArdle, basée sur ta masse grasse) selon ton activité. À ajuster selon tes résultats.'
+                  ? 'Estimation (Katch-McArdle, basée sur ta masse maigre et ton activité, ajustée à l\'âge). À ajuster selon tes résultats.'
                   : 'Estimation (Mifflin-St Jeor). Renseigne ta masse grasse pour plus de précision.'}
               </p>
             )}

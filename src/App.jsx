@@ -42,6 +42,7 @@ import Memory from '@/pages/Memory';
 import Pricing from '@/pages/Pricing';
 import AdminPricing from '@/pages/AdminPricing';
 import Library from '@/pages/Library';
+import Settings from '@/pages/Settings';
 import GifCheck from '@/pages/GifCheck';
 import Login from '@/pages/Login';
 
@@ -152,6 +153,7 @@ const AuthenticatedApp = () => {
             <Route path="/gif-check" element={<GifCheck />} />
           </Route>
           <Route path="/pricing" element={<Pricing />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </div>

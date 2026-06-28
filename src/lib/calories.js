@@ -21,6 +21,23 @@ function resolveFactor(activityLevel, trainingDays) {
 }
 
 /**
+ * Ajustement de la dépense énergétique selon l'âge, à masse maigre constante.
+ * D'après Pontzer et al., "Daily energy expenditure through the human life
+ * course", Science 2021 — 4 phases :
+ *   • avant ~20 ans : encore au-dessus du plateau adulte (fin de la décroissance juvénile)
+ *   • ~20 à ~60 ans : plateau stable
+ *   • après ~60 ans : déclin d'environ 0,7 %/an
+ * (utilisé avec Katch-McArdle, qui sinon ignore totalement l'âge)
+ */
+function ageAdjustment(age) {
+  const a = parseFloat(age);
+  if (!a) return 1;
+  if (a < 20) return 1 + 0.01 * (20 - a);      // léger surplus avant le plateau (~+1 %/an, +2 % à 18 ans)
+  if (a <= 60) return 1;                        // plateau 20–60 ans
+  return Math.max(0.7, 1 - 0.007 * (a - 60));   // −0,7 %/an après 60 ans (plancher −30 %)
+}
+
+/**
  * @returns {{ bmr: number, maintenance: number, factor: number } | null}
  *   null si des données indispensables manquent (genre, âge, taille, poids).
  */
@@ -34,9 +51,10 @@ export function estimateMaintenanceCalories({ gender, age, height, weight, train
   let bmr;
   let method;
   if (bf && bf >= 3 && bf <= 60) {
-    // Katch-McArdle : basé sur la masse maigre → plus précis quand le %MG est connu
+    // Katch-McArdle (basé sur la masse maigre) → plus précis quand le %MG est connu.
+    // + correction d'âge après 60 ans (Pontzer 2021), car la formule brute ignore l'âge.
     const lbm = w * (1 - bf / 100);
-    bmr = 370 + 21.6 * lbm;
+    bmr = (370 + 21.6 * lbm) * ageAdjustment(a);
     method = 'katch';
   } else {
     // Mifflin-St Jeor : nécessite genre/âge/taille

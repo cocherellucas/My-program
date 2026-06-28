@@ -2,6 +2,7 @@
 import { createPortal } from 'react-dom';
 import { toast } from 'sonner';
 import { useRestTimer } from '@/lib/RestTimerContext';
+import { useTutorial } from '@/lib/TutorialContext';
 import { base44 } from '@/api/base44Client';
 import { normalizeUser } from '@/lib/utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -202,6 +203,61 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
   })();
   const showObjectifBanner = goodAboveSeries >= 2 && goodAboveSeries > ackedGoodSeries + 1;
 
+  // ─── Conseils du coach (objectifs non atteints / dépassés) → bulle latérale ───
+  const [coachTipsOff, setCoachTipsOff] = useState(() => {
+    try { return localStorage.getItem('coach_tips_disabled') === '1'; } catch { return false; }
+  });
+  const [tipOpen, setTipOpen] = useState(false);
+  const [confirmDisableTips, setConfirmDisableTips] = useState(false);
+  const [ackedBadSeries, setAckedBadSeries] = useState(0);
+
+  // Séries en-dessous de la cible (reps trop basses ou exécution dégradée)
+  const { badSeries, filledSeries } = (() => {
+    const targetLow = parseInt((exercise.target_reps || '').split('-')[0]) || 0;
+    let bad = 0, filled = 0;
+    for (let s = 0; s < sets; s++) {
+      const l = logs[`${exIdx}-${s}`] || {};
+      const reps = parseInt(l.reps) || 0;
+      const quality = l.quality || 'good';
+      if (reps > 0) filled++;
+      if (reps > 0 && reps < targetLow) bad++;
+      if (quality === 'degraded' || quality === 'bad') bad++;
+    }
+    return { badSeries: bad, filledSeries: filled };
+  })();
+
+  const underActive = filledSeries >= 1 && badSeries >= 2 && badSeries > ackedBadSeries;
+  // 'under' (objectifs non atteints) est prioritaire sur 'over' (à corriger d'abord)
+  const coachTip = coachTipsOff ? null : (underActive ? 'under' : (showObjectifBanner ? 'over' : null));
+
+  const dismissTip = () => {
+    if (coachTip === 'under') setAckedBadSeries(badSeries);
+    else if (coachTip === 'over') setAckedGoodSeries(goodAboveSeries);
+    setTipOpen(false);
+  };
+  const disableCoachTips = () => {
+    try { localStorage.setItem('coach_tips_disabled', '1'); } catch {}
+    setCoachTipsOff(true);
+    setTipOpen(false);
+    setConfirmDisableTips(false);
+  };
+
+  // Tuto la 1ʳᵉ fois qu'un conseil du coach apparaît (le système ne le montre
+  // qu'une seule fois : startTutorial est ignoré si l'id est déjà complété).
+  const { startTutorial } = useTutorial() || {};
+  useEffect(() => {
+    if (!coachTip || coachTipsOff || !startTutorial) return;
+    const t = setTimeout(() => {
+      startTutorial('coach-tip-intro', [{
+        target: 'coach-tip',
+        title: 'Un conseil du coach',
+        description: "Quand tes séries s'écartent de tes objectifs, le coach t'envoie un conseil ici. Touche la bulle pour l'ouvrir : tu peux appliquer le conseil, le fermer, ou désactiver les conseils.",
+        nonInteractive: true,
+      }]);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [coachTip, coachTipsOff, startTutorial]);
+
   const handleSetDone = (setIdx) => {
     const key = `${exIdx}-${setIdx}`;
     const lastLog    = logs[key];
@@ -372,74 +428,6 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 
       {/* Échauffement — premier exercice uniquement */}
       {exIdx === 0 && <WarmupAccordion exercise={exercise} logs={logs} exIdx={exIdx} sets={sets} />}
-
-      {/* Progression/Regression suggestion banners */}
-      {(() => {
-        const sets = Math.max(1, exercise.sets || 3);
-        const targetRepsStr = exercise.target_reps || '';
-        const parts = targetRepsStr.split('-');
-        const targetLow = parseInt(parts[0]) || 0;
-        const targetHigh = parseInt(parts[1]) || targetLow;
-        let badSeries = 0;
-        let goodAboveSeries = 0;
-        let filledSeries = 0;
-        for (let s = 0; s < sets; s++) {
-          const l = logs[`${exIdx}-${s}`] || {};
-          const reps = parseInt(l.reps) || 0;
-          const quality = l.quality || 'good';
-          if (reps > 0) filledSeries++;
-          if (reps > 0 && reps < targetLow) badSeries++;
-          if (quality === 'degraded' || quality === 'bad') badSeries++;
-          if (reps > targetHigh && quality === 'good') goodAboveSeries++;
-        }
-
-        if (filledSeries < 1) return null;
-
-        if (badSeries >= 2) {
-          const inChain = findExerciseInChains(exercise.name) !== null;
-          const atBottom = !inChain || isAtChainBottom(exercise.name);
-          const currentRest = currentRestSeconds ?? exercise.rest_seconds ?? 90;
-          const increasedRest = Math.min(currentRest + 30, 300); // max 5 min
-          return (
-            <div className="flex items-start gap-3 p-3 rounded-xl bg-destructive/20 border border-destructive/40">
-              <TrendingDown className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-white">Objectifs non atteints</p>
-                <p className="text-xs text-white/70 mt-0.5">
-                  {atBottom ?
-                  "Augmente le repos pour mieux récupérer et atteindre tes cibles." :
-                  "Ajuste le repos ou passe à une variante plus simple."}
-                </p>
-              </div>
-              <div className="flex-shrink-0 flex items-center gap-1.5">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button
-                      onClick={() => onExtendRest(exIdx, increasedRest)}
-                      className="text-xs px-3 py-1.5 rounded-lg bg-chart-4 text-white font-medium hover:bg-chart-4/80 transition-colors flex items-center gap-1">
-                      
-                      <Timer className="w-3 h-3" /> +30s repos <HelpCircle className="w-3 h-3 opacity-60" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-48 text-xs space-y-2 ">
-                    <p className="text-violet-400 font-semibold">Augmenter le repos</p>
-                    <p className="text-white/70">Ajouter 30s de repos par série va augmenter la durée totale de ta séance.</p>
-                  </PopoverContent>
-                </Popover>
-                {inChain && (
-                  <button
-                    onClick={() => onRegressionRequest(exIdx)}
-                    className="text-xs px-3 py-1.5 rounded-lg bg-destructive text-white font-medium hover:bg-destructive/80 transition-colors flex items-center gap-1">
-                    Variante simple
-                  </button>
-                )}
-              </div>
-            </div>);
-
-        }
-
-        return null;
-      })()}
 
       {/* Suggestion de variante */}
       {suggestion && (
@@ -613,57 +601,108 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
       </div>
     </motion.div>
 
-    {/* Bannière objectifs dépassés — hors motion.div pour fixed positioning correct */}
-    {showObjectifBanner && (
-      <div className="fixed bottom-20 left-4 right-4 z-40 flex items-center gap-3 p-4 rounded-2xl shadow-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #1e0050 0%, #3b0764 50%, #1e0050 100%)', border: '1px solid rgba(139,92,246,0.5)', boxShadow: '0 0 30px rgba(139,92,246,0.3), 0 8px 32px rgba(0,0,0,0.4)' }}>
-        {/* Shimmer */}
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(105deg, transparent 10%, rgba(255,255,255,0.02) 30%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.02) 70%, transparent 90%)', animation: 'shimmer 4s infinite' }} />
-        <div className="relative flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-violet-500/20">
-          <Bot className="w-6 h-6 text-violet-300" />
-          <TrendingUp className="w-3 h-3 text-green-400 absolute bottom-0.5 right-0.5" />
+    {/* Conseil du coach — bulle flottante (objectifs non atteints / dépassés) */}
+    {coachTip && (() => {
+      const isUnder = coachTip === 'under';
+      const currentRest = currentRestSeconds ?? exercise.rest_seconds ?? 90;
+      const atBottom = !inChain || isAtChainBottom(exercise.name);
+      return (
+        <div className="fixed left-3 top-1/2 -translate-y-1/2 z-40 flex flex-col items-start gap-2 max-w-[calc(100vw-1.5rem)]">
+          {tipOpen && (
+            <div className="w-72 max-w-[calc(100vw-2rem)] rounded-2xl p-4 shadow-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #1e0050 0%, #3b0764 50%, #1e0050 100%)', border: '1px solid rgba(139,92,246,0.5)', boxShadow: '0 0 30px rgba(139,92,246,0.3), 0 8px 32px rgba(0,0,0,0.4)' }}>
+              <div className="flex items-start gap-2">
+                <div className="relative flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl bg-violet-500/20">
+                  <Bot className="w-5 h-5 text-violet-300" />
+                  {isUnder
+                    ? <TrendingDown className="w-3 h-3 text-destructive absolute bottom-0 right-0" />
+                    : <TrendingUp className="w-3 h-3 text-green-400 absolute bottom-0 right-0" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-white">{isUnder ? 'Objectifs non atteints' : 'Objectifs dépassés'}</p>
+                  <p className="text-xs text-violet-200/80 mt-0.5">
+                    {isUnder
+                      ? (atBottom ? 'Augmente le repos pour mieux récupérer et atteindre tes cibles.' : 'Ajuste le repos ou passe à une variante plus simple.')
+                      : 'Réduis le repos ou augmente le poids.'}
+                  </p>
+                </div>
+                <button onClick={() => { setTipOpen(false); setConfirmDisableTips(false); }} className="text-white/30 hover:text-white/60 transition-colors flex-shrink-0">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="flex flex-wrap gap-2 mt-3">
+                {isUnder ? (
+                  <>
+                    <button onClick={() => { onExtendRest(exIdx, Math.min(currentRest + 30, 300)); dismissTip(); }}
+                      className="text-xs px-3 py-1.5 rounded-lg bg-chart-4 text-white font-medium hover:bg-chart-4/80 transition-colors flex items-center gap-1">
+                      <Timer className="w-3 h-3" /> +30s repos
+                    </button>
+                    {inChain && (
+                      <button onClick={() => { onRegressionRequest(exIdx); setTipOpen(false); }}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-destructive text-white font-medium hover:bg-destructive/80 transition-colors">
+                        Variante simple
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <button onClick={() => { onExtendRest(exIdx, Math.max(currentRest - 30, 30)); dismissTip(); }}
+                      className="text-xs px-3 py-1.5 rounded-lg bg-white/20 text-white font-medium hover:bg-white/30 transition-colors flex items-center gap-1">
+                      <Timer className="w-3 h-3" /> −30s repos
+                    </button>
+                    {!isBodyweightExercise(exercise.name) ? (
+                      <button onClick={() => {
+                          for (let s = activeSetIdx + 1; s < sets; s++) {
+                            const key = `${exIdx}-${s}`;
+                            const current = logs[key]?.weight || 0;
+                            updateLog(exIdx, s, 'weight', current > 0 ? current + 2.5 : 2.5);
+                          }
+                          dismissTip();
+                        }}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors">
+                        +2.5 kg
+                      </button>
+                    ) : inChain ? (
+                      <button onClick={() => { onProgressionRequest(exIdx); setTipOpen(false); }}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors">
+                        Variante plus dure
+                      </button>
+                    ) : null}
+                  </>
+                )}
+              </div>
+
+              <div className="mt-3 pt-2.5 border-t border-white/10">
+                {!confirmDisableTips ? (
+                  <div className="flex items-center justify-between">
+                    <button onClick={dismissTip} className="text-xs text-white/50 hover:text-white/80 transition-colors">Fermer ce conseil</button>
+                    <button onClick={() => setConfirmDisableTips(true)} className="text-[11px] text-white/35 hover:text-white/60 transition-colors">Ne plus afficher</button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-[11px] text-white/70 leading-snug">Ne plus afficher les conseils du coach pendant tes séances ? Tu pourras les réactiver dans les paramètres (Profil).</p>
+                    <div className="flex items-center gap-2">
+                      <button onClick={disableCoachTips} className="text-xs px-3 py-1.5 rounded-lg bg-destructive text-white font-medium hover:bg-destructive/80 transition-colors">Oui, désactiver</button>
+                      <button onClick={() => setConfirmDisableTips(false)} className="text-xs px-3 py-1.5 rounded-lg bg-white/15 text-white font-medium hover:bg-white/25 transition-colors">Annuler</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          <button data-tutorial="coach-tip" onClick={() => setTipOpen(o => !o)}
+            className="relative w-12 h-12 rounded-full flex items-center justify-center shadow-2xl transition-transform active:scale-95"
+            style={{ background: 'linear-gradient(135deg, #6d28d9, #4c1d95)', border: '1px solid rgba(139,92,246,0.6)', boxShadow: '0 0 20px rgba(139,92,246,0.45), 0 6px 20px rgba(0,0,0,0.4)' }}
+            aria-label="Conseil du coach">
+            <Bot className="w-6 h-6 text-white" />
+            {!tipOpen && (
+              <span className={`absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-[#1e0050] animate-pulse ${isUnder ? 'bg-destructive' : 'bg-green-400'}`} />
+            )}
+          </button>
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-white tracking-wide">Objectifs dépassés</p>
-          <p className="text-xs text-violet-300/80">Réduis le repos ou augmente le poids.</p>
-        </div>
-        <div className="flex-shrink-0 flex items-center gap-1.5">
-          <Popover>
-            <PopoverTrigger asChild>
-              <button
-                onClick={() => { onExtendRest(exIdx, Math.max((currentRestSeconds ?? exercise.rest_seconds ?? 90) - 30, 30)); setAckedGoodSeries(goodAboveSeries); }}
-                className="text-xs px-3 py-1.5 rounded-lg bg-white/20 text-white font-medium hover:bg-white/30 transition-colors flex items-center gap-1">
-                −30s repos <HelpCircle className="w-3 h-3 opacity-60" />
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-48 text-xs space-y-2">
-              <p className="text-violet-400 font-semibold">Réduire le repos</p>
-              <p className="text-white/70">Retirer 30s de repos par série va réduire la durée totale de ta séance.</p>
-            </PopoverContent>
-          </Popover>
-          {!isBodyweightExercise(exercise.name) ? (
-            <button
-              onClick={() => {
-                for (let s = activeSetIdx + 1; s < sets; s++) {
-                  const key = `${exIdx}-${s}`;
-                  const current = logs[key]?.weight || 0;
-                  updateLog(exIdx, s, 'weight', current > 0 ? current + 2.5 : 2.5);
-                }
-                setAckedGoodSeries(goodAboveSeries);
-              }}
-              className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors">
-              +2.5 kg
-            </button>
-          ) : inChain ? (
-            <button
-              onClick={() => onProgressionRequest(exIdx)}
-              className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors flex items-center gap-1">
-              Variante plus dure
-            </button>
-          ) : null}
-          <button onClick={() => setAckedGoodSeries(goodAboveSeries)} className="text-xs px-2 py-1.5 text-white/40 hover:text-white/70 transition-colors">✕</button>
-        </div>
-      </div>
-    )}
+      );
+    })()}
     </>
   );
 

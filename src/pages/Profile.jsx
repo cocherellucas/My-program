@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Card } from '@/components/ui/card';
@@ -9,7 +8,7 @@ import { NumInput } from '@/components/ui/num-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Save, Loader2, User, Ruler, Dumbbell, Calendar, LogOut, Target, SlidersHorizontal, CheckCircle2, RefreshCw, HelpCircle } from 'lucide-react';
+import { Save, Loader2, User, Ruler, Dumbbell, Calendar, Target, SlidersHorizontal, CheckCircle2, RefreshCw, HelpCircle, Settings } from 'lucide-react';
 import { normalizeUser } from '@/lib/utils';
 import { useAuth } from '@/lib/AuthContext';
 import { estimateMaintenanceCalories } from '@/lib/calories';
@@ -37,7 +36,6 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showRegenBanner, setShowRegenBanner] = useState(false);
-  const [confirmLogout, setConfirmLogout] = useState(false);
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'basics');
   const NO_SAVE_TABS = ['equipment', 'objectives'];
 
@@ -148,10 +146,10 @@ export default function Profile() {
             <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white">Profil</h1>
             <p className="text-white/70 mt-0.5 text-sm">{user.email}</p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => setConfirmLogout(true)} className="border-white/30 text-white hover:bg-white/10 hover:text-white flex-shrink-0">
-            <LogOut className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Déconnexion</span>
-          </Button>
+          <button onClick={() => navigate('/settings')} aria-label="Paramètres"
+            className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl border border-white/30 text-white hover:bg-white/10 transition-colors">
+            <Settings className="w-5 h-5" />
+          </button>
         </div>
         <SubscriptionBadge fullWidth />
       </div>
@@ -284,7 +282,7 @@ export default function Profile() {
                   </div>
                   <p className="text-[11px] text-white/45 mt-1 leading-snug">
                     {cal.method === 'katch'
-                      ? 'Estimation (Katch-McArdle, basée sur ta masse grasse) selon ton activité. À ajuster selon tes résultats.'
+                      ? 'Estimation (Katch-McArdle, basée sur ta masse maigre et ton activité, ajustée à l\'âge). À ajuster selon tes résultats.'
                       : 'Estimation (Mifflin-St Jeor) selon ton profil et ton activité. Renseigne ta masse grasse pour plus de précision.'}
                   </p>
                 </div>
@@ -348,28 +346,6 @@ export default function Profile() {
         </button>
       )}
 
-      {confirmLogout && createPortal(
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6" onClick={() => setConfirmLogout(false)}>
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-          <div className="relative bg-violet-900 border border-white/20 rounded-2xl p-6 w-full max-w-xs shadow-2xl text-center space-y-4" onClick={e => e.stopPropagation()}>
-            <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mx-auto">
-              <LogOut className="w-6 h-6 text-red-400" />
-            </div>
-            <div>
-              <p className="font-bold text-white text-base">Se déconnecter ?</p>
-              <p className="text-sm text-white/60 mt-1">Tu devras te reconnecter pour accéder à ton compte.</p>
-            </div>
-            <div className="flex gap-3">
-              <button onClick={() => setConfirmLogout(false)} className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-white/10 text-white hover:bg-white/20 transition-colors">
-                Annuler
-              </button>
-              <button onClick={() => base44.auth.logout()} className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors">
-                Se déconnecter
-              </button>
-            </div>
-          </div>
-        </div>
-      , document.body)}
     </div>
   );
 }
