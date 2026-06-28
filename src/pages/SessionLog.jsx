@@ -10,7 +10,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Loader2, LayoutList, ChevronRight, ChevronLeft, ChevronDown, Timer, Eye, HelpCircle, TrendingDown, TrendingUp, Bot, MessageSquare, X, Dumbbell } from 'lucide-react';
+import { CheckCircle, Loader2, LayoutList, ChevronRight, ChevronLeft, ChevronDown, Timer, Eye, HelpCircle, TrendingDown, Bot, MessageSquare, X, Dumbbell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -607,16 +607,10 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
       const currentRest = currentRestSeconds ?? exercise.rest_seconds ?? 90;
       const atBottom = !inChain || isAtChainBottom(exercise.name);
       return (
-        <div className="fixed left-3 top-1/2 -translate-y-1/2 z-40 flex flex-col items-start gap-2 max-w-[calc(100vw-1.5rem)]">
+        <div className="fixed left-3 top-1/2 -translate-y-1/2 z-40 flex flex-col-reverse items-start gap-2 max-w-[calc(100vw-1.5rem)]">
           {tipOpen && (
             <div className="w-72 max-w-[calc(100vw-2rem)] rounded-2xl p-4 shadow-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #1e0050 0%, #3b0764 50%, #1e0050 100%)', border: '1px solid rgba(139,92,246,0.5)', boxShadow: '0 0 30px rgba(139,92,246,0.3), 0 8px 32px rgba(0,0,0,0.4)' }}>
               <div className="flex items-start gap-2">
-                <div className="relative flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl bg-violet-500/20">
-                  <Bot className="w-5 h-5 text-violet-300" />
-                  {isUnder
-                    ? <TrendingDown className="w-3 h-3 text-destructive absolute bottom-0 right-0" />
-                    : <TrendingUp className="w-3 h-3 text-green-400 absolute bottom-0 right-0" />}
-                </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-white">{isUnder ? 'Objectifs non atteints' : 'Objectifs dépassés'}</p>
                   <p className="text-xs text-violet-200/80 mt-0.5">
@@ -637,6 +631,19 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                       className="text-xs px-3 py-1.5 rounded-lg bg-chart-4 text-white font-medium hover:bg-chart-4/80 transition-colors flex items-center gap-1">
                       <Timer className="w-3 h-3" /> +30s repos
                     </button>
+                    {!isBodyweightExercise(exercise.name) && (
+                      <button onClick={() => {
+                          for (let s = activeSetIdx + 1; s < sets; s++) {
+                            const key = `${exIdx}-${s}`;
+                            const current = logs[key]?.weight || 0;
+                            if (current > 0) updateLog(exIdx, s, 'weight', Math.max(0, current - 2.5));
+                          }
+                          dismissTip();
+                        }}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors">
+                        −2.5 kg
+                      </button>
+                    )}
                     {inChain && (
                       <button onClick={() => { onRegressionRequest(exIdx); setTipOpen(false); }}
                         className="text-xs px-3 py-1.5 rounded-lg bg-destructive text-white font-medium hover:bg-destructive/80 transition-colors">
