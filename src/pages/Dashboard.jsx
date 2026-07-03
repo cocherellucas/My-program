@@ -7,10 +7,13 @@ import ProgramSummaryCard from '@/components/dashboard/ProgramSummaryCard';
 import AlertsCard from '@/components/dashboard/AlertsCard';
 import StatsRow from '@/components/dashboard/StatsRow';
 import CheckIn24h from '@/components/dashboard/CheckIn24h';
+import VolumeProposalCard from '@/components/coaching/VolumeProposalCard';
 import {
   computeDashboardAlerts,
   getSessionsNeedingCheckin,
+  computeVolumeProposal,
 } from '@/lib/coaching-engine';
+import { applyVolumeProposal, markVolumeHandled, isVolumeSuppressed } from '@/lib/volume-adjust';
 
 const CHECKIN_KEY = 'coaching_checkins';
 
@@ -63,7 +66,7 @@ export default function Dashboard() {
 
   const { data: seriesLogs = [] } = useQuery({
     queryKey: ['series-logs-dashboard', user?.id],
-    queryFn: () => base44.entities.SeriesLog.filter({ user_id: user.id }, '-created_date', 60),
+    queryFn: () => base44.entities.SeriesLog.filter({ user_id: user.id }, '-created_date', 120),
     enabled: !!user?.id,
   });
 
@@ -81,6 +84,33 @@ export default function Dashboard() {
     getSessionsNeedingCheckin(sessions, checkins),
     [sessions, checkins]
   );
+
+  // Autorégulation du volume — proposition actionnable (augmenter / alléger)
+  const volumeProposal = useMemo(() =>
+    activeProgram ? computeVolumeProposal({ sessions, program: activeProgram, user: user || {}, seriesLogs, checkins }) : null,
+    [sessions, activeProgram, user, seriesLogs, checkins]
+  );
+  const [volumeBusy, setVolumeBusy] = useState(false);
+  const [, setVolumeTick] = useState(0); // force le re-rendu après action (suppression localStorage)
+
+  const handleVolumeApply = async () => {
+    if (!activeProgram || !volumeProposal) return;
+    setVolumeBusy(true);
+    try { await applyVolumeProposal(activeProgram.id, volumeProposal.apply); }
+    catch (e) { console.error('[volume] apply', e); }
+    markVolumeHandled(activeProgram.id);
+    setVolumeBusy(false);
+    setVolumeTick(t => t + 1);
+  };
+  const handleVolumeManual = () => {
+    if (activeProgram) markVolumeHandled(activeProgram.id);
+    navigate('/program?edit=true');
+  };
+  const handleVolumeDismiss = () => {
+    if (activeProgram) markVolumeHandled(activeProgram.id);
+    setVolumeTick(t => t + 1);
+  };
+  const showVolumeCard = !!volumeProposal && !!activeProgram && !isVolumeSuppressed(activeProgram.id);
 
   const handleCheckin = (sessionId, data) => {
     const updated = saveCheckin(sessionId, data);
@@ -108,6 +138,16 @@ export default function Dashboard() {
         <NextSessionCard todaySession={todaySession} nextSession={nextSession} hasSessions={hasSessions} activeProgram={activeProgram} />
         {activeProgram && <ProgramSummaryCard program={activeProgram} objectives={objectives} />}
       </div>
+
+      {showVolumeCard && (
+        <VolumeProposalCard
+          proposal={volumeProposal}
+          busy={volumeBusy}
+          onApply={handleVolumeApply}
+          onManual={handleVolumeManual}
+          onDismiss={handleVolumeDismiss}
+        />
+      )}
 
       <AlertsCard alerts={alerts} />
     </div>

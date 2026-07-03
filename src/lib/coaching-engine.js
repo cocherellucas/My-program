@@ -804,3 +804,107 @@ export function computeDashboardAlerts({ sessions = [], program = null, user = {
 
   return alerts;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AUTORÉGULATION DU VOLUME — proposer +/− volume selon fatigue & performances
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Plafond de séries par exercice selon sa PLAGE DE REPS (borne basse) :
+//  force 1-5 → 6 · hypertrophie 6-15 → 5 (junk volume au-delà) · endurance >15 → 8
+export function repSetCap(targetReps) {
+  const low = parseInt(String(targetReps ?? '').split(/[-–]/)[0], 10);
+  if (!low || isNaN(low)) return 5;
+  if (low <= 5)  return 6;
+  if (low <= 15) return 5;
+  return 8;
+}
+
+// Renvoie UNE proposition d'ajustement de volume, ou null.
+// La décharge (fatigue) est prioritaire sur l'augmentation (stagnation).
+export function computeVolumeProposal({ sessions = [], program = null, user = {}, seriesLogs = [], checkins = {} }) {
+  const completed = sessions.filter(s => s.status === 'completed');
+  if (completed.length < 3) return null; // pas assez de signal
+
+  // ── DÉCHARGE (fatigue) — douce, prioritaire ────────────────────────────────
+  const { score, deloadType, affectedMuscles } = computeDeloadScore({ sessions, program, user, checkins, seriesLogs });
+  const rec = getDeloadRecommendation(score, deloadType, affectedMuscles);
+  if (rec.type === 'rest') {
+    return {
+      direction: 'decrease',
+      label: 'Repos conseillé',
+      detail: rec.action || 'Signaux de fatigue importants — privilégie le repos quelques jours.',
+      apply: { mode: 'rest' },
+    };
+  }
+  if (rec.type === 'deload') {
+    return {
+      direction: 'decrease',
+      label: 'Fatigue élevée — alléger le volume',
+      detail: 'On retire 2 séries sur tes derniers exercices cette semaine (charges inchangées) pour mieux récupérer.',
+      apply: { mode: 'trim', removeSets: 2 },
+    };
+  }
+  if (rec.type === 'light_week' || rec.type === 'zone_deload') {
+    return {
+      direction: 'decrease',
+      label: 'Semaine plus légère',
+      detail: 'On retire 1 série sur ton dernier exercice cette semaine (charges inchangées).',
+      apply: { mode: 'trim', removeSets: 1 },
+    };
+  }
+
+  // ── AUGMENTATION (stagnation 2 occurrences + fatigue OK) ────────────────────
+  const recent = [...completed]
+    .sort((a, b) => new Date(b.actual_date || b.planned_date) - new Date(a.actual_date || a.planned_date))
+    .slice(0, 4);
+  const fatigues = recent.map(s => s.global_fatigue || 0).filter(Boolean);
+  const avgFatigue = fatigues.length ? fatigues.reduce((a, b) => a + b, 0) / fatigues.length : 0;
+  if (avgFatigue > 3) return null; // fatigue pas OK → on ne monte pas le volume
+
+  const sessById = {};
+  sessions.forEach(s => { sessById[s.id] = s; });
+  const sessDate = s => (s && (s.actual_date || s.planned_date)) || '';
+
+  // Logs des séances complétées, groupés par exercice
+  const byEx = {};
+  seriesLogs.forEach(l => {
+    const s = sessById[l.session_id];
+    if (!s || s.status !== 'completed') return;
+    (byEx[l.exercise_name] ||= []).push(l);
+  });
+
+  const stat = (ls) => {
+    const target = parseInt(String(ls[0]?.reps_target ?? '').split(/[-–]/)[0], 10) || 0;
+    const reps = ls.map(x => x.reps_done || 0);
+    const goodExec = ls.every(x => (x.execution_quality || 'good') === 'good');
+    const metTarget = target > 0 ? reps.every(r => r >= target) : reps.every(r => r > 0);
+    const bestVol = Math.max(0, ...ls.map(x => (x.weight || 0) * (x.reps_done || 0)));
+    const totalReps = reps.reduce((a, b) => a + b, 0);
+    return { goodExec, metTarget, bestVol, totalReps, sets: ls.length, target: ls[0]?.reps_target };
+  };
+
+  const stagnating = [];
+  for (const [name, logs] of Object.entries(byEx)) {
+    const byOcc = {};
+    logs.forEach(l => { (byOcc[l.session_id] ||= []).push(l); });
+    const occ = Object.entries(byOcc)
+      .map(([sid, ls]) => ({ date: sessDate(sessById[sid]), ls }))
+      .filter(o => o.date)
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+    if (occ.length < 2) continue;
+
+    const a = stat(occ[0].ls), b = stat(occ[1].ls);
+    const progressed = a.bestVol > b.bestVol * 1.02 || a.totalReps > b.totalReps;
+    if (a.metTarget && b.metTarget && a.goodExec && b.goodExec && !progressed && a.sets < repSetCap(a.target)) {
+      stagnating.push(name);
+    }
+  }
+
+  if (!stagnating.length) return null;
+  return {
+    direction: 'increase',
+    label: 'Tu stagnes mais tu récupères bien — ajouter du volume ?',
+    detail: `+1 série sur : ${stagnating.slice(0, 6).join(', ')}. (perfs stables 2 semaines, fatigue OK)`,
+    apply: { mode: 'increase', exercises: stagnating, deltaSets: 1 },
+  };
+}

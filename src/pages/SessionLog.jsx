@@ -19,7 +19,9 @@ import ExerciseGif from '@/components/session/ExerciseGif';
 import { RestTimerControl } from '@/components/session/RestTimer';
 import { computeTargetRIR, ririLabel, computeAdaptedRestTime } from '@/lib/rir-optimizer';
 import { findExerciseInChains, isAtChainBottom, ELASTIC_PROGRESSION_CHAINS } from '@/lib/progression-chains';
-import { FRAGILE_ZONE_MUSCLES } from '@/lib/coaching-engine';
+import { FRAGILE_ZONE_MUSCLES, computeVolumeProposal } from '@/lib/coaching-engine';
+import { applyVolumeProposal, markVolumeHandled, isVolumeSuppressed } from '@/lib/volume-adjust';
+import VolumeProposalCard from '@/components/coaching/VolumeProposalCard';
 import { EXERCISES } from '@/lib/exercise-database';
 
 const isBodyweightExercise = (name) => {
@@ -997,6 +999,8 @@ export default function SessionLog() {
   const [fatigue, setFatigue] = useState(() => _draft.fatigue ?? 2);
   const [notes, setNotes] = useState(() => _draft.notes || '');
   const [saving, setSaving] = useState(false);
+  const [volumeProposal, setVolumeProposal] = useState(null); // { proposal, programId } — étape fin de séance
+  const [volumeBusy, setVolumeBusy] = useState(false);
   const [scrollReady, setScrollReady] = useState(false);
   const [currentExIdx, setCurrentExIdx] = useState(() => _draft.currentExIdx || 0);
   const [navDir, setNavDir] = useState('next'); // sens de navigation entre exos (prev → ouvre la dernière série)
@@ -1794,6 +1798,19 @@ Ce que l'utilisateur dit : "${painNote}"`;
         preMessage: `J'ai noté une douleur${painZone ? ` au ${painZone}` : ''} pendant ta séance.${painCtx}\n\nPour mieux adapter tes prochains entraînements, dis-moi en plus : comment ça s'est manifesté (gêne légère, vraie douleur, coup) ? Depuis quand ? Ça dure encore maintenant ?`
       });
     } else {
+      // Autorégulation du volume : proposer un ajustement (fatigue/perfs fraîches) avant de revenir
+      try {
+        const [progSessions, recentLogs, progs] = await Promise.all([
+          base44.entities.Session.filter({ program_id: session.program_id }),
+          base44.entities.SeriesLog.filter({ user_id: user.id }, '-created_date', 120),
+          base44.entities.Program.filter({ status: 'active' }, '-created_date', 1),
+        ]);
+        const program = progs?.[0] || null;
+        const proposal = (program && !isVolumeSuppressed(program.id))
+          ? computeVolumeProposal({ sessions: progSessions, program, user, seriesLogs: recentLogs })
+          : null;
+        if (proposal) { setVolumeProposal({ proposal, programId: program.id }); return; }
+      } catch (e) { console.error('[volume] end-of-session', e); }
       navigate('/program');
     }
     } catch (e) {
@@ -1836,6 +1853,33 @@ Ce que l'utilisateur dit : "${painNote}"`;
 
   if (exercises.length === 0) {
     return <EmptyState title="Séance vide" text="Cette séance ne contient aucun exercice." cta="Voir mon programme" />;
+  }
+
+  // Étape "fin de séance" : proposition d'ajustement du volume avant de revenir au programme
+  if (volumeProposal) {
+    const pid = volumeProposal.programId;
+    const goProgram = () => { setVolumeProposal(null); navigate('/program'); };
+    const onApply = async () => {
+      setVolumeBusy(true);
+      try { await applyVolumeProposal(pid, volumeProposal.proposal.apply); } catch (e) { console.error('[volume] apply', e); }
+      markVolumeHandled(pid); setVolumeBusy(false); navigate('/program');
+    };
+    const onManual  = () => { markVolumeHandled(pid); navigate('/program?edit=true'); };
+    const onDismiss = () => { markVolumeHandled(pid); navigate('/program'); };
+    return (
+      <div className="fixed inset-0 z-10 overflow-y-auto bg-violet-600 px-4 py-10" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 2.5rem)' }}>
+        <div className="w-full max-w-md mx-auto space-y-5">
+          <div>
+            <h2 className="font-heading font-bold text-2xl text-white">Séance validée ✅</h2>
+            <p className="text-white/60 text-sm mt-1">Un ajustement de volume est conseillé pour la suite :</p>
+          </div>
+          <VolumeProposalCard proposal={volumeProposal.proposal} busy={volumeBusy} onApply={onApply} onManual={onManual} onDismiss={onDismiss} />
+          <button onClick={goProgram} className="w-full text-center text-sm text-white/50 hover:text-white/80 transition-colors pt-1">
+            Continuer sans changer
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (

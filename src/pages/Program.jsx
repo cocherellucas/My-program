@@ -397,6 +397,15 @@ export default function Program() {
     }
   }, []); // eslint-disable-line
 
+  // ?edit=true (ex: "Le faire moi-même" depuis une proposition de volume) → ouvre Modifier
+  const editOpenedRef = useRef(false);
+  useEffect(() => {
+    if (!editOpenedRef.current && activeProgram && searchParams.get('edit') === 'true') {
+      editOpenedRef.current = true;
+      openEditDialog();
+    }
+  }, [activeProgram]); // eslint-disable-line
+
   // Fin d'onboarding → ouvre le dialog de configuration (l'utilisateur choisit ou laisse "Auto")
   const configOpenedRef = useRef(false);
   useEffect(() => {
