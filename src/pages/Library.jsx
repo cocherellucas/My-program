@@ -395,18 +395,16 @@ export default function Library() {
 
       // Recréer les séances depuis les templates
       const dayMap = { monday: 0, tuesday: 1, wednesday: 2, thursday: 3, friday: 4, saturday: 5, sunday: 6 };
-      // On ancre sur le lundi de la semaine COURANTE et on ne crée pas les jours
-      // déjà passés → le programme redémarre dès CETTE semaine (jours restants),
-      // l'ordre est préservé, et rien n'est planifié dans le passé.
+      // On ancre sur le lundi de la semaine COURANTE et on crée TOUTE la semaine
+      // (semaine 0 = en cours). Les jours déjà passés de cette semaine restent
+      // visibles en "passées". Aucune semaine antérieure n'est créée.
       const monday = startOfWeek(new Date(), { weekStartsOn: 1 });
-      const todayStr = format(new Date(), 'yyyy-MM-dd');
       const templates = prog.sessions_templates || [];
 
       for (const s of templates) {
         const weekNumber = s.week_number || 1;
         const dayOffset = (weekNumber - 1) * 7 + (dayMap[s.day] ?? 0);
         const date = addDays(monday, dayOffset);
-        if (format(date, 'yyyy-MM-dd') < todayStr) continue; // jour déjà passé → on ne crée pas
         await base44.entities.Session.create({
           program_id: newProg.id,
           user_id: user.id,

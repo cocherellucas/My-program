@@ -253,10 +253,10 @@ export default function Program() {
         editedSessions.map(s => ({ ...s, week_number: i + 1 }))
       ).flat().filter(s => s.week_number <= CYCLE_WEEKS);
 
-      // On ancre le programme sur le lundi de la semaine COURANTE, et on ne crée
-      // simplement pas les séances déjà passées (jours de cette semaine avant
-      // aujourd'hui). → le programme démarre dès CETTE semaine avec ses jours
-      // restants, l'ordre reste croissant, et rien n'est planifié dans le passé.
+      // On ancre le programme sur le lundi de la semaine COURANTE et on crée TOUTE
+      // la semaine (semaine 0 = semaine en cours). Les jours déjà écoulés de cette
+      // semaine restent créés → visibles en "passées". Aucune semaine antérieure
+      // n'est créée (la 1ʳᵉ séance est au plus tôt ce lundi).
       const startMon = new Date(thisMon);
 
       for (const s of expanded) {
@@ -264,7 +264,6 @@ export default function Program() {
         const weekNum = (s.week_number || 1) - 1;
         const d = new Date(startMon);
         d.setDate(startMon.getDate() + dayOffset + weekNum * 7);
-        if (d < today) continue; // jour déjà écoulé de la semaine en cours → on ne le crée pas
         await base44.entities.Session.create({
           user_id: program.user_id,
           program_id: program.id,
