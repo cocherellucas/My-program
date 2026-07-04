@@ -125,11 +125,15 @@ export default function Program() {
       const all = await base44.entities.Session.filter({ program_id: activeProgram.id });
       const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
       const todayStr = new Date().toISOString().split('T')[0];
+      // La structure ACTUELLE du programme = ses séances PLANIFIÉES (recréées en
+      // bloc à chaque sauvegarde). Les complétées sont de l'historique : les
+      // inclure ferait réapparaître d'anciens créneaux (jour déplacé, ancien
+      // libellé) en doublon dans le dialog.
+      const source = all.some(s => s.status === 'planned') ? all.filter(s => s.status === 'planned') : all;
       // On veut UNE séance par créneau (même intitulé + même jour de semaine) :
       // la prochaine séance planifiée à venir en priorité, sinon la plus récente.
-      // → corrige les doublons (séance complétée + recréée le même jour).
       const bySlot = new Map();
-      for (const s of all) {
+      for (const s of source) {
         if (!s.planned_date) continue;
         const dow = new Date(s.planned_date + 'T12:00:00').getDay();
         const key = (s.day_label || '').trim().toLowerCase() + '::' + dow;
@@ -248,6 +252,16 @@ export default function Program() {
       }
       await base44.entities.Program.update(program.id, { planned_weeks: CYCLE_WEEKS });
 
+      // Les séances déjà COMPLÉTÉES à partir de ce lundi ne doivent pas être
+      // recréées en "planifiée" : elles existent déjà (faites) → doublon sinon.
+      const doneSlots = new Set();
+      try {
+        const remaining = await base44.entities.Session.filter({ program_id: program.id });
+        remaining
+          .filter(s => s.status !== 'planned' && s.planned_date && s.planned_date >= toLocalDate(thisMon))
+          .forEach(s => doneSlots.add(`${s.planned_date}::${(s.day_label || '').replace(/§\d/, '').trim().toLowerCase()}`));
+      } catch {}
+
       // Recréer en expandant sur CYCLE_WEEKS
       const expanded = Array.from({ length: Math.ceil(CYCLE_WEEKS / 1) }, (_, i) =>
         editedSessions.map(s => ({ ...s, week_number: i + 1 }))
@@ -264,6 +278,8 @@ export default function Program() {
         const weekNum = (s.week_number || 1) - 1;
         const d = new Date(startMon);
         d.setDate(startMon.getDate() + dayOffset + weekNum * 7);
+        const slotKey = `${toLocalDate(d)}::${(s.label || s.day || '').replace(/§\d/, '').trim().toLowerCase()}`;
+        if (doneSlots.has(slotKey)) continue; // déjà faite ce jour-là
         await base44.entities.Session.create({
           user_id: program.user_id,
           program_id: program.id,
@@ -303,6 +319,54 @@ export default function Program() {
       if (!all.length) return;
       const today = new Date(); today.setHours(0, 0, 0, 0);
       const toLocalDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+      // Réparation de la semaine calendaire EN COURS : d'anciennes versions ne
+      // créaient pas les jours déjà passés de la semaine → des trous (lundi→hier)
+      // peuvent subsister. On recrée les séances manquantes de cette semaine à
+      // partir du cycle planifié → la semaine s'affiche en entier (passés grisés).
+      const thisMon = new Date(today);
+      thisMon.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+      const planned = all.filter(s => s.status === 'planned' && s.planned_date);
+      let backfilled = 0;
+      if (planned.length) {
+        const byWeek = {};
+        planned.forEach(s => { const w = s.week_number || 1; (byWeek[w] ||= []).push(s); });
+        // Cycle de référence = la semaine planifiée la plus fournie (la semaine en
+        // cours peut être partielle : séances déjà faites ou jours manquants).
+        const tpl = Object.entries(byWeek).sort((a, b) => b[1].length - a[1].length || a[0] - b[0])[0][1];
+        const monStr = toLocalDate(thisMon);
+        const sunEnd = new Date(thisMon); sunEnd.setDate(thisMon.getDate() + 6);
+        const sunStr = toLocalDate(sunEnd);
+        const norm = l => (l || '').replace(/§\d/, '').trim().toLowerCase();
+        const weekRows = all.filter(s => s.planned_date && s.planned_date >= monStr && s.planned_date <= sunStr);
+        const have = new Set(weekRows.map(s => `${s.planned_date}::${norm(s.day_label)}`));
+        const curWeekNum = weekRows.length
+          ? Math.min(...weekRows.map(s => s.week_number || 1))
+          : Math.min(...planned.map(s => s.week_number || 1));
+        for (const t of tpl) {
+          const dow = (new Date(t.planned_date + 'T12:00:00').getDay() + 6) % 7; // 0 = lundi
+          const d = new Date(thisMon); d.setDate(thisMon.getDate() + dow);
+          const dateStr = toLocalDate(d);
+          const key = `${dateStr}::${norm(t.day_label)}`;
+          if (have.has(key)) continue;
+          have.add(key);
+          await base44.entities.Session.create({
+            user_id: t.user_id,
+            program_id: program.id,
+            week_number: curWeekNum,
+            day_label: t.day_label,
+            type: t.type || 'mixed',
+            status: 'planned',
+            planned_date: dateStr,
+            estimated_duration: t.estimated_duration || calcDuration(t.exercises || []),
+            exercises: t.exercises || [],
+            active_zones: t.active_zones || [],
+          });
+          backfilled++;
+        }
+        if (backfilled) queryClient.invalidateQueries({ queryKey: ['program-sessions'] });
+      }
+
       // Semaine la plus avancée déjà planifiée + sa date la plus lointaine
       const maxWeek = Math.max(...all.map(s => s.week_number || 1));
       const lastDateStr = all.map(s => s.planned_date).filter(Boolean).sort().pop();
@@ -675,7 +739,16 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
     setSaving(true);
     try {
       const structureType = detectStructureType(activeProgram);
-      const sessionTemplates = sessions.map(s => ({
+      // Dédoublonner : une séance complétée + sa jumelle replanifiée (même semaine,
+      // même libellé, même jour) ne doivent produire qu'UN template (planifiée prioritaire).
+      const tplSlots = new Map();
+      for (const s of sessions) {
+        const dow = s.planned_date ? new Date(s.planned_date + 'T12:00:00').getDay() : '';
+        const key = `${s.week_number || 1}::${(s.day_label || '').trim().toLowerCase()}::${dow}`;
+        const cur = tplSlots.get(key);
+        if (!cur || (s.status === 'planned' && cur.status !== 'planned')) tplSlots.set(key, s);
+      }
+      const sessionTemplates = Array.from(tplSlots.values()).map(s => ({
         day: s.planned_date ? new Date(s.planned_date).toLocaleDateString('en', { weekday: 'long' }).toLowerCase() : '',
         day_label: s.day_label,
         week_number: s.week_number,
@@ -723,9 +796,15 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
     setRelaunching(true);
     try {
       const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
-      const minWeek = Math.min(...sessions.map(s => s.week_number || 1));
-      const cycle = sessions
-        .filter(s => (s.week_number || 1) === minWeek)
+      // Cycle = une semaine PLANIFIÉE complète (les complétées sont de l'historique :
+      // les mélanger dupliquerait les créneaux). La semaine 1 pouvant être partielle
+      // (séances déjà faites non recréées), on prend la semaine la plus fournie.
+      const plannedOnly = sessions.filter(s => s.status === 'planned');
+      const src = plannedOnly.length ? plannedOnly : sessions;
+      const byWeek = {};
+      src.forEach(s => { const w = s.week_number || 1; (byWeek[w] ||= []).push(s); });
+      const bestWeek = Object.entries(byWeek).sort((a, b) => b[1].length - a[1].length || a[0] - b[0])[0];
+      const cycle = (bestWeek ? bestWeek[1] : [])
         .sort((a, b) => (a.planned_date || '').localeCompare(b.planned_date || ''))
         .map(s => ({
           label: s.day_label || '',
