@@ -818,11 +818,16 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
     });
   });
 
-  // Onglet courant = la semaine qui contient réellement la prochaine séance à venir
+  // Onglet courant :
+  //  • infini → TOUJOURS la semaine calendaire en cours (celle qui contient aujourd'hui,
+  //    calWeek === 1), même si ses premières séances sont déjà passées.
+  //  • fini → la semaine qui contient la prochaine séance à venir.
   const nextUpcoming = sessions.find(s => s.status !== 'completed' && !isPast(s));
   const weekKeys = Object.keys(weeks);
   const upcomingKey = nextUpcoming && weekKeys.find(w => weeks[w].includes(nextUpcoming));
-  const currentWeekTab = upcomingKey || weekKeys[0] || '1';
+  const currentWeekTab = (programIsInfinite && weeks['1'])
+    ? '1'
+    : (upcomingKey || weekKeys[0] || '1');
 
   const handleRegen = () => {
     localStorage.removeItem('pending_program_regen');
