@@ -169,13 +169,20 @@ export default function AppLayout() {
     const dy = e.touches[0].clientY - touchStart.current.y;
 
     if (!isHorizontal.current) {
-      if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
-      if (Math.abs(dx) < Math.abs(dy) * 2) { touchStart.current = null; return; }
-      isHorizontal.current = true;
-      swipeDir.current = dx > 0 ? 1 : -1;
-      // Reset scroll de la page adjacente avant même que l'animation commence
-      const adjI = currentIdxRef.current + (swipeDir.current > 0 ? -1 : 1);
-      if (pageRefs.current[adjI]) pageRefs.current[adjI].scrollTop = 0;
+      const adx = Math.abs(dx), ady = Math.abs(dy);
+      // Priorité STRICTE au scroll vertical : dès qu'une composante verticale notable
+      // apparaît et domine, on relâche → scroll natif immédiat.
+      if (ady > 10 && ady >= adx) { touchStart.current = null; return; }
+      // Swipe page : seulement si le geste est franchement horizontal.
+      if (adx > 16 && adx > ady * 2) {
+        isHorizontal.current = true;
+        swipeDir.current = dx > 0 ? 1 : -1;
+        // Reset scroll de la page adjacente avant même que l'animation commence
+        const adjI = currentIdxRef.current + (swipeDir.current > 0 ? -1 : 1);
+        if (pageRefs.current[adjI]) pageRefs.current[adjI].scrollTop = 0;
+      } else {
+        return; // pas encore tranché
+      }
     }
 
     const adjIdx = currentIdxRef.current + (swipeDir.current > 0 ? -1 : 1);
