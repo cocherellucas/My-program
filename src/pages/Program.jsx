@@ -241,22 +241,18 @@ export default function Program() {
         editedSessions.map(s => ({ ...s, week_number: i + 1 }))
       ).flat().filter(s => s.week_number <= CYCLE_WEEKS);
 
-      // Ne rien planifier dans le passé : on décale tout le programme par semaines
-      // entières jusqu'à ce que la TOUTE PREMIÈRE séance tombe aujourd'hui ou après
-      // (décalage uniforme → l'ordre des séances est préservé).
-      const minDayOffset = Math.min(...editedSessions.map(s => dayMap[s.day?.toLowerCase()] ?? 0));
+      // On ancre le programme sur le lundi de la semaine COURANTE, et on ne crée
+      // simplement pas les séances déjà passées (jours de cette semaine avant
+      // aujourd'hui). → le programme démarre dès CETTE semaine avec ses jours
+      // restants, l'ordre reste croissant, et rien n'est planifié dans le passé.
       const startMon = new Date(thisMon);
-      for (;;) {
-        const firstD = new Date(startMon); firstD.setDate(startMon.getDate() + minDayOffset);
-        if (firstD >= today) break;
-        startMon.setDate(startMon.getDate() + 7);
-      }
 
       for (const s of expanded) {
         const dayOffset = dayMap[s.day?.toLowerCase()] ?? 0;
         const weekNum = (s.week_number || 1) - 1;
         const d = new Date(startMon);
         d.setDate(startMon.getDate() + dayOffset + weekNum * 7);
+        if (d < today) continue; // jour déjà écoulé de la semaine en cours → on ne le crée pas
         await base44.entities.Session.create({
           user_id: program.user_id,
           program_id: program.id,
@@ -285,8 +281,8 @@ export default function Program() {
   // d'avance. Dès qu'il reste moins de 12 semaines futures, on recrée des cycles
   // jusqu'à 52 semaines devant → en pratique le programme ne s'arrête jamais.
   const INFINITE_THRESHOLD = 52;
-  const INFINITE_BUFFER_WEEKS = 12;
-  const INFINITE_TARGET_WEEKS = 52;
+  const INFINITE_BUFFER_WEEKS = 8;
+  const INFINITE_TARGET_WEEKS = 20;
   const infiniteToppedRef = useRef(null);
 
   const ensureInfiniteSessions = (program) => runExclusive(async () => {
@@ -1061,16 +1057,12 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                                <span className={`text-[10px] capitalize ${isToday ? 'text-white/80' : 'text-white/70'}`}>
                                  {session.planned_date && format(new Date(session.planned_date), 'EEE', { locale: fr })}
                                </span>
-                               {!isInfinite && (
-                                 <span className={`text-sm font-bold ${isToday ? 'text-white' : 'text-white'}`}>
-                                   {session.planned_date && format(new Date(session.planned_date), 'd')}
-                                 </span>
-                               )}
-                               {!isInfinite && (
-                                 <span className={`text-[9px] capitalize ${isToday ? 'text-white/70' : 'text-white/50'}`}>
-                                   {session.planned_date && format(new Date(session.planned_date), 'MMM', { locale: fr })}
-                                 </span>
-                               )}
+                               <span className="text-sm font-bold text-white">
+                                 {session.planned_date && format(new Date(session.planned_date), 'd')}
+                               </span>
+                               <span className={`text-[9px] capitalize ${isToday ? 'text-white/70' : 'text-white/50'}`}>
+                                 {session.planned_date && format(new Date(session.planned_date), 'MMM', { locale: fr })}
+                               </span>
                              </div>
                            </div>
                            <div>
