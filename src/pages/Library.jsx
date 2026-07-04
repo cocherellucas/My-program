@@ -395,25 +395,18 @@ export default function Library() {
 
       // Recréer les séances depuis les templates
       const dayMap = { monday: 0, tuesday: 1, wednesday: 2, thursday: 3, friday: 4, saturday: 5, sunday: 6 };
-      let monday = startOfWeek(new Date(), { weekStartsOn: 1 });
-      // Ne pas replanifier dans le passé : on décale tout le programme par semaines
-      // entières jusqu'à ce que la TOUTE PREMIÈRE séance tombe aujourd'hui ou après.
-      // (décalage uniforme → l'ordre des séances est préservé)
+      // On ancre sur le lundi de la semaine COURANTE et on ne crée pas les jours
+      // déjà passés → le programme redémarre dès CETTE semaine (jours restants),
+      // l'ordre est préservé, et rien n'est planifié dans le passé.
+      const monday = startOfWeek(new Date(), { weekStartsOn: 1 });
+      const todayStr = format(new Date(), 'yyyy-MM-dd');
       const templates = prog.sessions_templates || [];
-      if (templates.length) {
-        const minOffset = Math.min(...templates.map(s =>
-          (((s.week_number || 1) - 1) * 7) + (dayMap[s.day] ?? 0)
-        ));
-        const todayStr = format(new Date(), 'yyyy-MM-dd');
-        while (format(addDays(monday, minOffset), 'yyyy-MM-dd') < todayStr) {
-          monday = addDays(monday, 7);
-        }
-      }
 
       for (const s of templates) {
         const weekNumber = s.week_number || 1;
         const dayOffset = (weekNumber - 1) * 7 + (dayMap[s.day] ?? 0);
         const date = addDays(monday, dayOffset);
+        if (format(date, 'yyyy-MM-dd') < todayStr) continue; // jour déjà passé → on ne crée pas
         await base44.entities.Session.create({
           program_id: newProg.id,
           user_id: user.id,
