@@ -166,17 +166,29 @@ export default function Program() {
       const monFirst = d => (new Date(d + 'T12:00:00').getDay() + 6) % 7;
       const formatted = Array.from(bySlot.values())
         .sort((a, b) => monFirst(a.planned_date) - monFirst(b.planned_date) || (a.planned_date < b.planned_date ? -1 : 1))
-        .map(s => ({
-          label: s.day_label || '',
-          day: s.planned_date ? dayNames[new Date(s.planned_date + 'T12:00:00').getDay()] : 'monday',
-          exercises: (s.exercises || []).map(e => refWeight[e.name] != null ? { ...e, target_weight: refWeight[e.name] } : e),
-          content: (s.exercises || []).map(e => {
-            const w = refWeight[e.name] != null ? refWeight[e.name] : e.target_weight;
-            return `${e.sets || 3}×${e.target_reps || 10} ${e.name}${w ? ` (${w}${e.weight_unit || 'kg'})` : ''} ${e.rest_seconds || 90}s`;
-          }).join('\n'),
-          type: s.type || 'mixed',
-          estimated_duration: s.estimated_duration || calcDuration(s.exercises || []),
-        }));
+        .map(s => {
+          const raw = s.day_label || '';
+          const om = raw.match(/§(\d)/); // ordre dans la journée encodé dans le label
+          return {
+            label: raw.replace(/§\d/, '').trim(),
+            day: s.planned_date ? dayNames[new Date(s.planned_date + 'T12:00:00').getDay()] : 'monday',
+            order: om ? parseInt(om[1], 10) : null,
+            exercises: (s.exercises || []).map(e => refWeight[e.name] != null ? { ...e, target_weight: refWeight[e.name] } : e),
+            content: (s.exercises || []).map(e => {
+              const w = refWeight[e.name] != null ? refWeight[e.name] : e.target_weight;
+              return `${e.sets || 3}×${e.target_reps || 10} ${e.name}${w ? ` (${w}${e.weight_unit || 'kg'})` : ''} ${e.rest_seconds || 90}s`;
+            }).join('\n'),
+            type: s.type || 'mixed',
+            estimated_duration: s.estimated_duration || calcDuration(s.exercises || []),
+          };
+        });
+      // Ordre dans la journée : normaliser (1ère, 2ème…) pour chaque jour
+      const byDay = {};
+      formatted.forEach(s => { (byDay[s.day] ||= []).push(s); });
+      Object.values(byDay).forEach(list => {
+        list.sort((a, b) => (a.order || 9) - (b.order || 9));
+        list.forEach((s, idx) => { s.order = idx + 1; });
+      });
       const pw = activeProgram.planned_weeks;
       const initialWeeks = pw && pw >= 52 ? 'infinite' : (pw || 4);
       setPendingImportSessions({ sessions: formatted, isEditing: true, initialWeeks });
@@ -257,7 +269,7 @@ export default function Program() {
           user_id: program.user_id,
           program_id: program.id,
           week_number: s.week_number,
-          day_label: s.label || s.day,
+          day_label: `${s.label || s.day}${s.order && s.order > 1 ? ` §${s.order}` : ''}`,
           type: ['strength','hypertrophy','endurance','mixed','cardio','mobility'].includes(s.type) ? s.type : 'mixed',
           status: 'planned',
           planned_date: toLocalDate(d),
