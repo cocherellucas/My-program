@@ -8,6 +8,7 @@ import { Brain, ThumbsUp, ThumbsDown, AlertTriangle, TrendingUp, Trash2, FileTex
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import ReactMarkdown from 'react-markdown';
+import { ZONE_LABELS } from '@/lib/pain-engine';
 
 export default function Memory() {
   const queryClient = useQueryClient();
@@ -86,11 +87,12 @@ export default function Memory() {
             {memory.injuries.map((inj, i) => (
               <div key={i} className="flex items-center justify-between p-3 bg-white/10 rounded-xl">
                 <div>
-                  <span className="font-medium text-sm text-white">{inj.zone}</span>
+                  <span className="font-medium text-sm text-white capitalize">{ZONE_LABELS[inj.zone] || inj.zone}</span>
                   {inj.trigger_exercise && <span className="text-xs text-white/60 ml-2">({inj.trigger_exercise})</span>}
                   <Badge variant={inj.resolved ? 'secondary' : 'destructive'} className="ml-2 text-xs">
-                    {inj.resolved ? 'Résolu' : 'Actif'}
+                    {inj.resolved ? 'Résolu' : inj.status === 'stop_advised' ? 'En pause' : 'Actif'}
                   </Badge>
+                  {inj.level > 0 && <span className="text-xs text-white/50 ml-2">réduction cran {inj.level}</span>}
                 </div>
                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => removeInjury(i)}>
                   <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />

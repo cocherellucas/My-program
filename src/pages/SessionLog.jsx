@@ -22,6 +22,9 @@ import { findExerciseInChains, isAtChainBottom, ELASTIC_PROGRESSION_CHAINS } fro
 import { FRAGILE_ZONE_MUSCLES, computeVolumeProposal } from '@/lib/coaching-engine';
 import { applyVolumeProposal, markVolumeHandled, isVolumeSuppressed } from '@/lib/volume-adjust';
 import VolumeProposalCard from '@/components/coaching/VolumeProposalCard';
+import PainCheckCard from '@/components/coaching/PainCheckCard';
+import { detectZoneFromText, loadEpisodes, saveEpisodes, upsertEpisode, episodesToCheck, sessionTouchesZone, computePainPrescription } from '@/lib/pain-engine';
+import { applyPainLevel } from '@/lib/pain-adjust';
 import { EXERCISES } from '@/lib/exercise-database';
 
 const isBodyweightExercise = (name) => {
@@ -236,11 +239,22 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
   })();
 
   const underActive = filledSeries >= 1 && badSeries >= 2 && badSeries > ackedBadSeries;
-  // 'under' (objectifs non atteints) est prioritaire sur 'over' (à corriger d'abord)
-  const coachTip = coachTipsOff ? null : (underActive ? 'under' : (showObjectifBanner ? 'over' : null));
+
+  // Douleur saisie sur une série de CET exercice → conseil "amplitude" immédiat
+  const [ackedPainSeries, setAckedPainSeries] = useState(0);
+  const painSeries = (() => {
+    let n = 0;
+    for (let s = 0; s < sets; s++) if (logs[`${exIdx}-${s}`]?.pain_note) n++;
+    return n;
+  })();
+  const painActive = painSeries > ackedPainSeries;
+
+  // Priorité : 'pain' (sécurité) > 'under' (objectifs non atteints) > 'over'
+  const coachTip = coachTipsOff ? null : (painActive ? 'pain' : (underActive ? 'under' : (showObjectifBanner ? 'over' : null)));
 
   const dismissTip = () => {
-    if (coachTip === 'under') setAckedBadSeries(badSeries);
+    if (coachTip === 'pain') setAckedPainSeries(painSeries);
+    else if (coachTip === 'under') setAckedBadSeries(badSeries);
     else if (coachTip === 'over') setAckedGoodSeries(goodAboveSeries);
     setTipOpen(false);
   };
@@ -610,9 +624,10 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
       </div>
     </motion.div>
 
-    {/* Conseil du coach — bulle flottante (objectifs non atteints / dépassés) */}
+    {/* Conseil du coach — bulle flottante (douleur / objectifs non atteints / dépassés) */}
     {coachTip && (() => {
       const isUnder = coachTip === 'under';
+      const isPain = coachTip === 'pain';
       const currentRest = currentRestSeconds ?? exercise.rest_seconds ?? 90;
       const atBottom = !inChain || isAtChainBottom(exercise.name);
       return (
@@ -621,11 +636,13 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
             <div className="w-72 max-w-[calc(100vw-2rem)] rounded-2xl p-4 shadow-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #1e0050 0%, #3b0764 50%, #1e0050 100%)', border: '1px solid rgba(139,92,246,0.5)', boxShadow: '0 0 30px rgba(139,92,246,0.3), 0 8px 32px rgba(0,0,0,0.4)' }}>
               <div className="flex items-start gap-2">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-white">{isUnder ? 'Objectifs non atteints' : 'Objectifs dépassés'}</p>
+                  <p className="text-sm font-bold text-white">{isPain ? 'Gêne signalée — écoute ton corps' : isUnder ? 'Objectifs non atteints' : 'Objectifs dépassés'}</p>
                   <p className="text-xs text-violet-200/80 mt-0.5">
-                    {isUnder
-                      ? (atBottom ? 'Augmente le repos pour mieux récupérer et atteindre tes cibles.' : 'Ajuste le repos ou passe à une variante plus simple.')
-                      : 'Réduis le repos ou augmente le poids.'}
+                    {isPain
+                      ? 'Continue dans l\'amplitude qui ne réveille pas la douleur : réduis l\'amplitude si besoin, contrôle la descente, arrête la série dès la gêne. Je te redemanderai comment ça a réagi.'
+                      : isUnder
+                        ? (atBottom ? 'Augmente le repos pour mieux récupérer et atteindre tes cibles.' : 'Ajuste le repos ou passe à une variante plus simple.')
+                        : 'Réduis le repos ou augmente le poids.'}
                   </p>
                 </div>
                 <button onClick={() => { setTipOpen(false); setConfirmDisableTips(false); }} className="text-white/30 hover:text-white/60 transition-colors flex-shrink-0">
@@ -634,7 +651,38 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
               </div>
 
               <div className="flex flex-wrap gap-2 mt-3">
-                {isUnder ? (
+                {isPain ? (
+                  <>
+                    {!isBodyweightExercise(exercise.name) && (
+                      <button onClick={() => {
+                          for (let s = activeSetIdx; s < sets; s++) {
+                            const key = `${exIdx}-${s}`;
+                            const current = parseFloat(logs[key]?.weight) || 0;
+                            if (current > 0) {
+                              const step = current < 10 ? 0.5 : 2.5;
+                              let r = Math.round((current * 0.8) / step) * step;
+                              if (r >= current) r = Math.max(0, current - step);
+                              updateLog(exIdx, s, 'weight', r);
+                            }
+                          }
+                          dismissTip();
+                        }}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors">
+                        −20 % sur les séries restantes
+                      </button>
+                    )}
+                    {inChain && (
+                      <button onClick={() => { onRegressionRequest(exIdx); setTipOpen(false); }}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-white/20 text-white font-medium hover:bg-white/30 transition-colors">
+                        Variante simple
+                      </button>
+                    )}
+                    <button onClick={dismissTip}
+                      className="text-xs px-3 py-1.5 rounded-lg bg-white/10 text-white/80 font-medium hover:bg-white/20 transition-colors">
+                      Compris
+                    </button>
+                  </>
+                ) : isUnder ? (
                   <>
                     <button onClick={() => { onExtendRest(exIdx, Math.min(currentRest + 30, 300)); dismissTip(); }}
                       className="text-xs px-3 py-1.5 rounded-lg bg-chart-4 text-white font-medium hover:bg-chart-4/80 transition-colors flex items-center gap-1">
@@ -713,7 +761,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
             aria-label="Conseil du coach">
             <Bot className="w-6 h-6 text-white" />
             {!tipOpen && (
-              <span className={`absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-[#1e0050] animate-pulse ${isUnder ? 'bg-destructive' : 'bg-green-400'}`} />
+              <span className={`absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-[#1e0050] animate-pulse ${isPain ? 'bg-orange-400' : isUnder ? 'bg-destructive' : 'bg-green-400'}`} />
             )}
           </button>
         </div>
@@ -1001,6 +1049,10 @@ export default function SessionLog() {
   const [saving, setSaving] = useState(false);
   const [volumeProposal, setVolumeProposal] = useState(null); // { proposal, programId } — étape fin de séance
   const [volumeBusy, setVolumeBusy] = useState(false);
+  // Suivi douleur — question « comment a réagi ta zone ? » en début de séance
+  const [painCheckEp, setPainCheckEp] = useState(null);
+  const [painProposal, setPainProposal] = useState(null);
+  const [painBusy, setPainBusy] = useState(false);
   const [scrollReady, setScrollReady] = useState(false);
   const [currentExIdx, setCurrentExIdx] = useState(() => _draft.currentExIdx || 0);
   const [navDir, setNavDir] = useState('next'); // sens de navigation entre exos (prev → ouvre la dernière série)
@@ -1219,6 +1271,54 @@ export default function SessionLog() {
     },
     enabled: !!sessionId
   });
+
+  // Suivi douleur : si un épisode actif concerne cette séance et n'a pas été
+  // checké aujourd'hui (ni sur l'Accueil), on pose la question au démarrage.
+  const painCheckedRef = useRef(null);
+  useEffect(() => {
+    if (!session || !user?.id || session.status === 'completed') return;
+    if (painCheckedRef.current === session.id) return;
+    painCheckedRef.current = session.id;
+    let cancelled = false;
+    (async () => {
+      try {
+        const eps = await loadEpisodes(user.id);
+        const cand = episodesToCheck(eps).find(e => sessionTouchesZone(session, e.zone));
+        if (!cancelled && cand) setPainCheckEp(cand);
+      } catch {}
+    })();
+    return () => { cancelled = true; };
+  }, [session?.id, user?.id]); // eslint-disable-line
+
+  // Persiste un épisode (remplace celui de la même zone)
+  const persistEpisode = async (ep) => {
+    const eps = await loadEpisodes(user.id);
+    const merged = eps.some(e => e.zone === ep.zone) ? eps.map(e => (e.zone === ep.zone ? ep : e)) : [...eps, ep];
+    await saveEpisodes(user.id, merged);
+  };
+  const handlePainReaction = async (reaction) => {
+    if (!painCheckEp) return;
+    setPainBusy(true);
+    try {
+      const { episode: upd, proposal } = computePainPrescription(painCheckEp, reaction);
+      await persistEpisode(upd);
+      setPainCheckEp(upd);
+      setPainProposal(proposal);
+    } catch (e) { console.error('[pain] reaction', e); }
+    setPainBusy(false);
+  };
+  const handlePainApply = async () => {
+    if (!painCheckEp || !painProposal?.apply) return;
+    setPainBusy(true);
+    try {
+      const upd = await applyPainLevel(session.program_id, painCheckEp, painProposal.apply.toLevel);
+      await persistEpisode(upd);
+    } catch (e) { console.error('[pain] apply', e); }
+    setPainBusy(false);
+    setPainCheckEp(null); setPainProposal(null);
+  };
+  const handlePainManual = () => { setPainCheckEp(null); setPainProposal(null); navigate('/program?edit=true'); };
+  const handlePainDismiss = () => { setPainCheckEp(null); setPainProposal(null); };
 
   // Pour l'état vide : sait-on s'il existe un programme actif ?
   const { data: activePrograms = [] } = useQuery({
@@ -1553,6 +1653,15 @@ export default function SessionLog() {
       }
     } catch {}
 
+    // Zone identifiable → ouvre un épisode de suivi douleur (check à J+1)
+    try {
+      const zone = detectZoneFromText(painNote);
+      if (zone) {
+        const eps = await loadEpisodes(user.id);
+        await saveEpisodes(user.id, upsertEpisode(eps, zone));
+      }
+    } catch {}
+
     // Collecter toutes les douleurs déjà signalées dans cette séance (autres exercices)
     const sessionPainsSoFar = Object.entries(logs)
       .filter(([, l]) => l.pain_note)
@@ -1621,7 +1730,8 @@ Ce que l'utilisateur dit : "${painNote}"`;
       const result = await base44.integrations.Core.InvokeLLM({ prompt, model: 'claude_sonnet_4_6' });
       return typeof result === 'string' ? result : result?.response || "Je n'ai pas pu analyser. Arrête si la douleur est vive.";
     } catch {
-      return "Erreur de connexion. Par précaution : si la douleur est vive, arrête l'exercice.";
+      // IA indisponible (AI_BLOCKED ou hors-ligne) → protocole douleur en règles de code
+      return "Continue dans l'amplitude qui ne réveille pas la douleur : réduis l'amplitude si besoin, contrôle la descente, arrête la série dès la gêne. Si ça persiste, baisse la charge de ~20 %. Douleur vive = arrête l'exercice. Je te redemanderai demain comment ça a réagi.";
     }
   };
 
@@ -1782,6 +1892,18 @@ Ce que l'utilisateur dit : "${painNote}"`;
           await base44.entities.UserMemory.create({ user_id: user.id, coach_notes: painNote });
         }
       } catch {}
+      // Ouvre un épisode de suivi par zone détectée (notes de séance + douleurs par série)
+      try {
+        const zones = new Set();
+        const zNotes = detectZoneFromText(noteText);
+        if (zNotes) zones.add(zNotes);
+        setPainEntries.forEach(t => { const z = detectZoneFromText(t); if (z) zones.add(z); });
+        if (zones.size) {
+          let eps = await loadEpisodes(user.id);
+          zones.forEach(z => { eps = upsertEpisode(eps, z); });
+          await saveEpisodes(user.id, eps);
+        }
+      } catch {}
     }
 
     queryClient.invalidateQueries({ queryKey: ['sessions'] });
@@ -1926,6 +2048,19 @@ Ce que l'utilisateur dit : "${painNote}"`;
           </div>
         )}
       </div>
+
+      {/* Suivi douleur : réaction de la zone depuis la dernière séance */}
+      {painCheckEp && !showEnd && (
+        <PainCheckCard
+          episode={painCheckEp}
+          proposal={painProposal}
+          busy={painBusy}
+          onReaction={handlePainReaction}
+          onApply={handlePainApply}
+          onManual={handlePainManual}
+          onDismiss={handlePainDismiss}
+        />
+      )}
 
       {/* Quit confirm */}
       {showQuitConfirm && createPortal(
