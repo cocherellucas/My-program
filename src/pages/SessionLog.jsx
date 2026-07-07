@@ -1118,14 +1118,37 @@ export default function SessionLog() {
     // Changer de champ clavier déjà ouvert ne déclenche aucun resize → recadrer au focus
     const onFocusIn = (e) => { if (isEditable(e.target)) recenter(); };
 
+    // Quitter l'app clavier ouvert : aucun événement viewport ne se déclenche en
+    // arrière-plan → le conteneur reste figé sur l'état "clavier ouvert" (écran
+    // décalé/compressé au retour). On ferme le clavier en quittant, et on
+    // resynchronise en plusieurs passes au retour (le viewport met un moment à
+    // se stabiliser après la reprise).
+    const resyncSoon = () => {
+      syncContainer();
+      requestAnimationFrame(syncContainer);
+      [150, 400, 800].forEach(d => setTimeout(syncContainer, d));
+    };
+    const onVisibility = () => {
+      if (document.hidden) {
+        const ae = document.activeElement;
+        if (isEditable(ae)) ae.blur();
+      } else {
+        resyncSoon();
+      }
+    };
+
     syncContainer();
     vv.addEventListener('resize', onVVResize);
     vv.addEventListener('scroll', onVVScroll);
     document.addEventListener('focusin', onFocusIn);
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('pageshow', resyncSoon);
     return () => {
       vv.removeEventListener('resize', onVVResize);
       vv.removeEventListener('scroll', onVVScroll);
       document.removeEventListener('focusin', onFocusIn);
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('pageshow', resyncSoon);
       document.body.classList.remove('keyboard-open');
     };
   }, []);
@@ -1211,6 +1234,19 @@ export default function SessionLog() {
       localStorage.setItem('active_session_id', sessionId);
     } catch {}
   }, [logs, currentExIdx, fatigue, notes, restTimeForEx, sessionExercises, showEnd, sessionId]);
+
+  // Changement d'exercice (Suivant/Précédent) ou passage à l'écran de fin →
+  // remonter en haut pour voir l'exercice en cours (sinon on reste en bas,
+  // là où était le bouton). Le premier rendu est ignoré pour laisser la
+  // restauration de position (reprise de brouillon) faire son travail.
+  const exScrollRef = useRef(null);
+  useEffect(() => {
+    const snapshot = `${currentExIdx}|${showEnd}`;
+    if (exScrollRef.current === null) { exScrollRef.current = snapshot; return; }
+    if (exScrollRef.current === snapshot) return;
+    exScrollRef.current = snapshot;
+    scrollRootRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+  }, [currentExIdx, showEnd]);
 
   useEffect(() => {
     if (!sessionId) return;
@@ -1908,6 +1944,9 @@ Ce que l'utilisateur dit : "${painNote}"`;
 
     queryClient.invalidateQueries({ queryKey: ['sessions'] });
     queryClient.invalidateQueries({ queryKey: ['program-sessions'] });
+    // Library reste montée en permanence (carrousel) → sans invalidation, ses
+    // "séances complétées" ne se rafraîchiraient qu'au rechargement de l'app.
+    queryClient.invalidateQueries({ queryKey: ['completed-sessions'] });
     try { localStorage.removeItem(`session_draft_${sessionId}`); localStorage.removeItem('active_session_id'); localStorage.removeItem(`session_scroll_${sessionId}`); } catch {}
 
     // Si douleur → afficher notification coach avant de naviguer
@@ -1928,9 +1967,15 @@ Ce que l'utilisateur dit : "${painNote}"`;
           base44.entities.Program.filter({ status: 'active' }, '-created_date', 1),
         ]);
         const program = progs?.[0] || null;
-        const proposal = (program && !isVolumeSuppressed(program.id))
+        let proposal = (program && !isVolumeSuppressed(program.id))
           ? computeVolumeProposal({ sessions: progSessions, program, user, seriesLogs: recentLogs })
           : null;
+        // Pas d'AUGMENTATION de volume pendant un épisode de douleur en cours
+        // (contradictoire avec les réductions du suivi) — les baisses restent ok.
+        if (proposal?.direction === 'increase') {
+          const eps = await loadEpisodes(user.id);
+          if (eps.some(e => e.status === 'active' || e.status === 'stop_advised')) proposal = null;
+        }
         if (proposal) { setVolumeProposal({ proposal, programId: program.id }); return; }
       } catch (e) { console.error('[volume] end-of-session', e); }
       navigate('/program');
@@ -2031,7 +2076,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
       {/* Top bar */}
       <div className="space-y-2">
         <div>
-          <h1 className="text-2xl font-heading font-bold text-white">{(session.day_label || 'Séance').replace(/^(week|semaine)\s*\d+\s*[-–:·]?\s*/i, '').replace(/\bmonday\b/gi, 'Lundi').replace(/\btuesday\b/gi, 'Mardi').replace(/\bwednesday\b/gi, 'Mercredi').replace(/\bthursday\b/gi, 'Jeudi').replace(/\bfriday\b/gi, 'Vendredi').replace(/\bsaturday\b/gi, 'Samedi').replace(/\bsunday\b/gi, 'Dimanche')}</h1>
+          <h1 className="text-2xl font-heading font-bold text-white">{(session.day_label || 'Séance').replace(/\s*§\d+/g, '').replace(/^(week|semaine)\s*\d+\s*[-–:·]?\s*/i, '').replace(/\bmonday\b/gi, 'Lundi').replace(/\btuesday\b/gi, 'Mardi').replace(/\bwednesday\b/gi, 'Mercredi').replace(/\bthursday\b/gi, 'Jeudi').replace(/\bfriday\b/gi, 'Vendredi').replace(/\bsaturday\b/gi, 'Samedi').replace(/\bsunday\b/gi, 'Dimanche')}</h1>
           <p className="text-white/70 text-sm">{exercises.length} exercices</p>
         </div>
         {!showEnd && (

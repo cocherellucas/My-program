@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import Sidebar from './Sidebar';
 import MobileNav from './MobileNav';
@@ -217,6 +217,10 @@ export default function AppLayout() {
   }, [navigate, x, cleanup]);
 
   const numPages = NAV_PATHS.length;
+  // Routes DANS le layout mais HORS du carrousel (/analytics, /memory,
+  // /admin/pricing, /gif-check) : rendues via Outlet — sans ça, AppLayout
+  // affichait le Dashboard à leur place (aucun Outlet → enfant jamais rendu).
+  const isCarouselPath = NAV_PATHS.includes(location.pathname);
 
   return (
     <div className="min-h-screen bg-violet-600">
@@ -236,11 +240,22 @@ export default function AppLayout() {
           overflow: 'hidden',
           position: 'relative',
         }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onTouchCancel={handleTouchCancel}
+        onTouchStart={isCarouselPath ? handleTouchStart : undefined}
+        onTouchMove={isCarouselPath ? handleTouchMove : undefined}
+        onTouchEnd={isCarouselPath ? handleTouchEnd : undefined}
+        onTouchCancel={isCarouselPath ? handleTouchCancel : undefined}
       >
+        {!isCarouselPath ? (
+          <div
+            style={{ height: '100%', overflowY: 'auto', WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}
+            className={keyboardOpen ? 'pb-2' : 'pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0'}
+          >
+            <div className="max-w-7xl mx-auto p-4 md:p-8">
+              <Outlet />
+            </div>
+          </div>
+        ) : (
+        <>
         {/* Carousel — toutes les pages toujours montées */}
         <motion.div
           style={{
@@ -300,6 +315,8 @@ export default function AppLayout() {
         {/* CoachIA et SessionLog montés HORS du carrousel (position:fixed propre) */}
         {currentIdx === COACH_IDX && <CoachIA />}
         {currentIdx === SESSION_IDX && <SessionLog />}
+        </>
+        )}
       </main>
 
       <style>{`

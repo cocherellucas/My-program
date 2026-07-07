@@ -142,7 +142,13 @@ export default function Program() {
         if (!cur) { bySlot.set(key, s); continue; }
         const curUpcoming = cur.status === 'planned' && cur.planned_date >= todayStr;
         if (isUpcoming && !curUpcoming) bySlot.set(key, s);
-        else if (isUpcoming && curUpcoming) { if (s.planned_date < cur.planned_date) bySlot.set(key, s); }
+        else if (isUpcoming && curUpcoming) {
+          // Instance la plus COMPLÈTE d'abord (le suivi douleur peut retirer des
+          // exos d'une séance sur deux → ne pas propager ce retrait au cycle),
+          // puis la plus proche dans le temps.
+          const exN = (s.exercises || []).length, curN = (cur.exercises || []).length;
+          if (exN > curN || (exN === curN && s.planned_date < cur.planned_date)) bySlot.set(key, s);
+        }
         else if (!isUpcoming && !curUpcoming) { if (s.planned_date > cur.planned_date) bySlot.set(key, s); }
       }
       // Référence de poids affichée = poids de la DERNIÈRE SÉRIE COMPLÉTÉE de chaque

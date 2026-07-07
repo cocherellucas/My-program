@@ -97,7 +97,7 @@ function SavedProgramCard({ prog, onDelete, onReapply, isReapplying }) {
                     <button type="button" onClick={() => setOpenSessions(o => ({ ...o, [i]: !o[i] }))}
                       className="w-full px-3 py-2 text-left hover:bg-white/5 transition-colors">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="font-medium text-white text-sm truncate flex-1">{s.day_label || s.day}</span>
+                        <span className="font-medium text-white text-sm truncate flex-1">{(s.day_label || s.day || '').replace(/\s*§\d+/g, '')}</span>
                         {!isImported && <Badge className={`text-xs flex-shrink-0 ${TYPE_COLORS[s.type] || 'bg-muted'}`}>{TYPE_LABELS[s.type] || s.type}</Badge>}
                         {(s.exercises?.length > 0) && <ChevronDown className={`w-4 h-4 text-white/50 flex-shrink-0 transition-transform ${openSessions[i] ? 'rotate-180' : ''}`} />}
                       </div>
@@ -158,7 +158,7 @@ function SessionHistoryCard({ session }) {
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-medium text-sm text-white">{session.day_label || 'Séance'}</span>
+              <span className="font-medium text-sm text-white">{(session.day_label || 'Séance').replace(/\s*§\d+/g, '')}</span>
               <Badge className={`text-xs ${TYPE_COLORS[session.type] || 'bg-muted'}`}>
                 {TYPE_LABELS[session.type] || session.type}
               </Badge>

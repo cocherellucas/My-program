@@ -45,7 +45,7 @@ export default function PainCheckCard({ episode, proposal, busy, onReaction, onA
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 mt-3">
+      <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
         {paused ? (
           <>
             <button onClick={onResume} disabled={busy} className={`${btn} bg-white text-violet-700 hover:bg-white/90`}>Reprendre le suivi</button>

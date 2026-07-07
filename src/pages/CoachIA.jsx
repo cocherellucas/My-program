@@ -136,12 +136,32 @@ export default function CoachIA() {
       setContainerTop(vv.offsetTop || 0);
       if (isOpen) setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'instant' }), 50);
     };
+    // Quitter l'app clavier ouvert : aucun événement viewport en arrière-plan →
+    // containerH/Top restent figés "clavier ouvert" (écran décalé au retour).
+    // On ferme le clavier en quittant et on resynchronise au retour.
+    const resyncSoon = () => {
+      update();
+      requestAnimationFrame(update);
+      [150, 400, 800].forEach(d => setTimeout(update, d));
+    };
+    const onVisibility = () => {
+      if (document.hidden) {
+        const ae = document.activeElement;
+        if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable === true)) ae.blur();
+      } else {
+        resyncSoon();
+      }
+    };
     update();
     window.visualViewport?.addEventListener('resize', update);
     window.visualViewport?.addEventListener('scroll', update);
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('pageshow', resyncSoon);
     return () => {
       window.visualViewport?.removeEventListener('resize', update);
       window.visualViewport?.removeEventListener('scroll', update);
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('pageshow', resyncSoon);
     };
   }, []);
 

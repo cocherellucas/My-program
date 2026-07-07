@@ -86,7 +86,7 @@ export default function NextSessionCard({ todaySession, nextSession, hasSessions
             <p className="text-xs text-white/50 mb-2 uppercase tracking-wide font-semibold">Prochaine séance</p>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-white">{nextSession.day_label || nextSession.type}</p>
+                <p className="text-sm font-semibold text-white">{(nextSession.day_label || nextSession.type || '').replace(/\s*§\d+/g, '')}</p>
                 <p className="text-xs text-white/60">
                   {nextSession.planned_date && format(new Date(nextSession.planned_date), 'EEEE d MMMM', { locale: fr })}
                   {' · '}{nextSession.estimated_duration || 60} min

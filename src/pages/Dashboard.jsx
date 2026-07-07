@@ -113,7 +113,10 @@ export default function Dashboard() {
     if (activeProgram) markVolumeHandled(activeProgram.id);
     setVolumeTick(t => t + 1);
   };
-  const showVolumeCard = !!volumeProposal && !!activeProgram && !isVolumeSuppressed(activeProgram.id);
+  // Pas de proposition d'AUGMENTATION de volume pendant un épisode de douleur
+  // (contradictoire avec les réductions du suivi) — les baisses restent permises.
+  const showVolumeCard = !!volumeProposal && !!activeProgram && !isVolumeSuppressed(activeProgram.id)
+    && !(volumeProposal.direction === 'increase' && hasActivePain);
 
   const handleCheckin = (sessionId, data) => {
     const updated = saveCheckin(sessionId, data);
@@ -126,10 +129,12 @@ export default function Dashboard() {
   const [painCheckEp, setPainCheckEp] = useState(null);
   const [painProposal, setPainProposal] = useState(null);
   const [painBusy, setPainBusy] = useState(false);
+  const [hasActivePain, setHasActivePain] = useState(false);
   useEffect(() => {
     if (!user?.id) return;
     loadEpisodes(user.id).then(eps => {
       setPainCheckEp(episodesToCheck(eps)[0] || eps.find(e => e.status === 'stop_advised') || null);
+      setHasActivePain(eps.some(e => e.status === 'active' || e.status === 'stop_advised'));
     }).catch(() => {});
   }, [user?.id]);
 
@@ -191,24 +196,25 @@ export default function Dashboard() {
         <CheckIn24h sessions={sessionsNeedingCheckin} onSubmit={handleCheckin} />
       )}
 
+      {/* Suivi douleur : juste sous la Séance du jour (ou en tête s'il n'y a rien) */}
       <div className={`grid gap-6 ${activeProgram ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
-        <NextSessionCard todaySession={todaySession} nextSession={nextSession} hasSessions={hasSessions} activeProgram={activeProgram} />
-        {activeProgram && <ProgramSummaryCard program={activeProgram} objectives={objectives} />}
+        {hasSessions && <NextSessionCard todaySession={todaySession} nextSession={nextSession} hasSessions={hasSessions} activeProgram={activeProgram} />}
+        {painCheckEp && (
+          <PainCheckCard
+            episode={painCheckEp}
+            proposal={painProposal}
+            busy={painBusy}
+            onReaction={handlePainReaction}
+            onApply={handlePainApply}
+            onManual={handlePainManual}
+            onDismiss={handlePainDismiss}
+            onResume={handlePainResume}
+            onEnd={handlePainEnd}
+          />
+        )}
+        {!hasSessions && <NextSessionCard todaySession={todaySession} nextSession={nextSession} hasSessions={hasSessions} activeProgram={activeProgram} />}
+        {activeProgram && <ProgramSummaryCard program={activeProgram} objectives={objectives} sessions={sessions} />}
       </div>
-
-      {painCheckEp && (
-        <PainCheckCard
-          episode={painCheckEp}
-          proposal={painProposal}
-          busy={painBusy}
-          onReaction={handlePainReaction}
-          onApply={handlePainApply}
-          onManual={handlePainManual}
-          onDismiss={handlePainDismiss}
-          onResume={handlePainResume}
-          onEnd={handlePainEnd}
-        />
-      )}
 
       {showVolumeCard && (
         <VolumeProposalCard

@@ -1,20 +1,29 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { Flame, Target, TrendingUp, CalendarCheck } from 'lucide-react';
+import { Flame, Target, CalendarCheck, CalendarDays } from 'lucide-react';
 
 export default function StatsRow({ sessions, program }) {
   const completedSessions = sessions.filter(s => s.status === 'completed');
   const totalPlanned = sessions.filter(s => s.status !== 'skipped').length;
   const adherence = totalPlanned > 0 ? Math.round((completedSessions.length / totalPlanned) * 100) : 0;
-  const avgFatigue = completedSessions.length > 0 
+  const avgFatigue = completedSessions.length > 0
     ? (completedSessions.reduce((sum, s) => sum + (s.global_fatigue || 0), 0) / completedSessions.length).toFixed(1)
     : '—';
+
+  // Séances de la semaine calendaire en cours (faites / prévues)
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  const mon = new Date(now); mon.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+  const toStr = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const monS = toStr(mon), sunS = toStr(sun);
+  const weekSessions = sessions.filter(s => s.planned_date && s.planned_date >= monS && s.planned_date <= sunS && s.status !== 'skipped');
+  const weekDone = weekSessions.filter(s => s.status === 'completed').length;
 
   const stats = [
     { label: 'Séances complétées', value: completedSessions.length, icon: CalendarCheck, color: 'text-primary' },
     { label: 'Adhérence', value: `${adherence}%`, icon: Target, color: 'text-accent' },
     { label: 'Fatigue moy.', value: avgFatigue, icon: Flame, color: 'text-chart-4' },
-    { label: 'Phase', value: program?.active_phase || '—', icon: TrendingUp, color: 'text-chart-3' },
+    { label: 'Cette semaine', value: `${weekDone}/${weekSessions.length}`, icon: CalendarDays, color: 'text-chart-3' },
   ];
 
   return (
