@@ -23,7 +23,7 @@ import { FRAGILE_ZONE_MUSCLES, computeVolumeProposal } from '@/lib/coaching-engi
 import { applyVolumeProposal, markVolumeHandled, isVolumeSuppressed } from '@/lib/volume-adjust';
 import VolumeProposalCard from '@/components/coaching/VolumeProposalCard';
 import PainCheckCard from '@/components/coaching/PainCheckCard';
-import { detectZoneFromText, loadEpisodes, saveEpisodes, upsertEpisode, episodesToCheck, sessionTouchesZone, computePainPrescription } from '@/lib/pain-engine';
+import { detectZoneFromText, loadEpisodes, saveEpisodes, upsertEpisode, episodesToCheck, sessionTouchesZone, computePainPrescription, buildPainAdvice } from '@/lib/pain-engine';
 import { applyPainLevel } from '@/lib/pain-adjust';
 import { EXERCISES } from '@/lib/exercise-database';
 
@@ -1764,10 +1764,11 @@ Ce que l'utilisateur dit : "${painNote}"`;
 
     try {
       const result = await base44.integrations.Core.InvokeLLM({ prompt, model: 'claude_sonnet_4_6' });
-      return typeof result === 'string' ? result : result?.response || "Je n'ai pas pu analyser. Arrête si la douleur est vive.";
+      return typeof result === 'string' ? result : result?.response || buildPainAdvice(painNote);
     } catch {
-      // IA indisponible (AI_BLOCKED ou hors-ligne) → protocole douleur en règles de code
-      return "Continue dans l'amplitude qui ne réveille pas la douleur : réduis l'amplitude si besoin, contrôle la descente, arrête la série dès la gêne. Si ça persiste, baisse la charge de ~20 %. Douleur vive = arrête l'exercice. Je te redemanderai demain comment ça a réagi.";
+      // IA indisponible (AI_BLOCKED ou hors-ligne) → arbre de décision douleur
+      // en règles de code (gravité → nature → moment → zone → ancienneté)
+      return buildPainAdvice(painNote);
     }
   };
 

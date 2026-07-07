@@ -12,6 +12,7 @@ import { buildSystemPrompt } from '@/lib/coach-prompts';
 import { getContextualKnowledge, getMessageKnowledge } from '@/lib/scientific-knowledge-base';
 import { getAvailableExercises, getTensionProfile } from '@/lib/exercise-database';
 import { normalizeUser } from '@/lib/utils';
+import { buildPainAdvice, detectZoneFromText, loadEpisodes, saveEpisodes, upsertEpisode } from '@/lib/pain-engine';
 import { calcDuration } from '@/lib/duration';
 import ImportSessionDialog from '@/components/coach/ImportSessionDialog';
 
@@ -318,6 +319,11 @@ export default function CoachIA() {
       timeout
     ]).catch(() => {
       if (imageBase64) return "Je n'arrive pas à analyser l'image directement. Peux-tu me décrire ou copier-coller le contenu de ton programme en texte ? Je pourrai alors l'importer correctement.";
+      // IA coupée / hors-ligne : si le message décrit une douleur → arbre de
+      // décision codé (même moteur que le formulaire douleur en séance)
+      if (/douleur|mal\b|gêne|gene\b|pincement|blessure|douloureux|tendinite|inflammation|brûl|brul|craqu|fourmi|engourd/i.test(userMsg)) {
+        return buildPainAdvice(userMsg);
+      }
       return "Une erreur est survenue. Réessaie.";
     });
 
@@ -341,6 +347,16 @@ export default function CoachIA() {
           }
         } else {
           await base44.entities.UserMemory.create({ user_id: user.id, coach_notes: note });
+        }
+      } catch {}
+      // Vrai mot de douleur + zone identifiable → ouvre un épisode de suivi
+      // (le check « comment a réagi ta zone ? » arrivera à J+1, comme en séance).
+      try {
+        const painWord = /douleur|mal\b|gêne|gene\b|pincement|blessure|douloureux|tendinite|inflammation|brûl|brul|craqu|fourmi|engourd/i.test(userMsg);
+        const zone = painWord ? detectZoneFromText(userMsg) : null;
+        if (zone) {
+          const eps = await loadEpisodes(user.id);
+          await saveEpisodes(user.id, upsertEpisode(eps, zone));
         }
       } catch {}
     }
