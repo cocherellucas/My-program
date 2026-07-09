@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { Flame, Target, CalendarCheck, CalendarDays } from 'lucide-react';
+import { Flame, BadgeCheck, CalendarCheck, CalendarDays } from 'lucide-react';
 
 export default function StatsRow({ sessions, program }) {
   const completedSessions = sessions.filter(s => s.status === 'completed');
@@ -20,10 +20,10 @@ export default function StatsRow({ sessions, program }) {
   const weekDone = weekSessions.filter(s => s.status === 'completed').length;
 
   const stats = [
-    { label: 'Séances complétées', value: completedSessions.length, icon: CalendarCheck, color: 'text-primary' },
-    { label: 'Adhérence', value: `${adherence}%`, icon: Target, color: 'text-accent' },
-    { label: 'Fatigue moy.', value: avgFatigue, icon: Flame, color: 'text-chart-4' },
-    { label: 'Cette semaine', value: `${weekDone}/${weekSessions.length}`, icon: CalendarDays, color: 'text-chart-3' },
+    { label: 'Séances complétées', value: completedSessions.length, icon: CalendarCheck, color: 'text-fuchsia-300' },
+    { label: 'Adhérence', value: `${adherence}%`, icon: BadgeCheck, color: 'text-green-300' },
+    { label: 'Fatigue moy.', value: avgFatigue, icon: Flame, color: 'text-orange-300' },
+    { label: 'Cette semaine', value: `${weekDone}/${weekSessions.length}`, icon: CalendarDays, color: 'text-violet-200' },
   ];
 
   return (

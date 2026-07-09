@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { base44 } from '@/api/base44Client';
@@ -9,6 +9,15 @@ export default function Settings() {
   const navigate = useNavigate();
   const { resetTutorial } = useTutorial() || {};
   const [confirmLogout, setConfirmLogout] = useState(false);
+
+  // Infos du compte (email, ancienneté, plan)
+  const [account, setAccount] = useState(null);
+  useEffect(() => { base44.auth.me().then(setAccount).catch(() => {}); }, []);
+  const memberSince = (() => {
+    const d = account?.created_at || account?.created_date;
+    if (!d) return null;
+    try { return new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }); } catch { return null; }
+  })();
 
   // Conseils du coach pendant la séance (préférence locale)
   const [coachTipsEnabled, setCoachTipsEnabled] = useState(() => {
@@ -32,6 +41,7 @@ export default function Settings() {
 
   // Tutoriels réinitialisables individuellement (rejouent à leur prochaine occasion)
   const TUTORIALS = [
+    { id: 'import-dialog', label: 'Importation de séances', hint: 'Rejoue à la prochaine ouverture de l\'importation (Programme → Modifier / Importer).' },
     { id: 'coach-tip-intro', label: 'Conseils du coach en séance', hint: 'Rejoue quand un conseil apparaîtra pendant une séance.' },
     { id: 'profile-intro', label: 'Création du profil', hint: 'Rejoue à la prochaine visite de l\'étape profil.' },
     { id: 'objectives-intro', label: 'Choix des objectifs', hint: 'Rejoue à la prochaine visite de l\'étape objectifs.' },
@@ -147,6 +157,20 @@ export default function Settings() {
       {/* Compte */}
       <div className="space-y-3">
         <p className="text-xs font-medium text-white/50 uppercase tracking-wide">Compte</p>
+        <div className="rounded-2xl bg-white/10 border border-white/15 overflow-hidden divide-y divide-white/10">
+          <div className="flex items-center justify-between gap-3 p-4">
+            <span className="text-sm text-white/60">Email</span>
+            <span className="text-sm text-white font-medium truncate">{account?.email || '—'}</span>
+          </div>
+          <div className="flex items-center justify-between gap-3 p-4">
+            <span className="text-sm text-white/60">Membre depuis</span>
+            <span className="text-sm text-white font-medium">{memberSince || '—'}</span>
+          </div>
+          <div className="flex items-center justify-between gap-3 p-4">
+            <span className="text-sm text-white/60">Plan</span>
+            <span className="text-sm text-white font-medium capitalize">{account?.subscription_plan || 'Starter'}</span>
+          </div>
+        </div>
         <button onClick={() => setConfirmLogout(true)}
           className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold bg-red-500/15 text-red-300 border border-red-400/30 hover:bg-red-500/25 transition-colors">
           <LogOut className="w-4 h-4" /> Déconnexion

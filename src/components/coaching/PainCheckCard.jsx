@@ -18,13 +18,19 @@ export default function PainCheckCard({ episode, proposal, busy, onReaction, onA
   const btn = 'text-xs font-semibold px-3 py-2 rounded-lg transition-colors disabled:opacity-60';
 
   return (
-    <div className="rounded-2xl p-4 border" style={{ background: 'linear-gradient(135deg,#1e0050,#3b0764 55%,#1e0050)', borderColor: isStop || paused ? 'rgba(248,113,113,0.5)' : 'rgba(139,92,246,0.45)' }}>
-      <div className="flex items-start gap-3">
-        <div className={`flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center ${isStop || paused ? 'bg-red-500/15' : 'bg-chart-4/15'}`}>
-          {isStop || paused
-            ? <AlertTriangle className="w-5 h-5 text-red-400" />
-            : <HeartPulse className="w-5 h-5 text-chart-4" />}
-        </div>
+    <div className={`relative overflow-hidden rounded-2xl p-4 border bg-white/15 backdrop-blur-sm ${isStop || paused ? 'border-red-400/50' : 'border-white/20'}`}>
+      {/* Cœurs décoratifs éparpillés en arrière-plan */}
+      {isStop || paused ? (
+        <AlertTriangle className="absolute top-0 right-0 w-24 h-24 text-red-400/15 -translate-y-4 translate-x-4 rotate-12 pointer-events-none" />
+      ) : (
+        <>
+          <HeartPulse className="absolute top-0 right-0 w-24 h-24 text-white/10 -translate-y-4 translate-x-4 rotate-12 pointer-events-none" />
+          <HeartPulse className="absolute bottom-0 left-0 w-14 h-14 text-white/[0.08] translate-y-3 -translate-x-2 -rotate-12 pointer-events-none" />
+          <HeartPulse className="absolute top-1/2 left-1/3 w-8 h-8 text-white/[0.07] -rotate-6 pointer-events-none" />
+          <HeartPulse className="absolute bottom-2 right-1/4 w-10 h-10 text-white/[0.08] rotate-6 pointer-events-none" />
+        </>
+      )}
+      <div className="relative flex items-start gap-3 pr-8">
         <div className="flex-1 min-w-0">
           {paused ? (
             <>

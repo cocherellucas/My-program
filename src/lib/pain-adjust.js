@@ -11,7 +11,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { base44 } from '@/api/base44Client';
 import { queryClientInstance } from '@/lib/query-client';
-import { FRAGILE_ZONE_MUSCLES } from '@/lib/coaching-engine';
+import { exerciseStressesZone } from '@/lib/pain-engine';
 
 const todayStr = () => new Date().toISOString().split('T')[0];
 
@@ -39,7 +39,6 @@ async function invalidateSessions() {
 export async function applyPainLevel(programId, episode, toLevel) {
   if (!programId || !episode) return episode;
   const zone = episode.zone;
-  const muscles = new Set(FRAGILE_ZONE_MUSCLES[zone] || []);
   const baseline = { ...(episode.baseline || {}) };
 
   const all = await base44.entities.Session.filter({ program_id: programId });
@@ -78,7 +77,9 @@ export async function applyPainLevel(programId, episode, toLevel) {
   let touchCount = 0;
   for (const s of winSessions) {
     const exs = getExs(s);
-    const zoneIdxs = exs.map((e, i) => (muscles.has(e.muscle_group) ? i : -1)).filter(i => i >= 0);
+    // Ciblage tolérant aux exos importés : muscle_group OU base d'exercices
+    // (nom) OU mots-clés du mouvement — voir exerciseStressesZone.
+    const zoneIdxs = exs.map((e, i) => (exerciseStressesZone(e, zone) ? i : -1)).filter(i => i >= 0);
     if (!zoneIdxs.length) continue;
     touchCount++;
 

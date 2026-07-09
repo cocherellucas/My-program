@@ -43,7 +43,9 @@ export default function NextSessionCard({ todaySession, nextSession, hasSessions
     const isInProgress = (() => { try { return localStorage.getItem('active_session_id') === String(todaySession.id); } catch { return false; } })();
     return (
       <Card className="p-6 bg-white/15 backdrop-blur-sm border-2 border-white/40 overflow-hidden relative shadow-lg shadow-white/10">
+        {/* Rond décoratif + cible par-dessus (même position, même taille) */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-8 translate-x-8" />
+        <Target strokeWidth={1} className="absolute top-0 right-0 w-32 h-32 text-white/20 -translate-y-8 translate-x-8" />
         <div className="relative">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-heading font-bold text-lg text-white">Séance du jour</h3>

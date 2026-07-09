@@ -8,6 +8,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { base44 } from '@/api/base44Client';
 import { FRAGILE_ZONE_MUSCLES } from '@/lib/coaching-engine';
+import { EXERCISES } from '@/lib/exercise-database';
 
 export const ZONE_LABELS = {
   wrists: 'poignet', shoulders: 'épaule', elbows: 'coude',
@@ -199,10 +200,35 @@ export function episodesToCheck(episodes) {
   );
 }
 
+// ── Correspondance exercice ↔ zone douloureuse ──
+// Triple filet, pensé pour les exercices IMPORTÉS (muscle_group absent ou non
+// standard) : 1) muscle_group direct, 2) base d'exercices retrouvée par le NOM
+// (muscles primaires + secondaires), 3) mots-clés du nom du mouvement.
+const ZONE_NAME_HINTS = {
+  wrists:     /curl|poignet|wrist|planche|handstand|atr\b|équilibre|equilibre|maltese|pompe|push[- ]?up/,
+  shoulders:  /développé|developpe|militaire|overhead|élévation|elevation|dips|planche|atr\b|handstand|front lever|traction|pull[- ]?up|pompe|push[- ]?up|oiseau|face pull/,
+  elbows:     /curl|triceps|extension|dips|traction|pull[- ]?up|skull|barre au front|pompe|push[- ]?up|front lever/,
+  knees:      /squat|fente|leg\b|presse|pistol|saut|jump|sissy|extension jambe/,
+  lower_back: /soulevé|souleve|deadlift|good morning|hyperextension|rowing barre|squat/,
+  neck:       /neck|cou\b|nuque|shrug/,
+};
+
+export function exerciseStressesZone(ex, zone) {
+  const muscles = new Set(FRAGILE_ZONE_MUSCLES[zone] || []);
+  if (muscles.has(ex?.muscle_group)) return true;
+  const name = (ex?.name || '').toLowerCase();
+  if (!name) return false;
+  const dbEx = EXERCISES.find(e => e.name?.toLowerCase() === name);
+  if (dbEx) {
+    const all = [...(dbEx.muscles?.primary || []), ...(dbEx.muscles?.secondary || [])];
+    if (all.some(m => muscles.has(m))) return true;
+  }
+  return ZONE_NAME_HINTS[zone]?.test(name) || false;
+}
+
 // La séance contient-elle des exercices qui sollicitent la zone ?
 export function sessionTouchesZone(session, zone) {
-  const muscles = new Set(FRAGILE_ZONE_MUSCLES[zone] || []);
-  return (session?.exercises || []).some(ex => muscles.has(ex.muscle_group));
+  return (session?.exercises || []).some(ex => exerciseStressesZone(ex, zone));
 }
 
 // Échelle de réduction — descriptions affichées à l'utilisateur

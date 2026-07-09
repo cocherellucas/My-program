@@ -15,6 +15,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [mode, setMode] = useState('login');
   const [showPassword, setShowPassword] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -44,6 +45,7 @@ export default function Login() {
         const params = new URLSearchParams(window.location.search);
         navigate(params.get('redirect') || '/');
       } else {
+        if (!acceptTerms) { setError("Tu dois accepter les conditions d'utilisation pour créer un compte."); setLoading(false); return; }
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
         setError('Vérifie ton email pour confirmer ton compte.');
@@ -116,13 +118,17 @@ export default function Login() {
             </Button>
 
             {mode === 'signup' && (
-              <p className="text-[11px] text-white/50 leading-snug text-center">
-                En créant un compte, tu acceptes les{' '}
-                <button type="button" onClick={() => navigate('/legal?doc=cgu')} className="underline hover:text-white/80">Conditions d'utilisation</button>
-                {' '}et la{' '}
-                <button type="button" onClick={() => navigate('/legal?doc=confidentialite')} className="underline hover:text-white/80">Politique de confidentialité</button>
-                , et tu confirmes avoir lu l'avertissement santé (consulte un médecin avant de commencer un programme).
-              </p>
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input type="checkbox" checked={acceptTerms} onChange={(e) => setAcceptTerms(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 rounded accent-violet-500 flex-shrink-0" />
+                <span className="text-[11px] text-white/60 leading-snug">
+                  J'accepte les{' '}
+                  <button type="button" onClick={() => navigate('/legal?doc=cgu')} className="underline hover:text-white/90 text-white/80">Conditions d'utilisation</button>
+                  {' '}et la{' '}
+                  <button type="button" onClick={() => navigate('/legal?doc=confidentialite')} className="underline hover:text-white/90 text-white/80">Politique de confidentialité</button>
+                  , et j'ai lu l'avertissement santé (consulter un médecin avant de commencer un programme).
+                </span>
+              </label>
             )}
           </form>
 

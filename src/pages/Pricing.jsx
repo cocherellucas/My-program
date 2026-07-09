@@ -9,7 +9,21 @@ export default function Pricing() {
   const [billing, setBilling] = useState('monthly');
   const [plans, setPlans] = useState(DEFAULT_PLANS);
   const [user, setUser] = useState(null);
+  const [comingSoon, setComingSoon] = useState(null); // plan cliqué sans lien de paiement configuré
   const navigate = useNavigate();
+
+  // Souscription : redirige vers le lien de paiement Stripe du plan (configuré
+  // dans Admin → pricing_plans, champs payment_link_monthly / payment_link_annual).
+  // On transmet l'email (pré-rempli) et l'ID utilisateur (client_reference_id)
+  // pour que le webhook Stripe active le bon compte après paiement.
+  const subscribe = (plan) => {
+    const link = billing === 'monthly' ? plan.payment_link_monthly : (plan.payment_link_annual || plan.payment_link_monthly);
+    if (!link) { setComingSoon(plan); return; }
+    const url = new URL(link);
+    if (user?.email) url.searchParams.set('prefilled_email', user.email);
+    if (user?.id) url.searchParams.set('client_reference_id', user.id);
+    window.location.href = url.toString();
+  };
 
   useEffect(() => {
     base44.auth.me().then(setUser);
@@ -157,11 +171,15 @@ export default function Pricing() {
                       <p className="text-[10px] text-white/50 mt-0.5">Économise {plan.discount_annual_pct}%</p>
                     )}
                   </div>
-                  <button className={cn(
+                  <button
+                    onClick={() => !isActive && subscribe(plan)}
+                    disabled={isActive}
+                    className={cn(
                     'w-full py-2.5 rounded-xl font-semibold text-sm transition-all',
-                    isFeatured ? 'bg-white text-violet-700' : 'bg-white/15 text-white border border-white/20'
+                    isActive ? 'bg-green-500/20 text-green-300 border border-green-400/30 cursor-default'
+                      : isFeatured ? 'bg-white text-violet-700 hover:bg-white/90' : 'bg-white/15 text-white border border-white/20 hover:bg-white/25'
                   )}>
-                    {plan.cta_label}
+                    {isActive ? 'Ton plan actuel' : plan.cta_label}
                   </button>
                   <ul className="space-y-1.5">
                     {plan.features.map((f, i) => (
@@ -178,6 +196,18 @@ export default function Pricing() {
         </div>
 
       </div>
+
+      {/* Lien de paiement pas encore configuré → info */}
+      {comingSoon && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6" onClick={() => setComingSoon(null)}>
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+          <div className="relative bg-violet-900 border border-white/20 rounded-2xl p-6 w-full max-w-xs shadow-2xl text-center space-y-3" onClick={e => e.stopPropagation()}>
+            <p className="font-bold text-white text-base">Bientôt disponible 🚀</p>
+            <p className="text-sm text-white/60">Le paiement pour le plan {comingSoon.name} arrive très prochainement.</p>
+            <button onClick={() => setComingSoon(null)} className="w-full py-2.5 rounded-xl text-sm font-semibold bg-white text-violet-700 hover:bg-white/90 transition-colors">Compris</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -10,7 +10,7 @@ export default function VolumeProposalCard({ proposal, onApply, onManual, onDism
   const Icon = isUp ? TrendingUp : TrendingDown;
 
   return (
-    <div className="rounded-2xl p-4 border" style={{ background: 'linear-gradient(135deg,#1e0050,#3b0764 55%,#1e0050)', borderColor: 'rgba(139,92,246,0.45)' }}>
+    <div className="rounded-2xl p-4 border bg-white/15 backdrop-blur-sm border-white/20">
       <div className="flex items-start gap-3">
         <div className={`flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center ${isUp ? 'bg-green-500/15' : 'bg-chart-4/15'}`}>
           <Icon className={`w-5 h-5 ${isUp ? 'text-green-400' : 'text-chart-4'}`} />

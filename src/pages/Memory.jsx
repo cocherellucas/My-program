@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
@@ -91,7 +92,7 @@ export default function Memory() {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-white/60">Aucune préférence mémorisée. Utilise le feedback en séance !</p>
+          <p className="text-sm text-white/60">Aucune préférence mémorisée. Gère tes exercices préférés ou à éviter dans Profil → Préférences.</p>
         )}
       </Card>
 
@@ -178,27 +179,37 @@ export default function Memory() {
 
       {/* Tout supprimer */}
       {memory && (
-        !confirmWipe ? (
-          <button onClick={() => setConfirmWipe(true)}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold bg-red-500/15 text-red-300 border border-red-400/30 hover:bg-red-500/25 transition-colors">
-            <Trash2 className="w-4 h-4" /> Tout supprimer
-          </button>
-        ) : (
-          <Card className="p-4 bg-white/15 backdrop-blur-sm border-red-400/30 space-y-3">
-            <p className="text-sm text-white leading-snug">Effacer toute la mémoire du coach ? Préférences, blessures/douleurs (le suivi en cours s'arrête), historique fatigue, bilans et notes — <span className="font-semibold">irréversible</span>.</p>
-            <div className="flex items-center gap-2">
-              <button onClick={wipeMemory} disabled={wiping}
-                className="text-xs px-3 py-2 rounded-lg bg-red-500 text-white font-medium hover:bg-red-600 transition-colors disabled:opacity-60">
-                {wiping ? 'Suppression…' : 'Oui, tout supprimer'}
-              </button>
+        <button onClick={() => setConfirmWipe(true)}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold bg-red-500/15 text-red-300 border border-red-400/30 hover:bg-red-500/25 transition-colors">
+          <Trash2 className="w-4 h-4" /> Tout supprimer
+        </button>
+      )}
+
+      {/* Confirmation — modal centrée avec fond flouté (même pattern que le reste de l'app) */}
+      {confirmWipe && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6" onClick={() => !wiping && setConfirmWipe(false)}>
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+          <div className="relative bg-violet-900 border border-white/20 rounded-2xl p-6 w-full max-w-xs shadow-2xl text-center space-y-4" onClick={e => e.stopPropagation()}>
+            <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mx-auto">
+              <Trash2 className="w-6 h-6 text-red-400" />
+            </div>
+            <div>
+              <p className="font-bold text-white text-base">Effacer toute la mémoire ?</p>
+              <p className="text-sm text-white/60 mt-1">Préférences, blessures/douleurs (le suivi en cours s'arrête), historique fatigue, bilans et notes. Cette action est irréversible.</p>
+            </div>
+            <div className="flex gap-3">
               <button onClick={() => setConfirmWipe(false)} disabled={wiping}
-                className="text-xs px-3 py-2 rounded-lg bg-white/15 text-white font-medium hover:bg-white/25 transition-colors">
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-white/10 text-white hover:bg-white/20 transition-colors disabled:opacity-60">
                 Annuler
               </button>
+              <button onClick={wipeMemory} disabled={wiping}
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors disabled:opacity-60">
+                {wiping ? 'Suppression…' : 'Tout supprimer'}
+              </button>
             </div>
-          </Card>
-        )
-      )}
+          </div>
+        </div>
+      , document.body)}
     </div>
   );
 }

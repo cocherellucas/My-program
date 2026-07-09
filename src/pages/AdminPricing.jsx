@@ -173,6 +173,22 @@ export default function AdminPricing() {
               </div>
             </div>
 
+            {/* Liens de paiement Stripe (plans payants) — collés depuis le dashboard Stripe */}
+            {plan.price_monthly > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Lien de paiement Stripe — mensuel</Label>
+                  <Input value={plan.payment_link_monthly || ''} placeholder="https://buy.stripe.com/…"
+                    onChange={(e) => updatePlan(idx, 'payment_link_monthly', e.target.value.trim())} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Lien de paiement Stripe — annuel</Label>
+                  <Input value={plan.payment_link_annual || ''} placeholder="https://buy.stripe.com/…"
+                    onChange={(e) => updatePlan(idx, 'payment_link_annual', e.target.value.trim())} />
+                </div>
+              </div>
+            )}
+
             {/* Features */}
             <div className="space-y-2">
               <Label className="text-xs">Fonctionnalités incluses</Label>

@@ -87,8 +87,55 @@ async function runProfileReset() {
   RESET_LOCALSTORAGE_KEYS.forEach(k => { try { localStorage.removeItem(k); } catch {} });
 }
 
+// ─── Portail d'acceptation des CGU (bloquant tant que non accepté) ───────────
+// L'acceptation est enregistrée côté serveur (profiles.accepted_terms_at) pour
+// être opposable et suivre le compte ; repli localStorage si la colonne
+// n'existe pas encore (l'app ne doit jamais être bloquée par une migration).
+const TERMS_LS_KEY = 'accepted_terms_v1';
+
+function TermsGate({ onAccepted }) {
+  const [busy, setBusy] = React.useState(false);
+  const accept = async () => {
+    setBusy(true);
+    try { await base44.auth.updateMe({ accepted_terms_at: new Date().toISOString() }); }
+    catch (e) { console.warn('[terms] colonne accepted_terms_at absente ?', e); }
+    try { localStorage.setItem(TERMS_LS_KEY, new Date().toISOString()); } catch {}
+    onAccepted();
+  };
+  const openDoc = (doc) => { window.location.href = `/legal?doc=${doc}`; };
+  return (
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-5" style={{ background: 'linear-gradient(160deg, #2e1065 0%, #1e0050 100%)' }}>
+      <div className="w-full max-w-sm rounded-2xl bg-white/10 border border-white/20 p-6 space-y-4">
+        <div className="flex items-center gap-3">
+          <img src="/robotapp.png" alt="Coach IA" className="w-10 h-10 rounded-xl object-cover" />
+          <h2 className="font-heading font-bold text-lg text-white leading-tight">Avant de commencer</h2>
+        </div>
+        <p className="text-sm text-white/70 leading-relaxed">
+          Pour utiliser Coach IA, tu dois accepter nos conditions. Important : l'app donne des conseils d'entraînement <span className="font-semibold text-white">informatifs</span>, pas d'avis médical — consulte un médecin avant de commencer un programme, et arrête en cas de douleur vive.
+        </p>
+        <div className="space-y-1.5">
+          <button onClick={() => openDoc('cgu')} className="w-full text-left text-sm text-white underline underline-offset-2 hover:text-white/80">Conditions d'utilisation</button>
+          <button onClick={() => openDoc('confidentialite')} className="w-full text-left text-sm text-white underline underline-offset-2 hover:text-white/80">Politique de confidentialité</button>
+          <button onClick={() => openDoc('mentions')} className="w-full text-left text-sm text-white underline underline-offset-2 hover:text-white/80">Mentions légales</button>
+        </div>
+        <button onClick={accept} disabled={busy}
+          className="w-full py-3 rounded-xl text-sm font-bold bg-white text-violet-700 hover:bg-white/90 transition-colors disabled:opacity-60">
+          {busy ? 'Un instant…' : "J'ai lu et j'accepte"}
+        </button>
+        <p className="text-[11px] text-white/40 leading-snug">En acceptant, tu consens aussi au traitement de tes données de santé (mensurations, fatigue, douleurs) pour personnaliser ton entraînement, comme décrit dans la politique de confidentialité.</p>
+      </div>
+    </div>
+  );
+}
+
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user, isAuthenticated } = useAuth();
+
+  // CGU : bloquant tant que non accepté (serveur OU repli local)
+  const [termsAccepted, setTermsAccepted] = React.useState(() => {
+    try { return !!localStorage.getItem(TERMS_LS_KEY); } catch { return false; }
+  });
+  const needsTerms = isAuthenticated && !!user && !user.accepted_terms_at && !termsAccepted;
 
   // Réinitialisation complète via ?resetProfile
   React.useEffect(() => {
@@ -138,6 +185,8 @@ const AuthenticatedApp = () => {
 
   return (
     <>
+      {/* CGU non acceptées → portail bloquant (après le splash) */}
+      {needsTerms && !isSplash && <TermsGate onAccepted={() => setTermsAccepted(true)} />}
       <div style={{ opacity: splashVisible ? 0 : 1, transition: 'opacity 0.5s ease', pointerEvents: splashVisible ? 'none' : 'auto' }}>
         <Routes>
           <Route path="/onboarding" element={<Onboarding />} />

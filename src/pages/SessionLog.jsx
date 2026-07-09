@@ -585,30 +585,9 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
           })}
         </div>
 
-        {/* Feedback */}
-        <div className="flex items-center gap-2 pt-2 border-t border-white/20 flex-wrap">
-          <span className="text-xs text-white/60">Retour :</span>
-          {[
-          { value: 'liked', label: 'J\'aime', bg: 'bg-white/30', text: 'text-white' },
-          { value: 'disliked', label: 'Pas fan', bg: 'bg-white/30', text: 'text-white' },
-          { value: 'change', label: 'Remplacer', bg: 'bg-white/30', text: 'text-white' }].
-          map(({ value, label, bg, text }) => {
-            const key = `${exIdx}-0`;
-            const isSelected = logs[key]?.feedback === value;
-            return (
-              <button
-                key={value}
-                onClick={() => {
-                  const newVal = isSelected ? null : value;
-                  for (let s = 0; s < sets; s++) updateLog(exIdx, s, 'feedback', newVal);
-                }}
-                className={`text-xs px-3 py-1 rounded-full transition-all font-medium ${isSelected ? `${bg} ${text}` : 'bg-white/10 text-white/60 hover:bg-white/20'}`}>
-                
-                {label}
-              </button>);
-
-          })}
-        </div>
+        {/* (Ligne "Retour : J'aime / Pas fan / Remplacer" retirée : le feedback
+            n'était consommé par aucune logique — les préférences d'exercices se
+            gèrent dans Profil → Préférences.) */}
       </Card>
 
       {/* Nav buttons */}
@@ -1498,19 +1477,24 @@ export default function SessionLog() {
           const cur = updated[key] || {};
           const prevLog = previousLogs?.[ex.name]?.[s + 1]; // set_number commence à 1
           const next = { ...cur };
+          // On marque ce qui vient d'une séance PASSÉE (prefill) → affiché grisé
+          // tant que l'utilisateur ne l'a pas saisi/validé aujourd'hui.
+          const pf = { ...(cur.prefill || {}) };
           // Poids : log précédent en priorité, sinon target_weight (on ignore 0 — "non saisi")
           if (cur.weight === undefined || cur.weight === '' || cur.weight === 0) {
             const w = (prevLog?.weight && prevLog.weight !== 0) ? prevLog.weight : ex.target_weight;
-            if (w) next.weight = w;
+            if (w) { next.weight = w; pf.weight = true; }
           }
           // Reps : log précédent (on ignore 0 — c'est "non saisi" en base)
           if ((cur.reps === undefined || cur.reps === '') && prevLog?.reps) {
             next.reps = prevLog.reps;
+            pf.reps = true;
           }
           // RIR (mode) : log précédent
-          if (!cur.mode && prevLog?.mode) next.mode = prevLog.mode;
+          if (!cur.mode && prevLog?.mode) { next.mode = prevLog.mode; pf.mode = true; }
           // Exécution (quality) : log précédent
-          if (!cur.quality && prevLog?.quality) next.quality = prevLog.quality;
+          if (!cur.quality && prevLog?.quality) { next.quality = prevLog.quality; pf.quality = true; }
+          if (Object.keys(pf).length > 0) next.prefill = pf;
           if (Object.keys(next).length > 0) updated[key] = next;
         }
       });
@@ -1521,8 +1505,13 @@ export default function SessionLog() {
   const updateLog = (exIdx, setIdx, field, value, totalSets) => {
     setLogs((prev) => {
       const key = `${exIdx}-${setIdx}`;
-      const updated = { ...prev, [key]: { ...(prev[key] || {}), [field]: value } };
-      return updated;
+      const cur = prev[key] || {};
+      const entry = { ...cur, [field]: value };
+      // Saisie/action du jour → la valeur n'est plus une "mémoire de séance passée"
+      if (cur.prefill?.[field]) entry.prefill = { ...cur.prefill, [field]: false };
+      // Valider la série = confirmer ses valeurs → tout passe en "saisi aujourd'hui"
+      if (field === 'done' && value) entry.prefill = {};
+      return { ...prev, [key]: entry };
     });
   };
 
