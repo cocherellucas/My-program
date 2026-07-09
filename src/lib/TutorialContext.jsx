@@ -82,6 +82,16 @@ export function TutorialProvider({ children }) {
     setState(s => ({ ...s, skipAll: true }));
   }, []);
 
+  // Réinitialise UN tutoriel (il rejouera à sa prochaine occasion) — et lève
+  // le skip global, sinon le tuto resterait muet malgré le reset.
+  const resetTutorial = useCallback((id) => {
+    setState(s => {
+      const completed = { ...(s.completed || {}) };
+      delete completed[id];
+      return { ...s, completed, skipAll: false };
+    });
+  }, []);
+
   // Suit la position du target via le selector (data-tutorial="...")
   useEffect(() => {
     if (!activeTutorial) { setTargetRect(null); return; }
@@ -127,7 +137,7 @@ export function TutorialProvider({ children }) {
   }, [activeTutorial]);
 
   return (
-    <TutorialContext.Provider value={{ activeTutorial, targetRect, startTutorial, nextStep, skipStep, skipAll, wakeTutorial, endTutorial, state }}>
+    <TutorialContext.Provider value={{ activeTutorial, targetRect, startTutorial, nextStep, skipStep, skipAll, wakeTutorial, endTutorial, resetTutorial, state }}>
       {children}
     </TutorialContext.Provider>
   );

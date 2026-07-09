@@ -39,6 +39,25 @@ export default function Memory() {
     queryClient.invalidateQueries({ queryKey: ['memory'] });
   };
 
+  // Tout supprimer : vide l'intégralité de la mémoire du coach (avec confirmation).
+  // Supprime aussi les épisodes de suivi douleur (injuries) → le suivi s'arrête.
+  const [confirmWipe, setConfirmWipe] = useState(false);
+  const [wiping, setWiping] = useState(false);
+  const wipeMemory = async () => {
+    if (!memory) { setConfirmWipe(false); return; }
+    setWiping(true);
+    try {
+      await base44.entities.UserMemory.update(memory.id, {
+        exercise_preferences: [], structure_preferences: [], objective_history: [],
+        fatigue_alerts: [], past_adaptations: [], injuries: [], ai_reviews: [],
+        coach_notes: '',
+      });
+      queryClient.invalidateQueries({ queryKey: ['memory'] });
+    } catch (e) { console.error('[memory] wipe', e); }
+    setWiping(false);
+    setConfirmWipe(false);
+  };
+
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
       <div>
@@ -65,8 +84,8 @@ export default function Memory() {
                   <span className="font-medium text-sm text-white">{pref.exercise}</span>
                   {pref.reason && <span className="text-xs text-white/60">— {pref.reason}</span>}
                 </div>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => removePreference(i)}>
-                  <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
+                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-red-500/20" onClick={() => removePreference(i)}>
+                  <Trash2 className="w-3.5 h-3.5 text-red-300" />
                 </Button>
               </div>
             ))}
@@ -94,8 +113,8 @@ export default function Memory() {
                   </Badge>
                   {inj.level > 0 && <span className="text-xs text-white/50 ml-2">réduction cran {inj.level}</span>}
                 </div>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => removeInjury(i)}>
-                  <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
+                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-red-500/20" onClick={() => removeInjury(i)}>
+                  <Trash2 className="w-3.5 h-3.5 text-red-300" />
                 </Button>
               </div>
             ))}
@@ -155,6 +174,30 @@ export default function Memory() {
           <Brain className="w-12 h-12 mx-auto text-white/30 mb-4" />
           <p className="text-white/70">La mémoire IA se construit au fil de tes séances</p>
         </Card>
+      )}
+
+      {/* Tout supprimer */}
+      {memory && (
+        !confirmWipe ? (
+          <button onClick={() => setConfirmWipe(true)}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold bg-red-500/15 text-red-300 border border-red-400/30 hover:bg-red-500/25 transition-colors">
+            <Trash2 className="w-4 h-4" /> Tout supprimer
+          </button>
+        ) : (
+          <Card className="p-4 bg-white/15 backdrop-blur-sm border-red-400/30 space-y-3">
+            <p className="text-sm text-white leading-snug">Effacer toute la mémoire du coach ? Préférences, blessures/douleurs (le suivi en cours s'arrête), historique fatigue, bilans et notes — <span className="font-semibold">irréversible</span>.</p>
+            <div className="flex items-center gap-2">
+              <button onClick={wipeMemory} disabled={wiping}
+                className="text-xs px-3 py-2 rounded-lg bg-red-500 text-white font-medium hover:bg-red-600 transition-colors disabled:opacity-60">
+                {wiping ? 'Suppression…' : 'Oui, tout supprimer'}
+              </button>
+              <button onClick={() => setConfirmWipe(false)} disabled={wiping}
+                className="text-xs px-3 py-2 rounded-lg bg-white/15 text-white font-medium hover:bg-white/25 transition-colors">
+                Annuler
+              </button>
+            </div>
+          </Card>
+        )
       )}
     </div>
   );

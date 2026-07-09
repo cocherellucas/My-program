@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { base44 } from '@/api/base44Client';
-import { ChevronLeft, LogOut, RotateCcw, FileText } from 'lucide-react';
+import { useTutorial } from '@/lib/TutorialContext';
+import { ChevronLeft, LogOut, RotateCcw, FileText, Brain, ChevronRight, Check } from 'lucide-react';
 
 export default function Settings() {
   const navigate = useNavigate();
+  const { resetTutorial } = useTutorial() || {};
   const [confirmLogout, setConfirmLogout] = useState(false);
 
   // Conseils du coach pendant la séance (préférence locale)
@@ -28,11 +30,22 @@ export default function Settings() {
     window.location.href = '/';
   };
 
-  // Liens juridiques — placeholders, à brancher plus tard
+  // Tutoriels réinitialisables individuellement (rejouent à leur prochaine occasion)
+  const TUTORIALS = [
+    { id: 'coach-tip-intro', label: 'Conseils du coach en séance', hint: 'Rejoue quand un conseil apparaîtra pendant une séance.' },
+    { id: 'profile-intro', label: 'Création du profil', hint: 'Rejoue à la prochaine visite de l\'étape profil.' },
+    { id: 'objectives-intro', label: 'Choix des objectifs', hint: 'Rejoue à la prochaine visite de l\'étape objectifs.' },
+  ];
+  const [resetDone, setResetDone] = useState({}); // id -> true (feedback visuel)
+  const handleResetOne = (id) => {
+    resetTutorial?.(id);
+    setResetDone(prev => ({ ...prev, [id]: true }));
+  };
+
   const LEGAL_LINKS = [
-    { label: "Conditions d'utilisation" },
-    { label: 'Politique de confidentialité' },
-    { label: 'Mentions légales' },
+    { label: "Conditions d'utilisation", doc: 'cgu' },
+    { label: 'Politique de confidentialité', doc: 'confidentialite' },
+    { label: 'Mentions légales', doc: 'mentions' },
   ];
 
   return (
@@ -61,15 +74,45 @@ export default function Settings() {
         </button>
       </div>
 
-      {/* Tutoriels */}
+      {/* Coach */}
+      <div className="space-y-3">
+        <p className="text-xs font-medium text-white/50 uppercase tracking-wide">Coach</p>
+        <button type="button" onClick={() => navigate('/memory')}
+          className="w-full flex items-center justify-between gap-3 p-4 rounded-2xl bg-white/10 border border-white/15 text-left hover:bg-white/[0.13] transition-colors">
+          <div className="flex items-center gap-3 min-w-0">
+            <Brain className="w-5 h-5 text-white/60 flex-shrink-0" />
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-white">Mémoire du coach</p>
+              <p className="text-xs text-white/45 mt-0.5 leading-snug">Préférences, douleurs suivies, historique fatigue, bilans.</p>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-white/40 flex-shrink-0" />
+        </button>
+      </div>
+
+      {/* Tutoriels — revoir individuellement, ou tout revoir */}
       <div className="space-y-3">
         <p className="text-xs font-medium text-white/50 uppercase tracking-wide">Tutoriels</p>
+        <div className="rounded-2xl bg-white/10 border border-white/15 overflow-hidden divide-y divide-white/10">
+          {TUTORIALS.map(({ id, label, hint }) => (
+            <button key={id} type="button" onClick={() => handleResetOne(id)} disabled={resetDone[id]}
+              className="w-full flex items-center justify-between gap-3 p-4 text-left hover:bg-white/[0.06] transition-colors disabled:opacity-80">
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-white">{label}</p>
+                <p className="text-xs text-white/45 mt-0.5 leading-snug">{resetDone[id] ? 'Réinitialisé — il rejouera à sa prochaine occasion.' : hint}</p>
+              </div>
+              {resetDone[id]
+                ? <Check className="w-5 h-5 text-green-400 flex-shrink-0" />
+                : <RotateCcw className="w-4 h-4 text-white/50 flex-shrink-0" />}
+            </button>
+          ))}
+        </div>
         {!confirmResetTutos ? (
           <button type="button" onClick={() => setConfirmResetTutos(true)}
             className="w-full flex items-center justify-between gap-3 p-4 rounded-2xl bg-white/10 border border-white/15 text-left hover:bg-white/[0.13] transition-colors">
             <div className="min-w-0">
-              <p className="text-sm font-medium text-white">Revoir les tutoriels</p>
-              <p className="text-xs text-white/45 mt-0.5 leading-snug">Rejoue les explications (importation, fonctionnement de l'app…).</p>
+              <p className="text-sm font-medium text-white">Revoir tous les tutoriels</p>
+              <p className="text-xs text-white/45 mt-0.5 leading-snug">Réinitialise tout (l'app se recharge).</p>
             </div>
             <RotateCcw className="w-5 h-5 text-white/50 flex-shrink-0" />
           </button>
@@ -77,7 +120,7 @@ export default function Settings() {
           <div className="p-4 rounded-2xl bg-white/10 border border-white/15 space-y-3">
             <p className="text-xs text-white/70 leading-snug">Relancer tous les tutoriels ? L'app va se recharger et les explications réapparaîtront aux endroits concernés.</p>
             <div className="flex items-center gap-2">
-              <button onClick={resetTutorials} className="text-xs px-3 py-2 rounded-lg bg-violet-500 text-white font-medium hover:bg-violet-600 transition-colors">Oui, revoir</button>
+              <button onClick={resetTutorials} className="text-xs px-3 py-2 rounded-lg bg-violet-500 text-white font-medium hover:bg-violet-600 transition-colors">Oui, tout revoir</button>
               <button onClick={() => setConfirmResetTutos(false)} className="text-xs px-3 py-2 rounded-lg bg-white/15 text-white font-medium hover:bg-white/25 transition-colors">Annuler</button>
             </div>
           </div>
@@ -88,14 +131,15 @@ export default function Settings() {
       <div className="space-y-3">
         <p className="text-xs font-medium text-white/50 uppercase tracking-wide">Juridique</p>
         <div className="rounded-2xl bg-white/10 border border-white/15 overflow-hidden divide-y divide-white/10">
-          {LEGAL_LINKS.map(({ label }) => (
-            <div key={label} className="w-full flex items-center justify-between gap-3 p-4 text-left opacity-60">
+          {LEGAL_LINKS.map(({ label, doc }) => (
+            <button key={doc} type="button" onClick={() => navigate(`/legal?doc=${doc}`)}
+              className="w-full flex items-center justify-between gap-3 p-4 text-left hover:bg-white/[0.06] transition-colors">
               <div className="flex items-center gap-3 min-w-0">
                 <FileText className="w-4 h-4 text-white/50 flex-shrink-0" />
                 <span className="text-sm text-white truncate">{label}</span>
               </div>
-              <span className="text-[10px] uppercase tracking-wider text-white/40 flex-shrink-0">Bientôt</span>
-            </div>
+              <ChevronRight className="w-4 h-4 text-white/40 flex-shrink-0" />
+            </button>
           ))}
         </div>
       </div>

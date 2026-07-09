@@ -213,7 +213,6 @@ export default function Dashboard() {
           />
         )}
         {!hasSessions && <NextSessionCard todaySession={todaySession} nextSession={nextSession} hasSessions={hasSessions} activeProgram={activeProgram} />}
-        {activeProgram && <ProgramSummaryCard program={activeProgram} objectives={objectives} sessions={sessions} />}
       </div>
 
       {showVolumeCard && (
@@ -227,6 +226,9 @@ export default function Dashboard() {
       )}
 
       <AlertsCard alerts={alerts} />
+
+      {/* Programme actif en bas : info secondaire, les alertes passent avant */}
+      {activeProgram && <ProgramSummaryCard program={activeProgram} objectives={objectives} sessions={sessions} />}
     </div>
   );
 }

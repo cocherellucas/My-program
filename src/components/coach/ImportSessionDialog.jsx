@@ -317,7 +317,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
                   {...(i === 0 ? { 'data-tutorial': 'session-title-input' } : {})}
                 />
                 <div className="flex items-center gap-1.5 flex-shrink-0">
-                  <button onClick={() => setConfirmDelete(i)} className="text-white/30 hover:text-red-400 transition-colors">
+                  <button onClick={() => setConfirmDelete(i)} className="p-1 rounded-md text-red-300 hover:text-red-200 hover:bg-red-500/20 transition-colors">
                     <Trash2 className="w-4 h-4" />
                   </button>
                   <button

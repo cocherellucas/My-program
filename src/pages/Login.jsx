@@ -114,6 +114,16 @@ export default function Login() {
               {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {mode === 'login' ? 'Se connecter' : 'Créer le compte'}
             </Button>
+
+            {mode === 'signup' && (
+              <p className="text-[11px] text-white/50 leading-snug text-center">
+                En créant un compte, tu acceptes les{' '}
+                <button type="button" onClick={() => navigate('/legal?doc=cgu')} className="underline hover:text-white/80">Conditions d'utilisation</button>
+                {' '}et la{' '}
+                <button type="button" onClick={() => navigate('/legal?doc=confidentialite')} className="underline hover:text-white/80">Politique de confidentialité</button>
+                , et tu confirmes avoir lu l'avertissement santé (consulte un médecin avant de commencer un programme).
+              </p>
+            )}
           </form>
 
           <p className="text-center text-sm text-white/60 mt-4">

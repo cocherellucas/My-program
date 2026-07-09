@@ -326,8 +326,8 @@ export default function StepObjectives({ data, onChange }) {
                   </Popover>
                 )}
               </div>
-              <Button variant="ghost" size="icon" onClick={() => removeObj(idx)} className="h-8 w-8 hover:bg-white/10">
-                <Trash2 className="w-4 h-4 text-red-400" />
+              <Button variant="ghost" size="icon" onClick={() => removeObj(idx)} className="h-8 w-8 hover:bg-red-500/20">
+                <Trash2 className="w-4 h-4 text-red-300" />
               </Button>
             </div>
 

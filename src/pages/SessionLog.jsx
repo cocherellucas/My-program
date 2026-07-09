@@ -23,7 +23,7 @@ import { FRAGILE_ZONE_MUSCLES, computeVolumeProposal } from '@/lib/coaching-engi
 import { applyVolumeProposal, markVolumeHandled, isVolumeSuppressed } from '@/lib/volume-adjust';
 import VolumeProposalCard from '@/components/coaching/VolumeProposalCard';
 import PainCheckCard from '@/components/coaching/PainCheckCard';
-import { detectZoneFromText, loadEpisodes, saveEpisodes, upsertEpisode, episodesToCheck, sessionTouchesZone, computePainPrescription, buildPainAdvice } from '@/lib/pain-engine';
+import { detectZoneFromText, loadEpisodes, saveEpisodes, upsertEpisode, episodesToCheck, sessionTouchesZone, computePainPrescription, buildPainAdvice, isSeverePain } from '@/lib/pain-engine';
 import { applyPainLevel } from '@/lib/pain-adjust';
 import { EXERCISES } from '@/lib/exercise-database';
 
@@ -242,10 +242,13 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 
   // Douleur saisie sur une série de CET exercice → conseil "amplitude" immédiat
   const [ackedPainSeries, setAckedPainSeries] = useState(0);
-  const painSeries = (() => {
-    let n = 0;
-    for (let s = 0; s < sets; s++) if (logs[`${exIdx}-${s}`]?.pain_note) n++;
-    return n;
+  const { painSeries, severePain } = (() => {
+    let n = 0, severe = false;
+    for (let s = 0; s < sets; s++) {
+      const note = logs[`${exIdx}-${s}`]?.pain_note;
+      if (note) { n++; if (isSeverePain(note)) severe = true; }
+    }
+    return { painSeries: n, severePain: severe };
   })();
   const painActive = painSeries > ackedPainSeries;
 
@@ -636,10 +639,12 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
             <div className="w-72 max-w-[calc(100vw-2rem)] rounded-2xl p-4 shadow-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #1e0050 0%, #3b0764 50%, #1e0050 100%)', border: '1px solid rgba(139,92,246,0.5)', boxShadow: '0 0 30px rgba(139,92,246,0.3), 0 8px 32px rgba(0,0,0,0.4)' }}>
               <div className="flex items-start gap-2">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-white">{isPain ? 'Gêne signalée — écoute ton corps' : isUnder ? 'Objectifs non atteints' : 'Objectifs dépassés'}</p>
+                  <p className="text-sm font-bold text-white">{isPain ? (severePain ? 'Douleur vive — on arrête cet exercice' : 'Gêne signalée — écoute ton corps') : isUnder ? 'Objectifs non atteints' : 'Objectifs dépassés'}</p>
                   <p className="text-xs text-violet-200/80 mt-0.5">
                     {isPain
-                      ? 'Continue dans l\'amplitude qui ne réveille pas la douleur : réduis l\'amplitude si besoin, contrôle la descente, arrête la série dès la gêne. Je te redemanderai comment ça a réagi.'
+                      ? (severePain
+                        ? 'Ne force pas dessus : passe à l\'exercice suivant et laisse la zone tranquille aujourd\'hui. Si c\'est encore douloureux demain, avis médical.'
+                        : 'Continue dans l\'amplitude qui ne réveille pas la douleur : réduis l\'amplitude si besoin, contrôle la descente, arrête la série dès la gêne. Je te redemanderai comment ça a réagi.')
                       : isUnder
                         ? (atBottom ? 'Augmente le repos pour mieux récupérer et atteindre tes cibles.' : 'Ajuste le repos ou passe à une variante plus simple.')
                         : 'Réduis le repos ou augmente le poids.'}
@@ -652,6 +657,18 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 
               <div className="flex flex-wrap gap-2 mt-3">
                 {isPain ? (
+                  severePain ? (
+                    <>
+                      <button onClick={() => { dismissTip(); onNext(); }}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-destructive text-white font-medium hover:bg-destructive/80 transition-colors">
+                        Passer cet exercice
+                      </button>
+                      <button onClick={dismissTip}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-white/10 text-white/80 font-medium hover:bg-white/20 transition-colors">
+                        Compris
+                      </button>
+                    </>
+                  ) : (
                   <>
                     {!isBodyweightExercise(exercise.name) && (
                       <button onClick={() => {
@@ -682,6 +699,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                       Compris
                     </button>
                   </>
+                  )
                 ) : isUnder ? (
                   <>
                     <button onClick={() => { onExtendRest(exIdx, Math.min(currentRest + 30, 300)); dismissTip(); }}
@@ -761,7 +779,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
             aria-label="Conseil du coach">
             <Bot className="w-6 h-6 text-white" />
             {!tipOpen && (
-              <span className={`absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-[#1e0050] animate-pulse ${isPain ? 'bg-orange-400' : isUnder ? 'bg-destructive' : 'bg-green-400'}`} />
+              <span className={`absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-[#1e0050] animate-pulse ${isPain ? (severePain ? 'bg-red-500' : 'bg-orange-400') : isUnder ? 'bg-destructive' : 'bg-green-400'}`} />
             )}
           </button>
         </div>
@@ -1762,14 +1780,25 @@ ${sets}
 
 Ce que l'utilisateur dit : "${painNote}"`;
 
+    // Flux douleur = 100 % règles de code, PAR CHOIX (pas seulement AI_BLOCKED) :
+    // réponse instantanée, hors-ligne, prévisible. Même API réactivée, on ne
+    // rappelle pas le LLM ici — il reste pour le chat Coach et la génération.
+    // (le `prompt` construit ci-dessus est conservé : contexte prêt si un jour
+    // on veut donner la main à l'IA sur ce flux)
+    void prompt;
+    const reply = buildPainAdvice(painNote);
+    // Mémoriser le conseil donné : le coach doit savoir ce qu'il a déjà répondu
+    // (cohérence des futures conversations et du suivi)
     try {
-      const result = await base44.integrations.Core.InvokeLLM({ prompt, model: 'claude_sonnet_4_6' });
-      return typeof result === 'string' ? result : result?.response || buildPainAdvice(painNote);
-    } catch {
-      // IA indisponible (AI_BLOCKED ou hors-ligne) → arbre de décision douleur
-      // en règles de code (gravité → nature → moment → zone → ancienneté)
-      return buildPainAdvice(painNote);
-    }
+      const rows = await base44.entities.UserMemory.filter({ user_id: user.id });
+      if (rows.length > 0) {
+        const prev = rows[0].coach_notes || '';
+        await base44.entities.UserMemory.update(rows[0].id, {
+          coach_notes: `${prev}\n[${today}] Conseil donné (${exercise.name}) : ${reply}`
+        });
+      }
+    } catch {}
+    return reply;
   };
 
   // Génère les propositions d'adaptation basées sur les logs + fatigue + notes

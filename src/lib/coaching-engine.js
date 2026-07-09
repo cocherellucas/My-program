@@ -750,11 +750,10 @@ export function computeDashboardAlerts({ sessions = [], program = null, user = {
     alerts.push({ type: 'plateau', message: 'Fatigue faible sur 3 séances — sous-stimulation. Augmenter le volume ou l\'intensité.' });
   }
 
-  // Fin de mésocycle
-  const meso = getMesocyclePosition(program);
-  if (meso?.isDeloadTime && rec.type === 'continue') {
-    alerts.push({ type: 'plateau', message: `Fin du mésocycle (S${meso.weekNumber}/${meso.plannedWeeks}) — décharge planifiée recommandée.` });
-  }
+  // (Supprimé : « fin du mésocycle → décharge planifiée recommandée » — une
+  // décharge au calendrier contredit l'autorégulation : c'est la FATIGUE qui
+  // décide, via getDeloadRecommendation / la carte volume. La position dans le
+  // cycle reste un simple facteur du score de décharge, pas une alerte.)
 
   // Readiness phase
   const { ready, reason } = checkPhaseReadiness({ sessions, seriesLogs, program });

@@ -203,6 +203,20 @@ export function buildSystemPrompt(user, objectives, programs, memory, recentSess
     `${s.exercise_name} s${s.set_number}: ${s.weight}kg×${s.reps_done} (${s.execution_quality || '?'}, mode: ${s.mode || '?'})`
   ).join(', ') || 'aucune';
 
+  // Épisodes de suivi douleur en cours (zone, cran de réduction, dernière réaction)
+  const suiviDouleur = (() => {
+    try {
+      const inj = Array.isArray(mem?.injuries) ? mem.injuries : JSON.parse(mem?.injuries || '[]');
+      const labels = { wrists: 'poignet', shoulders: 'épaule', elbows: 'coude', knees: 'genou', lower_back: 'bas du dos', neck: 'nuque' };
+      const active = inj.filter(e => e.status === 'active' || e.status === 'stop_advised');
+      if (!active.length) return '';
+      return active.map(e => {
+        const last = e.history?.[e.history.length - 1];
+        return `${labels[e.zone] || e.zone} (réductions cran ${e.level || 0}/3${e.status === 'stop_advised' ? ', suivi EN PAUSE après douleur vive' : ''}${last ? `, dernière réaction : ${last.reaction} le ${last.date}` : ''})`;
+      }).join(' · ');
+    } catch { return ''; }
+  })();
+
   return `Tu es un coach sportif expert. Réponds en français.
 
 INTERDICTIONS ABSOLUES — priorité maximale, aucune exception :
@@ -299,6 +313,7 @@ ${profil}
 - Séries récentes : ${seriesRecentes}
 - Programme actif : ${programmeCourant}
 ${mem?.coach_notes ? `- Notes coach mémorisées : ${mem.coach_notes}` : ''}
+${suiviDouleur ? `- Suivi douleur EN COURS (géré automatiquement par l'app : réductions charge/séries/fréquence + check quotidien) : ${suiviDouleur}` : ''}
 
 ${scienceContext ? `RÉFÉRENCES SCIENTIFIQUES (raisonnement interne, ne pas citer dans la réponse) :\n${scienceContext}\n` : ''}
 

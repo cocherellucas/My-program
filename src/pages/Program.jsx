@@ -991,7 +991,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
             <>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="ghost" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                  <Button variant="ghost" className="text-red-300 hover:text-red-200 hover:bg-red-500/20 border-0">
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </AlertDialogTrigger>

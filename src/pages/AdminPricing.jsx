@@ -185,7 +185,7 @@ export default function AdminPricing() {
                       placeholder="Fonctionnalité..."
                       className="flex-1"
                     />
-                    <Button variant="ghost" size="icon" onClick={() => removeFeature(idx, fi)}>
+                    <Button variant="ghost" size="icon" onClick={() => removeFeature(idx, fi)} className="hover:bg-red-500/15">
                       <Trash2 className="w-4 h-4 text-destructive" />
                     </Button>
                   </div>

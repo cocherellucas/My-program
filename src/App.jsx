@@ -45,6 +45,7 @@ import Library from '@/pages/Library';
 import Settings from '@/pages/Settings';
 import GifCheck from '@/pages/GifCheck';
 import Login from '@/pages/Login';
+import Legal from '@/pages/Legal';
 
 // Champs de profil remis à zéro par ?resetProfile (on préserve identité, rôle, abonnement)
 const PROFILE_RESET_FIELDS = {
@@ -183,6 +184,8 @@ function App() {
               <TutorialProvider>
                 <Routes>
                   <Route path="/login" element={<Login />} />
+                  {/* Pages légales : consultables SANS compte (exigence légale) */}
+                  <Route path="/legal" element={<Legal />} />
                   <Route path="/*" element={<AuthenticatedApp />} />
                 </Routes>
                 <Toaster />

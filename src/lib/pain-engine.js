@@ -57,6 +57,13 @@ const EXTRA_TIPS = [
   [/ischio|arrière de la cuisse|arriere de la cuisse/, 'Pour l\'ischio : évite l\'étirement maximal sous charge et ralentis la descente.'],
 ];
 
+// Gravité d'une douleur décrite → pilote la bulle d'action en séance
+// (douleur vive/coup/nerf/gonflement = on arrête l'exercice, pas d'adaptation)
+export function isSeverePain(painNote) {
+  const t = (painNote || '').toLowerCase();
+  return /gonfl|enfl(é|e)|hématome|hematome|coup\b|craqu|claqu|déchir|dechir|lancinant|aigu(ë|e)?\b|vive|violent|insupportable|très forte|tres forte|(8|9|10)\s*\/\s*10|fourmi|engourd|picot|irradie|décharge|decharge|électri|electri/.test(t);
+}
+
 export function buildPainAdvice(painNote) {
   const all = (painNote || '').toLowerCase();
   // Champs étiquetés du formulaire ("où : … — quand : … — comment : … — autres : …")

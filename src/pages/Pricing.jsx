@@ -95,9 +95,11 @@ export default function Pricing() {
                   </div>
                   <div className="flex items-center gap-2">
                     <p className="text-lg font-heading font-bold text-white">Gratuit</p>
-                    <button className="px-3 py-1.5 rounded-xl font-semibold text-xs bg-white/15 text-white border border-white/20 whitespace-nowrap">
-                      {plan.cta_label}
-                    </button>
+                    {!isActive && (
+                      <button className="px-3 py-1.5 rounded-xl font-semibold text-xs bg-white/15 text-white border border-white/20 whitespace-nowrap">
+                        {plan.cta_label}
+                      </button>
+                    )}
                   </div>
                 </div>
                 <div className="grid grid-flow-col grid-rows-3 gap-x-4 gap-y-1.5 mt-1">

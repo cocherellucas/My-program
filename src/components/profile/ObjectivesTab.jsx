@@ -145,8 +145,8 @@ export default function ObjectivesTab({ userId }) {
                 </Popover>
               )}
             </div>
-            <Button variant="ghost" size="icon" onClick={() => removeObj(idx)} className="h-8 w-8">
-              <Trash2 className="w-4 h-4 text-destructive" />
+            <Button variant="ghost" size="icon" onClick={() => removeObj(idx)} className="h-8 w-8 hover:bg-red-500/20">
+              <Trash2 className="w-4 h-4 text-red-300" />
             </Button>
           </div>
 
