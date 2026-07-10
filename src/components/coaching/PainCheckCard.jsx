@@ -1,6 +1,8 @@
 import React from 'react';
-import { HeartPulse, Loader2, Pencil, AlertTriangle } from 'lucide-react';
+import { HeartPulse, Loader2, Pencil, AlertTriangle, HelpCircle } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ZONE_ART } from '@/lib/pain-engine';
+import { useI18n } from '@/lib/i18n';
 
 // Carte de suivi douleur — 2 étapes :
 //   1. question « Comment a réagi ton poignet ? » (4 réponses)
@@ -9,8 +11,10 @@ import { ZONE_ART } from '@/lib/pain-engine';
 // Props : episode, proposal (null = étape question), busy,
 //         onReaction(r), onApply, onManual, onDismiss, onResume, onEnd
 export default function PainCheckCard({ episode, proposal, busy, onReaction, onApply, onManual, onDismiss, onResume, onEnd }) {
+  const { t, lang } = useI18n();
   if (!episode) return null;
-  const art = ZONE_ART[episode.zone] || episode.zone;
+  // Zone avec possessif, dans la langue active (repli : clé de zone brute)
+  const art = (lang === 'en' ? t(`zone_${episode.zone}`) : ZONE_ART[episode.zone]) || episode.zone;
   const paused = episode.status === 'stop_advised' && !proposal;
   const isStop = proposal?.direction === 'stop';
   const infoOnly = proposal && (proposal.direction === 'none' || proposal.direction === 'resolved');
@@ -44,8 +48,26 @@ export default function PainCheckCard({ episode, proposal, busy, onReaction, onA
             </>
           ) : (
             <>
-              <p className="text-sm font-bold text-white">Comment a réagi {art} depuis la dernière fois ?</p>
-              <p className="text-xs text-white/60 mt-0.5 leading-snug">Ta réponse ajuste la suite : charge, séries, fréquence.</p>
+              <p className="text-sm font-bold text-white">
+                {lang === 'en' ? `How has ${art} felt since last time?` : `Comment a réagi ${art} depuis la dernière fois ?`}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    {/* inline dans le texte → toujours collé à la fin de la question, aligné sur la ligne */}
+                    <button className="inline-flex align-[-2px] ml-1.5 text-white/50 hover:text-white/80 transition-colors" aria-label="Explications">
+                      <HelpCircle className="w-3.5 h-3.5" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent avoidCollisions collisionPadding={16} className="w-72 text-xs space-y-2 bg-violet-900/95 backdrop-blur-sm border border-white/20 text-white shadow-xl z-[200]">
+                    <p className="font-semibold text-violet-300">Ce que déclenche chaque réponse</p>
+                    <p><span className="font-semibold">😌 Mieux</span> — rien ne change. Deux « mieux » d'affilée → je te propose de remonter d'un cran (retour progressif à tes charges d'origine).</p>
+                    <p><span className="font-semibold">😐 Pareil</span> — je propose de descendre d'un cran. Dans l'ordre : d'abord la charge (−20 %), ensuite une série en moins, et en dernier les exercices de la zone retirés d'une séance sur deux (le tout sur 7 jours).</p>
+                    <p><span className="font-semibold">😣 Pire</span> — je propose de descendre de deux crans d'un coup.</p>
+                    <p><span className="font-semibold">⚡ Douleur vive</span> — on arrête : repos de la zone, avis médical conseillé, et je propose de retirer les exercices concernés pendant 7 jours.</p>
+                    <p className="pt-1.5 border-t border-white/20 text-white/70">Rien n'est jamais appliqué sans ton accord — tu as toujours Appliquer / Le faire moi-même / Ignorer.</p>
+                  </PopoverContent>
+                </Popover>
+              </p>
+              <p className="text-xs text-white/60 mt-0.5 leading-snug">{t('pain_sub')}</p>
             </>
           )}
         </div>
@@ -59,24 +81,24 @@ export default function PainCheckCard({ episode, proposal, busy, onReaction, onA
           </>
         ) : !proposal ? (
           <>
-            <button onClick={() => onReaction('better')} disabled={busy} className={`${btn} bg-green-500/20 text-green-300 border border-green-400/30 hover:bg-green-500/30`}>😌 Mieux</button>
-            <button onClick={() => onReaction('same')} disabled={busy} className={`${btn} bg-white/10 text-white border border-white/20 hover:bg-white/20`}>😐 Pareil</button>
-            <button onClick={() => onReaction('worse')} disabled={busy} className={`${btn} bg-orange-500/20 text-orange-300 border border-orange-400/30 hover:bg-orange-500/30`}>😣 Pire</button>
-            <button onClick={() => onReaction('sharp')} disabled={busy} className={`${btn} bg-red-500/20 text-red-300 border border-red-400/30 hover:bg-red-500/30`}>⚡ Douleur vive</button>
+            <button onClick={() => onReaction('better')} disabled={busy} className={`${btn} bg-green-500/20 text-green-300 border border-green-400/30 hover:bg-green-500/30`}>{t('pain_better')}</button>
+            <button onClick={() => onReaction('same')} disabled={busy} className={`${btn} bg-white/10 text-white border border-white/20 hover:bg-white/20`}>{t('pain_same')}</button>
+            <button onClick={() => onReaction('worse')} disabled={busy} className={`${btn} bg-orange-500/20 text-orange-300 border border-orange-400/30 hover:bg-orange-500/30`}>{t('pain_worse')}</button>
+            <button onClick={() => onReaction('sharp')} disabled={busy} className={`${btn} bg-red-500/20 text-red-300 border border-red-400/30 hover:bg-red-500/30`}>{t('pain_sharp')}</button>
           </>
         ) : infoOnly ? (
           <button onClick={onDismiss} disabled={busy} className={`${btn} bg-white text-violet-700 hover:bg-white/90`}>Compris</button>
         ) : (
           <>
             <button onClick={onApply} disabled={busy} className={`${btn} flex items-center gap-1.5 bg-white text-violet-700 hover:bg-white/90`}>
-              {busy && <Loader2 className="w-3.5 h-3.5 animate-spin" />} {isStop ? 'Retirer 7 jours' : 'Appliquer'}
+              {busy && <Loader2 className="w-3.5 h-3.5 animate-spin" />} {isStop ? (lang === 'en' ? 'Remove for 7 days' : 'Retirer 7 jours') : t('apply')}
             </button>
             {!isStop && (
               <button onClick={onManual} disabled={busy} className={`${btn} flex items-center gap-1.5 bg-white/10 text-white border border-white/20 hover:bg-white/20`}>
-                <Pencil className="w-3.5 h-3.5" /> Le faire moi-même
+                <Pencil className="w-3.5 h-3.5" /> {t('do_myself')}
               </button>
             )}
-            <button onClick={onDismiss} disabled={busy} className={`${btn} text-white/45 hover:text-white/70 px-2`}>{isStop ? 'Compris' : 'Ignorer'}</button>
+            <button onClick={onDismiss} disabled={busy} className={`${btn} text-white/45 hover:text-white/70 px-2`}>{isStop ? t('got_it') : t('ignore')}</button>
           </>
         )}
       </div>

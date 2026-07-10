@@ -17,6 +17,7 @@ import {
 import { applyVolumeProposal, markVolumeHandled, isVolumeSuppressed } from '@/lib/volume-adjust';
 import { loadEpisodes, saveEpisodes, episodesToCheck, computePainPrescription } from '@/lib/pain-engine';
 import { applyPainLevel } from '@/lib/pain-adjust';
+import { useI18n } from '@/lib/i18n';
 
 const CHECKIN_KEY = 'coaching_checkins';
 
@@ -33,6 +34,7 @@ function saveCheckin(sessionId, data) {
 
 export default function Dashboard() {
   const navigate  = useNavigate();
+  const { t } = useI18n();
   const [user, setUser]       = useState(null);
   const [checkins, setCheckins] = useState(loadCheckins);
 
@@ -185,9 +187,9 @@ export default function Dashboard() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-heading font-bold text-white">
-          Salut{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''} 👋
+          {t('dash_hello')}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''} 👋
         </h1>
-        <p className="text-white/70 mt-1">Voici ton tableau de bord d'entraînement</p>
+        <p className="text-white/70 mt-1">{t('dash_sub')}</p>
       </div>
 
       <StatsRow sessions={sessions} program={activeProgram} />

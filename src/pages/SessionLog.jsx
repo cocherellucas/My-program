@@ -223,17 +223,21 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
   const [confirmDisableTips, setConfirmDisableTips] = useState(false);
   const [ackedBadSeries, setAckedBadSeries] = useState(0);
 
-  // Séries en-dessous de la cible (reps trop basses ou exécution dégradée)
+  // Séries en-dessous de la cible (reps trop basses ou exécution dégradée).
+  // Les valeurs PRÉ-REMPLIES d'une séance passée (prefill) sont ignorées :
+  // seul ce que l'utilisateur a saisi AUJOURD'HUI peut déclencher un conseil
+  // (sinon la bulle s'ouvrait dès l'arrivée sur l'exercice, ou après un "Passer").
   const { badSeries, filledSeries } = (() => {
     const { low: targetLow } = parseRepRange(exercise.target_reps);
     let bad = 0, filled = 0;
     for (let s = 0; s < sets; s++) {
       const l = logs[`${exIdx}-${s}`] || {};
       const reps = parseInt(l.reps) || 0;
+      const qualityTyped = !l.prefill?.quality; // sélectionnée aujourd'hui, pas héritée
       const quality = l.quality || 'good';
       if (reps > 0) filled++;
       if (reps > 0 && reps < targetLow) bad++;
-      if (quality === 'degraded' || quality === 'bad') bad++;
+      if (qualityTyped && (quality === 'degraded' || quality === 'bad')) bad++;
     }
     return { badSeries: bad, filledSeries: filled };
   })();
@@ -251,6 +255,11 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
     return { painSeries: n, severePain: severe };
   })();
   const painActive = painSeries > ackedPainSeries;
+  // "Recommencer" efface la douleur décrite → painSeries redescend. On resynchronise
+  // le compteur d'acquittement, sinon une NOUVELLE description ne rouvrirait pas la bulle.
+  useEffect(() => {
+    if (ackedPainSeries > painSeries) setAckedPainSeries(painSeries);
+  }, [painSeries, ackedPainSeries]);
 
   // Priorité : 'pain' (sécurité) > 'under' (objectifs non atteints) > 'over'
   const coachTip = coachTipsOff ? null : (painActive ? 'pain' : (underActive ? 'under' : (showObjectifBanner ? 'over' : null)));
@@ -326,7 +335,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
         <div className="p-4">
           <h2 className="font-heading font-bold text-xl text-white">{exercise.name}</h2>
           {exercise.muscle_group && <Badge variant="outline" className="text-xs mt-2 border-white/30 text-white">{exercise.muscle_group}</Badge>}
-          <div className="mt-3 space-y-2">
+          <div className="mt-3 space-y-2" data-objectif>
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-white uppercase tracking-wider block">OBJECTIF</span>
               <div className="flex items-center gap-1">
@@ -623,7 +632,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                     {isPain
                       ? (severePain
                         ? 'Ne force pas dessus : passe à l\'exercice suivant et laisse la zone tranquille aujourd\'hui. Si c\'est encore douloureux demain, avis médical.'
-                        : 'Continue dans l\'amplitude qui ne réveille pas la douleur : réduis l\'amplitude si besoin, contrôle la descente, arrête la série dès la gêne. Je te redemanderai comment ça a réagi.')
+                        : 'Le mieux : adapte selon ton ressenti. Sinon, voici une proposition automatique, pas forcément optimale pour ton cas.')
                       : isUnder
                         ? (atBottom ? 'Augmente le repos pour mieux récupérer et atteindre tes cibles.' : 'Ajuste le repos ou passe à une variante plus simple.')
                         : 'Réduis le repos ou augmente le poids.'}
@@ -642,15 +651,12 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                         className="text-xs px-3 py-1.5 rounded-lg bg-destructive text-white font-medium hover:bg-destructive/80 transition-colors">
                         Passer cet exercice
                       </button>
-                      <button onClick={dismissTip}
-                        className="text-xs px-3 py-1.5 rounded-lg bg-white/10 text-white/80 font-medium hover:bg-white/20 transition-colors">
-                        Compris
-                      </button>
                     </>
                   ) : (
                   <>
                     {!isBodyweightExercise(exercise.name) && (
                       <button onClick={() => {
+                          // Charge −20 % sur les séries restantes…
                           for (let s = activeSetIdx; s < sets; s++) {
                             const key = `${exIdx}-${s}`;
                             const current = parseFloat(logs[key]?.weight) || 0;
@@ -661,10 +667,21 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                               updateLog(exIdx, s, 'weight', r);
                             }
                           }
+                          // …compensée par +5 reps sur l'objectif de la séance
+                          // (−20 % de charge ≈ +4 à 6 reps sur le continuum : même
+                          // stimulus, moins de tension sur la zone)
+                          const tr = String(exercise.target_reps || '').trim();
+                          const range = tr.match(/^(\d+)\s*[-–]\s*(\d+)$/);
+                          const bumped = range
+                            ? `${parseInt(range[1], 10) + 5}-${parseInt(range[2], 10) + 5}`
+                            : (isNaN(parseInt(tr, 10)) ? tr : String(parseInt(tr, 10) + 5));
+                          if (bumped && bumped !== tr) {
+                            onUpdateExercise?.(exIdx, { sets: exercise.sets, target_reps: bumped, rest_seconds: currentRest }, { skipFuture: true });
+                          }
                           dismissTip();
                         }}
                         className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors">
-                        −20 % sur les séries restantes
+                        −20 % de charge · +5 reps visées
                       </button>
                     )}
                     {inChain && (
@@ -673,10 +690,20 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                         Variante simple
                       </button>
                     )}
-                    <button onClick={dismissTip}
+                    <button onClick={() => {
+                        // Ouvre l'éditeur OBJECTIF de l'exercice et scrolle dessus
+                        setEditingObjectif?.(true);
+                        dismissTip();
+                        setTimeout(() => document.querySelector('[data-objectif]')?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 80);
+                      }}
                       className="text-xs px-3 py-1.5 rounded-lg bg-white/10 text-white/80 font-medium hover:bg-white/20 transition-colors">
-                      Compris
+                      Modifier moi-même
                     </button>
+                    {/* Même interrupteur que les conseils objectifs (coach_tips_disabled) :
+                        si cette bulle s'affiche, ils sont actifs → avertir. */}
+                    <p className="basis-full text-[11px] text-violet-200/70 leading-snug mt-1">
+                      ⚠️ Si tu adaptes toi-même, pense à modifier l'<span className="font-semibold">objectif</span> avec une grande plage de reps (ex. 6-15, avec le tiret « - ») — sinon les conseils « objectifs atteints / non atteints » se déclencheront d'après tes nouvelles valeurs.
+                    </p>
                   </>
                   )
                 ) : isUnder ? (
@@ -756,7 +783,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
             className="relative w-12 h-12 rounded-full flex items-center justify-center shadow-2xl transition-transform active:scale-95"
             style={{ background: 'linear-gradient(135deg, #6d28d9, #4c1d95)', border: '1px solid rgba(139,92,246,0.6)', boxShadow: '0 0 20px rgba(139,92,246,0.45), 0 6px 20px rgba(0,0,0,0.4)' }}
             aria-label="Conseil du coach">
-            <Bot className="w-6 h-6 text-white" />
+            <img src="/robotapp.png" alt="Coach" className="w-9 h-9 object-contain" />
             {!tipOpen && (
               <span className={`absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-[#1e0050] animate-pulse ${isPain ? (severePain ? 'bg-red-500' : 'bg-orange-400') : isUnder ? 'bg-destructive' : 'bg-green-400'}`} />
             )}
@@ -1477,22 +1504,13 @@ export default function SessionLog() {
           const cur = updated[key] || {};
           const prevLog = previousLogs?.[ex.name]?.[s + 1]; // set_number commence à 1
           const next = { ...cur };
-          // On marque ce qui vient d'une séance PASSÉE (prefill) → affiché grisé
-          // tant que l'utilisateur ne l'a pas saisi/validé aujourd'hui.
+          // POIDS et REPS ne sont plus injectés comme valeurs : les anciennes
+          // perfs s'affichent en PLACEHOLDER (fond grisé, non interactif) via
+          // previousWeight/previousReps — taper une valeur écrit la nouvelle en
+          // blanc normal. Seuls RIR et Exécution sont pré-sélectionnés (grisés),
+          // marqués prefill pour être ignorés par les conseils du coach.
           const pf = { ...(cur.prefill || {}) };
-          // Poids : log précédent en priorité, sinon target_weight (on ignore 0 — "non saisi")
-          if (cur.weight === undefined || cur.weight === '' || cur.weight === 0) {
-            const w = (prevLog?.weight && prevLog.weight !== 0) ? prevLog.weight : ex.target_weight;
-            if (w) { next.weight = w; pf.weight = true; }
-          }
-          // Reps : log précédent (on ignore 0 — c'est "non saisi" en base)
-          if ((cur.reps === undefined || cur.reps === '') && prevLog?.reps) {
-            next.reps = prevLog.reps;
-            pf.reps = true;
-          }
-          // RIR (mode) : log précédent
           if (!cur.mode && prevLog?.mode) { next.mode = prevLog.mode; pf.mode = true; }
-          // Exécution (quality) : log précédent
           if (!cur.quality && prevLog?.quality) { next.quality = prevLog.quality; pf.quality = true; }
           if (Object.keys(pf).length > 0) next.prefill = pf;
           if (Object.keys(next).length > 0) updated[key] = next;
@@ -1619,7 +1637,7 @@ export default function SessionLog() {
     if (exerciseName) handleApplyToFuture(exerciseName, { rest_seconds: newRestSecs });
   };
 
-  const handleUpdateExercise = (exIdx, updates) => {
+  const handleUpdateExercise = (exIdx, updates, opts = {}) => {
     const updatedExercises = exercises.map((ex, i) =>
     i === exIdx ? { ...ex, ...updates } : ex
     );
@@ -1637,8 +1655,10 @@ export default function SessionLog() {
         })
         .catch(e => console.error('update session exercises', e));
     }
+    // skipFuture : adaptation du JOUR uniquement (ex. +reps pour douleur) — les
+    // séances futures restent gérées par le suivi douleur, pas par cette modif.
     const exerciseName = exercises[exIdx]?.name;
-    if (exerciseName) handleApplyToFuture(exerciseName, updates);
+    if (exerciseName && !opts.skipFuture) handleApplyToFuture(exerciseName, updates);
   };
 
   const handleRestTimeSave = (exIdx, newRestSecs) => {

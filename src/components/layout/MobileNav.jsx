@@ -5,18 +5,20 @@ import {
   LayoutDashboard, Dumbbell, CalendarDays,
   MessageSquare, User, BookOpen
 } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
 
 export default function MobileNav({ swipeX, swipeCurrentIdx = 0 }) {
   const location = useLocation();
+  const { t } = useI18n();
 
   const activeSessionId = (() => { try { return localStorage.getItem('active_session_id'); } catch { return null; } })();
   const items = [
-    { icon: LayoutDashboard, label: 'Accueil',    path: '/' },
-    { icon: Dumbbell,        label: 'Programme',  path: '/program' },
-    { icon: CalendarDays,    label: 'Séance',     path: activeSessionId ? `/session?id=${activeSessionId}` : '/session' },
-    { icon: MessageSquare,   label: 'Coach',      path: '/coach' },
-    { icon: BookOpen,        label: 'Biblio',     path: '/library' },
-    { icon: User,            label: 'Profil',     path: '/profile' },
+    { icon: LayoutDashboard, label: t('nav_home'),    path: '/' },
+    { icon: Dumbbell,        label: t('nav_program'), path: '/program' },
+    { icon: CalendarDays,    label: t('nav_session'), path: activeSessionId ? `/session?id=${activeSessionId}` : '/session' },
+    { icon: MessageSquare,   label: t('nav_coach'),   path: '/coach' },
+    { icon: BookOpen,        label: t('nav_library'), path: '/library' },
+    { icon: User,            label: t('nav_profile'), path: '/profile' },
   ];
 
   const [keyboardOpen, setKeyboardOpen] = React.useState(false);

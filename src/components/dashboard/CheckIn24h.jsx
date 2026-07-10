@@ -2,20 +2,20 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Moon, Smile, Frown, Minus, CheckCircle2 } from 'lucide-react';
-
-const FEELING_OPTIONS = [
-  { value: 'better',  label: 'Mieux',         icon: Smile,  color: 'border-emerald-400 bg-emerald-400/15 text-emerald-300' },
-  { value: 'same',    label: 'Pareil',         icon: Minus,  color: 'border-blue-400 bg-blue-400/15 text-blue-300' },
-  { value: 'stiffer', label: 'Plus raide',     icon: Frown,  color: 'border-orange-400 bg-orange-400/15 text-orange-300' },
-];
-
-const SLEEP_OPTIONS = [
-  { value: 'good',    label: 'Bonne',    color: 'border-emerald-400 bg-emerald-400/15 text-emerald-300' },
-  { value: 'average', label: 'Moyenne',  color: 'border-blue-400 bg-blue-400/15 text-blue-300' },
-  { value: 'bad',     label: 'Mauvaise', color: 'border-orange-400 bg-orange-400/15 text-orange-300' },
-];
+import { useI18n } from '@/lib/i18n';
 
 export default function CheckIn24h({ sessions, onSubmit }) {
+  const { t } = useI18n();
+  const FEELING_OPTIONS = [
+    { value: 'better',  label: t('opt_better'),  icon: Smile,  color: 'border-emerald-400 bg-emerald-400/15 text-emerald-300' },
+    { value: 'same',    label: t('opt_same'),    icon: Minus,  color: 'border-blue-400 bg-blue-400/15 text-blue-300' },
+    { value: 'stiffer', label: t('opt_stiffer'), icon: Frown,  color: 'border-orange-400 bg-orange-400/15 text-orange-300' },
+  ];
+  const SLEEP_OPTIONS = [
+    { value: 'good',    label: t('opt_good'),    color: 'border-emerald-400 bg-emerald-400/15 text-emerald-300' },
+    { value: 'average', label: t('opt_average'), color: 'border-blue-400 bg-blue-400/15 text-blue-300' },
+    { value: 'bad',     label: t('opt_bad'),     color: 'border-orange-400 bg-orange-400/15 text-orange-300' },
+  ];
   const [feeling, setFeeling] = useState(null);
   const [sleep, setSleep]     = useState(null);
   const [done, setDone]       = useState(false);
@@ -38,14 +38,14 @@ export default function CheckIn24h({ sessions, onSubmit }) {
           <Moon className="w-4 h-4 text-violet-300" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-white">Check-in 24h — {label}</p>
-          <p className="text-xs text-white/50">Comment tu te sens aujourd'hui ?</p>
+          <p className="text-sm font-semibold text-white">{t('checkin_title')} — {label}</p>
+          <p className="text-xs text-white/50">{t('checkin_sub')}</p>
         </div>
       </div>
 
       <div className="space-y-4">
         <div>
-          <p className="text-xs font-medium text-white/60 uppercase tracking-wider mb-2">Récupération musculaire</p>
+          <p className="text-xs font-medium text-white/60 uppercase tracking-wider mb-2">{t('checkin_recovery')}</p>
           <div className="grid grid-cols-3 gap-2">
             {FEELING_OPTIONS.map(({ value, label, icon: Icon, color }) => (
               <button key={value} type="button" onClick={() => setFeeling(value)}
@@ -61,7 +61,7 @@ export default function CheckIn24h({ sessions, onSubmit }) {
         </div>
 
         <div>
-          <p className="text-xs font-medium text-white/60 uppercase tracking-wider mb-2">Nuit de sommeil</p>
+          <p className="text-xs font-medium text-white/60 uppercase tracking-wider mb-2">{t('checkin_sleep')}</p>
           <div className="grid grid-cols-3 gap-2">
             {SLEEP_OPTIONS.map(({ value, label, color }) => (
               <button key={value} type="button" onClick={() => setSleep(value)}
@@ -83,7 +83,7 @@ export default function CheckIn24h({ sessions, onSubmit }) {
               : 'bg-white/10 text-white/30 cursor-not-allowed'
           )}>
           <CheckCircle2 className="w-4 h-4" />
-          Enregistrer
+          {t('checkin_save')}
         </button>
       </div>
     </Card>

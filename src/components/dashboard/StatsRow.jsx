@@ -1,8 +1,10 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Flame, BadgeCheck, CalendarCheck, CalendarDays } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
 
 export default function StatsRow({ sessions, program }) {
+  const { t } = useI18n();
   const completedSessions = sessions.filter(s => s.status === 'completed');
   const totalPlanned = sessions.filter(s => s.status !== 'skipped').length;
   const adherence = totalPlanned > 0 ? Math.round((completedSessions.length / totalPlanned) * 100) : 0;
@@ -20,10 +22,10 @@ export default function StatsRow({ sessions, program }) {
   const weekDone = weekSessions.filter(s => s.status === 'completed').length;
 
   const stats = [
-    { label: 'Séances complétées', value: completedSessions.length, icon: CalendarCheck, color: 'text-fuchsia-300' },
-    { label: 'Adhérence', value: `${adherence}%`, icon: BadgeCheck, color: 'text-green-300' },
-    { label: 'Fatigue moy.', value: avgFatigue, icon: Flame, color: 'text-orange-300' },
-    { label: 'Cette semaine', value: `${weekDone}/${weekSessions.length}`, icon: CalendarDays, color: 'text-violet-200' },
+    { label: t('stat_completed'), value: completedSessions.length, icon: CalendarCheck, color: 'text-fuchsia-300' },
+    { label: t('stat_adherence'), value: `${adherence}%`, icon: BadgeCheck, color: 'text-green-300' },
+    { label: t('stat_fatigue'), value: avgFatigue, icon: Flame, color: 'text-orange-300' },
+    { label: t('stat_week'), value: `${weekDone}/${weekSessions.length}`, icon: CalendarDays, color: 'text-violet-200' },
   ];
 
   return (

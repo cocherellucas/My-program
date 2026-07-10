@@ -42,12 +42,12 @@ const todayStr = () => new Date().toISOString().split('T')[0];
 // ancienneté. Toujours conclu par le suivi à J+1.
 // ─────────────────────────────────────────────────────────────────────────────
 const ZONE_TIPS = {
-  wrists: 'Pour le poignet : garde-le dans l\'axe de l\'avant-bras (prise neutre si possible) — un poignet cassé en arrière sous charge est la cause la plus fréquente.',
-  shoulders: 'Pour l\'épaule : garde les coudes un peu plus près du corps et évite les positions bras au-dessus de la tête tant que ça gêne.',
-  elbows: 'Pour le coude : change de largeur ou de type de prise, et évite de verrouiller complètement le bras en fin de répétition.',
-  knees: 'Pour le genou : aligne-le avec la pointe de pied et réduis la profondeur de flexion tant que ça gêne.',
-  lower_back: 'Pour le bas du dos : gaine avant chaque répétition et garde le dos neutre — réduis la charge plutôt que de l\'arrondir.',
-  neck: 'Pour la nuque : tête neutre, regard horizontal — ne compense pas avec le cou pour finir les reps.',
+  wrists: 'Pour le **poignet** : garde-le **dans l\'axe de l\'avant-bras** (prise neutre si possible) — un poignet cassé en arrière sous charge est la cause la plus fréquente.',
+  shoulders: 'Pour l\'**épaule** : garde les **coudes plus près du corps** et évite les positions **bras au-dessus de la tête** tant que ça gêne.',
+  elbows: 'Pour le **coude** : change de **largeur ou de type de prise**, et évite de **verrouiller** complètement le bras en fin de répétition.',
+  knees: 'Pour le **genou** : aligne-le avec la **pointe de pied** et réduis la **profondeur de flexion** tant que ça gêne.',
+  lower_back: 'Pour le **bas du dos** : **gaine** avant chaque répétition et garde le **dos neutre** — réduis la charge plutôt que de l\'arrondir.',
+  neck: 'Pour la **nuque** : **tête neutre**, regard horizontal — ne compense pas avec le cou pour finir les reps.',
 };
 // Zones hors suivi (pas d'épisode) mais avec un conseil quand même
 const EXTRA_TIPS = [
@@ -79,52 +79,54 @@ export function buildPainAdvice(painNote) {
   const howT  = how || all;  // repli : texte libre (messages de suivi du fil)
   const whenT = when || all;
 
-  const followUp = 'Je te redemanderai demain comment ça a réagi.';
+  const followUp = '_Je te redemanderai demain comment ça a réagi._';
 
   // 1) GRAVITÉ — on n'adapte pas, on arrête
   if (/gonfl|enfl(é|e)|hématome|hematome|bleu\b/.test(all)) {
-    return 'Stop : un gonflement ne se travaille jamais « au travers ». Arrête cet exercice, mets du froid (15-20 min) et laisse la zone tranquille aujourd\'hui. Si c\'est encore gonflé ou douloureux demain, consulte. ' + followUp;
+    return '**Stop : arrête cet exercice.** Un gonflement ne se travaille jamais « au travers ».\n\nMets du **froid (15-20 min)** et laisse la zone tranquille aujourd\'hui.\n\nSi c\'est encore gonflé ou douloureux demain, **consulte**. ' + followUp;
   }
   if (/coup\b|craqu|claqu|déchir|dechir|lancinant|aigu(ë|e)?\b|vive|violent|insupportable|très forte|tres forte|(8|9|10)\s*\/\s*10/.test(all)) {
-    return 'Stop : douleur vive ou apparue d\'un coup = on n\'insiste pas. Arrête cet exercice et laisse cette zone tranquille aujourd\'hui. Si c\'est encore douloureux demain ou que ça enfle, avis médical. ' + followUp;
+    return '**Stop : arrête cet exercice.** Douleur vive ou apparue d\'un coup = on n\'insiste pas.\n\nLaisse cette zone tranquille aujourd\'hui. Si c\'est encore douloureux demain ou que ça enfle → **avis médical**. ' + followUp;
   }
   if (/fourmi|engourd|picot|irradie|décharge|decharge|électri|electri/.test(all)) {
-    return 'Fourmillements, engourdissement ou douleur qui irradie = probablement un nerf comprimé ou étiré : arrête cet exercice, secoue doucement le membre et vérifie ta position (prise, poignet, posture). Si ça revient à chaque série ou persiste après la séance, consulte. ' + followUp;
+    return 'Fourmillements ou douleur qui irradie = probablement un **nerf** comprimé ou étiré.\n\n**Arrête cet exercice**, secoue doucement le membre et vérifie ta **position** (prise, poignet, posture).\n\nSi ça revient à chaque série ou persiste après la séance, **consulte**. ' + followUp;
   }
 
   const parts = [];
   // Douleur sur toute l'amplitude → le conseil « travaille dans l'amplitude
   // sans douleur » n'a pas de sens, on ne le donne pas
   const isConstant = /tout le temps|constant|en continu|toute l'amplitude|toute la/.test(whenT);
+  let gaveAmplitudeRule = false; // la règle d'or doit apparaître dans TOUTES les réponses
 
   // 2) NATURE de la douleur
   if (/brûl|brul/.test(howT)) {
-    parts.push('Une brûlure DANS le muscle en fin de série est normale (accumulation métabolique) — continue si l\'exécution reste propre. Si ça brûle sur une articulation ou un tendon, baisse la charge de ~20 %.');
+    parts.push('Une brûlure **dans le muscle** en fin de série est normale (accumulation métabolique) — continue si l\'exécution reste propre. Si ça brûle sur une **articulation ou un tendon** → baisse la charge de **~20 %**.');
   } else if (/cramp/.test(howT)) {
-    parts.push('Crampe : étire doucement le muscle, bois (eau + électrolytes) et allonge le repos avant la prochaine série. Réduis le volume du jour si ça revient.');
+    parts.push('**Crampe** : étire doucement le muscle, **bois** (eau + électrolytes) et allonge le repos avant la prochaine série. Réduis le volume du jour si ça revient.');
   } else if (/tension|raid|contract|nœud|noeud|tiraill/.test(howT)) {
-    parts.push('Ça ressemble à une tension ou une raideur : fais 2-3 répétitions lentes à vide pour réchauffer la zone, puis reprends dans une amplitude confortable en montant progressivement.');
+    parts.push('Tension ou raideur : fais **2-3 répétitions lentes à vide** pour réchauffer la zone, puis reprends dans une **amplitude confortable** en montant progressivement.');
   } else if (/pinc|coinc|accroch|blocage|bloqu/.test(howT)) {
-    parts.push('Un pincement ou un accrochage mécanique : ne force pas dessus. Reste sous le point qui accroche (amplitude réduite) et vérifie ton placement.');
+    parts.push('Pincement ou accrochage mécanique : **ne force pas dessus**. Reste **sous le point qui accroche** (amplitude réduite) et vérifie ton placement.');
   } else if (!isConstant) {
-    parts.push('Continue dans l\'amplitude qui ne réveille pas la douleur : réduis l\'amplitude si besoin, contrôle le mouvement, arrête la série dès la gêne.');
+    parts.push('Continue dans l\'**amplitude qui ne réveille pas la douleur** : réduis l\'amplitude si besoin, **contrôle le mouvement**, arrête la série dès la gêne.');
+    gaveAmplitudeRule = true;
   }
 
   // 3) MOMENT dans le mouvement
   if (/en bas|bas du mouvement|étir|etir|extension complète|extension complete|allong/.test(whenT)) {
-    parts.push('Comme ça arrive en position étirée : raccourcis l\'amplitude en bas et garde la tension sur la portion haute du mouvement.');
+    parts.push('Ça arrive en **position étirée** → raccourcis l\'amplitude **en bas** et garde la tension sur la portion haute du mouvement.');
   } else if (/mont|concentri|pouss|en tirant|à l\'effort|a l\'effort/.test(whenT)) {
-    parts.push('Comme ça arrive à l\'effort : c\'est la charge — baisse de ~20 % maintenant et remonte progressivement sur les prochaines séances.');
+    parts.push('Ça arrive à **l\'effort** → c\'est la charge : baisse de **~20 %** maintenant et remonte progressivement sur les prochaines séances.');
   } else if (/descen|négati|negati|excentri|frein/.test(whenT)) {
-    parts.push('Comme ça arrive à la descente : ralentis-la et contrôle chaque centimètre ; réduis l\'amplitude si ça tire encore.');
+    parts.push('Ça arrive à la **descente** → **ralentis-la** et contrôle chaque centimètre ; réduis l\'amplitude si ça tire encore.');
   } else if (/verrouill|lock|en haut|fin de mouvement|bras tendu|jambe tendue/.test(whenT)) {
-    parts.push('Comme ça arrive en fin de mouvement : arrête la répétition juste avant le verrouillage complet, garde une micro-flexion.');
+    parts.push('Ça arrive en **fin de mouvement** → arrête la répétition juste avant le verrouillage complet, garde une **micro-flexion**.');
   } else if (/après|apres|entre les séries|entre les series|au repos|plus tard/.test(whenT)) {
-    parts.push('Comme ça apparaît après l\'effort : allonge le repos et surveille — si ça revient à la série suivante, baisse la charge de ~20 %.');
+    parts.push('Ça apparaît **après l\'effort** → allonge le **repos** et surveille : si ça revient à la série suivante, baisse la charge de **~20 %**.');
   } else if (/échauff|echauff|début|debut|première|premiere/.test(whenT)) {
-    parts.push('Comme c\'est en début d\'exercice : ajoute 1-2 séries d\'échauffement légères et progressives avant tes séries de travail.');
+    parts.push('C\'est en **début d\'exercice** → ajoute **1-2 séries d\'échauffement** légères et progressives avant tes séries de travail.');
   } else if (/tout le temps|constant|en continu|toute l\'amplitude|toute la/.test(whenT)) {
-    parts.push('Si ça fait mal sur toute l\'amplitude : passe cet exercice aujourd\'hui et prends une variante qui ne réveille rien.');
+    parts.push('Mal sur **toute l\'amplitude** → **passe cet exercice** aujourd\'hui et prends une variante qui ne réveille rien.');
   }
 
   // 4) Astuce spécifique à la zone
@@ -138,11 +140,18 @@ export function buildPainAdvice(painNote) {
 
   // 5) Ancienneté / récurrence
   if (/semaine|mois|longtemps|chronique|toujours|souvent|récurr|recurr|chaque fois|à chaque|a chaque/.test(extra || all)) {
-    parts.push('Vu que ça traîne depuis un moment, un passage chez un kiné vaut le coup en parallèle — en attendant on gère par la charge et l\'amplitude.');
+    parts.push('Vu que ça traîne depuis un moment, un passage chez un **kiné** vaut le coup en parallèle — en attendant on gère par la charge et l\'amplitude.');
+  }
+
+  // Règle d'or — toujours rappelée (sauf si déjà donnée en version longue,
+  // ou si la douleur couvre toute l'amplitude → elle n'aurait pas de sens)
+  if (!gaveAmplitudeRule && !isConstant) {
+    parts.push('Et surtout **écoute ton corps** : reste dans l\'**amplitude qui ne réveille pas la douleur** et arrête la série dès la gêne.');
   }
 
   parts.push(followUp);
-  return parts.join(' ');
+  // Un conseil par paragraphe → lisible d'un coup d'œil, mots-clés en gras
+  return parts.join('\n\n');
 }
 
 // ─── IO : épisodes dans UserMemory.injuries ───

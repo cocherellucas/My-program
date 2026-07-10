@@ -26,6 +26,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { ThemeProvider } from '@/lib/ThemeContext';
+import { I18nProvider } from '@/lib/i18n';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import AppLayout from '@/components/layout/AppLayout';
 import { RestTimerProvider } from '@/lib/RestTimerContext';
@@ -226,6 +227,7 @@ function App() {
   return (
     <ErrorBoundary>
     <ThemeProvider>
+      <I18nProvider>
       <AuthProvider>
         <QueryClientProvider client={queryClientInstance}>
           <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -245,6 +247,7 @@ function App() {
           </Router>
         </QueryClientProvider>
       </AuthProvider>
+      </I18nProvider>
     </ThemeProvider>
     </ErrorBoundary>
   );

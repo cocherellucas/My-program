@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { AlertTriangle, TrendingDown, Zap, CalendarX, Calendar, Check, Bell } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n';
 
 const DISMISS_DURATION_MS = 4 * 7 * 24 * 60 * 60 * 1000; // 4 semaines
 
@@ -16,6 +17,7 @@ const ALERT_CONFIG = {
 };
 
 export default function AlertsCard({ alerts }) {
+  const { t } = useI18n();
   const navigate = useNavigate();
 
   const [dismissed, setDismissed] = useState(() => {
@@ -37,15 +39,15 @@ export default function AlertsCard({ alerts }) {
   if (visibleAlerts.length === 0) {
     return (
       <Card className="p-6 bg-white/15 backdrop-blur-sm border-white/20">
-        <h3 className="font-heading font-bold text-lg mb-3 text-white">Alertes</h3>
-        <p className="text-sm text-white/70">Tout va bien ! Aucune alerte pour le moment.</p>
+        <h3 className="font-heading font-bold text-lg mb-3 text-white">{t('alerts')}</h3>
+        <p className="text-sm text-white/70">{t('alerts_ok')}</p>
       </Card>
     );
   }
 
   return (
     <Card className="p-6 bg-white/15 backdrop-blur-sm border-white/20">
-      <h3 className="font-heading font-bold text-lg mb-4 text-white">Alertes</h3>
+      <h3 className="font-heading font-bold text-lg mb-4 text-white">{t('alerts')}</h3>
       <div className="space-y-3">
         {visibleAlerts.map((alert, i) => {
           const config = ALERT_CONFIG[alert.type] || ALERT_CONFIG.fatigue;

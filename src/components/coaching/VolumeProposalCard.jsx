@@ -1,9 +1,11 @@
 import React from 'react';
 import { TrendingUp, TrendingDown, Loader2, Pencil } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
 
 // Carte actionnable d'autorégulation du volume (augmenter / alléger).
 // Props : proposal { direction, label, detail, apply }, onApply, onManual, onDismiss, busy
 export default function VolumeProposalCard({ proposal, onApply, onManual, onDismiss, busy }) {
+  const { t } = useI18n();
   if (!proposal) return null;
   const isUp = proposal.direction === 'increase';
   const isRest = proposal.apply?.mode === 'rest';
@@ -25,21 +27,21 @@ export default function VolumeProposalCard({ proposal, onApply, onManual, onDism
         {isRest ? (
           <button onClick={onDismiss} disabled={busy}
             className="text-xs font-semibold px-3 py-2 rounded-lg bg-white text-violet-700 hover:bg-white/90 transition-colors disabled:opacity-60">
-            Compris
+            {t('got_it')}
           </button>
         ) : (
           <>
             <button onClick={onApply} disabled={busy}
               className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-white text-violet-700 hover:bg-white/90 transition-colors disabled:opacity-60">
-              {busy && <Loader2 className="w-3.5 h-3.5 animate-spin" />} Appliquer
+              {busy && <Loader2 className="w-3.5 h-3.5 animate-spin" />} {t('apply')}
             </button>
             <button onClick={onManual} disabled={busy}
               className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-colors disabled:opacity-60">
-              <Pencil className="w-3.5 h-3.5" /> Le faire moi-même
+              <Pencil className="w-3.5 h-3.5" /> {t('do_myself')}
             </button>
             <button onClick={onDismiss} disabled={busy}
               className="text-xs text-white/45 hover:text-white/70 px-2 py-2 transition-colors disabled:opacity-60">
-              Ignorer
+              {t('ignore')}
             </button>
           </>
         )}

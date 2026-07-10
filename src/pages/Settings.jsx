@@ -3,11 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { base44 } from '@/api/base44Client';
 import { useTutorial } from '@/lib/TutorialContext';
-import { ChevronLeft, LogOut, RotateCcw, FileText, Brain, ChevronRight, Check } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
+import { ChevronLeft, LogOut, RotateCcw, FileText, Brain, ChevronRight, Check, Globe } from 'lucide-react';
 
 export default function Settings() {
   const navigate = useNavigate();
   const { resetTutorial } = useTutorial() || {};
+  const { t, lang, setLang } = useI18n();
+  const [confirmLang, setConfirmLang] = useState(null); // langue en attente de confirmation (reload requis)
   const [confirmLogout, setConfirmLogout] = useState(false);
 
   // Infos du compte (email, ancienneté, plan)
@@ -41,10 +44,10 @@ export default function Settings() {
 
   // Tutoriels réinitialisables individuellement (rejouent à leur prochaine occasion)
   const TUTORIALS = [
-    { id: 'import-dialog', label: 'Importation de séances', hint: 'Rejoue à la prochaine ouverture de l\'importation (Programme → Modifier / Importer).' },
-    { id: 'coach-tip-intro', label: 'Conseils du coach en séance', hint: 'Rejoue quand un conseil apparaîtra pendant une séance.' },
-    { id: 'profile-intro', label: 'Création du profil', hint: 'Rejoue à la prochaine visite de l\'étape profil.' },
-    { id: 'objectives-intro', label: 'Choix des objectifs', hint: 'Rejoue à la prochaine visite de l\'étape objectifs.' },
+    { id: 'import-dialog', label: t('tuto_import'), hint: t('tuto_import_hint') },
+    { id: 'coach-tip-intro', label: t('tuto_coach'), hint: t('tuto_coach_hint') },
+    { id: 'profile-intro', label: t('tuto_profile'), hint: t('tuto_profile_hint') },
+    { id: 'objectives-intro', label: t('tuto_objectives'), hint: t('tuto_objectives_hint') },
   ];
   const [resetDone, setResetDone] = useState({}); // id -> true (feedback visuel)
   const handleResetOne = (id) => {
@@ -53,9 +56,9 @@ export default function Settings() {
   };
 
   const LEGAL_LINKS = [
-    { label: "Conditions d'utilisation", doc: 'cgu' },
-    { label: 'Politique de confidentialité', doc: 'confidentialite' },
-    { label: 'Mentions légales', doc: 'mentions' },
+    { label: t('legal_cgu'), doc: 'cgu' },
+    { label: t('legal_privacy'), doc: 'confidentialite' },
+    { label: t('legal_mentions'), doc: 'mentions' },
   ];
 
   return (
@@ -66,17 +69,40 @@ export default function Settings() {
           className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl border border-white/30 text-white hover:bg-white/10 transition-colors">
           <ChevronLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white">Paramètres</h1>
+        <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white">{t('set_title')}</h1>
+      </div>
+
+      {/* Langue */}
+      <div className="space-y-3">
+        <p className="text-xs font-medium text-white/50 uppercase tracking-wide">{t('set_lang')}</p>
+        <div className="w-full flex items-center justify-between gap-3 p-4 rounded-2xl bg-white/10 border border-white/15">
+          <div className="flex items-center gap-3 min-w-0">
+            <Globe className="w-5 h-5 text-white/60 flex-shrink-0" />
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-white">{t('set_lang')}</p>
+              <p className="text-xs text-white/45 mt-0.5 leading-snug">{t('set_lang_hint')}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            {[{ id: 'fr', label: 'Français' }, { id: 'en', label: 'English' }].map(({ id, label }) => (
+              <button key={id} type="button"
+                onClick={() => { if (id !== lang) setConfirmLang(id); }}
+                className={`text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors ${lang === id ? 'bg-white text-violet-700' : 'bg-white/10 text-white/60 border border-white/20 hover:bg-white/20'}`}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Séance */}
       <div className="space-y-3">
-        <p className="text-xs font-medium text-white/50 uppercase tracking-wide">Séance</p>
+        <p className="text-xs font-medium text-white/50 uppercase tracking-wide">{t('set_session')}</p>
         <button type="button" onClick={toggleCoachTips}
           className="w-full flex items-center justify-between gap-3 p-4 rounded-2xl bg-white/10 border border-white/15 text-left hover:bg-white/[0.13] transition-colors">
           <div className="min-w-0">
-            <p className="text-sm font-medium text-white">Conseils du coach en séance</p>
-            <p className="text-xs text-white/45 mt-0.5 leading-snug">Bulle qui te suggère d'ajuster repos/poids selon tes performances.</p>
+            <p className="text-sm font-medium text-white">{t('set_coach_tips')}</p>
+            <p className="text-xs text-white/45 mt-0.5 leading-snug">{t('set_coach_tips_hint')}</p>
           </div>
           <span className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors ${coachTipsEnabled ? 'bg-violet-500' : 'bg-white/20'}`}>
             <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${coachTipsEnabled ? 'left-[22px]' : 'left-0.5'}`} />
@@ -86,14 +112,14 @@ export default function Settings() {
 
       {/* Coach */}
       <div className="space-y-3">
-        <p className="text-xs font-medium text-white/50 uppercase tracking-wide">Coach</p>
+        <p className="text-xs font-medium text-white/50 uppercase tracking-wide">{t('set_coach')}</p>
         <button type="button" onClick={() => navigate('/memory')}
           className="w-full flex items-center justify-between gap-3 p-4 rounded-2xl bg-white/10 border border-white/15 text-left hover:bg-white/[0.13] transition-colors">
           <div className="flex items-center gap-3 min-w-0">
             <Brain className="w-5 h-5 text-white/60 flex-shrink-0" />
             <div className="min-w-0">
-              <p className="text-sm font-medium text-white">Mémoire du coach</p>
-              <p className="text-xs text-white/45 mt-0.5 leading-snug">Préférences, douleurs suivies, historique fatigue, bilans.</p>
+              <p className="text-sm font-medium text-white">{t('set_memory')}</p>
+              <p className="text-xs text-white/45 mt-0.5 leading-snug">{t('set_memory_hint')}</p>
             </div>
           </div>
           <ChevronRight className="w-5 h-5 text-white/40 flex-shrink-0" />
@@ -102,14 +128,14 @@ export default function Settings() {
 
       {/* Tutoriels — revoir individuellement, ou tout revoir */}
       <div className="space-y-3">
-        <p className="text-xs font-medium text-white/50 uppercase tracking-wide">Tutoriels</p>
+        <p className="text-xs font-medium text-white/50 uppercase tracking-wide">{t('set_tutorials')}</p>
         <div className="rounded-2xl bg-white/10 border border-white/15 overflow-hidden divide-y divide-white/10">
           {TUTORIALS.map(({ id, label, hint }) => (
             <button key={id} type="button" onClick={() => handleResetOne(id)} disabled={resetDone[id]}
               className="w-full flex items-center justify-between gap-3 p-4 text-left hover:bg-white/[0.06] transition-colors disabled:opacity-80">
               <div className="min-w-0">
                 <p className="text-sm font-medium text-white">{label}</p>
-                <p className="text-xs text-white/45 mt-0.5 leading-snug">{resetDone[id] ? 'Réinitialisé — il rejouera à sa prochaine occasion.' : hint}</p>
+                <p className="text-xs text-white/45 mt-0.5 leading-snug">{resetDone[id] ? t('tuto_reset_done') : hint}</p>
               </div>
               {resetDone[id]
                 ? <Check className="w-5 h-5 text-green-400 flex-shrink-0" />
@@ -121,25 +147,25 @@ export default function Settings() {
           <button type="button" onClick={() => setConfirmResetTutos(true)}
             className="w-full flex items-center justify-between gap-3 p-4 rounded-2xl bg-white/10 border border-white/15 text-left hover:bg-white/[0.13] transition-colors">
             <div className="min-w-0">
-              <p className="text-sm font-medium text-white">Revoir tous les tutoriels</p>
-              <p className="text-xs text-white/45 mt-0.5 leading-snug">Réinitialise tout (l'app se recharge).</p>
+              <p className="text-sm font-medium text-white">{t('tuto_all')}</p>
+              <p className="text-xs text-white/45 mt-0.5 leading-snug">{t('tuto_all_hint')}</p>
             </div>
             <RotateCcw className="w-5 h-5 text-white/50 flex-shrink-0" />
           </button>
         ) : (
           <div className="p-4 rounded-2xl bg-white/10 border border-white/15 space-y-3">
-            <p className="text-xs text-white/70 leading-snug">Relancer tous les tutoriels ? L'app va se recharger et les explications réapparaîtront aux endroits concernés.</p>
+            <p className="text-xs text-white/70 leading-snug">{t('tuto_all_confirm')}</p>
             <div className="flex items-center gap-2">
-              <button onClick={resetTutorials} className="text-xs px-3 py-2 rounded-lg bg-violet-500 text-white font-medium hover:bg-violet-600 transition-colors">Oui, tout revoir</button>
-              <button onClick={() => setConfirmResetTutos(false)} className="text-xs px-3 py-2 rounded-lg bg-white/15 text-white font-medium hover:bg-white/25 transition-colors">Annuler</button>
+              <button onClick={resetTutorials} className="text-xs px-3 py-2 rounded-lg bg-violet-500 text-white font-medium hover:bg-violet-600 transition-colors">{t('tuto_all_yes')}</button>
+              <button onClick={() => setConfirmResetTutos(false)} className="text-xs px-3 py-2 rounded-lg bg-white/15 text-white font-medium hover:bg-white/25 transition-colors">{t('cancel')}</button>
             </div>
           </div>
         )}
       </div>
 
-      {/* Juridique (à compléter plus tard) */}
+      {/* Juridique */}
       <div className="space-y-3">
-        <p className="text-xs font-medium text-white/50 uppercase tracking-wide">Juridique</p>
+        <p className="text-xs font-medium text-white/50 uppercase tracking-wide">{t('set_legal')}</p>
         <div className="rounded-2xl bg-white/10 border border-white/15 overflow-hidden divide-y divide-white/10">
           {LEGAL_LINKS.map(({ label, doc }) => (
             <button key={doc} type="button" onClick={() => navigate(`/legal?doc=${doc}`)}
@@ -156,26 +182,50 @@ export default function Settings() {
 
       {/* Compte */}
       <div className="space-y-3">
-        <p className="text-xs font-medium text-white/50 uppercase tracking-wide">Compte</p>
+        <p className="text-xs font-medium text-white/50 uppercase tracking-wide">{t('set_account')}</p>
         <div className="rounded-2xl bg-white/10 border border-white/15 overflow-hidden divide-y divide-white/10">
           <div className="flex items-center justify-between gap-3 p-4">
-            <span className="text-sm text-white/60">Email</span>
+            <span className="text-sm text-white/60">{t('account_email')}</span>
             <span className="text-sm text-white font-medium truncate">{account?.email || '—'}</span>
           </div>
           <div className="flex items-center justify-between gap-3 p-4">
-            <span className="text-sm text-white/60">Membre depuis</span>
+            <span className="text-sm text-white/60">{t('account_since')}</span>
             <span className="text-sm text-white font-medium">{memberSince || '—'}</span>
           </div>
           <div className="flex items-center justify-between gap-3 p-4">
-            <span className="text-sm text-white/60">Plan</span>
+            <span className="text-sm text-white/60">{t('account_plan')}</span>
             <span className="text-sm text-white font-medium capitalize">{account?.subscription_plan || 'Starter'}</span>
           </div>
         </div>
         <button onClick={() => setConfirmLogout(true)}
           className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold bg-red-500/15 text-red-300 border border-red-400/30 hover:bg-red-500/25 transition-colors">
-          <LogOut className="w-4 h-4" /> Déconnexion
+          <LogOut className="w-4 h-4" /> {t('logout')}
         </button>
       </div>
+
+      {/* Confirmation changement de langue (l'app se relance) */}
+      {confirmLang && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6" onClick={() => setConfirmLang(null)}>
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+          <div className="relative bg-violet-900 border border-white/20 rounded-2xl p-6 w-full max-w-xs shadow-2xl text-center space-y-4" onClick={e => e.stopPropagation()}>
+            <div className="w-12 h-12 rounded-full bg-violet-500/30 flex items-center justify-center mx-auto">
+              <Globe className="w-6 h-6 text-violet-300" />
+            </div>
+            <div>
+              <p className="font-bold text-white text-base">{t('lang_confirm_title')}</p>
+              <p className="text-sm text-white/60 mt-1">{t('lang_confirm_sub')}</p>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmLang(null)} className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-white/10 text-white hover:bg-white/20 transition-colors">
+                {t('cancel')}
+              </button>
+              <button onClick={() => { setLang(confirmLang); window.location.reload(); }} className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-white text-violet-700 hover:bg-white/90 transition-colors">
+                {t('lang_confirm_yes')}
+              </button>
+            </div>
+          </div>
+        </div>
+      , document.body)}
 
       {confirmLogout && createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6" onClick={() => setConfirmLogout(false)}>
@@ -185,15 +235,15 @@ export default function Settings() {
               <LogOut className="w-6 h-6 text-red-400" />
             </div>
             <div>
-              <p className="font-bold text-white text-base">Se déconnecter ?</p>
-              <p className="text-sm text-white/60 mt-1">Tu devras te reconnecter pour accéder à ton compte.</p>
+              <p className="font-bold text-white text-base">{t('logout_confirm')}</p>
+              <p className="text-sm text-white/60 mt-1">{t('logout_sub')}</p>
             </div>
             <div className="flex gap-3">
               <button onClick={() => setConfirmLogout(false)} className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-white/10 text-white hover:bg-white/20 transition-colors">
-                Annuler
+                {t('cancel')}
               </button>
               <button onClick={() => base44.auth.logout()} className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors">
-                Se déconnecter
+                {t('logout_yes')}
               </button>
             </div>
           </div>

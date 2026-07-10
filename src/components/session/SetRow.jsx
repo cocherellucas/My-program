@@ -152,7 +152,7 @@ const shouldShowPropagate =
                 <button
                   type="button"
                   onClick={() => { setPainThread([]); onUpdate('pain_note', ''); }}
-                  className="text-[11px] text-white/40 hover:text-white/70 transition-colors px-1"
+                  className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-white/15 text-white border border-white/25 hover:bg-white/25 transition-colors"
                 >
                   ↩ Recommencer
                 </button>
