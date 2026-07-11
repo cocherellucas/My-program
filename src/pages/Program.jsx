@@ -21,6 +21,8 @@ import { normalizeUser } from '@/lib/utils';
 import ImportSessionDialog from '@/components/coach/ImportSessionDialog';
 import { calcDuration } from '@/lib/duration';
 import { exportProgramPDF } from '@/lib/program-pdf';
+import { useI18n } from '@/lib/i18n';
+import { enUS } from 'date-fns/locale';
 
 function LoadingOrb() {
   return (
@@ -61,6 +63,8 @@ const TYPE_LABELS = { strength: 'Force', hypertrophy: 'Hypertrophie', endurance:
 const TYPE_COLORS = { strength: 'bg-chart-5/10 text-chart-5', hypertrophy: 'bg-primary/10 text-primary', endurance: 'bg-accent/10 text-accent', mixed: 'bg-chart-4/10 text-chart-4' };
 
 export default function Program() {
+  const { t, lang } = useI18n();
+  const dfnLocale = lang === 'fr' ? fr : enUS;
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
@@ -926,22 +930,22 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
       {staleBanner && (
         <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-400/10 border border-orange-400/25 text-xs text-orange-300">
           <RefreshCw className="w-3.5 h-3.5 flex-shrink-0" />
-          <span className="flex-1">Programme obsolète — des paramètres de profil ont changé depuis la dernière génération.</span>
-          <button onClick={handleRegen} className="font-semibold underline underline-offset-2 hover:text-orange-200 transition-colors whitespace-nowrap">Régénérer</button>
+          <span className="flex-1">{t('pg_stale')}</span>
+          <button onClick={handleRegen} className="font-semibold underline underline-offset-2 hover:text-orange-200 transition-colors whitespace-nowrap">{t('pg_regen')}</button>
           <span className="text-orange-400/40">·</span>
-          <button onClick={() => { setStaleBanner(false); localStorage.removeItem('pending_program_regen'); }} className="text-orange-300/50 hover:text-orange-300 transition-colors whitespace-nowrap">Ignorer</button>
+          <button onClick={() => { setStaleBanner(false); localStorage.removeItem('pending_program_regen'); }} className="text-orange-300/50 hover:text-orange-300 transition-colors whitespace-nowrap">{t('pg_ignore')}</button>
         </div>
       )}
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex flex-col items-center sm:items-start">
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white leading-none">Programme</h1>
+            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white leading-none">{t('pg_title')}</h1>
             {activeProgram && (
               isImported({ program_id: activeProgram.id }) ? (
-                <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', letterSpacing: '0.06em' }}>Importé</span>
+                <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', letterSpacing: '0.06em' }}>{t('pg_imported')}</span>
               ) : (
-                <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white', letterSpacing: '0.06em' }}>Coach</span>
+                <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white', letterSpacing: '0.06em' }}>{t('pg_coach')}</span>
               )
             )}
           </div>
@@ -960,14 +964,14 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
               const completedThisMonth = sessions.filter(s => s.status === 'completed' && s.planned_date && new Date(s.planned_date) >= monthStart && new Date(s.planned_date) < monthEnd).length;
               const plannedThisMonth = sessions.filter(s => s.planned_date && new Date(s.planned_date) >= monthStart && new Date(s.planned_date) < monthEnd).length;
               progressLabel = `${dayOfMonth}/${daysInMonth}`;
-              sessionLabel = plannedThisMonth > 0 ? `${completedThisMonth}/${plannedThisMonth} séances` : null;
+              sessionLabel = plannedThisMonth > 0 ? `${completedThisMonth}/${plannedThisMonth} ${t('sessions_word')}` : null;
             } else {
               const completedCount = sessions.filter(s => s.status === 'completed').length;
               const totalCount = sessions.length;
               const currentWeekNum = nextSession?.week_number || 1;
               const totalWeeks = activeProgram.planned_weeks || 1;
-              progressLabel = `Semaine ${currentWeekNum}/${totalWeeks}`;
-              sessionLabel = totalCount > 0 ? `${completedCount}/${totalCount} séances` : null;
+              progressLabel = `${t('pg_week')} ${currentWeekNum}/${totalWeeks}`;
+              sessionLabel = totalCount > 0 ? `${completedCount}/${totalCount} ${t('sessions_word')}` : null;
             }
             return (
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-1">
@@ -975,9 +979,9 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                 {daysUntil !== null && (
                   <span className="text-white/60 text-sm">·</span>
                 )}
-                {daysUntil === 0 && <span className="text-violet-300 text-sm font-medium">Séance aujourd'hui</span>}
-                {daysUntil === 1 && <span className="text-white/60 text-sm">Prochaine séance demain</span>}
-                {daysUntil > 1 && <span className="text-white/60 text-sm">Prochaine séance dans {daysUntil}j</span>}
+                {daysUntil === 0 && <span className="text-violet-300 text-sm font-medium">{t('pg_today')}</span>}
+                {daysUntil === 1 && <span className="text-white/60 text-sm">{t('pg_tomorrow')}</span>}
+                {daysUntil > 1 && <span className="text-white/60 text-sm">{t('pg_in_days')} {daysUntil}{t('pg_days_short')}</span>}
                 {sessionLabel && (
                   <><span className="text-white/60 text-sm">·</span>
                   <span className="text-white/60 text-sm">{sessionLabel}</span></>
@@ -997,17 +1001,17 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                 </AlertDialogTrigger>
                 <AlertDialogContent className="bg-violet-950 border border-white/20 rounded-2xl w-[calc(100%-2rem)] max-w-sm left-1/2 -translate-x-1/2 mx-0">
                   <AlertDialogHeader>
-                    <AlertDialogTitle className="text-white text-lg font-bold">Supprimer le programme ?</AlertDialogTitle>
+                    <AlertDialogTitle className="text-white text-lg font-bold">{t('pg_delete_title')}</AlertDialogTitle>
                     <AlertDialogDescription className="text-white/60 text-sm">
-                      Toutes les séances planifiées seront supprimées. Les séances déjà complétées restent dans l'historique.
+                      {lang === 'fr' ? "Toutes les séances planifiées seront supprimées. Les séances déjà complétées restent dans l'historique." : 'All planned workouts will be deleted. Completed workouts stay in your history.'}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter className="gap-2 mt-2">
                     <AlertDialogCancel className="flex-1 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white rounded-xl">
-                      Annuler
+                      {t('pg_cancel')}
                     </AlertDialogCancel>
                     <AlertDialogAction onClick={deleteProgram} className="flex-1 bg-red-500/80 hover:bg-red-500 text-white border-0 rounded-xl">
-                      Supprimer
+                      {t('pg_delete')}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -1035,7 +1039,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
               className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-xl font-semibold text-xs bg-white text-violet-700 hover:bg-white/90 shadow transition-all disabled:opacity-50"
             >
               {generating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-              Générer
+              {t('pg_generate')}
             </button>
           )}
           {(!activeProgram || isImported({ program_id: activeProgram.id })) && (
@@ -1044,7 +1048,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
               className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-xl font-semibold text-xs bg-white text-violet-700 hover:bg-white/90 shadow transition-all"
             >
               <Pencil className="w-3.5 h-3.5" />
-              Modifier
+              {t('pg_modify')}
             </button>
           )}
           {activeProgram && sessions.length > 0 && (
@@ -1056,13 +1060,13 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                   .filter(s => (s.week_number || 1) === minWeek)
                   .sort((a, b) => (a.planned_date || '').localeCompare(b.planned_date || ''));
                 exportProgramPDF({
-                  programName: isImported({ program_id: activeProgram.id }) ? 'Mon programme (importé)' : 'Mon programme',
-                  subtitle: programIsInfinite ? 'Cycle hebdomadaire (programme en boucle)' : `Programme sur ${activeProgram.planned_weeks} semaines`,
+                  programName: isImported({ program_id: activeProgram.id }) ? t('pg_my_program_imported') : t('pg_my_program'),
+                  subtitle: programIsInfinite ? (lang === 'fr' ? 'Cycle hebdomadaire (programme en boucle)' : 'Weekly cycle (looping program)') : `${t('pg_title')} · ${activeProgram.planned_weeks} ${t('sessions_word') === 'workouts' ? 'weeks' : 'semaines'}`,
                   sessions: cycle,
                 });
               }}
               className="flex items-center justify-center px-2.5 py-1.5 rounded-xl font-semibold text-xs bg-white text-violet-700 hover:bg-white/90 shadow transition-all"
-              title="Exporter le programme en PDF"
+              title={t('pg_export_pdf')}
             >
               <Download className="w-3.5 h-3.5" />
             </button>
@@ -1095,8 +1099,8 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                 <TabsTrigger key={w} value={w}
                   className={manyWeeks ? 'flex-shrink-0 min-w-[2.75rem] text-xs' : 'flex-1 text-xs sm:text-sm'}>
                   {manyWeeks
-                    ? <span>S{w}</span>
-                    : <><span className="sm:hidden">S{w}</span><span className="hidden sm:inline">Semaine {w}</span></>}
+                    ? <span>{t('pg_week_short')}{w}</span>
+                    : <><span className="sm:hidden">{t('pg_week_short')}{w}</span><span className="hidden sm:inline">{t('pg_week')} {w}</span></>}
                 </TabsTrigger>
               ))
             )}
@@ -1156,13 +1160,13 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                            <div className="flex flex-col items-center gap-1">
                              <div className={`w-14 h-14 rounded-xl flex flex-col items-center justify-center ${isToday ? 'bg-violet-600 border-2 border-white' : 'bg-white/20'}`}>
                                <span className={`text-[10px] capitalize ${isToday ? 'text-white/80' : 'text-white/70'}`}>
-                                 {session.planned_date && format(new Date(session.planned_date), 'EEE', { locale: fr })}
+                                 {session.planned_date && format(new Date(session.planned_date), 'EEE', { locale: dfnLocale })}
                                </span>
                                <span className="text-sm font-bold text-white">
                                  {session.planned_date && format(new Date(session.planned_date), 'd')}
                                </span>
                                <span className={`text-[9px] capitalize ${isToday ? 'text-white/70' : 'text-white/50'}`}>
-                                 {session.planned_date && format(new Date(session.planned_date), 'MMM', { locale: fr })}
+                                 {session.planned_date && format(new Date(session.planned_date), 'MMM', { locale: dfnLocale })}
                                </span>
                              </div>
                            </div>
@@ -1180,15 +1184,15 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                                {/* Pas de badge de type (Mixte…) sur les séances importées */}
                                {!isImported(session) && (
                                  <Badge className={`bg-white/20 text-white border-white/20`}>
-                                   {TYPE_LABELS[session.type] || session.type}
+                                   {['strength','hypertrophy','endurance','mixed'].includes(session.type) ? t(`type_${session.type}`) : (TYPE_LABELS[session.type] || session.type)}
                                  </Badge>
                                )}
-                               {past && <Badge variant="outline" className="text-xs text-white/50 border-white/20">Passée</Badge>}
-                               {session.status === 'completed' && <Badge variant="default" className="text-xs">✓ Fait</Badge>}
+                               {past && <Badge variant="outline" className="text-xs text-white/50 border-white/20">{t('pg_past')}</Badge>}
+                               {session.status === 'completed' && <Badge variant="default" className="text-xs">{t('pg_done')}</Badge>}
                              </div>
                              <div className="flex items-center gap-3 mt-1 text-xs text-white/60">
-                               <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{session.estimated_duration} min</span>
-                               <span className="flex items-center gap-1"><Dumbbell className="w-3 h-3" />{session.exercises?.length || 0} exercices</span>
+                               <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{session.estimated_duration} {t('pg_min')}</span>
+                               <span className="flex items-center gap-1"><Dumbbell className="w-3 h-3" />{session.exercises?.length || 0} {t('pg_exercises')}</span>
                              </div>
                            </div>
                          </div>
@@ -1217,11 +1221,11 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
       {!activeProgram && !generating && (
         <Card className="p-12 text-center bg-white/15 backdrop-blur-sm border-white/20">
           <Dumbbell className="w-12 h-12 mx-auto text-white/60 mb-4" />
-          <h3 className="font-heading font-bold text-xl mb-2 text-white">Pas encore de programme</h3>
-          <p className="text-white/70 mb-6">L'IA va créer un programme personnalisé basé sur ton profil</p>
+          <h3 className="font-heading font-bold text-xl mb-2 text-white">{t('pg_no_program')}</h3>
+          <p className="text-white/70 mb-6">{lang === 'fr' ? "L'IA va créer un programme personnalisé basé sur ton profil" : 'The AI will create a program tailored to your profile'}</p>
           <Button onClick={() => setShowDialog(true)} disabled={generating} size="lg">
             <Sparkles className="w-5 h-5 mr-2" />
-            Générer mon programme
+            {t('pg_generate_mine')}
           </Button>
         </Card>
       )}
@@ -1229,9 +1233,9 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
       <AlertDialog open={showRegenGate} onOpenChange={setShowRegenGate}>
         <AlertDialogContent className="bg-violet-800 border-violet-700 text-white">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">Tu as déjà un programme actif</AlertDialogTitle>
+            <AlertDialogTitle className="text-white">{t('pg_has_active_title')}</AlertDialogTitle>
             <AlertDialogDescription className="text-white/70">
-              Pour générer, tu dois d'abord choisir ce que tu fais avec le programme actuel.
+              {lang === 'fr' ? "Pour générer, tu dois d'abord choisir ce que tu fais avec le programme actuel." : 'To generate, first choose what to do with your current program.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex flex-col gap-2 py-2">
@@ -1241,8 +1245,8 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
             >
               <Bookmark className="w-5 h-5 text-violet-300 flex-shrink-0" />
               <div>
-                <p className="font-semibold text-sm text-white">Sauvegarder puis générer</p>
-                <p className="text-xs text-white/60 mt-0.5">Le programme sera conservé dans Bibliothèque avant de générer</p>
+                <p className="font-semibold text-sm text-white">{t('pg_save_then_gen')}</p>
+                <p className="text-xs text-white/60 mt-0.5">{t('pg_save_then_gen_d')}</p>
               </div>
             </button>
             <button
@@ -1251,13 +1255,13 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
             >
               <Trash2 className="w-5 h-5 text-red-400 flex-shrink-0" />
               <div>
-                <p className="font-semibold text-sm text-white">Supprimer et générer</p>
-                <p className="text-xs text-red-300 mt-0.5">Le programme actuel sera définitivement supprimé</p>
+                <p className="font-semibold text-sm text-white">{t('pg_del_then_gen')}</p>
+                <p className="text-xs text-red-300 mt-0.5">{t('pg_del_then_gen_d')}</p>
               </div>
             </button>
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white rounded-xl">Annuler</AlertDialogCancel>
+            <AlertDialogCancel className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white rounded-xl">{t('pg_cancel')}</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -1273,8 +1277,8 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6 bg-black/50 backdrop-blur-md">
           <div className="w-full max-w-sm rounded-2xl p-5 space-y-4" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)' }}>
             <div>
-              <p className="text-white font-bold text-lg">🎉 Programme terminé !</p>
-              <p className="text-white/60 text-sm mt-1">Toutes tes séances sont passées. Que veux-tu faire ?</p>
+              <p className="text-white font-bold text-lg">🎉 {lang === 'fr' ? 'Programme terminé !' : 'Program complete!'}</p>
+              <p className="text-white/60 text-sm mt-1">{t('pg_finished_q')}</p>
             </div>
             <div className="space-y-2">
               <div className="grid grid-cols-2 gap-2">
@@ -1283,25 +1287,25 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                   <button onClick={alreadySaved ? undefined : saveProgram} disabled={saving || saved || alreadySaved}
                     className="flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-semibold bg-white text-violet-700 hover:bg-white/90 disabled:opacity-60">
                     {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : (alreadySaved || saved) ? <BookmarkCheck className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
-                    {(alreadySaved || saved) ? 'Enregistré' : 'Enregistrer'}
+                    {(alreadySaved || saved) ? t('pg_saved') : t('pg_save')}
                   </button>
                 )}
                 <button onClick={relaunchSameProgram} disabled={relaunching}
                   className={`flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-semibold bg-white/15 border border-white/25 text-white hover:bg-white/25 disabled:opacity-60 ${alreadySavedIdentical ? 'col-span-2' : ''}`}>
                   {relaunching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-                  Relancer le même
+                  {t('pg_relaunch_same')}
                 </button>
               </div>
               {canGenerate ? (
                 <button onClick={async () => { await deleteProgram(); setShowDialog(true); }} disabled={generating}
                   className="w-full flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-semibold text-white disabled:opacity-60"
                   style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
-                  <Sparkles className="w-4 h-4" /> Générer un nouveau
+                  <Sparkles className="w-4 h-4" /> {t('pg_generate_new')}
                 </button>
               ) : (
                 <Link to="/pricing"
                   className="w-full flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-semibold bg-white/10 border border-white/20 text-white/70 hover:bg-white/15">
-                  <Sparkles className="w-4 h-4" /> Générer un nouveau (Coach+)
+                  <Sparkles className="w-4 h-4" /> {t('pg_generate_new_coach')}
                 </Link>
               )}
             </div>
@@ -1320,8 +1324,8 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
             <Loader2 className="w-6 h-6 text-white animate-spin" />
           </div>
           <div className="text-center space-y-1">
-            <p className="text-white font-semibold text-sm">Suppression en cours…</p>
-            <p className="text-white/50 text-xs">Les séances planifiées sont effacées</p>
+            <p className="text-white font-semibold text-sm">{t('pg_deleting')}</p>
+            <p className="text-white/50 text-xs">{t('pg_deleting_d')}</p>
           </div>
         </div>,
         document.body
@@ -1351,20 +1355,20 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
         <div className="fixed inset-0 bg-violet-900/80 backdrop-blur-sm flex flex-col items-center justify-center z-[200] gap-4 px-6">
           <div className="text-center space-y-3">
             <p className="text-white font-bold text-lg">
-              {genError === 'network' ? 'Connexion perdue' : 'Erreur de génération'}
+              {genError === 'network' ? t('pg_gen_err_net') : t('pg_gen_err')}
             </p>
             <p className="text-white/60 text-sm">
               {genError === 'network'
-                ? 'La génération a été interrompue par un problème réseau. Réessaie — la connexion est souvent rétablie.'
+                ? (lang === 'fr' ? 'La génération a été interrompue par un problème réseau. Réessaie — la connexion est souvent rétablie.' : 'Generation was interrupted by a network issue. Try again — the connection is often restored.')
                 : genError}
             </p>
             <div className="flex gap-3 mt-2">
               <button onClick={() => setGenError(null)} className="flex-1 py-2.5 rounded-xl border border-white/20 text-white/70 text-sm font-semibold hover:bg-white/10">
-                Annuler
+                {t('pg_cancel')}
               </button>
               <button onClick={() => { setGenError(null); generateProgram(genParamsRef.current); }}
                 className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
-                Réessayer
+                {lang === 'fr' ? 'Réessayer' : 'Retry'}
               </button>
             </div>
           </div>

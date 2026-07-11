@@ -13,6 +13,7 @@ import { fr } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
 import { addDays, startOfWeek, endOfWeek, parseISO, format as fmtDate } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useI18n } from '@/lib/i18n';
 
 const STRUCTURE_LABELS = {
   full_body: 'Full Body',
@@ -40,6 +41,7 @@ const TYPE_COLORS = {
 };
 
 function SavedProgramCard({ prog, onDelete, onReapply, isReapplying }) {
+  const { t } = useI18n();
   const [expanded, setExpanded] = useState(false);
   const [openSessions, setOpenSessions] = useState({});
   const label = STRUCTURE_LABELS[prog.structure_type];
@@ -64,7 +66,7 @@ function SavedProgramCard({ prog, onDelete, onReapply, isReapplying }) {
             {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </Button>
           <Button size="sm" onClick={() => onReapply(prog)} disabled={isReapplying} className="bg-white/20 text-white hover:bg-white/30 border-0 disabled:opacity-70">
-            {isReapplying ? <><Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> Lancement…</> : <><Play className="w-3.5 h-3.5 mr-1" /> Relancer</>}
+            {isReapplying ? <><Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> {t('lib_launching')}</> : <><Play className="w-3.5 h-3.5 mr-1" /> {t('lib_relaunch')}</>}
           </Button>
           <Button size="sm" variant="ghost" className="text-red-300 hover:text-red-200 hover:bg-red-500/20" onClick={() => onDelete(prog.id)}>
             <Trash2 className="w-4 h-4" />
@@ -194,6 +196,7 @@ function SessionHistoryCard({ session }) {
 
 // Onglet Séances : filtres jour/mois/année (style calendrier) + regroupement par semaine
 function SessionsTab({ sessions }) {
+  const { t } = useI18n();
   const [dayFilter, setDayFilter] = useState('all');
   const [monthFilter, setMonthFilter] = useState('all');
   const [yearFilter, setYearFilter] = useState('all');
@@ -249,8 +252,8 @@ function SessionsTab({ sessions }) {
     return (
       <Card className="p-12 text-center bg-white/15 backdrop-blur-sm border-white/20">
         <Dumbbell className="w-10 h-10 mx-auto text-white/30 mb-3" />
-        <p className="font-medium mb-1 text-white">Aucune séance complétée</p>
-        <p className="text-sm text-white/60">Tes séances terminées apparaîtront ici.</p>
+        <p className="font-medium mb-1 text-white">{t('lib_no_completed')}</p>
+        <p className="text-sm text-white/60">{t('lib_no_completed_d')}</p>
       </Card>
     );
   }
@@ -298,14 +301,13 @@ function SessionsTab({ sessions }) {
 
       {/* Compteur résultat */}
       <p className="text-xs text-white/50">
-        {filtered.length} séance{filtered.length > 1 ? 's' : ''}
-        {(monthFilter !== 'all' || dayFilter !== 'all' || yearFilter !== 'all') && ' filtrée' + (filtered.length > 1 ? 's' : '')}
+        {filtered.length} {t('sessions_word')}
       </p>
 
       {/* Liste regroupée par semaine */}
       {weeks.length === 0 ? (
         <Card className="p-8 text-center bg-white/10 border-white/15">
-          <p className="text-sm text-white/60">Aucune séance avec ces filtres.</p>
+          <p className="text-sm text-white/60">{t('lib_no_filter')}</p>
         </Card>
       ) : (
         <div className="space-y-5">
@@ -321,7 +323,7 @@ function SessionsTab({ sessions }) {
                     Semaine du {fmtDate(week.monday, 'd MMM', { locale: fr })} au {fmtDate(sunday, 'd MMM', { locale: fr })}
                   </span>
                   <span className="text-[11px] text-white/60 ml-auto whitespace-nowrap">
-                    {week.sessions.length} séance{week.sessions.length > 1 ? 's' : ''}
+                    {week.sessions.length} {t('sessions_word')}
                   </span>
                 </div>
                 {week.sessions.map((s, i) => (
@@ -339,6 +341,7 @@ function SessionsTab({ sessions }) {
 }
 
 export default function Library() {
+  const { t } = useI18n();
   const [user, setUser] = useState(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -498,17 +501,17 @@ export default function Library() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-heading font-bold text-white">Bibliothèque</h1>
-        <p className="text-white/70 mt-1">Programmes sauvegardés et historique des séances</p>
+        <h1 className="text-3xl font-heading font-bold text-white">{t('lib_title')}</h1>
+        <p className="text-white/70 mt-1">{t('lib_sub')}</p>
       </div>
 
       <Tabs defaultValue="programs">
         <TabsList className="bg-white/10 text-white">
           <TabsTrigger value="programs" className="flex items-center gap-2">
-            <BookOpen className="w-4 h-4" /> Programmes ({savedPrograms.length})
+            <BookOpen className="w-4 h-4" /> {t('lib_programs')} ({savedPrograms.length})
           </TabsTrigger>
           <TabsTrigger value="sessions" className="flex items-center gap-2">
-            <CalendarDays className="w-4 h-4" /> Séances ({completedSessions.length})
+            <CalendarDays className="w-4 h-4" /> {t('lib_sessions')} ({completedSessions.length})
           </TabsTrigger>
         </TabsList>
 
@@ -516,9 +519,9 @@ export default function Library() {
           {savedPrograms.length === 0 ? (
             <Card className="p-12 text-center bg-white/15 backdrop-blur-sm border-white/20">
               <BookOpen className="w-10 h-10 mx-auto text-white/30 mb-3" />
-              <p className="font-medium mb-1 text-white">Aucun programme sauvegardé</p>
+              <p className="font-medium mb-1 text-white">{t('lib_no_saved')}</p>
               <p className="text-sm text-white/60">
-                Depuis la page Programme, clique sur "Sauvegarder" pour conserver un programme que tu aimes.
+                {t('lib_no_saved_d')}
               </p>
             </Card>
           ) : (
@@ -551,28 +554,28 @@ export default function Library() {
           <div onClick={e => e.stopPropagation()} className="w-full max-w-sm rounded-2xl p-5 space-y-3"
             style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)' }}>
             <div>
-              <p className="font-bold text-white text-lg">Tu as déjà un programme actif</p>
-              <p className="text-white/70 text-sm mt-1">Pour relancer ce programme, choisis quoi faire avec le programme actuel.</p>
+              <p className="font-bold text-white text-lg">{t('lib_gate_title')}</p>
+              <p className="text-white/70 text-sm mt-1">{t('lib_gate_sub')}</p>
             </div>
             <button type="button" disabled={gateBusy} onClick={() => runRelaunch(true)}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 transition-colors text-left disabled:opacity-50">
               <BookOpen className="w-5 h-5 text-violet-300 flex-shrink-0" />
               <div>
-                <p className="font-semibold text-sm text-white">Sauvegarder puis relancer</p>
-                <p className="text-xs text-white/60 mt-0.5">Le programme actuel sera conservé dans Bibliothèque</p>
+                <p className="font-semibold text-sm text-white">{t('lib_save_relaunch')}</p>
+                <p className="text-xs text-white/60 mt-0.5">{t('lib_save_relaunch_d')}</p>
               </div>
             </button>
             <button type="button" disabled={gateBusy} onClick={() => runRelaunch(false)}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/20 border border-red-400/30 hover:bg-red-500/30 transition-colors text-left disabled:opacity-50">
               <Trash2 className="w-5 h-5 text-red-400 flex-shrink-0" />
               <div>
-                <p className="font-semibold text-sm text-white">Supprimer et relancer</p>
-                <p className="text-xs text-red-300 mt-0.5">Le programme actuel sera définitivement supprimé</p>
+                <p className="font-semibold text-sm text-white">{t('lib_del_relaunch')}</p>
+                <p className="text-xs text-red-300 mt-0.5">{t('lib_del_relaunch_d')}</p>
               </div>
             </button>
             <button type="button" disabled={gateBusy} onClick={() => setRelaunchGate(null)}
               className="w-full py-2.5 rounded-xl border border-white/15 text-white/60 text-sm font-semibold hover:bg-white/10 transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
-              {gateBusy ? <><Loader2 className="w-4 h-4 animate-spin" /> Lancement…</> : 'Annuler'}
+              {gateBusy ? <><Loader2 className="w-4 h-4 animate-spin" /> {t('lib_launching')}</> : t('pg_cancel')}
             </button>
           </div>
         </div>,
