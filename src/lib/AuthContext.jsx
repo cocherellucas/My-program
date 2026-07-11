@@ -45,11 +45,13 @@ export const AuthProvider = ({ children }) => {
         .eq('id', authUser.id)
         .single();
 
+      // Profil fusionné AVANT email/nom : profiles.email peut être vide et
+      // écraserait sinon l'email d'authentification.
       setUser({
-        id: authUser.id,
-        email: authUser.email,
-        full_name: authUser.user_metadata?.full_name || '',
         ...(profile || {}),
+        id: authUser.id,
+        email: profile?.email || authUser.email,
+        full_name: authUser.user_metadata?.full_name || profile?.full_name || '',
       });
       setIsAuthenticated(true);
       setAuthError(null);

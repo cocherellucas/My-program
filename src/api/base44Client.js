@@ -101,11 +101,13 @@ const auth = {
       .eq('id', user.id)
       .single();
 
+    // Le profil est fusionné AVANT l'email/nom : la colonne profiles.email peut
+    // être vide et écraserait sinon l'email d'authentification (toujours connu).
     return {
-      id: user.id,
-      email: user.email,
-      full_name: user.user_metadata?.full_name || '',
       ...(profile || {}),
+      id: user.id,
+      email: profile?.email || user.email,
+      full_name: user.user_metadata?.full_name || profile?.full_name || '',
     };
   },
 

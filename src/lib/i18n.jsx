@@ -50,6 +50,7 @@ const DICT = {
     set_memory_hint: 'Préférences, douleurs suivies, historique fatigue, bilans.',
     set_tutorials: 'Tutoriels',
     tuto_import: 'Importation de séances', tuto_import_hint: "Rejoue à la prochaine ouverture de l'importation (Programme → Modifier / Importer).",
+    tuto_overview: "Vue d'ensemble en séance", tuto_overview_hint: "Rejoue à la prochaine ouverture de la vue d'ensemble (poignée d'ordre + détail des séries).",
     tuto_coach: 'Conseils du coach en séance', tuto_coach_hint: 'Rejoue quand un conseil apparaîtra pendant une séance.',
     tuto_profile: 'Création du profil', tuto_profile_hint: "Rejoue à la prochaine visite de l'étape profil.",
     tuto_objectives: 'Choix des objectifs', tuto_objectives_hint: "Rejoue à la prochaine visite de l'étape objectifs.",
@@ -69,6 +70,34 @@ const DICT = {
     no_account: 'Pas encore de compte ?', have_account: 'Déjà un compte ?',
     accept_1: "J'accepte les", accept_and: 'et la',
     accept_3: "et j'ai lu l'avertissement santé (consulter un médecin avant de commencer un programme).",
+    // Profil / StepProfile
+    sp_title: 'Parle-nous de toi', sp_sub: 'Ces infos nous aident à personnaliser ton coaching',
+    sp_required: 'sont obligatoires',
+    sp_gender: 'Genre', sp_male: 'Homme', sp_female: 'Femme',
+    sp_age: 'Âge', sp_height: 'Taille (cm)', sp_weight: 'Poids (kg)',
+    sp_level: 'Niveau', sp_select: 'Sélectionner',
+    sp_beginner: 'Débutant', sp_intermediate: 'Intermédiaire', sp_advanced: 'Avancé',
+    sp_lvl_beg: 'Tu progresses facilement séance après séance. Valable pour les premières années de pratique.',
+    sp_lvl_int: "Plusieurs années d'entraînement sérieux. La progression demande maintenant de l'optimisation (volume, intensité, récupération).",
+    sp_lvl_adv: 'Chaque détail compte pour progresser. Les gains sont rares et complexes à obtenir.',
+    sp_activity: 'Activité', sp_activity_hint: 'Ton activité globale (pas que la muscu)',
+    sp_act_sedentary: 'Sédentaire', sp_act_sedentary_d: 'travail assis, peu de marche.',
+    sp_act_light: 'Légèrement actif', sp_act_light_d: 'un peu de marche, ou 1-2 séances/sem.',
+    sp_act_moderate: 'Modérément actif', sp_act_moderate_d: 'debout/marche, ou 3-4 séances/sem.',
+    sp_act_active: 'Très actif', sp_act_active_d: 'métier physique, ou 5-6 séances/sem.',
+    sp_act_very: 'Extrêmement actif', sp_act_very_d: 'très physique + entraînement quasi quotidien.',
+    sp_bodyfat: 'Masse grasse (%)', sp_bodyfat_t: 'Ton pourcentage de masse grasse',
+    sp_bodyfat_d: "Si tu ne le connais pas : balance à impédance, pince à plis cutanés, ou estimation visuelle. Laisse vide si tu n'es pas sûr.",
+    sp_maintenance: 'Maintien calorique estimé', sp_see: 'Voir', sp_kcal_day: 'kcal/j',
+    sp_maint_katch: "Estimation (Katch-McArdle, basée sur ta masse maigre et ton activité, ajustée à l'âge). À ajuster selon tes résultats.",
+    sp_maint_mifflin: 'Estimation (Mifflin-St Jeor). Renseigne ta masse grasse pour plus de précision.',
+    // Onglets Profil + profil incomplet
+    tab_basics: 'Base', tab_objectives: 'Objectifs', tab_availability: 'Dispo',
+    tab_equipment: 'Équipement', tab_preferences: 'VIF', tab_measurements: 'Mensurations',
+    prof_incomplete_t: 'Complète ton profil',
+    prof_incomplete_d: 'Tu as importé un programme sans renseigner ton profil. Complète-le pour des séances et un coaching adaptés à toi.',
+    prof_incomplete_cta: 'Compléter mon profil',
+    prof_save: 'Enregistrer', prof_saved: 'Enregistré ✓',
   },
   en: {
     // Navigation
@@ -110,6 +139,7 @@ const DICT = {
     set_memory_hint: 'Preferences, tracked pains, fatigue history, reviews.',
     set_tutorials: 'Tutorials',
     tuto_import: 'Importing workouts', tuto_import_hint: 'Replays next time you open the import (Program → Edit / Import).',
+    tuto_overview: 'Workout overview', tuto_overview_hint: 'Replays next time you open the overview (reorder handle + set details).',
     tuto_coach: 'Coach tips during workouts', tuto_coach_hint: 'Replays when a tip appears during a workout.',
     tuto_profile: 'Profile creation', tuto_profile_hint: 'Replays on your next visit to the profile step.',
     tuto_objectives: 'Choosing goals', tuto_objectives_hint: 'Replays on your next visit to the goals step.',
@@ -129,6 +159,34 @@ const DICT = {
     no_account: 'No account yet?', have_account: 'Already have an account?',
     accept_1: 'I accept the', accept_and: 'and the',
     accept_3: 'and I have read the health warning (consult a doctor before starting a program).',
+    // Profile / StepProfile
+    sp_title: 'Tell us about you', sp_sub: 'This helps us tailor your coaching',
+    sp_required: 'are required',
+    sp_gender: 'Gender', sp_male: 'Male', sp_female: 'Female',
+    sp_age: 'Age', sp_height: 'Height (cm)', sp_weight: 'Weight (kg)',
+    sp_level: 'Level', sp_select: 'Select',
+    sp_beginner: 'Beginner', sp_intermediate: 'Intermediate', sp_advanced: 'Advanced',
+    sp_lvl_beg: 'You progress easily session after session. Applies to the first years of training.',
+    sp_lvl_int: 'Several years of serious training. Progress now requires optimization (volume, intensity, recovery).',
+    sp_lvl_adv: 'Every detail matters to progress. Gains are rare and hard to get.',
+    sp_activity: 'Activity', sp_activity_hint: 'Your overall activity (not just lifting)',
+    sp_act_sedentary: 'Sedentary', sp_act_sedentary_d: 'desk job, little walking.',
+    sp_act_light: 'Lightly active', sp_act_light_d: 'some walking, or 1-2 sessions/wk.',
+    sp_act_moderate: 'Moderately active', sp_act_moderate_d: 'standing/walking, or 3-4 sessions/wk.',
+    sp_act_active: 'Very active', sp_act_active_d: 'physical job, or 5-6 sessions/wk.',
+    sp_act_very: 'Extremely active', sp_act_very_d: 'very physical + near-daily training.',
+    sp_bodyfat: 'Body fat (%)', sp_bodyfat_t: 'Your body fat percentage',
+    sp_bodyfat_d: "If you don't know it: impedance scale, skinfold caliper, or visual estimate. Leave empty if unsure.",
+    sp_maintenance: 'Estimated maintenance calories', sp_see: 'Show', sp_kcal_day: 'kcal/day',
+    sp_maint_katch: 'Estimate (Katch-McArdle, based on lean mass and activity, age-adjusted). Adjust to your results.',
+    sp_maint_mifflin: 'Estimate (Mifflin-St Jeor). Enter your body fat for more precision.',
+    // Profile tabs + incomplete profile
+    tab_basics: 'Basics', tab_objectives: 'Goals', tab_availability: 'Availability',
+    tab_equipment: 'Equipment', tab_preferences: 'Prefs', tab_measurements: 'Measurements',
+    prof_incomplete_t: 'Complete your profile',
+    prof_incomplete_d: 'You imported a program without filling in your profile. Complete it for workouts and coaching tailored to you.',
+    prof_incomplete_cta: 'Complete my profile',
+    prof_save: 'Save', prof_saved: 'Saved ✓',
   },
 };
 
@@ -150,3 +208,11 @@ export function I18nProvider({ children }) {
 
 // Repli sûr si un composant est rendu hors provider (jamais d'écran cassé)
 export const useI18n = () => useContext(I18nContext) || { lang: 'fr', setLang: () => {}, t: (k) => DICT.fr[k] ?? k };
+
+// Change la langue SANS passer par l'état React : écrit la préférence puis
+// relance l'app sur l'ACCUEIL. Évite le flash de traduction instantanée
+// (aucun re-rendu avant le reload) et repart d'une page propre.
+export function switchLanguageAndRestart(l) {
+  try { localStorage.setItem(LANG_KEY, l); } catch {}
+  window.location.href = '/';
+}

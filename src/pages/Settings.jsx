@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { base44 } from '@/api/base44Client';
 import { useTutorial } from '@/lib/TutorialContext';
-import { useI18n } from '@/lib/i18n';
+import { useI18n, switchLanguageAndRestart } from '@/lib/i18n';
 import { ChevronLeft, LogOut, RotateCcw, FileText, Brain, ChevronRight, Check, Globe } from 'lucide-react';
 
 export default function Settings() {
@@ -45,6 +45,7 @@ export default function Settings() {
   // Tutoriels réinitialisables individuellement (rejouent à leur prochaine occasion)
   const TUTORIALS = [
     { id: 'import-dialog', label: t('tuto_import'), hint: t('tuto_import_hint') },
+    { id: 'overview-intro', label: t('tuto_overview'), hint: t('tuto_overview_hint') },
     { id: 'coach-tip-intro', label: t('tuto_coach'), hint: t('tuto_coach_hint') },
     { id: 'profile-intro', label: t('tuto_profile'), hint: t('tuto_profile_hint') },
     { id: 'objectives-intro', label: t('tuto_objectives'), hint: t('tuto_objectives_hint') },
@@ -219,7 +220,7 @@ export default function Settings() {
               <button onClick={() => setConfirmLang(null)} className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-white/10 text-white hover:bg-white/20 transition-colors">
                 {t('cancel')}
               </button>
-              <button onClick={() => { setLang(confirmLang); window.location.reload(); }} className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-white text-violet-700 hover:bg-white/90 transition-colors">
+              <button onClick={() => switchLanguageAndRestart(confirmLang)} className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-white text-violet-700 hover:bg-white/90 transition-colors">
                 {t('lang_confirm_yes')}
               </button>
             </div>

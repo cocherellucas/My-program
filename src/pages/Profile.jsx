@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Save, Loader2, User, Ruler, Dumbbell, Calendar, Target, SlidersHorizontal, CheckCircle2, RefreshCw, HelpCircle, Settings } from 'lucide-react';
 import { normalizeUser } from '@/lib/utils';
 import { useAuth } from '@/lib/AuthContext';
+import { useI18n } from '@/lib/i18n';
 import { estimateMaintenanceCalories } from '@/lib/calories';
 
 // Champs dont le changement nécessite une régénération du programme
@@ -28,6 +29,7 @@ import ObjectivesTab from '@/components/profile/ObjectivesTab';
 import SubscriptionBadge from '@/components/profile/SubscriptionBadge';
 
 export default function Profile() {
+  const { t } = useI18n();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user: authUser } = useAuth();
@@ -160,12 +162,12 @@ export default function Profile() {
             <User className="w-8 h-8 text-white/70" />
           </div>
           <div className="space-y-1">
-            <p className="text-white font-bold text-lg">Complète ton profil</p>
-            <p className="text-white/60 text-sm">Tu as importé un programme sans renseigner ton profil. Complète-le pour des séances et un coaching adaptés à toi.</p>
+            <p className="text-white font-bold text-lg">{t('prof_incomplete_t')}</p>
+            <p className="text-white/60 text-sm">{t('prof_incomplete_d')}</p>
           </div>
           <button onClick={() => navigate('/onboarding?skipIntro=true')}
             className="w-full py-3 rounded-xl text-sm font-bold text-violet-700 bg-white hover:bg-white/90 shadow transition-all active:scale-[0.98]">
-            Compléter mon profil
+            {t('prof_incomplete_cta')}
           </button>
         </div>
       )}
@@ -173,20 +175,20 @@ export default function Profile() {
       {!profileIncomplete && (
       <Tabs defaultValue={searchParams.get('tab') || 'basics'} onValueChange={setActiveTab}>
         <TabsList className="bg-white/10 text-white w-full overflow-x-auto flex">
-          <TabsTrigger value="basics" className="flex-1"><User className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">Base</span></TabsTrigger>
-          <TabsTrigger value="objectives" className="flex-1"><Target className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">Objectifs</span></TabsTrigger>
-          <TabsTrigger value="availability" className="flex-1"><Calendar className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">Dispo</span></TabsTrigger>
-          <TabsTrigger value="equipment" className="flex-1"><Dumbbell className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">Équipement</span></TabsTrigger>
-          <TabsTrigger value="preferences" className="flex-1"><SlidersHorizontal className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">VIF</span></TabsTrigger>
-          <TabsTrigger value="measurements" className="flex-1"><Ruler className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">Mensurations</span></TabsTrigger>
+          <TabsTrigger value="basics" className="flex-1"><User className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">{t('tab_basics')}</span></TabsTrigger>
+          <TabsTrigger value="objectives" className="flex-1"><Target className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">{t('tab_objectives')}</span></TabsTrigger>
+          <TabsTrigger value="availability" className="flex-1"><Calendar className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">{t('tab_availability')}</span></TabsTrigger>
+          <TabsTrigger value="equipment" className="flex-1"><Dumbbell className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">{t('tab_equipment')}</span></TabsTrigger>
+          <TabsTrigger value="preferences" className="flex-1"><SlidersHorizontal className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">{t('tab_preferences')}</span></TabsTrigger>
+          <TabsTrigger value="measurements" className="flex-1"><Ruler className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">{t('tab_measurements')}</span></TabsTrigger>
         </TabsList>
 
         <TabsContent value="basics">
           <Card className="p-6 space-y-4 bg-white/15 backdrop-blur-sm border-white/20">
             <div className="space-y-2">
-              <Label className="text-white">Genre</Label>
+              <Label className="text-white">{t('sp_gender')}</Label>
               <div className="grid grid-cols-2 gap-3">
-                {[{ value: 'male', label: 'Homme' }, { value: 'female', label: 'Femme' }].map(({ value, label }) => (
+                {[{ value: 'male', label: t('sp_male') }, { value: 'female', label: t('sp_female') }].map(({ value, label }) => (
                   <button key={value} type="button" onClick={() => update('gender', value)}
                     className={`py-2.5 rounded-xl border-2 text-sm font-semibold transition-all ${form.gender === value ? 'border-white bg-white/20 text-white' : 'border-white/20 bg-white/10 text-white/50 hover:border-white/40'}`}>
                     {label}
@@ -196,67 +198,66 @@ export default function Profile() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-white">Âge</Label>
+                <Label className="text-white">{t('sp_age')}</Label>
                 <NumInput value={form.age} onChange={(v) => update('age', v === '' ? '' : parseInt(v))} min={18} max={120} step={1} defaultValue={25} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
               </div>
               <div className="space-y-2">
-                <Label className="text-white">Niveau</Label>
+                <Label className="text-white">{t('sp_level')}</Label>
                 <Select value={form.level || ''} onValueChange={(v) => update('level', v)}>
-                  <SelectTrigger className="bg-white/10 border-white/20 text-white [&>span]:text-white [&>span[data-placeholder]]:text-white/50 [&>svg]:opacity-100 [&>svg]:text-white"><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                  <SelectTrigger className="bg-white/10 border-white/20 text-white [&>span]:text-white [&>span[data-placeholder]]:text-white/50 [&>svg]:opacity-100 [&>svg]:text-white"><SelectValue placeholder={t('sp_select')} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="beginner">Débutant</SelectItem>
-                    <SelectItem value="intermediate">Intermédiaire</SelectItem>
-                    <SelectItem value="advanced">Avancé</SelectItem>
+                    <SelectItem value="beginner">{t('sp_beginner')}</SelectItem>
+                    <SelectItem value="intermediate">{t('sp_intermediate')}</SelectItem>
+                    <SelectItem value="advanced">{t('sp_advanced')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-white">Taille (cm)</Label>
+                <Label className="text-white">{t('sp_height')}</Label>
                 <NumInput value={form.height} onChange={(v) => update('height', v === '' ? '' : parseInt(v))} min={50} max={250} step={1} defaultValue={175} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
               </div>
               <div className="space-y-2">
-                <Label className="text-white">Poids (kg)</Label>
+                <Label className="text-white">{t('sp_weight')}</Label>
                 <NumInput value={form.weight} onChange={(v) => update('weight', v === '' ? '' : parseFloat(v))} min={20} max={300} step={0.5} defaultValue={70} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-1.5">
-                  <Label className="text-white">Activité</Label>
+                  <Label className="text-white">{t('sp_activity')}</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <button type="button" className="text-white/40 hover:text-white/70 transition-colors"><HelpCircle className="w-3.5 h-3.5" /></button>
                     </PopoverTrigger>
                     <PopoverContent className="w-72 text-xs space-y-1.5">
-                      <p className="text-white/60 text-[10px] uppercase tracking-wider font-semibold">Ton activité globale (pas que la muscu)</p>
-                      <p><span className="font-semibold">Sédentaire</span> — travail assis, peu de marche, peu/pas de sport.</p>
-                      <p><span className="font-semibold">Légèrement actif</span> — un peu de marche au quotidien, ou 1-2 séances/sem.</p>
-                      <p><span className="font-semibold">Modérément actif</span> — debout/marche dans la journée, ou 3-4 séances/sem.</p>
-                      <p><span className="font-semibold">Très actif</span> — métier physique, ou 5-6 séances/sem.</p>
-                      <p><span className="font-semibold">Extrêmement actif</span> — métier très physique + entraînement quasi quotidien.</p>
+                      <p className="text-white/60 text-[10px] uppercase tracking-wider font-semibold">{t('sp_activity_hint')}</p>
+                      <p><span className="font-semibold">{t('sp_act_sedentary')}</span> — {t('sp_act_sedentary_d')}</p>
+                      <p><span className="font-semibold">{t('sp_act_light')}</span> — {t('sp_act_light_d')}</p>
+                      <p><span className="font-semibold">{t('sp_act_moderate')}</span> — {t('sp_act_moderate_d')}</p>
+                      <p><span className="font-semibold">{t('sp_act_active')}</span> — {t('sp_act_active_d')}</p>
+                      <p><span className="font-semibold">{t('sp_act_very')}</span> — {t('sp_act_very_d')}</p>
                     </PopoverContent>
                   </Popover>
                 </div>
                 <Select value={form.activity_level || ''} onValueChange={(v) => update('activity_level', v)}>
-                  <SelectTrigger className="bg-white/10 border-white/20 text-white [&>span]:text-white [&>span[data-placeholder]]:text-white/50 [&>svg]:opacity-100 [&>svg]:text-white"><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                  <SelectTrigger className="bg-white/10 border-white/20 text-white [&>span]:text-white [&>span[data-placeholder]]:text-white/50 [&>svg]:opacity-100 [&>svg]:text-white"><SelectValue placeholder={t('sp_select')} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="sedentary">Sédentaire</SelectItem>
-                    <SelectItem value="light">Légèrement actif</SelectItem>
-                    <SelectItem value="moderate">Modérément actif</SelectItem>
-                    <SelectItem value="active">Très actif</SelectItem>
-                    <SelectItem value="very_active">Extrêmement actif</SelectItem>
+                    <SelectItem value="sedentary">{t('sp_act_sedentary')}</SelectItem>
+                    <SelectItem value="light">{t('sp_act_light')}</SelectItem>
+                    <SelectItem value="moderate">{t('sp_act_moderate')}</SelectItem>
+                    <SelectItem value="active">{t('sp_act_active')}</SelectItem>
+                    <SelectItem value="very_active">{t('sp_act_very')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-1.5">
-                  <Label className="text-white">Masse grasse (%)</Label>
+                  <Label className="text-white">{t('sp_bodyfat')}</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <button type="button" className="text-white/40 hover:text-white/70 transition-colors"><HelpCircle className="w-3.5 h-3.5" /></button>
                     </PopoverTrigger>
                     <PopoverContent className="w-72 text-xs space-y-1.5">
-                      <p className="font-semibold text-white">Ton pourcentage de masse grasse</p>
-                      <p className="text-white/70">Si tu ne le connais pas : balance à impédance, pince à plis cutanés, ou estimation visuelle (photos de référence en ligne).</p>
-                      <p className="text-white/70">Renseigné → calcul du maintien plus précis (Katch-McArdle). Laisse vide si tu n'es pas sûr.</p>
+                      <p className="font-semibold text-white">{t('sp_bodyfat_t')}</p>
+                      <p className="text-white/70">{t('sp_bodyfat_d')}</p>
                     </PopoverContent>
                   </Popover>
                 </div>
@@ -277,13 +278,11 @@ export default function Profile() {
               return (
                 <div className="p-3 rounded-xl bg-white/10 border border-white/15">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-medium text-white">Maintien calorique estimé</span>
-                    <span className="text-lg font-bold text-white whitespace-nowrap">~{cal.maintenance} kcal/j</span>
+                    <span className="text-sm font-medium text-white">{t('sp_maintenance')}</span>
+                    <span className="text-lg font-bold text-white whitespace-nowrap">~{cal.maintenance} {t('sp_kcal_day')}</span>
                   </div>
                   <p className="text-[11px] text-white/45 mt-1 leading-snug">
-                    {cal.method === 'katch'
-                      ? 'Estimation (Katch-McArdle, basée sur ta masse maigre et ton activité, ajustée à l\'âge). À ajuster selon tes résultats.'
-                      : 'Estimation (Mifflin-St Jeor) selon ton profil et ton activité. Renseigne ta masse grasse pour plus de précision.'}
+                    {cal.method === 'katch' ? t('sp_maint_katch') : t('sp_maint_mifflin')}
                   </p>
                 </div>
               );
@@ -342,7 +341,7 @@ export default function Profile() {
           className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm bg-white text-violet-700 hover:bg-white/90 shadow transition-all disabled:opacity-50"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <CheckCircle2 className="w-4 h-4" /> : null}
-          {saving ? 'Sauvegarde…' : saved ? 'Sauvegardé !' : 'Sauvegarder'}
+          {saving ? '…' : saved ? t('prof_saved') : t('prof_save')}
         </button>
       )}
 

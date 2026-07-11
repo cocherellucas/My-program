@@ -10,9 +10,9 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Loader2, LayoutList, ChevronRight, ChevronLeft, ChevronDown, Timer, Eye, HelpCircle, TrendingDown, Bot, MessageSquare, X, Dumbbell } from 'lucide-react';
+import { CheckCircle, Loader2, LayoutList, ChevronRight, ChevronLeft, ChevronDown, Timer, Eye, HelpCircle, TrendingDown, Bot, MessageSquare, X, Dumbbell, GripVertical, ListOrdered } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import SetRow from '@/components/session/SetRow';
 import ExerciseGif from '@/components/session/ExerciseGif';
@@ -260,6 +260,22 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
   useEffect(() => {
     if (ackedPainSeries > painSeries) setAckedPainSeries(painSeries);
   }, [painSeries, ackedPainSeries]);
+
+  // ARRIVÉE sur un exercice (changement d'exo, réouverture de séance) → aucun
+  // conseil hérité : on ferme la bulle et on acquitte tout ce qui existe déjà
+  // (douleurs/séries du brouillon). Seule une NOUVELLE action après l'arrivée
+  // peut rouvrir un conseil. Vaut pour TOUS les conseils (douleur, objectifs).
+  const tipArrivalRef = useRef(null);
+  useEffect(() => {
+    const key = `${exIdx}|${exercise.name}`;
+    if (tipArrivalRef.current === key) return;
+    tipArrivalRef.current = key;
+    setTipOpen(false);
+    setConfirmDisableTips(false);
+    setAckedPainSeries(painSeries);
+    setAckedBadSeries(badSeries);
+    setAckedGoodSeries(goodAboveSeries);
+  }, [exIdx, exercise.name]); // eslint-disable-line — on capture l'état constaté à l'arrivée
 
   // Priorité : 'pain' (sécurité) > 'under' (objectifs non atteints) > 'over'
   const coachTip = coachTipsOff ? null : (painActive ? 'pain' : (underActive ? 'under' : (showObjectifBanner ? 'over' : null)));
@@ -797,9 +813,88 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 }
 
 // ─── Overview Panel ────────────────────────────────────────────────────────────
-function OverviewPanel({ exercises, logs, updateLog, onClose, fragileZones = [] }) {
+// Un exercice de la vue d'ensemble, réordonnable par sa poignée (⋮⋮).
+// Le drag ne démarre QUE depuis la poignée (dragListener={false}) ; Starter →
+// la poignée est visible mais déclenche l'upsell au lieu du drag.
+function OverviewItem({ origIdx, exercise, sets, filledSets, isOpen, onToggle, canReorder, onUpsell, onCommit, showGrip, isFirst, children }) {
+  const controls = useDragControls();
+  return (
+    <Reorder.Item value={origIdx} dragListener={false} dragControls={controls} onDragEnd={onCommit} className="list-none">
+      <Card className="bg-white/15 backdrop-blur-sm border-white/20 overflow-hidden">
+        <div className="w-full flex items-center gap-1 p-4">
+          {showGrip && (
+            <button type="button" aria-label="Changer l'ordre"
+              {...(isFirst ? { 'data-tutorial': 'reorder-handle' } : {})}
+              onPointerDown={(e) => { if (canReorder) { e.preventDefault(); controls.start(e); } else { onUpsell?.(); } }}
+              className="flex-shrink-0 -ml-2 p-1.5 rounded-md text-white/40 hover:text-white/70 touch-none cursor-grab active:cursor-grabbing">
+              <GripVertical className="w-4 h-4" />
+            </button>
+          )}
+          <button type="button" className="flex-1 flex items-center justify-between text-left min-w-0" onClick={onToggle}>
+            <div className="min-w-0">
+              <span className="font-semibold text-sm text-white">{exercise.name}</span>
+              <div className="flex gap-2 mt-0.5 flex-wrap items-center">
+                {exercise.muscle_group && <Badge variant="outline" className="text-xs border-white/30 text-white">{exercise.muscle_group}</Badge>}
+                <span className="text-xs text-white/60">{sets}×{exercise.target_reps}</span>
+                {filledSets > 0 && <span className="text-xs text-green-400">{filledSets}/{sets} séries</span>}
+              </div>
+            </div>
+            <ChevronDown {...(isFirst ? { 'data-tutorial': 'expand-chevron' } : {})} className={`w-4 h-4 text-white/50 transition-transform flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
+          </button>
+        </div>
+        {isOpen && children}
+      </Card>
+    </Reorder.Item>
+  );
+}
+
+function OverviewPanel({ exercises, logs, updateLog, onClose, fragileZones = [], onReorder, canReorder = false, onUpsellReorder }) {
   const getLogKey = (exIdx, setIdx) => `${exIdx}-${setIdx}`;
   const [openIdx, setOpenIdx] = useState(null);
+
+  // Tuto au 1er affichage de la Vue d'ensemble (déclenché une seule fois par
+  // montage, dès que le panneau apparaît) : poignée ⋮⋮ puis flèche ⌄.
+  const { startTutorial } = useTutorial() || {};
+  const tutoFiredRef = useRef(false);
+  useEffect(() => {
+    if (tutoFiredRef.current || !startTutorial) return;
+    tutoFiredRef.current = true;
+    const t = setTimeout(() => {
+      const steps = [];
+      if (onReorder) steps.push({
+        target: 'reorder-handle',
+        title: 'Change l\'ordre des exercices',
+        description: "Maintiens la poignée ⋮⋮ et glisse pour réorganiser tes exercices — pratique si une machine est prise. Valable seulement pour cette séance : ton programme n'est pas modifié.",
+        nonInteractive: true,
+      });
+      steps.push({
+        target: 'expand-chevron',
+        title: 'Détail de l\'exercice',
+        description: "Touche la flèche ⌄ pour déplier un exercice et voir (ou modifier) tes séries : poids, répétitions, RIR et exécution.",
+        nonInteractive: true,
+      });
+      startTutorial('overview-intro', steps);
+    }, 350);
+    return () => clearTimeout(t);
+  }, [startTutorial]); // eslint-disable-line — une seule fois au montage du panneau
+
+  // Ordre d'AFFICHAGE = liste d'indices originaux (les saisies restent indexées
+  // par l'index original pendant le drag → aucune donnée ne bouge avant commit).
+  const validIdxs = exercises.map((_, i) => i).filter(i => exercises[i] && exercises[i].name);
+  const [order, setOrder] = useState(validIdxs);
+  const orderRef = useRef(order);
+  orderRef.current = order;
+  const sig = exercises.map(e => e?.name).join('|');
+  useEffect(() => { setOrder(exercises.map((_, i) => i).filter(i => exercises[i]?.name)); setOpenIdx(null); }, [sig]); // eslint-disable-line
+
+  // Fin de drag → on applique la permutation au parent (remap logs/repos/position)
+  const commit = () => {
+    const o = orderRef.current;
+    if (o.some((v, i) => v !== i)) {
+      onReorder?.(o);
+      setOrder(o.map((_, i) => i)); // le parent a permuté → identité, pas de flash
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -809,42 +904,42 @@ function OverviewPanel({ exercises, logs, updateLog, onClose, fragileZones = [] 
           <ChevronLeft className="w-4 h-4 mr-1" /> Retour
         </Button>
       </div>
-
-      {exercises.filter((ex) => ex && ex.name).map((exercise, exIdx) => {
-        const sets = Math.max(1, exercise.sets || 3);
-        const isOpen = openIdx === exIdx;
-        const filledSets = Array.from({ length: sets }).filter((_, s) => logs[getLogKey(exIdx, s)]?.reps).length;
-        return (
-          <Card key={exIdx} className="bg-white/15 backdrop-blur-sm border-white/20 overflow-hidden">
-            <button
-              type="button"
-              className="w-full flex items-center justify-between p-4 text-left"
-              onClick={() => setOpenIdx(isOpen ? null : exIdx)}
+      <Reorder.Group axis="y" values={order} onReorder={setOrder} className="space-y-4 list-none p-0 m-0">
+        {order.map((origIdx, displayPos) => {
+          const exercise = exercises[origIdx];
+          if (!exercise || !exercise.name) return null;
+          const sets = Math.max(1, exercise.sets || 3);
+          const isOpen = openIdx === origIdx;
+          const filledSets = Array.from({ length: sets }).filter((_, s) => logs[getLogKey(origIdx, s)]?.reps).length;
+          return (
+            <OverviewItem
+              key={origIdx}
+              origIdx={origIdx}
+              exercise={exercise}
+              sets={sets}
+              filledSets={filledSets}
+              isOpen={isOpen}
+              onToggle={() => setOpenIdx(isOpen ? null : origIdx)}
+              canReorder={canReorder}
+              onUpsell={onUpsellReorder}
+              onCommit={commit}
+              showGrip={!!onReorder}
+              isFirst={displayPos === 0}
             >
-              <div>
-                <span className="font-semibold text-sm text-white">{exercise.name}</span>
-                <div className="flex gap-2 mt-0.5">
-                  <Badge variant="outline" className="text-xs border-white/30 text-white">{exercise.muscle_group}</Badge>
-                  <span className="text-xs text-white/60">{sets}×{exercise.target_reps}</span>
-                  {filledSets > 0 && <span className="text-xs text-green-400">{filledSets}/{sets} séries</span>}
-                </div>
-              </div>
-              <ChevronDown className={`w-4 h-4 text-white/50 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-            </button>
-            {isOpen && (
               <div className="px-4 pb-4 space-y-1.5">
                 {Array.from({ length: sets }).map((_, setIdx) =>
                   <SetRow
-                    key={`${exIdx}-${setIdx}`}
+                    key={`${origIdx}-${setIdx}`}
                     setIdx={setIdx}
-                    log={logs[getLogKey(exIdx, setIdx)] || {}}
-                    onUpdate={(field, value) => updateLog(exIdx, setIdx, field, value)}
+                    log={logs[getLogKey(origIdx, setIdx)] || {}}
+                    onUpdate={(field, value) => updateLog(origIdx, setIdx, field, value)}
                     exerciseFragileZones={getExerciseFragileZones(exercise, fragileZones)} />
                 )}
               </div>
-            )}
-          </Card>);
-      })}
+            </OverviewItem>
+          );
+        })}
+      </Reorder.Group>
     </div>);
 }
 
@@ -1332,6 +1427,32 @@ export default function SessionLog() {
     enabled: !!sessionId
   });
 
+  // Ordre PLANIFIÉ d'origine, capturé une seule fois — sert de référence pour
+  // détecter un réordonnancement (handleUpdateExercise peut persister l'ordre
+  // courant en base, donc on ne peut pas se fier à session.exercises au save).
+  const plannedOrderRef = useRef(null);
+  useEffect(() => {
+    if (session?.exercises && !plannedOrderRef.current) {
+      plannedOrderRef.current = session.exercises.filter(e => e && e.name).map(e => e.name);
+    }
+  }, [session?.id]); // eslint-disable-line
+
+  // Rappel de l'ordre pratiqué la dernière fois sur ce créneau (si différent du
+  // planifié et que les exercices sont les mêmes) — informatif, fermable.
+  const [orderHint, setOrderHint] = useState(null);
+  useEffect(() => {
+    if (!session?.id) return;
+    try {
+      const raw = localStorage.getItem(`last_order_${session.program_id}_${(session.day_label || '').trim().toLowerCase()}`);
+      if (!raw) { setOrderHint(null); return; }
+      const { names } = JSON.parse(raw);
+      const current = (session.exercises || []).filter(e => e && e.name).map(e => e.name);
+      const sameSet = names?.length === current.length
+        && names.slice().sort().join('|') === current.slice().sort().join('|');
+      setOrderHint(sameSet && names.join('|') !== current.join('|') ? names : null);
+    } catch { setOrderHint(null); }
+  }, [session?.id]); // eslint-disable-line
+
   // Suivi douleur : si un épisode actif concerne cette séance et n'a pas été
   // checké aujourd'hui (ni sur l'Accueil), on pose la question au démarrage.
   const painCheckedRef = useRef(null);
@@ -1485,6 +1606,51 @@ export default function SessionLog() {
   };
 
   const exercises = (sessionExercises ?? (session?.exercises || [])).filter((ex) => ex && ex.name);
+
+  // ── Réordonner les exercices PENDANT la séance (machine prise, etc.) ──
+  // Effet séance uniquement : on permute sessionExercises (brouillon local),
+  // jamais le programme. Les saisies étant indexées par position, on remappe
+  // logs, temps de repos et exercice courant selon la permutation.
+  const [reorderUpsell, setReorderUpsell] = useState(false);
+  const plan = user?.subscription_plan
+    || (() => { try { return localStorage.getItem('cached_subscription_plan'); } catch { return null; } })()
+    || 'starter';
+  const isPaid = plan !== 'starter';
+  // Starter : 1 essai gratuit par semaine glissante (aperçu qui donne envie).
+  const FREE_TRY_KEY = 'reorder_free_try';
+  const freeTryAvailable = (() => {
+    if (isPaid) return true;
+    try {
+      const ts = parseInt(localStorage.getItem(FREE_TRY_KEY) || '0', 10);
+      return !(ts > 0 && (Date.now() - ts) < 7 * 24 * 60 * 60 * 1000);
+    } catch { return true; }
+  })();
+  const canReorder = isPaid || freeTryAvailable;
+
+  const applyReorder = (newOrder) => { // newOrder[positionAffichée] = index original
+    if (!newOrder?.length || newOrder.every((v, i) => v === i)) return;
+    // Starter : consomme l'essai gratuit hebdomadaire au 1er déplacement effectif
+    if (!isPaid) { try { localStorage.setItem(FREE_TRY_KEY, String(Date.now())); } catch {} }
+    const pos = {}; // index original -> nouvelle position
+    newOrder.forEach((oi, ni) => { pos[oi] = ni; });
+    setLogs(prev => {
+      const next = {};
+      for (const [k, v] of Object.entries(prev)) {
+        const dash = k.indexOf('-');
+        const oi = parseInt(k.slice(0, dash), 10);
+        next[`${pos[oi] ?? oi}${k.slice(dash)}`] = v;
+      }
+      return next;
+    });
+    setRestTimeForEx(prev => {
+      const next = {};
+      for (const [k, v] of Object.entries(prev)) next[pos[k] ?? k] = v;
+      return next;
+    });
+    // On NE remappe PAS currentExIdx : on reste sur la même POSITION (ex. 1/5),
+    // même si l'exercice qui s'y trouve a changé après réordonnancement.
+    setSessionExercises(newOrder.map(oi => exercises[oi]));
+  };
 
   // Pré-remplir les logs : priorité au log précédent (séance précédente), fallback sur target_weight.
   // Garde-fou : exécuté UNE SEULE FOIS, et UNIQUEMENT après que previousLogs ait fini de charger
@@ -1672,7 +1838,6 @@ export default function SessionLog() {
   const handleApplyToFuture = async (exerciseName, updates) => {
     try {
       const currentDayOfWeek = new Date(session.planned_date).getDay();
-      const exerciseIdx = exercises.findIndex(e => e.name === exerciseName);
       const allSessions = await base44.entities.Session.filter({ program_id: session.program_id });
       const future = allSessions.filter(s =>
         s.status === 'planned' &&
@@ -1681,8 +1846,10 @@ export default function SessionLog() {
       ).slice(0, 8);
       await Promise.all(future.map(fs => {
         if (!fs.exercises?.length) return Promise.resolve();
-        const updated = fs.exercises.map((ex, i) =>
-          i === exerciseIdx && ex.name === exerciseName ? { ...ex, ...updates } : ex
+        // Correspondance par NOM uniquement : la position locale peut avoir été
+        // réordonnée pendant la séance, les séances futures gardent l'ordre planifié.
+        const updated = fs.exercises.map((ex) =>
+          ex.name === exerciseName ? { ...ex, ...updates } : ex
         );
         return base44.entities.Session.update(fs.id, { exercises: updated });
       }));
@@ -1986,6 +2153,22 @@ Ce que l'utilisateur dit : "${painNote}"`;
     // Library reste montée en permanence (carrousel) → sans invalidation, ses
     // "séances complétées" ne se rafraîchiraient qu'au rechargement de l'app.
     queryClient.invalidateQueries({ queryKey: ['completed-sessions'] });
+
+    // Mémorise l'ordre RÉELLEMENT pratiqué s'il diffère de l'ordre planifié →
+    // rappelé à la prochaine séance du même créneau. Repris à l'identique = oubli.
+    try {
+      const plannedOrder = plannedOrderRef.current || (session.exercises || []).filter(e => e && e.name).map(e => e.name);
+      const doneOrder = exercises.map(e => e.name);
+      const orderKey = `last_order_${session.program_id}_${(session.day_label || '').trim().toLowerCase()}`;
+      // Même ensemble d'exercices mais ordre différent → on mémorise l'ordre pratiqué
+      const sameSet = plannedOrder.length === doneOrder.length
+        && plannedOrder.slice().sort().join('|') === doneOrder.slice().sort().join('|');
+      if (sameSet && plannedOrder.join('|') !== doneOrder.join('|')) {
+        localStorage.setItem(orderKey, JSON.stringify({ names: doneOrder }));
+      } else {
+        localStorage.removeItem(orderKey);
+      }
+    } catch {}
     try { localStorage.removeItem(`session_draft_${sessionId}`); localStorage.removeItem('active_session_id'); localStorage.removeItem(`session_scroll_${sessionId}`); } catch {}
 
     // Si douleur → afficher notification coach avant de naviguer
@@ -2133,6 +2316,20 @@ Ce que l'utilisateur dit : "${painNote}"`;
         )}
       </div>
 
+      {/* Ordre pratiqué la dernière fois (si différent du planifié) */}
+      {orderHint && !showEnd && (
+        <div className="rounded-2xl p-3 bg-white/10 border border-white/15 flex items-start gap-2.5">
+          <ListOrdered className="w-4 h-4 text-violet-300 flex-shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0 text-xs text-white/80 leading-relaxed">
+            <span className="font-semibold text-white">La dernière fois, tu avais fait cette séance dans cet ordre : </span>
+            {orderHint.map((n, i) => `${i + 1}. ${n}`).join(' · ')}
+          </div>
+          <button onClick={() => setOrderHint(null)} className="text-white/30 hover:text-white/60 flex-shrink-0" aria-label="Fermer">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Suivi douleur : réaction de la zone depuis la dernière séance */}
       {painCheckEp && !showEnd && (
         <PainCheckCard
@@ -2160,6 +2357,32 @@ Ce que l'utilisateur dit : "${painNote}"`;
               <button onClick={() => { try { localStorage.removeItem('active_session_id'); } catch {} navigate('/'); }}
                 className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
                 Quitter
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Réordonner : réservé au-dessus de Starter (poignée visible pour tous) */}
+      {reorderUpsell && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4" onClick={() => setReorderUpsell(false)}>
+          <div className="w-full max-w-sm rounded-2xl p-6 text-center space-y-4" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)' }} onClick={e => e.stopPropagation()}>
+            <div className="w-12 h-12 rounded-full bg-violet-500/30 flex items-center justify-center mx-auto">
+              <GripVertical className="w-6 h-6 text-violet-300" />
+            </div>
+            <div>
+              <p className="font-bold text-white text-lg">Réorganiser les exercices</p>
+              <p className="text-white/60 text-sm mt-1">Tu as déjà utilisé ton essai gratuit de la semaine. Réorganiser tes exercices à volonté (machine occupée, etc.) est réservé aux abonnements supérieurs à Starter.</p>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setReorderUpsell(false)}
+                className="flex-1 py-2.5 rounded-xl border border-white/20 text-white/70 text-sm font-semibold hover:bg-white/10">
+                Plus tard
+              </button>
+              <button onClick={() => { setReorderUpsell(false); navigate('/pricing'); }}
+                className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
+                Voir les offres
               </button>
             </div>
           </div>
@@ -2196,8 +2419,11 @@ Ce que l'utilisateur dit : "${painNote}"`;
             logs={logs}
             updateLog={updateLog}
             onClose={() => setShowOverview(false)}
-            fragileZones={fragileZones} />
-          
+            fragileZones={fragileZones}
+            onReorder={applyReorder}
+            canReorder={canReorder}
+            onUpsellReorder={() => setReorderUpsell(true)} />
+
             <div className="mt-4">
               <Button className="w-full" onClick={() => {setShowOverview(false);setShowEnd(true);}}>
                 <CheckCircle className="w-4 h-4 mr-2" /> Terminer la séance
