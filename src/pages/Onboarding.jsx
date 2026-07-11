@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Sparkles, Loader2, FolderUp } from 'lucide-react';
@@ -226,7 +227,12 @@ export default function Onboarding() {
       navigate(destination, { state: extraState });
     } catch (err) {
       console.error('Onboarding finish error:', err);
-      setStepError(err?.message || err?.error || JSON.stringify(err) || 'Erreur inconnue');
+      // Hors-ligne → message clair plutôt qu'une erreur technique brute.
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        setStepError(t('needs_connection'));
+      } else {
+        setStepError(err?.message || err?.error || JSON.stringify(err) || 'Erreur inconnue');
+      }
     } finally {
       setSaving(false);
     }
@@ -249,6 +255,12 @@ export default function Onboarding() {
     return <WelcomeIntro
       onFinish={() => setShowWelcome(false)}
       onImport={async () => {
+        // Cette étape écrit sur le serveur → connexion requise. Hors-ligne, on
+        // prévient clairement au lieu d'échouer en silence.
+        if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+          toast.error(t('needs_connection'));
+          return;
+        }
         // Marque l'onboarding comme complété (avec valeurs vides) puis envoie sur /program
         // L'utilisateur pourra compléter son profil plus tard et importera son programme depuis /program
         setSaving(true);
@@ -256,6 +268,8 @@ export default function Onboarding() {
           await base44.auth.updateMe({ onboarding_completed: true, onboarding_step: TOTAL_STEPS });
           localStorage.removeItem(STORAGE_KEY);
           navigate('/program?openImport=true');
+        } catch (e) {
+          toast.error(t('needs_connection'));
         } finally {
           setSaving(false);
         }

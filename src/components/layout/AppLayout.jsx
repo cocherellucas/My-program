@@ -2,15 +2,10 @@ import React, { useState, useRef, useCallback, useEffect, useLayoutEffect } from
 import { createPortal } from 'react-dom';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
-import { WifiOff } from 'lucide-react';
 import Sidebar from './Sidebar';
 import MobileNav from './MobileNav';
 import RestTimer from '@/components/session/RestTimer';
 import { useRestTimer } from '@/lib/RestTimerContext';
-import { useI18n } from '@/lib/i18n';
-import { useOnlineStatus } from '@/lib/useOnlineStatus';
-import { flushQueue } from '@/lib/sync-queue';
-import { toast } from 'sonner';
 
 // Pages toujours pré-rendues (pas de position:fixed ni side-effects globaux)
 import Program  from '@/pages/Program';
@@ -59,16 +54,6 @@ export default function AppLayout() {
   const { timerState, stopTimer, updateSeconds } = useRestTimer();
   const location = useLocation();
   const navigate = useNavigate();
-  const { t } = useI18n();
-  const online = useOnlineStatus();
-
-  // Synchronisation hors-ligne : on vide la file au démarrage et à chaque retour
-  // du réseau (les séances validées sans connexion partent alors sur le serveur).
-  useEffect(() => {
-    let cancelled = false;
-    flushQueue().then((n) => { if (!cancelled && n > 0) toast.success(t('sync_done')); });
-    return () => { cancelled = true; };
-  }, [online]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Détection clavier mobile pour retirer le padding-bas (réservé à la nav cachée)
   const [keyboardOpen, setKeyboardOpen] = useState(false);
@@ -351,18 +336,6 @@ export default function AppLayout() {
         document.body
       )}
 
-      {/* Bandeau hors-ligne — prévient que le réseau est nécessaire (les données
-          sont sauvegardées et synchronisées automatiquement dès le retour). */}
-      {!online && createPortal(
-        <div
-          className="fixed left-1/2 -translate-x-1/2 z-[9998] flex items-center gap-2 px-4 py-2.5 rounded-full bg-amber-500 text-amber-950 text-xs font-bold shadow-xl max-w-[calc(100vw-1.5rem)]"
-          style={{ bottom: 'calc(5.5rem + env(safe-area-inset-bottom))' }}
-          role="status">
-          <WifiOff className="w-4 h-4 flex-shrink-0" />
-          <span className="leading-snug">{t('offline_banner')}</span>
-        </div>,
-        document.body
-      )}
     </div>
   );
 }

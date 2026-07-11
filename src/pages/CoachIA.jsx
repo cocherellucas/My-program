@@ -27,6 +27,7 @@ export default function CoachIA() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [slowHint, setSlowHint] = useState(false); // réseau lent : réponse plus longue
   const [attachedFile, setAttachedFile] = useState(null);
   const [pendingImportJson, setPendingImportJson] = useState(null);
   const [pendingImportSessions, setPendingImportSessions] = useState(null);
@@ -279,7 +280,20 @@ export default function CoachIA() {
 
     setInput('');
     setMessages(prev => [...prev, { role: 'user', content: userMsg, ts: Date.now() }]);
+
+    // Hors-ligne : le coach a besoin du réseau — message clair, on ne tente rien.
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      setMessages(prev => [...prev, { role: 'assistant', content: t('co_offline'), ts: Date.now() }]);
+      return;
+    }
+
     setLoading(true);
+    // Indice « réseau lent » : uniquement si le navigateur signale vraiment une
+    // mauvaise connexion (2g / mode économie de données). Pas de repli au temps
+    // écoulé — une réponse longue ne veut pas forcément dire réseau lent.
+    try {
+      const conn = typeof navigator !== 'undefined' ? navigator.connection : null;
+      if (conn && (conn.saveData || /2g$/.test(conn.effectiveType || ''))) setSlowHint(true);
 
     const [objectives, programs, memory, recentSessions, seriesLogs] = await Promise.all([
       base44.entities.Objective.filter({ status: 'active' }),
@@ -361,6 +375,13 @@ export default function CoachIA() {
           await saveEpisodes(user.id, upsertEpisode(eps, zone));
         }
       } catch {}
+    }
+    } catch (e) {
+      // Réseau tombé pendant le chargement des données → message clair.
+      setMessages(prev => [...prev, { role: 'assistant', content: t('co_offline'), ts: Date.now() }]);
+    } finally {
+      setSlowHint(false);
+      setLoading(false);
     }
   };
 
@@ -710,15 +731,18 @@ export default function CoachIA() {
             <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
               <Bot className="w-4 h-4 text-white" />
             </div>
-            <div className="bg-white/15 border border-white/20 rounded-2xl px-4 py-3.5 backdrop-blur-sm flex items-center gap-1.5">
-              {[0, 1, 2].map(i => (
-                <motion.span
-                  key={i}
-                  className="w-2 h-2 rounded-full bg-white/70 block"
-                  animate={{ y: [0, -6, 0], opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15, ease: 'easeInOut' }}
-                />
-              ))}
+            <div className="bg-white/15 border border-white/20 rounded-2xl px-4 py-3.5 backdrop-blur-sm flex flex-col gap-2">
+              <div className="flex items-center gap-1.5">
+                {[0, 1, 2].map(i => (
+                  <motion.span
+                    key={i}
+                    className="w-2 h-2 rounded-full bg-white/70 block"
+                    animate={{ y: [0, -6, 0], opacity: [0.5, 1, 0.5] }}
+                    transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15, ease: 'easeInOut' }}
+                  />
+                ))}
+              </div>
+              {slowHint && <span className="text-[11px] text-white/60 leading-snug">{t('co_slow')}</span>}
             </div>
           </motion.div>
         )}

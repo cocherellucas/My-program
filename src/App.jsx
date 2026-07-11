@@ -29,6 +29,7 @@ import { ThemeProvider } from '@/lib/ThemeContext';
 import { I18nProvider } from '@/lib/i18n';
 import { TERMS_VERSION, markTermsAcceptedLocal, getLocalAcceptedVersion, hasAcceptedCurrentTerms } from '@/lib/terms';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import OfflineIndicator from '@/components/OfflineIndicator';
 import AppLayout from '@/components/layout/AppLayout';
 import { RestTimerProvider } from '@/lib/RestTimerContext';
 import { TutorialProvider } from '@/lib/TutorialContext';
@@ -275,6 +276,7 @@ function App() {
                 <Toaster />
                 <SonnerToaster position="top-center" />
                 <TutorialOverlay />
+                <OfflineIndicator />
               </TutorialProvider>
             </RestTimerProvider>
           </Router>
