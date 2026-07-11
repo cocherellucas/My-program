@@ -1,15 +1,16 @@
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { NumInput } from '@/components/ui/num-input';
+import { useI18n } from '@/lib/i18n';
 
 const FIELDS = [
-  { key: 'shoulders',   label: 'Tour d\'épaules', max: 200 },
-  { key: 'waist',       label: 'Tour de taille',  max: 200 },
-  { key: 'hips',        label: 'Tour de hanches', max: 200 },
-  { key: 'right_arm',   label: 'Bras droit',      max: 80 },
-  { key: 'left_arm',    label: 'Bras gauche',     max: 80 },
-  { key: 'right_thigh', label: 'Cuisse droite',   max: 120 },
-  { key: 'left_thigh',  label: 'Cuisse gauche',   max: 120 },
+  { key: 'shoulders',   lk: 'ms_shoulders',   max: 200 },
+  { key: 'waist',       lk: 'ms_waist',       max: 200 },
+  { key: 'hips',        lk: 'ms_hips',        max: 200 },
+  { key: 'right_arm',   lk: 'ms_right_arm',   max: 80 },
+  { key: 'left_arm',    lk: 'ms_left_arm',    max: 80 },
+  { key: 'right_thigh', lk: 'ms_right_thigh', max: 120 },
+  { key: 'left_thigh',  lk: 'ms_left_thigh',  max: 120 },
 ];
 
 const DEFAULTS = {
@@ -20,25 +21,26 @@ const DEFAULTS = {
 
 
 export default function StepMeasurements({ data, onChange }) {
+  const { t } = useI18n();
   const defaults = DEFAULTS[data.gender] || DEFAULTS.neutral;
 
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-heading font-bold text-white">Tes mensurations</h2>
-        <p className="text-white/70 mt-2">Optionnel — tu pourras les renseigner plus tard</p>
+        <h2 className="text-2xl font-heading font-bold text-white">{t('ms_title')}</h2>
+        <p className="text-white/70 mt-2">{t('ms_sub')}</p>
       </div>
 
       <div className="p-4 bg-white/10 rounded-xl border border-white/20">
         <p className="text-sm text-white/80">
-          Ces données permettent de détecter les déséquilibres et suivre ta progression physique. Tu recevras un rappel dans 14 jours si tu les laisses vides.
+          {t('ms_info')}
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        {FIELDS.map(({ key, label, max }) => (
+        {FIELDS.map(({ key, lk, max }) => (
           <div key={key} className="space-y-1.5">
-            <Label className="text-sm text-white">{label} (cm)</Label>
+            <Label className="text-sm text-white">{t(lk)} (cm)</Label>
             <NumInput
               value={data[key] || ''}
               onChange={(val) => onChange({ [key]: val === '' ? '' : parseFloat(val) || '' })}

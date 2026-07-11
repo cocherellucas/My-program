@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, ArrowLeft, ClipboardList, FolderUp } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
 
-function TargetAnimation() {
+function TargetAnimation({ t }) {
   return (
     <div className="w-full max-w-sm mx-auto">
       <svg viewBox="0 0 280 200" className="w-full h-auto" overflow="visible">
@@ -57,14 +58,14 @@ function TargetAnimation() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 22 }}
           transition={{ duration: 0.4, delay: 1.25, ease: 'easeOut' }}>
-          Tes objectifs
+          {t('wi_targets')}
         </motion.text>
       </svg>
     </div>
   );
 }
 
-function ProgressionChart() {
+function ProgressionChart({ t }) {
   // 2 courbes : avec Coach IA (lisse, ascendante) vs sans (en dents de scie, plafonne)
   const withCoach = "M 20 220 Q 60 200, 100 175 T 180 130 T 260 80 T 340 40";
   const without   = "M 20 220 Q 50 200, 80 195 Q 110 215, 140 200 Q 170 180, 200 195 Q 230 215, 260 200 Q 290 180, 320 195 Q 340 200, 340 195";
@@ -85,9 +86,9 @@ function ProgressionChart() {
         <line x1="20" y1="20"  x2="20"  y2="220" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
 
         {/* Labels axes */}
-        <text x="180" y="245" textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize="10">Temps</text>
+        <text x="180" y="245" textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize="10">{t('wi_time')}</text>
         <text x="10" y="125" textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize="10"
-          transform="rotate(-90, 10, 125)">Progression</text>
+          transform="rotate(-90, 10, 125)">{t('wi_progress')}</text>
 
         {/* Courbe SANS coach — grise, erratique */}
         <motion.path
@@ -124,42 +125,25 @@ function ProgressionChart() {
         {/* Légende */}
         <g>
           <rect x="30" y="30" width="14" height="3" rx="1.5" fill="#fff" />
-          <text x="50" y="34" fill="#fff" fontSize="11" fontWeight="600">Avec Coach IA</text>
+          <text x="50" y="34" fill="#fff" fontSize="11" fontWeight="600">{t('wi_with_coach')}</text>
         </g>
         <g>
           <rect x="30" y="50" width="14" height="2.5" rx="1.5" fill="rgba(255,255,255,0.4)" strokeDasharray="3 2" />
-          <text x="50" y="54" fill="rgba(255,255,255,0.6)" fontSize="10">Sans accompagnement</text>
+          <text x="50" y="54" fill="rgba(255,255,255,0.6)" fontSize="10">{t('wi_without')}</text>
         </g>
       </svg>
     </div>
   );
 }
 
-const SLIDES = [
-  {
-    type: 'emoji',
-    emoji: '🤖',
-    title: 'Bienvenue !',
-    text: "Je suis ton Coach IA. Je vais te créer un programme de musculation 100% personnalisé, pour optimiser ta progression.",
-  },
-  {
-    type: 'chart',
-    title: 'Progression constante',
-    text: "Sans accompagnement, on stagne souvent à cause des erreurs de programmation. Avec moi, chaque séance ajuste la suite pour que tu progresses en continu.",
-  },
-  {
-    type: 'target',
-    title: 'Sur mesure',
-    text: "Un programme et un suivi complètement personnalisés pour atteindre rapidement tes objectifs, selon ce qui te correspond.",
-  },
-  {
-    type: 'choice',
-    title: 'Avant de commencer',
-    text: "J'ai besoin de quelques infos sur toi pour construire ton programme et m'adapter au mieux à ta progression. Ça prend 2-3 minutes.",
-  },
-];
-
 export default function WelcomeIntro({ onFinish, onImport }) {
+  const { t } = useI18n();
+  const SLIDES = [
+    { type: 'emoji',  title: t('wi_s1_title'), text: t('wi_s1_text') },
+    { type: 'chart',  title: t('wi_s2_title'), text: t('wi_s2_text') },
+    { type: 'target', title: t('wi_s3_title'), text: t('wi_s3_text') },
+    { type: 'choice', title: t('wi_s4_title'), text: t('wi_s4_text') },
+  ];
   const [slide, setSlide] = useState(0);
   const isLast = slide === SLIDES.length - 1;
   const isFirst = slide === 0;
@@ -216,13 +200,13 @@ export default function WelcomeIntro({ onFinish, onImport }) {
 
             {current.type === 'chart' && (
               <div className="mb-6">
-                <ProgressionChart />
+                <ProgressionChart t={t} />
               </div>
             )}
 
             {current.type === 'target' && (
               <div className="mb-6">
-                <TargetAnimation />
+                <TargetAnimation t={t} />
               </div>
             )}
 
@@ -237,8 +221,8 @@ export default function WelcomeIntro({ onFinish, onImport }) {
                     <ClipboardList className="w-5 h-5 text-violet-700" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm">Compléter mes infos</p>
-                    <p className="text-xs text-violet-700/70 mt-0.5">Recommandé · 2-3 minutes</p>
+                    <p className="font-bold text-sm">{t('wi_fill')}</p>
+                    <p className="text-xs text-violet-700/70 mt-0.5">{t('wi_fill_sub')}</p>
                   </div>
                   <ArrowRight className="w-4 h-4 flex-shrink-0" />
                 </button>
@@ -250,8 +234,8 @@ export default function WelcomeIntro({ onFinish, onImport }) {
                       <FolderUp className="w-5 h-5 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-sm">J'ai déjà un programme</p>
-                      <p className="text-xs text-white/65 mt-0.5">Je l'importe et complète mon profil plus tard</p>
+                      <p className="font-bold text-sm">{t('wi_have_prog')}</p>
+                      <p className="text-xs text-white/65 mt-0.5">{t('wi_have_prog_sub')}</p>
                     </div>
                     <ArrowRight className="w-4 h-4 flex-shrink-0" />
                   </button>
@@ -268,14 +252,14 @@ export default function WelcomeIntro({ onFinish, onImport }) {
           <button type="button" onClick={prev}
             className="flex items-center gap-1 px-3 py-2.5 rounded-xl border border-white/30 bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-all">
             <ArrowLeft className="w-4 h-4" />
-            Précédent
+            {t('wi_prev')}
           </button>
         ) : <div />}
 
         {current.type !== 'choice' && (
           <button type="button" onClick={next}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-violet-700 font-bold text-sm shadow-lg hover:bg-white/95 active:scale-[0.97] transition-all">
-            {isLast ? (current.finalCta || "C'est parti !") : 'Suivant'}
+            {isLast ? t('wi_start') : t('wi_next')}
             <ArrowRight className="w-4 h-4" />
           </button>
         )}

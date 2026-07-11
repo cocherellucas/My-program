@@ -4,18 +4,14 @@ import { Input } from '@/components/ui/input';
 import { ChevronUp, ChevronDown, HelpCircle } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n';
 
-const DAYS = [
-  { key: 'monday', label: 'Lun' },
-  { key: 'tuesday', label: 'Mar' },
-  { key: 'wednesday', label: 'Mer' },
-  { key: 'thursday', label: 'Jeu' },
-  { key: 'friday', label: 'Ven' },
-  { key: 'saturday', label: 'Sam' },
-  { key: 'sunday', label: 'Dim' },
-];
+const DAY_KEYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+const DAY_TKEYS = { monday: 'av_mon', tuesday: 'av_tue', wednesday: 'av_wed', thursday: 'av_thu', friday: 'av_fri', saturday: 'av_sat', sunday: 'av_sun' };
 
 export default function StepAvailability({ data, onChange }) {
+  const { t } = useI18n();
+  const DAYS = DAY_KEYS.map(key => ({ key, label: t(DAY_TKEYS[key]) }));
   const selectedDays = (() => { const r = data.available_days; if (!r) return []; if (Array.isArray(r)) return r; try { return JSON.parse(r) || []; } catch { return []; } })();
   const durations = data.duration_per_day || {};
 
@@ -58,9 +54,9 @@ export default function StepAvailability({ data, onChange }) {
     if (isNaN(val)) return;
     if (val < 10) {
       const blocked = lastKeyRef.current === 'ArrowDown' ? 10 : val;
-      applyTo(blocked, 'Minimum 10 min pour progresser');
+      applyTo(blocked, t('av_min10'));
     } else if (val > 180) {
-      applyTo(180, "Plus de 3h n'est pas nécessaire pour progresser");
+      applyTo(180, t('av_max3h'));
     } else {
       applyTo(val, null);
     }
@@ -98,16 +94,16 @@ export default function StepAvailability({ data, onChange }) {
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-heading font-bold text-white">Tes disponibilités</h2>
-        <p className="text-white/70 mt-2">Quand peux-tu t'entraîner ?</p>
-        <p className="text-white/40 text-xs mt-3">Les champs marqués <span className="text-red-400 font-bold">*</span> sont obligatoires</p>
+        <h2 className="text-2xl font-heading font-bold text-white">{t('av_title')}</h2>
+        <p className="text-white/70 mt-2">{t('av_sub')}</p>
+        <p className="text-white/40 text-xs mt-3"><span className="text-red-400 font-bold">*</span> {t('av_required')}</p>
       </div>
 
       <div className="space-y-4">
         <div className="p-4 rounded-xl border border-white/20 bg-white/5 space-y-2">
           <div className="flex items-center gap-1.5">
             <div className="flex items-center gap-1">
-            <p className="text-sm font-semibold text-white">Disponibilités optimales <span className="text-red-400">*</span></p>
+            <p className="text-sm font-semibold text-white">{t('av_optimal')} <span className="text-red-400">*</span></p>
           </div>
             <Popover>
               <PopoverTrigger asChild>
@@ -116,12 +112,12 @@ export default function StepAvailability({ data, onChange }) {
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-64 text-xs space-y-1.5">
-                <p><span className="font-semibold">Oui</span> — tu n'as pas de contrainte particulière. Le programme sera construit pour maximiser ta progression, quel que soit ton objectif.</p>
-                <p><span className="font-semibold">Non</span> — tu as des jours ou des durées fixes. Renseigne-les manuellement ci-dessous.</p>
+                <p><span className="font-semibold">{t('av_yes')}</span> — {t('av_optimal_yes')}</p>
+                <p><span className="font-semibold">{t('av_no')}</span> — {t('av_optimal_no')}</p>
               </PopoverContent>
             </Popover>
           </div>
-          <p className="text-xs text-white/50">Tu es libre pour un programme entièrement optimisé selon ton profil ?</p>
+          <p className="text-xs text-white/50">{t('av_optimal_q')}</p>
           <div className="flex gap-2 pt-1">
             <button type="button"
               onClick={() => onChange({ availability_optimal: true })}
@@ -129,7 +125,7 @@ export default function StepAvailability({ data, onChange }) {
                 data.availability_optimal === true
                   ? 'bg-white text-violet-700 border-white'
                   : 'bg-white/10 text-white/60 border-white/20 hover:bg-white/20')}>
-              Oui
+              {t('av_yes')}
             </button>
             <button type="button"
               onClick={() => onChange({ availability_optimal: false })}
@@ -137,11 +133,11 @@ export default function StepAvailability({ data, onChange }) {
                 data.availability_optimal === false
                   ? 'bg-white text-violet-700 border-white'
                   : 'bg-white/10 text-white/60 border-white/20 hover:bg-white/20')}>
-              Non
+              {t('av_no')}
             </button>
           </div>
         </div>
-        {data.availability_optimal === false && <Label className="text-white">Jours libres pour l'entraînement <span className="text-red-400">*</span></Label>}
+        {data.availability_optimal === false && <Label className="text-white">{t('av_free_days')} <span className="text-red-400">*</span></Label>}
         {data.availability_optimal === false && <div className="grid grid-cols-7 gap-2">
           {DAYS.map(({ key, label }) => (
             <button
@@ -167,7 +163,7 @@ export default function StepAvailability({ data, onChange }) {
         <div className="space-y-4">
           {selectedDays.length > 1 && (
             <div className="space-y-2">
-              <Label className="text-white">Même durée chaque jour ? <span className="text-red-400">*</span></Label>
+              <Label className="text-white">{t('av_same_duration')} <span className="text-red-400">*</span></Label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
@@ -235,7 +231,7 @@ export default function StepAvailability({ data, onChange }) {
             if (sameDurationAll && selectedDays.length > 1) {
               return (
                 <div className="space-y-2">
-                  <Label className="text-white">Durée</Label>
+                  <Label className="text-white">{t('av_duration')}</Label>
                   {renderPresets(selectedDays[0])}
                   {durationErrors[selectedDays[0]] && (
                     <p className="text-xs text-red-300 px-1">{durationErrors[selectedDays[0]]}</p>
@@ -245,7 +241,7 @@ export default function StepAvailability({ data, onChange }) {
             }
             return (
               <div className="space-y-2">
-                <Label className="text-white">Durée par jour</Label>
+                <Label className="text-white">{t('av_duration_day')}</Label>
                 <div className="p-3 rounded-xl bg-white/5 border border-white/15 space-y-3">
                   {DAYS.filter(d => selectedDays.includes(d.key)).map(({ key, label }, idx) => (
                     <div key={key} className={`space-y-1.5 ${idx > 0 ? 'pt-3 border-t border-white/10' : ''}`}>
@@ -266,7 +262,7 @@ export default function StepAvailability({ data, onChange }) {
 
       {data.availability_optimal === false && <div className="space-y-4">
         {[
-          { field: 'frequency_max', label: 'Fréquence souhaitée par semaine', placeholder: '4', default: 4 },
+          { field: 'frequency_max', label: t('av_freq'), placeholder: '4', default: 4 },
         ].map(({ field, label, placeholder, default: def }) => (
           <div key={field} className="space-y-1">
             <div className="flex items-center gap-1.5">
@@ -279,8 +275,8 @@ export default function StepAvailability({ data, onChange }) {
                   </button>
                 </PopoverTrigger>
                 <PopoverContent avoidCollisions collisionPadding={16} className="w-64 text-xs space-y-1.5 bg-violet-900/95 backdrop-blur-sm border border-white/20 text-white shadow-xl z-[200]">
-                  <p className="font-semibold text-violet-300">Fréquence souhaitée</p>
-                  <p className="text-white/70">Le nombre d'entraînements par semaine que tu vises. Le coach ne planifiera jamais plus — c'est ton plafond.</p>
+                  <p className="font-semibold text-violet-300">{t('av_freq_title')}</p>
+                  <p className="text-white/70">{t('av_freq_d')}</p>
                 </PopoverContent>
               </Popover>
             </div>
