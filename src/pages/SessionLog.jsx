@@ -1159,7 +1159,7 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
 export default function SessionLog() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const urlParams = new URLSearchParams(window.location.search);
   // Fallback : le swipe navigue vers /session SANS le ?id= → on récupère la
   // séance active depuis localStorage pour ne pas afficher l'écran vide.
@@ -1488,7 +1488,7 @@ export default function SessionLog() {
     if (!painCheckEp) return;
     setPainBusy(true);
     try {
-      const { episode: upd, proposal } = computePainPrescription(painCheckEp, reaction);
+      const { episode: upd, proposal } = computePainPrescription(painCheckEp, reaction, lang);
       await persistEpisode(upd);
       setPainCheckEp(upd);
       setPainProposal(proposal);
@@ -1969,7 +1969,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
     // (le `prompt` construit ci-dessus est conservé : contexte prêt si un jour
     // on veut donner la main à l'IA sur ce flux)
     void prompt;
-    const reply = buildPainAdvice(painNote);
+    const reply = buildPainAdvice(painNote, lang);
     // Mémoriser le conseil donné : le coach doit savoir ce qu'il a déjà répondu
     // (cohérence des futures conversations et du suivi)
     try {
@@ -2197,7 +2197,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
         ]);
         const program = progs?.[0] || null;
         let proposal = (program && !isVolumeSuppressed(program.id))
-          ? computeVolumeProposal({ sessions: progSessions, program, user, seriesLogs: recentLogs })
+          ? computeVolumeProposal({ sessions: progSessions, program, user, seriesLogs: recentLogs, lang })
           : null;
         // Pas d'AUGMENTATION de volume pendant un épisode de douleur en cours
         // (contradictoire avec les réductions du suivi) — les baisses restent ok.

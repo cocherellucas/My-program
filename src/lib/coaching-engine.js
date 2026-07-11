@@ -400,58 +400,59 @@ export function computeDeloadScore({ sessions = [], program = null, user = {}, c
 }
 
 // Recommandation selon le score et le type de décharge
-export function getDeloadRecommendation(score, deloadType = 'full', affectedMuscles = []) {
+export function getDeloadRecommendation(score, deloadType = 'full', affectedMuscles = [], lang = 'fr') {
+  const P = (fr, en) => (lang === 'en' ? en : fr);
   const muscleList = affectedMuscles.length > 0 ? affectedMuscles.join(', ') : null;
 
   // Signaux systémiques critiques → repos complet
   if (score >= 75) return {
     type:    'rest',
-    label:   'Repos 10–14 jours',
+    label:   P('Repos 10–14 jours', 'Rest 10–14 days'),
     urgency: 'critical',
     scope:   'full',
-    message: 'Signaux de sur-entraînement généralisés. Repos complet nécessaire.',
-    action:  'Activités légères uniquement (marche, mobilité). Aucun entraînement 10–14 jours.',
+    message: P('Signaux de sur-entraînement généralisés. Repos complet nécessaire.', 'Widespread overtraining signals. Full rest needed.'),
+    action:  P('Activités légères uniquement (marche, mobilité). Aucun entraînement 10–14 jours.', 'Light activity only (walking, mobility). No training for 10–14 days.'),
   };
 
   // Signal zonal avec systémique faible → décharge ciblée seulement
   if (score >= 30 && deloadType === 'zone' && muscleList) {
     return {
       type:    'zone_deload',
-      label:   `Décharge ciblée — ${muscleList}`,
+      label:   P(`Décharge ciblée — ${muscleList}`, `Targeted deload — ${muscleList}`),
       urgency: 'medium',
       scope:   'zone',
       affectedMuscles,
-      message: `Signaux localisés sur ${muscleList}. Les autres groupes peuvent continuer normalement.`,
-      action:  `−40% volume sur ${muscleList} uniquement. Charges identiques. Reste du programme inchangé.`,
+      message: P(`Signaux localisés sur ${muscleList}. Les autres groupes peuvent continuer normalement.`, `Localized signals on ${muscleList}. Other groups can continue as usual.`),
+      action:  P(`−40% volume sur ${muscleList} uniquement. Charges identiques. Reste du programme inchangé.`, `−40% volume on ${muscleList} only. Same loads. Rest of the program unchanged.`),
     };
   }
 
   // Signal systémique fort → décharge complète
   if (score >= 50) return {
     type:    'deload',
-    label:   'Décharge 7 jours',
+    label:   P('Décharge 7 jours', 'Deload 7 days'),
     urgency: 'high',
     scope:   'full',
-    message: 'Fatigue systémique importante. Décharge complète nécessaire.',
-    action:  '−40% volume sur tous les groupes. Charges identiques. Fréquence et patterns inchangés.',
+    message: P('Fatigue systémique importante. Décharge complète nécessaire.', 'Significant systemic fatigue. Full deload needed.'),
+    action:  P('−40% volume sur tous les groupes. Charges identiques. Fréquence et patterns inchangés.', '−40% volume on all groups. Same loads. Frequency and patterns unchanged.'),
   };
 
   // Signal faible → semaine légère
   if (score >= 30) return {
     type:    'light_week',
-    label:   'Semaine légère',
+    label:   P('Semaine légère', 'Light week'),
     urgency: 'medium',
     scope:   'full',
-    message: 'Quelques signaux de fatigue. Semaine plus légère conseillée.',
-    action:  '−20% volume, même charge. Observer l\'évolution.',
+    message: P('Quelques signaux de fatigue. Semaine plus légère conseillée.', 'Some fatigue signals. A lighter week is advised.'),
+    action:  P('−20% volume, même charge. Observer l\'évolution.', '−20% volume, same load. Monitor how it goes.'),
   };
 
   return {
     type:    'continue',
-    label:   'Continuer',
+    label:   P('Continuer', 'Keep going'),
     urgency: 'none',
     scope:   'none',
-    message: 'Récupération bonne. Programme à poursuivre.',
+    message: P('Récupération bonne. Programme à poursuivre.', 'Good recovery. Keep following the program.'),
     action:  null,
   };
 }
@@ -728,12 +729,13 @@ export function detectStructuralPlateau({ seriesLogs = [], sessions = [], progra
 // ─────────────────────────────────────────────────────────────────────────────
 // ALERTES DASHBOARD
 // ─────────────────────────────────────────────────────────────────────────────
-export function computeDashboardAlerts({ sessions = [], program = null, user = {}, checkins = {}, seriesLogs = [] }) {
+export function computeDashboardAlerts({ sessions = [], program = null, user = {}, checkins = {}, seriesLogs = [], lang = 'fr' }) {
+  const P = (fr, en) => (lang === 'en' ? en : fr);
   const alerts = [];
 
   // Décharge / fatigue
   const { score, flags, deloadType, affectedMuscles } = computeDeloadScore({ sessions, program, user, checkins, seriesLogs });
-  const rec = getDeloadRecommendation(score, deloadType, affectedMuscles);
+  const rec = getDeloadRecommendation(score, deloadType, affectedMuscles, lang);
 
   if (rec.type !== 'continue') {
     alerts.push({
@@ -747,7 +749,7 @@ export function computeDashboardAlerts({ sessions = [], program = null, user = {
 
   // Sous-stimulation — augmenter l'intensité
   if (flags.some(f => f.includes('Sous-stimulation'))) {
-    alerts.push({ type: 'plateau', message: 'Fatigue faible sur 3 séances — sous-stimulation. Augmenter le volume ou l\'intensité.' });
+    alerts.push({ type: 'plateau', message: P('Fatigue faible sur 3 séances — sous-stimulation. Augmenter le volume ou l\'intensité.', 'Low fatigue over 3 sessions — under-stimulation. Increase volume or intensity.') });
   }
 
   // (Supprimé : « fin du mésocycle → décharge planifiée recommandée » — une
@@ -764,9 +766,10 @@ export function computeDashboardAlerts({ sessions = [], program = null, user = {
   // Violations SRA
   const sraViolations = checkSRAViolations(sessions);
   if (sraViolations.length > 0) {
+    const zonesStr = sraViolations.map(v => v.zones.join('/')).join(', ');
     alerts.push({
       type:    'imbalance',
-      message: `${sraViolations.length} conflit${sraViolations.length > 1 ? 's' : ''} SRA — récupération insuffisante sur ${sraViolations.map(v => v.zones.join('/')).join(', ')}.`,
+      message: P(`${sraViolations.length} conflit${sraViolations.length > 1 ? 's' : ''} SRA — récupération insuffisante sur ${zonesStr}.`, `${sraViolations.length} SRA conflict${sraViolations.length > 1 ? 's' : ''} — insufficient recovery on ${zonesStr}.`),
     });
   }
 
@@ -785,7 +788,7 @@ export function computeDashboardAlerts({ sessions = [], program = null, user = {
   const today   = new Date().toISOString().split('T')[0];
   const missed  = sessions.filter(s => s.status === 'planned' && s.planned_date && s.planned_date < today);
   if (missed.length >= 2) {
-    alerts.push({ type: 'missed', message: `${missed.length} séances non complétées — adhérence à surveiller.` });
+    alerts.push({ type: 'missed', message: P(`${missed.length} séances non complétées — adhérence à surveiller.`, `${missed.length} missed workouts — watch your consistency.`) });
   }
 
   // Fin de cycle — dernière séance planifiée dans les 7 prochains jours
@@ -794,9 +797,12 @@ export function computeDashboardAlerts({ sessions = [], program = null, user = {
     const lastPlanned = planned.map(s => s.planned_date).sort().pop();
     const daysLeft = Math.ceil((new Date(lastPlanned) - new Date(today)) / 86400000);
     if (daysLeft >= 0 && daysLeft <= 7) {
+      const whenStr = lang === 'en'
+        ? (daysLeft === 0 ? 'today' : `in ${daysLeft} day${daysLeft > 1 ? 's' : ''}`)
+        : (daysLeft === 0 ? "aujourd'hui" : `dans ${daysLeft} jour${daysLeft > 1 ? 's' : ''}`);
       alerts.push({
         type: 'cycle_end',
-        message: `Ton cycle se termine dans ${daysLeft === 0 ? 'aujourd\'hui' : daysLeft + ' jour' + (daysLeft > 1 ? 's' : '')} — veux-tu repartir sur 4 nouvelles semaines ?`,
+        message: P(`Ton cycle se termine ${whenStr} — veux-tu repartir sur 4 nouvelles semaines ?`, `Your cycle ends ${whenStr} — want to start 4 new weeks?`),
       });
     }
   }
@@ -820,7 +826,8 @@ export function repSetCap(targetReps) {
 
 // Renvoie UNE proposition d'ajustement de volume, ou null.
 // La décharge (fatigue) est prioritaire sur l'augmentation (stagnation).
-export function computeVolumeProposal({ sessions = [], program = null, user = {}, seriesLogs = [], checkins = {} }) {
+export function computeVolumeProposal({ sessions = [], program = null, user = {}, seriesLogs = [], checkins = {}, lang = 'fr' }) {
+  const P = (fr, en) => (lang === 'en' ? en : fr);
   const completed = sessions.filter(s => s.status === 'completed');
   if (completed.length < 3) return null; // pas assez de signal
 
@@ -830,24 +837,24 @@ export function computeVolumeProposal({ sessions = [], program = null, user = {}
   if (rec.type === 'rest') {
     return {
       direction: 'decrease',
-      label: 'Repos conseillé',
-      detail: rec.action || 'Signaux de fatigue importants — privilégie le repos quelques jours.',
+      label: P('Repos conseillé', 'Rest recommended'),
+      detail: P(rec.action || 'Signaux de fatigue importants — privilégie le repos quelques jours.', 'Strong fatigue signals — favor rest for a few days.'),
       apply: { mode: 'rest' },
     };
   }
   if (rec.type === 'deload') {
     return {
       direction: 'decrease',
-      label: 'Fatigue élevée — alléger le volume',
-      detail: 'On retire 2 séries sur tes derniers exercices cette semaine (charges inchangées) pour mieux récupérer.',
+      label: P('Fatigue élevée — alléger le volume', 'High fatigue — reduce volume'),
+      detail: P('On retire 2 séries sur tes derniers exercices cette semaine (charges inchangées) pour mieux récupérer.', "We remove 2 sets from your last exercises this week (loads unchanged) to recover better."),
       apply: { mode: 'trim', removeSets: 2 },
     };
   }
   if (rec.type === 'light_week' || rec.type === 'zone_deload') {
     return {
       direction: 'decrease',
-      label: 'Semaine plus légère',
-      detail: 'On retire 1 série sur ton dernier exercice cette semaine (charges inchangées).',
+      label: P('Semaine plus légère', 'Lighter week'),
+      detail: P('On retire 1 série sur ton dernier exercice cette semaine (charges inchangées).', 'We remove 1 set from your last exercise this week (loads unchanged).'),
       apply: { mode: 'trim', removeSets: 1 },
     };
   }
@@ -902,8 +909,8 @@ export function computeVolumeProposal({ sessions = [], program = null, user = {}
   if (!stagnating.length) return null;
   return {
     direction: 'increase',
-    label: 'Tu stagnes mais tu récupères bien — ajouter du volume ?',
-    detail: `+1 série sur : ${stagnating.slice(0, 6).join(', ')}. (perfs stables 2 semaines, fatigue OK)`,
+    label: P('Tu stagnes mais tu récupères bien — ajouter du volume ?', 'You\'re plateauing but recovering well — add volume?'),
+    detail: P(`+1 série sur : ${stagnating.slice(0, 6).join(', ')}. (perfs stables 2 semaines, fatigue OK)`, `+1 set on: ${stagnating.slice(0, 6).join(', ')}. (stable perf 2 weeks, fatigue OK)`),
     apply: { mode: 'increase', exercises: stagnating, deltaSets: 1 },
   };
 }

@@ -18,7 +18,7 @@ import ImportSessionDialog from '@/components/coach/ImportSessionDialog';
 import { useI18n } from '@/lib/i18n';
 
 export default function CoachIA() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
@@ -324,7 +324,7 @@ export default function CoachIA() {
       // IA coupée / hors-ligne : si le message décrit une douleur → arbre de
       // décision codé (même moteur que le formulaire douleur en séance)
       if (/douleur|mal\b|gêne|gene\b|pincement|blessure|douloureux|tendinite|inflammation|brûl|brul|craqu|fourmi|engourd/i.test(userMsg)) {
-        return buildPainAdvice(userMsg);
+        return buildPainAdvice(userMsg, lang);
       }
       return t('co_error');
     });

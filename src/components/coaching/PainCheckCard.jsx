@@ -38,8 +38,8 @@ export default function PainCheckCard({ episode, proposal, busy, onReaction, onA
         <div className="flex-1 min-w-0">
           {paused ? (
             <>
-              <p className="text-sm font-bold text-white">Suivi de {art} en pause</p>
-              <p className="text-xs text-white/60 mt-0.5 leading-snug">Tu avais signalé une douleur vive — repos de la zone et avis médical conseillés. Reprends le suivi quand tu te ré-entraînes dessus.</p>
+              <p className="text-sm font-bold text-white">{t('pain_track')} {art} — {t('pain_paused')}</p>
+              <p className="text-xs text-white/60 mt-0.5 leading-snug">{t('pain_paused_sub')}</p>
             </>
           ) : proposal ? (
             <>
@@ -58,12 +58,12 @@ export default function PainCheckCard({ episode, proposal, busy, onReaction, onA
                     </button>
                   </PopoverTrigger>
                   <PopoverContent avoidCollisions collisionPadding={16} className="w-72 text-xs space-y-2 bg-violet-900/95 backdrop-blur-sm border border-white/20 text-white shadow-xl z-[200]">
-                    <p className="font-semibold text-violet-300">Ce que déclenche chaque réponse</p>
-                    <p><span className="font-semibold">😌 Mieux</span> — rien ne change. Deux « mieux » d'affilée → je te propose de remonter d'un cran (retour progressif à tes charges d'origine).</p>
-                    <p><span className="font-semibold">😐 Pareil</span> — je propose de descendre d'un cran. Dans l'ordre : d'abord la charge (−20 %), ensuite une série en moins, et en dernier les exercices de la zone retirés d'une séance sur deux (le tout sur 7 jours).</p>
-                    <p><span className="font-semibold">😣 Pire</span> — je propose de descendre de deux crans d'un coup.</p>
-                    <p><span className="font-semibold">⚡ Douleur vive</span> — on arrête : repos de la zone, avis médical conseillé, et je propose de retirer les exercices concernés pendant 7 jours.</p>
-                    <p className="pt-1.5 border-t border-white/20 text-white/70">Rien n'est jamais appliqué sans ton accord — tu as toujours Appliquer / Le faire moi-même / Ignorer.</p>
+                    <p className="font-semibold text-violet-300">{t('pain_pop_title')}</p>
+                    <p><span className="font-semibold">{t('pain_better')}</span> — {t('pain_pop_better')}</p>
+                    <p><span className="font-semibold">{t('pain_same')}</span> — {t('pain_pop_same')}</p>
+                    <p><span className="font-semibold">{t('pain_worse')}</span> — {t('pain_pop_worse')}</p>
+                    <p><span className="font-semibold">{t('pain_sharp')}</span> — {t('pain_pop_sharp')}</p>
+                    <p className="pt-1.5 border-t border-white/20 text-white/70">{t('pain_pop_foot')}</p>
                   </PopoverContent>
                 </Popover>
               </p>
@@ -76,8 +76,8 @@ export default function PainCheckCard({ episode, proposal, busy, onReaction, onA
       <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
         {paused ? (
           <>
-            <button onClick={onResume} disabled={busy} className={`${btn} bg-white text-violet-700 hover:bg-white/90`}>Reprendre le suivi</button>
-            <button onClick={onEnd} disabled={busy} className={`${btn} text-white/45 hover:text-white/70`}>Terminer le suivi</button>
+            <button onClick={onResume} disabled={busy} className={`${btn} bg-white text-violet-700 hover:bg-white/90`}>{t('pain_resume')}</button>
+            <button onClick={onEnd} disabled={busy} className={`${btn} text-white/45 hover:text-white/70`}>{t('pain_end')}</button>
           </>
         ) : !proposal ? (
           <>
@@ -87,11 +87,11 @@ export default function PainCheckCard({ episode, proposal, busy, onReaction, onA
             <button onClick={() => onReaction('sharp')} disabled={busy} className={`${btn} bg-red-500/20 text-red-300 border border-red-400/30 hover:bg-red-500/30`}>{t('pain_sharp')}</button>
           </>
         ) : infoOnly ? (
-          <button onClick={onDismiss} disabled={busy} className={`${btn} bg-white text-violet-700 hover:bg-white/90`}>Compris</button>
+          <button onClick={onDismiss} disabled={busy} className={`${btn} bg-white text-violet-700 hover:bg-white/90`}>{t('got_it')}</button>
         ) : (
           <>
             <button onClick={onApply} disabled={busy} className={`${btn} flex items-center gap-1.5 bg-white text-violet-700 hover:bg-white/90`}>
-              {busy && <Loader2 className="w-3.5 h-3.5 animate-spin" />} {isStop ? (lang === 'en' ? 'Remove for 7 days' : 'Retirer 7 jours') : t('apply')}
+              {busy && <Loader2 className="w-3.5 h-3.5 animate-spin" />} {isStop ? t('pain_remove7') : t('apply')}
             </button>
             {!isStop && (
               <button onClick={onManual} disabled={busy} className={`${btn} flex items-center gap-1.5 bg-white/10 text-white border border-white/20 hover:bg-white/20`}>

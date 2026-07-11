@@ -34,7 +34,7 @@ function saveCheckin(sessionId, data) {
 
 export default function Dashboard() {
   const navigate  = useNavigate();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [user, setUser]       = useState(null);
   const [checkins, setCheckins] = useState(loadCheckins);
 
@@ -81,7 +81,7 @@ export default function Dashboard() {
   const hasSessions  = sessions.length > 0;
 
   const alerts = useMemo(() =>
-    computeDashboardAlerts({ sessions, program: activeProgram, user: user || {}, checkins, seriesLogs }),
+    computeDashboardAlerts({ sessions, program: activeProgram, user: user || {}, checkins, seriesLogs, lang }),
     [sessions, activeProgram, user, checkins, seriesLogs]
   );
 
@@ -92,7 +92,7 @@ export default function Dashboard() {
 
   // Autorégulation du volume — proposition actionnable (augmenter / alléger)
   const volumeProposal = useMemo(() =>
-    activeProgram ? computeVolumeProposal({ sessions, program: activeProgram, user: user || {}, seriesLogs, checkins }) : null,
+    activeProgram ? computeVolumeProposal({ sessions, program: activeProgram, user: user || {}, seriesLogs, checkins, lang }) : null,
     [sessions, activeProgram, user, seriesLogs, checkins]
   );
   const [volumeBusy, setVolumeBusy] = useState(false);
@@ -149,7 +149,7 @@ export default function Dashboard() {
     if (!painCheckEp) return;
     setPainBusy(true);
     try {
-      const { episode: upd, proposal } = computePainPrescription(painCheckEp, reaction);
+      const { episode: upd, proposal } = computePainPrescription(painCheckEp, reaction, lang);
       await persistEpisode(upd);
       setPainCheckEp(upd);
       setPainProposal(proposal);
