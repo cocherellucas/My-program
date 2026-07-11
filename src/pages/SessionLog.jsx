@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { useRestTimer } from '@/lib/RestTimerContext';
 import { useTutorial } from '@/lib/TutorialContext';
 import { base44 } from '@/api/base44Client';
+import { enqueue } from '@/lib/sync-queue';
 import { normalizeUser } from '@/lib/utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
@@ -2079,6 +2080,50 @@ Ce que l'utilisateur dit : "${painNote}"`;
   };
 
   const saveSession = async (acceptProposal = false) => {
+    // Hors-ligne : on met la finalisation en file d'attente (payload autonome) et
+    // on la synchronisera automatiquement au retour du réseau. Les fonctions en
+    // ligne (propositions de volume, mémoire douleur) sont sautées — elles
+    // nécessitent des lectures serveur ; l'essentiel (séries + séance) est sauf.
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      try {
+        const payloadLogs = Object.entries(logs).map(([key, log]) => {
+          const [exIdx, setIdx] = key.split('-').map(Number);
+          const exercise = exercises[exIdx];
+          if (!exercise) return null;
+          return {
+            exercise_name: exercise.name,
+            exercise_variant: exercise.name,
+            set_number: setIdx + 1,
+            weight: log.weight || 0,
+            reps_done: log.reps || 0,
+            reps_target: exercise.target_reps || '',
+            rest_seconds: restTimeForEx[exIdx] || exercise.rest_seconds || 90,
+            mode: log.mode || 'RIR_2',
+            execution_quality: log.quality || 'good',
+            feedback: log.feedback || null,
+            tempo: log.tempo || null,
+          };
+        }).filter(Boolean);
+        enqueue('session_complete', {
+          sessionId: session.id,
+          userId: user.id,
+          logs: payloadLogs,
+          fatigue,
+          notes,
+          actual_date: new Date().toISOString().split('T')[0],
+          actual_duration: session.estimated_duration,
+        });
+        // Les données sont désormais dans l'outbox → on peut nettoyer le brouillon.
+        try { localStorage.removeItem(`session_draft_${sessionId}`); localStorage.removeItem('active_session_id'); localStorage.removeItem(`session_scroll_${sessionId}`); } catch {}
+        toast.success(t('se_offline_saved'));
+        navigate('/program');
+      } catch (e) {
+        console.error('saveSession offline error:', e);
+        toast.error(`Erreur lors de la sauvegarde : ${e?.message || e}`);
+      }
+      return;
+    }
+
     setSaving(true);
     try {
 

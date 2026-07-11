@@ -1,7 +1,46 @@
 const VAPID_PUBLIC_KEY = 'BDb9fTWerJpit946sN3TkHEaCx6aiYxN7xUEkIdCueUPzFsWGZGHTb3sSu8Atpdz-Rv0IOoEimFQSMUmRguyOWA';
 
-self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+// ── Page de secours hors-ligne ────────────────────────────────────────────────
+// L'app (version web/navigateur) ne peut pas se charger sans réseau. Plutôt que
+// la page d'erreur du navigateur, on sert une page « Connexion requise » claire.
+// Réseau d'abord pour les navigations → jamais de contenu périmé quand on est en
+// ligne. (Cette page de secours n'a de sens que tant que ce n'est pas une app
+// native/installée : une fois empaquetée pour les stores, le code est embarqué.)
+const OFFLINE_CACHE = 'coach-ia-offline-v2';
+const OFFLINE_ASSETS = ['/offline.html', '/robotapp.png'];
+
+self.addEventListener('install', (e) => {
+  e.waitUntil(
+    caches.open(OFFLINE_CACHE)
+      .then((c) => c.addAll(OFFLINE_ASSETS))
+      .catch(() => {})
+      .then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys()
+      .then((keys) => Promise.all(keys.filter((k) => k !== OFFLINE_CACHE).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  // Navigations (chargement de l'app) : réseau d'abord, repli page hors-ligne.
+  if (req.mode === 'navigate') {
+    event.respondWith(fetch(req).catch(() => caches.match('/offline.html')));
+    return;
+  }
+  // Image du robot utilisée par la page hors-ligne : cache d'abord (sinon absente hors-ligne).
+  if (req.url.includes('/robotapp.png')) {
+    event.respondWith(caches.match(req).then((c) => c || fetch(req)));
+    return;
+  }
+  // Tout le reste : comportement normal du navigateur (pas d'interception).
+});
 
 let timerTimeout = null;
 let timerInterval = null;
