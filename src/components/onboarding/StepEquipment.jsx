@@ -4,13 +4,20 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { Dumbbell, Home, PersonStanding, Settings2, Search, ChevronDown, ChevronUp, ArrowRight, ArrowLeft, CheckCheck } from 'lucide-react';
 import { GYM_CHAINS_UI, getGymPreset } from '@/lib/gym-presets';
+import { useI18n } from '@/lib/i18n';
 
+// labels/desc via clés i18n (résolus au render) ; les clés restent en anglais interne
 const CONTEXTS = [
-  { key: 'full_gym',    label: 'Salle complète', icon: Dumbbell,       desc: 'Tout le matériel' },
-  { key: 'home_barbell',label: 'Home Gym',        icon: Home,           desc: 'Entraînement à domicile' },
-  { key: 'bodyweight',  label: 'Poids du corps',  icon: PersonStanding, desc: 'Parc de street workout' },
-  { key: 'custom',      label: 'Personnalisé',    icon: Settings2,      desc: 'Je choisis mon matériel' },
+  { key: 'full_gym',    lk: 'eq_full_gym', dk: 'eq_full_gym_d', icon: Dumbbell },
+  { key: 'home_barbell',lk: 'eq_home',     dk: 'eq_home_d',     icon: Home },
+  { key: 'bodyweight',  lk: 'eq_bw',       dk: 'eq_bw_d',       icon: PersonStanding },
+  { key: 'custom',      lk: 'eq_custom',   dk: 'eq_custom_d',   icon: Settings2 },
 ];
+// Noms de groupes (affichage seulement — les items restent des données FR)
+const GROUP_TKEYS = {
+  'Barres & Racks': 'eq_grp_bars', 'Poids libres': 'eq_grp_free', 'Câbles & Poulies': 'eq_grp_cables',
+  'Machines guidées': 'eq_grp_machines', 'Suspension & Traction': 'eq_grp_suspension', 'Accessoires & Lestage': 'eq_grp_access',
+};
 
 // Vue "Par type de matériel" — chaque item apparaît une seule fois
 const EQUIPMENT_BY_TYPE = [
@@ -84,6 +91,7 @@ function EquipItem({ item, selected, onToggle }) {
 }
 
 function GroupSection({ group, items, equipment, onToggle, onToggleAll, forceOpen }) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const selectedCount = items.filter(i => equipment.includes(i)).length;
   const isOpen = forceOpen || open;
@@ -94,10 +102,10 @@ function GroupSection({ group, items, equipment, onToggle, onToggleAll, forceOpe
       <button type="button" onClick={() => !forceOpen && setOpen(o => !o)}
         className="w-full flex items-center justify-between px-3 py-2 bg-white/8 hover:bg-white/12 transition-colors">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-sm text-white/90">{group}</span>
+          <span className="font-medium text-sm text-white/90">{GROUP_TKEYS[group] ? t(GROUP_TKEYS[group]) : group}</span>
           {selectedCount > 0 && (
             <span className="text-[10px] bg-violet-400/50 text-white px-2 py-0.5 rounded-full font-bold">
-              {selectedCount} sélectionné{selectedCount > 1 ? 's' : ''}
+              {selectedCount}
             </span>
           )}
         </div>
@@ -107,7 +115,7 @@ function GroupSection({ group, items, equipment, onToggle, onToggleAll, forceOpe
               role="button"
               onClick={(e) => { e.stopPropagation(); onToggleAll?.(items, allSelected); }}
               className="text-[10px] font-semibold px-2 py-0.5 rounded-md text-white/80 bg-white/10 hover:bg-white/20 transition-colors">
-              {allSelected ? 'Tout décocher' : 'Tout cocher'}
+              {allSelected ? t('eq_uncheck_all') : t('eq_check_all')}
             </span>
           )}
           {!forceOpen && (isOpen ? <ChevronUp className="w-3.5 h-3.5 text-white/40" /> : <ChevronDown className="w-3.5 h-3.5 text-white/40" />)}
@@ -125,6 +133,7 @@ function GroupSection({ group, items, equipment, onToggle, onToggleAll, forceOpe
 }
 
 function LetterSection({ letter, items, equipment, onToggle, forceOpen }) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const selectedCount = items.filter(i => equipment.includes(i)).length;
   const isOpen = forceOpen || open;
@@ -135,10 +144,10 @@ function LetterSection({ letter, items, equipment, onToggle, forceOpen }) {
         className="w-full flex items-center justify-between px-4 py-2.5 bg-white/10 hover:bg-white/15 transition-colors">
         <div className="flex items-center gap-3">
           <span className="font-bold text-base text-white w-5">{letter}</span>
-          <span className="text-xs text-white/50">{items.length} équipement{items.length > 1 ? 's' : ''}</span>
+          <span className="text-xs text-white/50">{items.length} {t('eq_count')}</span>
           {selectedCount > 0 && (
             <span className="text-[10px] bg-violet-400/50 text-white px-2 py-0.5 rounded-full font-bold">
-              {selectedCount} sélectionné{selectedCount > 1 ? 's' : ''}
+              {selectedCount}
             </span>
           )}
         </div>
@@ -156,6 +165,7 @@ function LetterSection({ letter, items, equipment, onToggle, forceOpen }) {
 }
 
 export default function StepEquipment({ data, onChange }) {
+  const { t } = useI18n();
   const context = data.training_context || '';
   const equipment = (() => {
     const raw = data.equipment;
@@ -232,26 +242,26 @@ export default function StepEquipment({ data, onChange }) {
   }, [search]);
 
   const VIEWS = [
-    { key: 'material', label: 'Matériel' },
-    { key: 'az',       label: 'A → Z' },
+    { key: 'material', label: t('eq_sort_material') },
+    { key: 'az',       label: t('eq_sort_az') },
   ];
 
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-heading font-bold text-white">Ton équipement</h2>
-        <p className="text-white/70 mt-2">Où t'entraînes-tu ?</p>
+        <h2 className="text-2xl font-heading font-bold text-white">{t('eq_title')}</h2>
+        <p className="text-white/70 mt-2">{t('eq_sub')}</p>
       </div>
 
       {context && !showGymPicker && !showContextPicker ? (
         /* Mode compact — ligne unique récapitulative avec bouton Changer */
         <div className="flex items-center justify-between gap-2 px-4 py-3 rounded-xl bg-white/10 border border-white/20">
           <p className="text-sm text-white/90 truncate">
-            Tu t'entraînes en <span className="font-bold text-white">{CONTEXTS.find(c => c.key === context)?.label}</span>
+            {t('eq_train_in')} <span className="font-bold text-white">{(() => { const c = CONTEXTS.find(c => c.key === context); return c ? t(c.lk) : ''; })()}</span>
           </p>
           <button type="button" onClick={() => setShowContextPicker(true)}
             className="flex items-center gap-1 text-xs text-white/70 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-all flex-shrink-0">
-            Changer
+            {t('eq_change')}
           </button>
         </div>
       ) : (
@@ -260,11 +270,11 @@ export default function StepEquipment({ data, onChange }) {
           {context && showContextPicker && (
             <button type="button" onClick={() => setShowContextPicker(false)}
               className="flex items-center gap-1 text-xs text-white/60 hover:text-white transition-colors">
-              <ArrowLeft className="w-3.5 h-3.5" /> Retour
+              <ArrowLeft className="w-3.5 h-3.5" /> {t('eq_back')}
             </button>
           )}
           <div className="grid grid-cols-2 gap-3">
-            {CONTEXTS.map(({ key, label, icon: Icon, desc }) => (
+            {CONTEXTS.map(({ key, lk, dk, icon: Icon }) => (
               <button key={key} type="button" onClick={() => { selectContext(key); setShowContextPicker(false); }}
                 className={cn('flex flex-col items-center gap-2 p-3 rounded-xl border-2 text-center transition-all',
                   context === key
@@ -275,8 +285,8 @@ export default function StepEquipment({ data, onChange }) {
                   <Icon className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="font-semibold text-sm text-white block">{label}</span>
-                  <p className="text-xs text-white/70">{desc}</p>
+                  <span className="font-semibold text-sm text-white block">{t(lk)}</span>
+                  <p className="text-xs text-white/70">{t(dk)}</p>
                 </div>
               </button>
             ))}
@@ -287,7 +297,7 @@ export default function StepEquipment({ data, onChange }) {
 
       {context === 'full_gym' && showGymPicker && (
         <div className="space-y-2">
-          <p className="text-sm font-semibold text-white/80 mb-1">Quelle est ta salle ?</p>
+          <p className="text-sm font-semibold text-white/80 mb-1">{t('eq_which_gym')}</p>
 
           {/* Enseigne actuellement sélectionnée — pinnée en haut en mode "sélectionné" */}
           {selectedChain && selectedChain !== 'all' && (() => {
@@ -298,7 +308,7 @@ export default function StepEquipment({ data, onChange }) {
                 className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 border-white bg-white/20 transition-all text-left mb-2">
                 <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: cur.color }} />
                 <span className="text-xs font-semibold text-white">{cur.label}</span>
-                <span className="ml-auto text-[10px] uppercase tracking-wider text-white/60 font-bold">Sélectionnée</span>
+                <span className="ml-auto text-[10px] uppercase tracking-wider text-white/60 font-bold">{t('eq_selected')}</span>
               </button>
             );
           })()}
@@ -342,7 +352,7 @@ export default function StepEquipment({ data, onChange }) {
                   onChange({ equipment: [], equipment_validated: false });
                 }}
                   className="w-full flex items-center justify-between gap-2 text-sm font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/25 px-3 py-2 rounded-lg transition-all">
-                  <span>Ma salle</span>
+                  <span>{t('eq_my_gym')}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               )}
@@ -353,7 +363,7 @@ export default function StepEquipment({ data, onChange }) {
             <div className="flex items-center gap-1.5 min-w-0 flex-1">
               <CheckCheck className="w-4 h-4 text-green-400 flex-shrink-0" />
               <p className="text-xs font-semibold text-white/70 uppercase tracking-wider whitespace-nowrap">
-                {equipment.length} équipements
+                {equipment.length} {t('eq_count')}
               </p>
             </div>
           </div>
@@ -365,7 +375,7 @@ export default function StepEquipment({ data, onChange }) {
           <div className="px-4 pb-3">
             <button type="button" onClick={verifyPreset}
               className="w-full flex items-center justify-center gap-2 text-sm font-semibold text-white border border-white/40 hover:bg-white/10 px-3 py-2.5 rounded-lg transition-all">
-              Vérifier l'équipement sélectionné
+              {t('eq_verify')}
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -374,8 +384,8 @@ export default function StepEquipment({ data, onChange }) {
 
       {context === 'bodyweight' && !showContextPicker && (
         <div className="space-y-3">
-          <Label className="text-white">Équipement du parc</Label>
-          <p className="text-xs text-white/50">Les éléments cochés sont présents dans la plupart des parcs.</p>
+          <Label className="text-white">{t('eq_park_equip')}</Label>
+          <p className="text-xs text-white/50">{t('eq_park_hint')}</p>
           <div className="flex flex-wrap gap-2">
             {STREET_EQUIPMENT.map(item => (
               <EquipItem key={item} item={item} selected={equipment.includes(item)} onToggle={toggleEquip} />
@@ -389,19 +399,19 @@ export default function StepEquipment({ data, onChange }) {
           {verifyingPreset && (
             <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-white/10 border border-white/20">
               <p className="text-xs text-white/80">
-                Tu modifies <span className="font-semibold text-white">{CONTEXTS.find(c => c.key === context)?.label}</span>
+                {t('eq_editing')} <span className="font-semibold text-white">{(() => { const c = CONTEXTS.find(c => c.key === context); return c ? t(c.lk) : ''; })()}</span>
                 {selectedChain && selectedChain !== 'all' && <span> · <span className="font-semibold text-white">{selectedChain}</span></span>}
               </p>
               <button type="button" onClick={() => setVerifyingPreset(false)}
                 className="flex items-center gap-1 text-xs font-semibold text-white/70 hover:text-white bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-md transition-all">
-                <ArrowLeft className="w-3 h-3" /> Retour
+                <ArrowLeft className="w-3 h-3" /> {t('eq_back')}
               </button>
             </div>
           )}
 
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-            <Input placeholder="Rechercher un équipement..." value={search}
+            <Input placeholder={t('eq_search')} value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9 bg-white/10 border-white/20 text-white placeholder:text-white/40" />
           </div>
@@ -420,7 +430,7 @@ export default function StepEquipment({ data, onChange }) {
               data-tutorial="toggle-slider"
               onClick={() => onChange({ equipment: equipment.length === ALL_EQUIPMENT.length ? [] : ALL_EQUIPMENT, equipment_validated: false })}
               className="flex items-center gap-2">
-              <span className="text-xs text-white/60">{equipment.length === ALL_EQUIPMENT.length ? 'Tout décocher' : 'Tout cocher'}</span>
+              <span className="text-xs text-white/60">{equipment.length === ALL_EQUIPMENT.length ? t('eq_uncheck_all') : t('eq_check_all')}</span>
               <div className={cn('relative w-10 h-5 rounded-full transition-colors duration-200',
                 equipment.length === ALL_EQUIPMENT.length ? 'bg-white' : 'bg-white/20')}>
                 <div className={cn('absolute top-0.5 w-4 h-4 rounded-full shadow transition-transform duration-200',
@@ -446,7 +456,7 @@ export default function StepEquipment({ data, onChange }) {
                   forceOpen={!!search} />
               ))}
               {filteredByType.length === 0 && (
-                <p className="text-sm text-white/50 text-center py-6">Aucun résultat pour "{search}"</p>
+                <p className="text-sm text-white/50 text-center py-6">{t('eq_no_result')} "{search}"</p>
               )}
             </div>
           )}
@@ -455,7 +465,7 @@ export default function StepEquipment({ data, onChange }) {
           {view === 'az' && (
             <div className="space-y-2">
               {filteredAZ.length === 0 ? (
-                <p className="text-sm text-white/50 text-center py-6">Aucun résultat pour "{search}"</p>
+                <p className="text-sm text-white/50 text-center py-6">{t('eq_no_result')} "{search}"</p>
               ) : (
                 Object.entries(
                   filteredAZ.reduce((acc, item) => {

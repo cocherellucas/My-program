@@ -3,44 +3,20 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Shield, Dumbbell, X, Minus, HelpCircle } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-
-const FRAGILE_ZONES = [
-  { key: 'wrists',     label: 'Poignets' },
-  { key: 'shoulders',  label: 'Épaules' },
-  { key: 'elbows',     label: 'Coudes' },
-  { key: 'knees',      label: 'Genoux' },
-  { key: 'lower_back', label: 'Bas du dos' },
-  { key: 'neck',       label: 'Cervicales' },
-];
-
-const GOALS = [
-  {
-    key:   'strengthen',
-    label: 'Renforcer',
-    icon:  Dumbbell,
-    desc:  'Travailler cette zone pour la consolider',
-    color: 'border-blue-300 bg-blue-500 text-white',
-    chip:  'border-blue-300 bg-blue-500 text-white',
-  },
-  {
-    key:   'protect',
-    label: 'Protéger',
-    icon:  Shield,
-    desc:  'Supprime les poids libres, remplace par machines et câbles',
-    color: 'border-orange-300 bg-orange-500 text-white',
-    chip:  'border-orange-300 bg-orange-500 text-white',
-  },
-  {
-    key:   'info',
-    label: 'Note pour l\'IA',
-    icon:  Minus,
-    desc:  'Le Coach IA en tiendra compte dans ses conseils',
-    color: 'border-violet-300 bg-violet-500 text-white',
-    chip:  'border-violet-300 bg-violet-500 text-white',
-  },
-];
+import { useI18n } from '@/lib/i18n';
 
 export default function StepPreferences({ data, onChange }) {
+  const { t } = useI18n();
+  const FRAGILE_ZONES = [
+    { key: 'wrists', label: t('pf_z_wrists') }, { key: 'shoulders', label: t('pf_z_shoulders') },
+    { key: 'elbows', label: t('pf_z_elbows') }, { key: 'knees', label: t('pf_z_knees') },
+    { key: 'lower_back', label: t('pf_z_lower_back') }, { key: 'neck', label: t('pf_z_neck') },
+  ];
+  const GOALS = [
+    { key: 'strengthen', label: t('pf_g_strengthen'), icon: Dumbbell, desc: t('pf_g_strengthen_d'), color: 'border-blue-300 bg-blue-500 text-white', chip: 'border-blue-300 bg-blue-500 text-white' },
+    { key: 'protect', label: t('pf_g_protect'), icon: Shield, desc: t('pf_g_protect_d'), color: 'border-orange-300 bg-orange-500 text-white', chip: 'border-orange-300 bg-orange-500 text-white' },
+    { key: 'info', label: t('pf_g_info'), icon: Minus, desc: t('pf_g_info_d'), color: 'border-violet-300 bg-violet-500 text-white', chip: 'border-violet-300 bg-violet-500 text-white' },
+  ];
   const [selecting, setSelecting] = useState(null); // zone key en attente de goal
 
   const zones = (() => { const r = data.fragile_zones; if (!r) return []; if (Array.isArray(r)) return r; try { return JSON.parse(r) || []; } catch { return []; } })();
@@ -66,12 +42,12 @@ export default function StepPreferences({ data, onChange }) {
   return (
     <div className="space-y-6">
       <div className="text-center mb-2">
-        <h2 className="text-2xl font-heading font-bold text-white">Zones sensibles</h2>
-        <p className="text-white/70 mt-2">Pour adapter le programme à tes fragilités et anciennes blessures</p>
+        <h2 className="text-2xl font-heading font-bold text-white">{t('pf_title')}</h2>
+        <p className="text-white/70 mt-2">{t('pf_sub')}</p>
       </div>
 
       <div className="space-y-3">
-        <p className="text-xs text-white/50">Sélectionne une zone puis choisis l'intention</p>
+        <p className="text-xs text-white/50">{t('pf_select')}</p>
 
         <div className="grid grid-cols-2 gap-2">
           {FRAGILE_ZONES.map(({ key, label }) => {
@@ -104,7 +80,7 @@ export default function StepPreferences({ data, onChange }) {
           <div className="p-3 bg-white/10 rounded-xl border border-white/20 space-y-2">
             <div className="flex items-center gap-1.5">
               <p className="text-xs text-white/60">
-                {FRAGILE_ZONES.find(z => z.key === selecting)?.label} — quelle est ton intention ?
+                {FRAGILE_ZONES.find(z => z.key === selecting)?.label} — {t('pf_intention')}
               </p>
               <Popover>
                 <PopoverTrigger asChild>
@@ -113,10 +89,10 @@ export default function StepPreferences({ data, onChange }) {
                   </button>
                 </PopoverTrigger>
                 <PopoverContent className="w-64 text-xs space-y-2">
-                  <p className="font-semibold">Pourquoi ce choix ?</p>
-                  <p><span className="font-medium">Renforcer</span> — utile si la zone est ancienne ou stabilisée. Le programme la cible en priorité avec une progression conservative.</p>
-                  <p><span className="font-medium">Protéger</span> — utile si la douleur est récente ou active. Les poids libres sont remplacés par machines et câbles.</p>
-                  <p><span className="font-medium">Note pour l'IA</span> — tu n'es pas sûr. L'info est mémorisée et le Coach IA pourra poser des questions précises.</p>
+                  <p className="font-semibold">{t('pf_why')}</p>
+                  <p><span className="font-medium">{t('pf_g_strengthen')}</span> — {t('pf_why_strengthen')}</p>
+                  <p><span className="font-medium">{t('pf_g_protect')}</span> — {t('pf_why_protect')}</p>
+                  <p><span className="font-medium">{t('pf_g_info')}</span> — {t('pf_why_info')}</p>
                 </PopoverContent>
               </Popover>
             </div>
@@ -145,13 +121,13 @@ export default function StepPreferences({ data, onChange }) {
                 <div key={z.key} className={cn('flex items-center gap-2 px-3 py-2 rounded-lg border text-xs', gDef.color)}>
                   <Icon className="w-3.5 h-3.5 flex-shrink-0" />
                   <span className="font-medium">{zDef.label}</span>
-                  <span className="opacity-70">— {z.goal === 'strengthen' ? 'à renforcer en priorité' : z.goal === 'protect' ? 'à protéger des charges lourdes' : 'noté — le Coach IA pourra en parler'}</span>
+                  <span className="opacity-70">— {z.goal === 'strengthen' ? t('pf_sum_strengthen') : z.goal === 'protect' ? t('pf_sum_protect') : t('pf_sum_info')}</span>
                 </div>
               );
             })}
             {zones.some((/** @type {{goal:string}} */ z) => z.goal === 'strengthen' || z.goal === 'protect') && (
               <p className="text-xs text-white/40 px-1 pt-1">
-                Ces zones sont automatiquement intégrées à ton programme — pas besoin de créer un objectif spécifique pour ces muscles sur la page suivante.
+                {t('pf_auto')}
               </p>
             )}
           </div>
