@@ -1284,7 +1284,7 @@ export default function SessionLog() {
     try {
       const saved = localStorage.getItem(`rest_timer_${sessionId}`);
       if (saved) {
-        const { endTime, totalSeconds } = JSON.parse(saved);
+        const { endTime, totalSeconds, label: savedLabel, mode: savedMode } = JSON.parse(saved);
         const left = Math.ceil((endTime - Date.now()) / 1000);
         if (left > 0) {
           // Utilise totalSeconds (durée originale) pour le total — pas left — sinon le progress bar est faussé
@@ -1296,7 +1296,7 @@ export default function SessionLog() {
               const cur = JSON.parse(localStorage.getItem(`rest_timer_${sessionId}`) || '{}');
               localStorage.setItem(`rest_timer_${sessionId}`, JSON.stringify({ ...cur, endTime: newEndTime }));
             } catch {}
-          });
+          }, savedLabel, savedMode);
         } else {
           localStorage.removeItem(`rest_timer_${sessionId}`);
         }
@@ -1800,6 +1800,21 @@ export default function SessionLog() {
     setExSuggestion(null);
   };
 
+  // Minuteur libre — lancé depuis la barre du haut (réutilise le timer flottant du repos)
+  const [timerMenuOpen, setTimerMenuOpen] = useState(false);
+  const [customTimer, setCustomTimer] = useState('');
+  const startManualTimer = (secs) => {
+    if (!secs || secs < 1) return;
+    secs = Math.min(3600, Math.max(1, Math.floor(secs)));
+    const endTime = Date.now() + secs * 1000;
+    try { localStorage.setItem(`rest_timer_${sessionId}`, JSON.stringify({ endTime, totalSeconds: secs, label: t('se_timer'), mode: 'manual' })); } catch {}
+    startTimer(secs, endTime, () => { try { localStorage.removeItem(`rest_timer_${sessionId}`); } catch {} }, (newEndTime) => {
+      try { const saved = JSON.parse(localStorage.getItem(`rest_timer_${sessionId}`) || '{}'); localStorage.setItem(`rest_timer_${sessionId}`, JSON.stringify({ ...saved, endTime: newEndTime })); } catch {}
+    }, t('se_timer'), 'manual');
+    setTimerMenuOpen(false);
+    setCustomTimer('');
+  };
+
   const handleExtendRest = (exIdx, newRestSecs) => {
     const updatedExercises = exercises.map((ex, i) =>
     i === exIdx ? { ...ex, rest_seconds: newRestSecs } : ex
@@ -2015,11 +2030,11 @@ Ce que l'utilisateur dit : "${painNote}"`;
     if (notePain) {
       const painZone = noteText.match(/coude|épaule|genou|dos|poignet|cervical/)?.[0];
       props.push({
-        exercise: '⚠️ Douleur signalée',
+        exercise: 'Douleur signalée',
         newWeight: null,
         reason: painZone
-          ? `douleur au ${painZone} — adapte les exercices concernés à la prochaine séance`
-          : 'douleur signalée — surveille et adapte la charge sur les exercices concernés',
+          ? `Au ${painZone} — adapte les exercices concernés à la prochaine séance.`
+          : 'Surveille et adapte la charge sur les exercices concernés à la prochaine séance.',
         type: 'warn',
         general: true,
       });
@@ -2310,6 +2325,36 @@ Ce que l'utilisateur dit : "${painNote}"`;
         </div>
         {!showEnd && (
           <div className="flex items-center gap-2">
+            {/* Minuteur libre — réutilise le chrono flottant du repos */}
+            <Popover open={timerMenuOpen} onOpenChange={setTimerMenuOpen}>
+              <PopoverTrigger asChild>
+                <button type="button" aria-label={t('se_timer')}
+                  className="flex items-center justify-center h-9 w-9 rounded-md border border-white/30 text-white hover:bg-white/10 transition-colors">
+                  <Timer className="w-4 h-4" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="end" sideOffset={6} className="w-52 max-w-[calc(100vw-1.5rem)] p-3 space-y-2.5 bg-violet-950 border border-white/25 text-white shadow-2xl z-[200]">
+                <p className="text-xs font-semibold text-white/70">{t('se_timer')}</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <button onClick={() => startManualTimer(30)} className="py-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-bold transition-colors">0:30</button>
+                  <button onClick={() => startManualTimer(60)} className="py-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-bold transition-colors">1:00</button>
+                </div>
+                <div className="flex items-stretch gap-2">
+                  <input type="number" inputMode="numeric" min="1" max="3600" value={customTimer}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (v === '') { setCustomTimer(''); return; }
+                      const n = Math.min(3600, Math.max(1, parseInt(v, 10) || 0));
+                      setCustomTimer(String(n));
+                    }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') startManualTimer(parseInt(customTimer, 10)); }}
+                    placeholder={t('se_timer_custom')}
+                    className="min-w-0 flex-1 h-9 rounded-lg bg-white/10 border border-white/20 text-white text-sm text-center placeholder:text-white/35 focus:outline-none focus:border-white/40 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+                  <button onClick={() => startManualTimer(parseInt(customTimer, 10))} disabled={!customTimer}
+                    className="flex-shrink-0 h-9 px-3 rounded-lg bg-white text-violet-700 text-sm font-bold hover:bg-white/90 transition-colors disabled:opacity-40">OK</button>
+                </div>
+              </PopoverContent>
+            </Popover>
             <Button variant="outline" size="sm" onClick={() => setShowOverview((v) => !v)}
               className="border-white/30 text-white hover:bg-white/10 hover:text-white">
               <LayoutList className="w-4 h-4 mr-1" />
@@ -2461,7 +2506,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
                 const saved = JSON.parse(localStorage.getItem(`rest_timer_${sessionId}`) || '{}');
                 localStorage.setItem(`rest_timer_${sessionId}`, JSON.stringify({ ...saved, endTime: newEndTime }));
               } catch {}
-            });
+            }, t('se_rest_label'));
           }}
           isLast={currentExIdx === exercises.length - 1}
           rirContext={rirContext}

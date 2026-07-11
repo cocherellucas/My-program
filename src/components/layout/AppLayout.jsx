@@ -328,6 +328,8 @@ export default function AppLayout() {
           key={timerState.id || timerState.endTime}
           seconds={timerState.seconds}
           initialEndTime={timerState.endTime}
+          label={timerState.label}
+          mode={timerState.mode}
           onComplete={() => stopTimer(true)}
           onRestTimeChange={updateSeconds}
         />,

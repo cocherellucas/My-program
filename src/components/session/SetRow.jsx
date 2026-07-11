@@ -240,7 +240,7 @@ const shouldShowPropagate =
              setManuallyEdited(false);
            }}
            onEnter={() => setManuallyEdited(false)}
-           className={`flex h-10 w-full rounded-md border bg-white/10 border-white/20 ${log.prefill?.weight ? 'text-white/50' : 'text-white'} placeholder:text-white/35 text-sm text-center px-3 py-1 shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring`}
+           className={`flex h-10 w-full rounded-md border bg-white/10 border-white/20 ${(locked || log.prefill?.weight) ? 'text-white/50' : 'text-white'} placeholder:text-white/35 text-sm text-center px-3 py-1 shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring`}
           />
           <div className="text-xs text-center mt-1 flex items-center justify-center">
             {shouldShowPropagate ? (
@@ -266,7 +266,7 @@ const shouldShowPropagate =
            value={log.reps}
            readOnly={locked}
            onCommit={(v) => onUpdate('reps', v === '' ? '' : v)}
-           className={`flex h-10 w-full rounded-md border bg-white/10 border-white/20 ${log.prefill?.reps ? 'text-white/50' : 'text-white'} placeholder:text-white/35 text-sm text-center px-3 py-1 shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring`}
+           className={`flex h-10 w-full rounded-md border bg-white/10 border-white/20 ${(locked || log.prefill?.reps) ? 'text-white/50' : 'text-white'} placeholder:text-white/35 text-sm text-center px-3 py-1 shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring`}
           />
           <span className="text-xs text-white/50 text-center block mt-1">{t('se_reps_label')}</span>
         </div>
@@ -275,7 +275,7 @@ const shouldShowPropagate =
       <div className="grid grid-cols-2 gap-2">
         <div>
           <Select value={log.mode || previousMode || defaultMode} onValueChange={(v) => !locked && onUpdate('mode', v)}>
-            <SelectTrigger className={`w-full h-10 text-xs bg-white/10 border-white/20 ${(log.prefill?.mode || !log.mode) ? 'text-white/50' : 'text-white'}${locked ? ' pointer-events-none' : ''}`}>
+            <SelectTrigger className={`w-full h-10 text-xs bg-white/10 border-white/20 ${(locked || log.prefill?.mode || !log.mode) ? 'text-white/50' : 'text-white'}${locked ? ' pointer-events-none' : ''}`}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -308,7 +308,7 @@ const shouldShowPropagate =
         </div>
         <div>
           <Select value={log.quality || 'good'} onValueChange={(v) => !locked && onUpdate('quality', v)}>
-            <SelectTrigger className={`w-full h-10 text-xs bg-white/10 border-white/20 ${(log.prefill?.quality || !log.quality) ? 'text-white/50' : 'text-white'}${locked ? ' pointer-events-none' : ''}`}>
+            <SelectTrigger className={`w-full h-10 text-xs bg-white/10 border-white/20 ${(locked || log.prefill?.quality || !log.quality) ? 'text-white/50' : 'text-white'}${locked ? ' pointer-events-none' : ''}`}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

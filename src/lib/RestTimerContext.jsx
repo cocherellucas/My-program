@@ -7,10 +7,10 @@ export function RestTimerProvider({ children }) {
   const onCompleteRef = useRef(null);
   const onEndTimeChangeRef = useRef(null);
 
-  const startTimer = useCallback((seconds, endTime, onComplete, onEndTimeChange) => {
+  const startTimer = useCallback((seconds, endTime, onComplete, onEndTimeChange, label, mode) => {
     onCompleteRef.current = onComplete || null;
     onEndTimeChangeRef.current = onEndTimeChange || null;
-    setTimerState({ seconds, endTime, id: Date.now() + Math.random() });
+    setTimerState({ seconds, endTime, id: Date.now() + Math.random(), label: label || null, mode: mode || 'rest' });
   }, []);
 
   const stopTimer = useCallback((fireCallback = false) => {

@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Timer, X, Play, Pause, Edit2, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRestTimer } from '@/lib/RestTimerContext';
+import { useI18n } from '@/lib/i18n';
 
 const postToSW = (msg) => {
   if (!('serviceWorker' in navigator)) return;
@@ -21,8 +22,9 @@ const requestNotifPermission = async () => {
   }
 };
 
-export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, initialEndTime }) {
+export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, initialEndTime, label, mode = 'rest' }) {
   const { notifyEndTimeChange } = useRestTimer() || {};
+  const { t } = useI18n();
   const endTimeRef = useRef(initialEndTime || Date.now() + seconds * 1000);
   const [remaining, setRemaining] = useState(() => {
     const left = Math.ceil((endTimeRef.current - Date.now()) / 1000);
@@ -225,7 +227,7 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
         {/* Label + timer */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 text-violet-300/70 text-xs font-semibold uppercase tracking-widest">
-            <Timer className="w-3.5 h-3.5" /> Repos
+            <Timer className="w-3.5 h-3.5" /> {label || t('se_rest_label')}
           </div>
           {editing ? (
             <div className="flex items-center gap-2">
@@ -241,9 +243,9 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
             </span>
           )}
           {remaining === 0
-            ? <span className="text-base font-bold text-white animate-pulse">C'est parti !</span>
+            ? <span className="text-base font-bold text-white animate-pulse whitespace-nowrap">{mode === 'manual' ? t('se_timer_done') : t('se_go')}</span>
             : remaining <= 15
-            ? <span className="text-sm font-semibold text-orange-300 animate-pulse">Prépare-toi !</span>
+            ? <span className="text-sm font-semibold text-orange-300 animate-pulse whitespace-nowrap">{mode === 'manual' ? t('se_timer_almost') : t('se_ready')}</span>
             : null}
         </div>
 
