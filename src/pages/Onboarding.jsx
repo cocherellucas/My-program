@@ -12,12 +12,14 @@ import StepObjectives from '@/components/onboarding/StepObjectives';
 import StepPreferences from '@/components/onboarding/StepPreferences';
 import StepMeasurements from '@/components/onboarding/StepMeasurements';
 import WelcomeIntro from '@/components/onboarding/WelcomeIntro';
+import { useI18n } from '@/lib/i18n';
 
 const TOTAL_STEPS = 6;
 const STORAGE_KEY = 'onboarding_draft';
 
 export default function Onboarding() {
   const navigate = useNavigate();
+  const { t } = useI18n();
 
   // ?resetOnboarding → le nettoyage localStorage est fait par TutorialProvider (qui mount avant).
   // Ici on retire juste le paramètre de l'URL après coup.
@@ -77,25 +79,25 @@ export default function Onboarding() {
     // Étape 0 : Profil — niveau obligatoire
     if (step === 0) {
       if (!data.level) {
-        setStepError('Sélectionne ton niveau pour continuer.');
+        setStepError(t('ob_err_level'));
         return false;
       }
     }
     // Étape 1 : Objectifs
     if (step === 1) {
       if (!data.objectives?.length) {
-        setStepError('Ajoute au moins un objectif pour continuer.');
+        setStepError(t('ob_err_obj'));
         return false;
       }
       // Chaque objectif doit avoir un type ET une cible ("Sur quoi ?")
       if (data.objectives.some(o => !o.type || !o.zone)) {
-        setStepError('Choisis un objectif et une cible ("Sur quoi ?") pour chaque objectif.');
+        setStepError(t('ob_err_obj_target'));
         return false;
       }
       // Cible "groupe spécifique" → au moins un groupe musculaire sélectionné
       if (data.objectives.some(o => o.zone === 'specific_group'
         && !((Array.isArray(o.focus_group) ? o.focus_group.length : (o.focus_group || '').trim())))) {
-        setStepError('Sélectionne au moins un groupe musculaire pour ta cible.');
+        setStepError(t('ob_err_group'));
         return false;
       }
       // Vérifier les conflits de muscles entre objectifs specific_group du même type
@@ -116,16 +118,16 @@ export default function Onboarding() {
     // Étape 2 : Disponibilités
     if (step === 2) {
       if (data.availability_optimal !== true && data.availability_optimal !== false) {
-        setStepError('Indique si tu es libre pour un programme optimisé (Oui / Non).');
+        setStepError(t('ob_err_avail'));
         return false;
       }
       if (data.availability_optimal !== true && !data.available_days?.length) {
-        setStepError('Sélectionne au moins un jour d\'entraînement.');
+        setStepError(t('ob_err_days'));
         return false;
       }
       if (data.availability_optimal === true) return true;
       if (data.available_days.length > 1 && data.same_duration_all == null) {
-        setStepError('Indique si tu veux la même durée chaque jour ou non.');
+        setStepError(t('ob_err_duration'));
         return false;
       }
       const missingDuration = data.available_days.some(
@@ -288,7 +290,7 @@ export default function Onboarding() {
           {step > 0 ? (
             <Button variant="outline" onClick={() => { setStepError(''); setStep(s => s - 1); }} className="border-white/30 text-white hover:bg-white/10 hover:text-white">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Précédent
+              {t('ob_prev')}
             </Button>
           ) : (
             <div />
@@ -307,13 +309,13 @@ export default function Onboarding() {
                 }
                 if (validateStep()) setStep(s => s + 1);
               }}>
-                {isEmptyEquipStep ? 'Aucun équipement' : 'Suivant'}
+                {isEmptyEquipStep ? t('ob_no_equipment') : t('ob_next')}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             );
           })() : (
             <Button onClick={() => setShowFinalChoice(true)} disabled={saving}>
-              Valider
+              {t('ob_validate')}
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           )}
@@ -343,6 +345,7 @@ export default function Onboarding() {
 }
 
 function FinalChoiceSheet({ show, onClose, onGenerate, onImport, hasProgram, onBackToApp, saving }) {
+  const { t } = useI18n();
   const [importMode, setImportMode] = React.useState(false);
   const [text, setText] = React.useState('');
 
@@ -361,8 +364,8 @@ function FinalChoiceSheet({ show, onClose, onGenerate, onImport, hasProgram, onB
         {!importMode ? (
           <>
             <div className="text-center mb-2">
-              <p className="text-white font-bold text-lg">Ton profil est prêt !</p>
-              <p className="text-white/50 text-sm mt-1">{hasProgram ? 'Tu as déjà un programme importé.' : 'Plus qu\'une étape — comment on commence ?'}</p>
+              <p className="text-white font-bold text-lg">{t('ob_ready')}</p>
+              <p className="text-white/50 text-sm mt-1">{hasProgram ? t('ob_has_prog') : t('ob_one_step')}</p>
             </div>
             <button type="button" onClick={onGenerate} disabled={saving}
               className="w-full flex items-center gap-4 p-4 rounded-2xl bg-white text-violet-700 hover:bg-white/90 shadow-xl transition-all disabled:opacity-50">
@@ -370,8 +373,8 @@ function FinalChoiceSheet({ show, onClose, onGenerate, onImport, hasProgram, onB
                 <Sparkles className="w-5 h-5 text-violet-600" />
               </div>
               <div className="text-left">
-                <p className="font-bold text-sm">Créer mon programme</p>
-                <p className="text-xs text-violet-500 mt-0.5">{hasProgram ? 'Remplace ton programme actuel' : 'L\'IA génère un programme sur mesure'}</p>
+                <p className="font-bold text-sm">{t('ob_create')}</p>
+                <p className="text-xs text-violet-500 mt-0.5">{hasProgram ? t('ob_create_replace') : t('ob_create_ai')}</p>
               </div>
               {saving ? <Loader2 className="w-4 h-4 ml-auto animate-spin" /> : <ArrowRight className="w-4 h-4 ml-auto" />}
             </button>
@@ -382,8 +385,8 @@ function FinalChoiceSheet({ show, onClose, onGenerate, onImport, hasProgram, onB
                   <ArrowRight className="w-5 h-5 text-white/80" />
                 </div>
                 <div className="text-left">
-                  <p className="font-bold text-sm">Retour sur l'app</p>
-                  <p className="text-xs text-white/50 mt-0.5">Garde ton programme importé</p>
+                  <p className="font-bold text-sm">{t('ob_back_app')}</p>
+                  <p className="text-xs text-white/50 mt-0.5">{t('ob_keep_imported')}</p>
                 </div>
                 {saving && <Loader2 className="w-4 h-4 ml-auto animate-spin" />}
               </button>
@@ -395,14 +398,14 @@ function FinalChoiceSheet({ show, onClose, onGenerate, onImport, hasProgram, onB
                     <FolderUp className="w-5 h-5 text-white/80" />
                   </div>
                   <div className="text-left">
-                    <p className="font-bold text-sm">Importer un programme</p>
-                    <p className="text-xs text-white/50 mt-0.5">Colle ton programme existant</p>
+                    <p className="font-bold text-sm">{t('ob_import')}</p>
+                    <p className="text-xs text-white/50 mt-0.5">{t('ob_import_paste')}</p>
                   </div>
                   <ArrowRight className="w-4 h-4 ml-auto text-white/40" />
                 </button>
                 <button type="button" onClick={onClose}
                   className="w-full py-3 text-sm text-white/40 hover:text-white/60 transition-colors">
-                  Annuler
+                  {t('ob_cancel')}
                 </button>
               </>
             )}
@@ -411,15 +414,15 @@ function FinalChoiceSheet({ show, onClose, onGenerate, onImport, hasProgram, onB
           <>
             <button type="button" onClick={() => setImportMode(false)}
               className="flex items-center gap-1 text-white/50 hover:text-white text-sm transition-colors">
-              <ArrowLeft className="w-3.5 h-3.5" /> Retour
+              <ArrowLeft className="w-3.5 h-3.5" /> {t('ob_back')}
             </button>
             <div className="bg-white/10 border border-white/20 rounded-2xl p-4 space-y-3">
-              <p className="text-white font-semibold text-sm">Colle ton programme ici</p>
-              <p className="text-white/50 text-xs">Texte, tableau, JSON — l'IA s'adapte à tous les formats.</p>
+              <p className="text-white font-semibold text-sm">{t('ob_paste_here')}</p>
+              <p className="text-white/50 text-xs">{t('ob_paste_formats')}</p>
               <textarea
                 value={text}
                 onChange={e => setText(e.target.value)}
-                placeholder="Lundi : Squat 4x8, Bench 4x8..."
+                placeholder={t('ob_paste_ph')}
                 className="w-full h-36 bg-white/10 border border-white/20 rounded-xl p-3 text-sm text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-white/40"
                 autoFocus
               />
@@ -428,7 +431,7 @@ function FinalChoiceSheet({ show, onClose, onGenerate, onImport, hasProgram, onB
                 disabled={!text.trim() || saving}
                 className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white text-violet-700 font-semibold text-sm hover:bg-white/90 transition-all disabled:opacity-40">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <FolderUp className="w-4 h-4" />}
-                Importer
+                {t('ob_import_btn')}
               </button>
             </div>
           </>

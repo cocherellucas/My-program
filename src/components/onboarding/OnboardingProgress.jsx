@@ -1,13 +1,14 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-
-const steps = [
-  'Profil', 'Disponibilités', 'Équipement',
-  'Préférences', 'Objectifs', 'Mensurations'
-];
+import { useI18n } from '@/lib/i18n';
 
 export default function OnboardingProgress({ currentStep }) {
+  const { t } = useI18n();
+  const steps = [
+    t('obp_profile'), t('obp_availability'), t('obp_equipment'),
+    t('obp_preferences'), t('obp_objectives'), t('obp_measurements'),
+  ];
   return (
     <div className="w-full max-w-xl mx-auto mb-8">
       <div className="flex items-center justify-between relative">
