@@ -18,6 +18,7 @@ import GenerateProgramDialog from '@/components/program/GenerateProgramDialog';
 import { buildProgramContext, formatProgramBrief } from '@/lib/program-builder';
 import { getContextualKnowledge } from '@/lib/scientific-knowledge-base';
 import { normalizeUser } from '@/lib/utils';
+import { ensureOnline } from '@/lib/net';
 import ImportSessionDialog from '@/components/coach/ImportSessionDialog';
 import { calcDuration } from '@/lib/duration';
 import { exportProgramPDF } from '@/lib/program-pdf';
@@ -212,6 +213,7 @@ export default function Program() {
   };
 
   const saveEditedSessions = async (editedSessions, targetWeeks, opts = {}) => {
+    if (!ensureOnline()) return;
     try {
       // Plus aucune séance → on supprime le programme entièrement
       if (!editedSessions || editedSessions.length === 0) {
@@ -520,6 +522,7 @@ export default function Program() {
   }, [user, objectives, activeProgram, generating]);
 
   const generateProgram = async ({ structure, weeks, phase }) => {
+    if (!ensureOnline()) return;
     genParamsRef.current = { structure, weeks, phase };
     setGenerating(true);
     setGenError(null);
@@ -716,6 +719,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
 
   const deleteProgram = async () => {
     if (!activeProgram) return;
+    if (!ensureOnline()) return;
     setDeleting(true);
     try {
       await base44.entities.Program.update(activeProgram.id, { status: 'completed' });
@@ -746,6 +750,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
 
   const saveProgram = async () => {
     if (!activeProgram) return;
+    if (!ensureOnline()) return;
     setSaving(true);
     try {
       const structureType = detectStructureType(activeProgram);
@@ -803,6 +808,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
   // Relance le programme actuel à l'identique, en repartant de cette semaine
   const relaunchSameProgram = async () => {
     if (!activeProgram || relaunching) return;
+    if (!ensureOnline()) return;
     setRelaunching(true);
     try {
       const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];

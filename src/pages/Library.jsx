@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { addDays, startOfWeek, endOfWeek, parseISO, format as fmtDate } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useI18n } from '@/lib/i18n';
+import { ensureOnline } from '@/lib/net';
 
 const STRUCTURE_LABELS = {
   full_body: 'Full Body',
@@ -433,6 +434,7 @@ export default function Library() {
 
   // Clic "Relancer" : si un programme est déjà actif, on demande quoi en faire
   const handleReapply = (prog) => {
+    if (!ensureOnline()) return;
     if (activePrograms.length > 0) setRelaunchGate(prog);
     else reapplyMutation.mutate(prog);
   };
@@ -479,6 +481,7 @@ export default function Library() {
   };
 
   const runRelaunch = async (saveFirst) => {
+    if (!ensureOnline()) return;
     setGateBusy(true);
     try {
       if (saveFirst) await saveActivePrograms();
@@ -531,7 +534,7 @@ export default function Library() {
                 <motion.div key={prog.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -40, height: 0, marginBottom: 0 }} transition={{ duration: 0.25 }}>
                   <SavedProgramCard
                     prog={prog}
-                    onDelete={(id) => deleteMutation.mutate(id)}
+                    onDelete={(id) => { if (!ensureOnline()) return; deleteMutation.mutate(id); }}
                     onReapply={handleReapply}
                     isReapplying={(reapplyMutation.isPending || (gateBusy && relaunchGate?.id === prog.id)) && (reapplyMutation.variables?.id === prog.id || relaunchGate?.id === prog.id)}
                   />
