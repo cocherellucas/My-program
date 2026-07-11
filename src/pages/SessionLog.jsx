@@ -24,6 +24,7 @@ import { applyVolumeProposal, markVolumeHandled, isVolumeSuppressed } from '@/li
 import VolumeProposalCard from '@/components/coaching/VolumeProposalCard';
 import PainCheckCard from '@/components/coaching/PainCheckCard';
 import { detectZoneFromText, loadEpisodes, saveEpisodes, upsertEpisode, episodesToCheck, sessionTouchesZone, computePainPrescription, buildPainAdvice, isSeverePain } from '@/lib/pain-engine';
+import { useI18n } from '@/lib/i18n';
 import { applyPainLevel } from '@/lib/pain-adjust';
 import { EXERCISES } from '@/lib/exercise-database';
 
@@ -166,6 +167,7 @@ function WarmupAccordion({ exercise, logs, exIdx, sets: totalSets }) {
 
 // ─── Single Exercise Focus View ───────────────────────────────────────────────
 function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, openAtLastSet, isImported, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, suggestion, onClearSuggestion, onApplyVariant, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach, sessionsHistory }) {
+  const { t } = useI18n();
   const sets = Math.max(1, exercise.sets || 3);
   // L'exercice fait-il partie de la base (chaînes de progression) ? Sinon on ne
   // propose aucune variante (pas de variante générique inventée).
@@ -337,7 +339,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
       
       {/* Header progress */}
       <div className="flex items-center justify-between text-sm text-white/70">
-        <span className="font-medium">Exercice {exIdx + 1} / {totalExercises}</span>
+        <span className="font-medium">{t('se_exercise')} {exIdx + 1} / {totalExercises}</span>
         <div className="flex gap-1">
           {Array.from({ length: totalExercises }).map((_, i) =>
           <div key={i} className={`h-1.5 rounded-full transition-all ${i === exIdx ? 'w-6 bg-white' : i < exIdx ? 'w-3 bg-white/40' : 'w-3 bg-white/20'}`} />
@@ -353,7 +355,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
           {exercise.muscle_group && <Badge variant="outline" className="text-xs mt-2 border-white/30 text-white">{exercise.muscle_group}</Badge>}
           <div className="mt-3 space-y-2" data-objectif>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-white uppercase tracking-wider block">OBJECTIF</span>
+              <span className="text-xs font-bold text-white uppercase tracking-wider block">{t('se_objective')}</span>
               <div className="flex items-center gap-1">
                 {!isImported && (() => {
                   const originalSets = Math.max(1, originalExercise?.sets || 3);
@@ -386,7 +388,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                     }
                     setEditingObjectif(!editingObjectif);
                   }}>
-                  {editingObjectif ? 'Valider' : 'Modifier'}
+                  {editingObjectif ? t('se_validate') : t('se_modify')}
                 </Button>
               </div>
               {!isImported && (
@@ -406,7 +408,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
             </div>
             <div className="grid grid-cols-3 gap-2 p-3 bg-gradient-to-r from-white/20 to-white/10 rounded-lg border border-white/40 overflow-hidden">
               <div className="text-center py-3 bg-white/10 rounded-md border border-white/30 min-w-0">
-                <span className="text-white/80 text-[11px] block font-bold uppercase tracking-wide">Séries</span>
+                <span className="text-white/80 text-[11px] block font-bold uppercase tracking-wide">{t('se_sets')}</span>
                 {editingObjectif ? (
                   <input
                     type="text"
@@ -424,7 +426,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                 )}
               </div>
               <div className="text-center py-3 bg-white/10 rounded-md border border-white/30 min-w-0">
-                <span className="text-white/80 text-[11px] block font-bold uppercase tracking-wide">Reps</span>
+                <span className="text-white/80 text-[11px] block font-bold uppercase tracking-wide">{t('se_reps')}</span>
                 {editingObjectif ? (
                   <input
                     type="text"
@@ -441,7 +443,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                 )}
               </div>
               <div className="text-center py-3 bg-white/10 rounded-md border border-white/30 min-w-0">
-                <span className="text-white/80 text-[11px] block font-bold uppercase tracking-wide">Repos</span>
+                <span className="text-white/80 text-[11px] block font-bold uppercase tracking-wide">{t('se_rest')}</span>
                 {editingObjectif ? (
                   <input
                     type="text"
@@ -470,8 +472,8 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                 const minRir = Math.min(...earlyTargets);
                 const maxRir = Math.max(...earlyTargets);
                 const rangeStr = minRir === maxRir ? `RIR ${minRir}` : `RIR ${maxRir}-${minRir}`;
-                return <>{sets > 1 && <>{`Premières séries : ${rangeStr}`}<br /></>}Dernière série à l'échec si ce n'est pas dangereux</>;
-              })() : (logs[`${exIdx}-0`]?.quality || 'good') !== 'bad' && <>RIR 0 sur la dernière série si ce n'est pas dangereux</>}
+                return <>{sets > 1 && <>{`${t('se_first_sets')} : ${rangeStr}`}<br /></>}{t('se_last_set_failure')}</>;
+              })() : (logs[`${exIdx}-0`]?.quality || 'good') !== 'bad' && <>{t('se_last_set_failure')}</>}
             </p>
           )}
         </div>
@@ -544,7 +546,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                     <button
                       onClick={() => setActiveSetIdx(setIdx - 1)}
                       className="text-xs text-white/40 hover:text-white/70 transition-colors">
-                      ← Précédent
+                      ← {t('se_prev')}
                     </button>
                   ) : <span />}
                   {setIdx < sets - 1 && (
@@ -555,7 +557,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                         setActiveSetIdx(setIdx + 1);
                       }}
                       className="text-xs text-white/40 hover:text-white/70 transition-colors">
-                      Passer →
+                      {t('se_skip')} →
                     </button>
                   )}
                 </div>
@@ -587,7 +589,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                   onClick={() => { markSetComplete(setIdx); updateLog(exIdx, setIdx, 'done', true); }}
                   disabled={!isActive}
                   className="w-full text-xs flex items-center justify-center gap-1 py-1 rounded-lg transition-colors disabled:opacity-0 disabled:pointer-events-none text-white/50 hover:text-white hover:bg-white/10">
-                    <CheckCircle className="w-3 h-3" /> Valider la série
+                    <CheckCircle className="w-3 h-3" /> {t('se_validate_set')}
                   </button>
                 ) : (
                 <button
@@ -595,7 +597,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                 disabled={!isActive}
                 className="w-full text-xs flex items-center justify-center gap-1 py-1 rounded-lg transition-colors disabled:opacity-0 disabled:pointer-events-none text-white/50 hover:text-white hover:bg-white/10">
 
-                  <Timer className="w-3 h-3" /> Lancer le repos
+                  <Timer className="w-3 h-3" /> {t('se_start_rest')}
                 </button>
                 )}
                 {setIdx === 0 &&
@@ -619,13 +621,13 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
       <div className="flex items-center justify-between gap-3">
         {exIdx > 0 &&
         <Button variant="outline" onClick={onPrev} className="flex-1 border-white/30 text-white hover:bg-white/10 hover:text-white">
-            <ChevronLeft className="w-4 h-4 mr-1" /> Précédent
+            <ChevronLeft className="w-4 h-4 mr-1" /> {t('se_prev')}
           </Button>
         }
         <Button onClick={onNext} className="flex-1">
           {allSetsDone
-            ? isLast ? <><CheckCircle className="w-4 h-4 mr-1" /> Terminer</> : <>Suivant <ChevronRight className="w-4 h-4 ml-1" /></>
-            : isLast ? 'Terminer quand même' : 'Passer'
+            ? isLast ? <><CheckCircle className="w-4 h-4 mr-1" /> {t('se_finish')}</> : <>{t('se_next')} <ChevronRight className="w-4 h-4 ml-1" /></>
+            : isLast ? t('se_finish_anyway') : t('se_skip')
           }
         </Button>
       </div>
@@ -643,7 +645,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
             <div className="w-72 max-w-[calc(100vw-2rem)] rounded-2xl p-4 shadow-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #1e0050 0%, #3b0764 50%, #1e0050 100%)', border: '1px solid rgba(139,92,246,0.5)', boxShadow: '0 0 30px rgba(139,92,246,0.3), 0 8px 32px rgba(0,0,0,0.4)' }}>
               <div className="flex items-start gap-2">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-white">{isPain ? (severePain ? 'Douleur vive — on arrête cet exercice' : 'Gêne signalée — écoute ton corps') : isUnder ? 'Objectifs non atteints' : 'Objectifs dépassés'}</p>
+                  <p className="text-sm font-bold text-white">{isPain ? (severePain ? t('se_tip_pain_severe') : t('se_tip_pain')) : isUnder ? t('se_tip_under') : t('se_tip_over')}</p>
                   <p className="text-xs text-violet-200/80 mt-0.5">
                     {isPain
                       ? (severePain
@@ -665,7 +667,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                     <>
                       <button onClick={() => { dismissTip(); onNext(); }}
                         className="text-xs px-3 py-1.5 rounded-lg bg-destructive text-white font-medium hover:bg-destructive/80 transition-colors">
-                        Passer cet exercice
+                        {t('se_pass_exercise')}
                       </button>
                     </>
                   ) : (
@@ -703,7 +705,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                     {inChain && (
                       <button onClick={() => { onRegressionRequest(exIdx); setTipOpen(false); }}
                         className="text-xs px-3 py-1.5 rounded-lg bg-white/20 text-white font-medium hover:bg-white/30 transition-colors">
-                        Variante simple
+                        {t('se_variant_simple')}
                       </button>
                     )}
                     <button onClick={() => {
@@ -713,7 +715,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                         setTimeout(() => document.querySelector('[data-objectif]')?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 80);
                       }}
                       className="text-xs px-3 py-1.5 rounded-lg bg-white/10 text-white/80 font-medium hover:bg-white/20 transition-colors">
-                      Modifier moi-même
+                      {t('se_modify_myself')}
                     </button>
                     {/* Même interrupteur que les conseils objectifs (coach_tips_disabled) :
                         si cette bulle s'affiche, ils sont actifs → avertir. */}
@@ -744,7 +746,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                     {inChain && (
                       <button onClick={() => { onRegressionRequest(exIdx); setTipOpen(false); }}
                         className="text-xs px-3 py-1.5 rounded-lg bg-destructive text-white font-medium hover:bg-destructive/80 transition-colors">
-                        Variante simple
+                        {t('se_variant_simple')}
                       </button>
                     )}
                   </>
@@ -769,7 +771,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                     ) : inChain ? (
                       <button onClick={() => { onProgressionRequest(exIdx); setTipOpen(false); }}
                         className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors">
-                        Variante plus dure
+                        {t('se_variant_harder')}
                       </button>
                     ) : null}
                   </>
@@ -779,8 +781,8 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
               <div className="mt-3 pt-2.5 border-t border-white/10">
                 {!confirmDisableTips ? (
                   <div className="flex items-center justify-between">
-                    <button onClick={dismissTip} className="text-xs text-white/50 hover:text-white/80 transition-colors">Fermer ce conseil</button>
-                    <button onClick={() => setConfirmDisableTips(true)} className="text-[11px] text-white/35 hover:text-white/60 transition-colors">Ne plus afficher</button>
+                    <button onClick={dismissTip} className="text-xs text-white/50 hover:text-white/80 transition-colors">{t('se_close_tip')}</button>
+                    <button onClick={() => setConfirmDisableTips(true)} className="text-[11px] text-white/35 hover:text-white/60 transition-colors">{t('se_hide_tips')}</button>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -849,6 +851,7 @@ function OverviewItem({ origIdx, exercise, sets, filledSets, isOpen, onToggle, c
 }
 
 function OverviewPanel({ exercises, logs, updateLog, onClose, fragileZones = [], onReorder, canReorder = false, onUpsellReorder }) {
+  const { t } = useI18n();
   const getLogKey = (exIdx, setIdx) => `${exIdx}-${setIdx}`;
   const [openIdx, setOpenIdx] = useState(null);
 
@@ -863,17 +866,19 @@ function OverviewPanel({ exercises, logs, updateLog, onClose, fragileZones = [],
       const steps = [];
       if (onReorder) steps.push({
         target: 'reorder-handle',
-        title: 'Change l\'ordre des exercices',
-        description: "Maintiens la poignée ⋮⋮ et glisse pour réorganiser tes exercices — pratique si une machine est prise. Valable seulement pour cette séance : ton programme n'est pas modifié.",
+        title: t('se_tuto_reorder_t'),
+        description: t('se_tuto_reorder_d'),
         nonInteractive: true,
       });
       steps.push({
         target: 'expand-chevron',
-        title: 'Détail de l\'exercice',
-        description: "Touche la flèche ⌄ pour déplier un exercice et voir (ou modifier) tes séries : poids, répétitions, RIR et exécution.",
+        title: t('se_tuto_expand_t'),
+        description: t('se_tuto_expand_d'),
         nonInteractive: true,
       });
-      startTutorial('overview-intro', steps);
+      // ignoreSkipAll : tuto de découverte d'une nouvelle fonctionnalité → visible
+      // même si l'utilisateur avait "passé tous les tutos" pendant l'onboarding.
+      startTutorial('overview-intro', steps, { ignoreSkipAll: true });
     }, 350);
     return () => clearTimeout(t);
   }, [startTutorial]); // eslint-disable-line — une seule fois au montage du panneau
@@ -899,9 +904,9 @@ function OverviewPanel({ exercises, logs, updateLog, onClose, fragileZones = [],
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="font-heading font-bold text-lg text-white">Vue d'ensemble</h2>
+        <h2 className="font-heading font-bold text-lg text-white">{t('se_overview')}</h2>
         <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:bg-white/10">
-          <ChevronLeft className="w-4 h-4 mr-1" /> Retour
+          <ChevronLeft className="w-4 h-4 mr-1" /> {t('se_back')}
         </Button>
       </div>
       <Reorder.Group axis="y" values={order} onReorder={setOrder} className="space-y-4 list-none p-0 m-0">
@@ -945,6 +950,7 @@ function OverviewPanel({ exercises, logs, updateLog, onClose, fragileZones = [],
 
 // ─── End of session panel ──────────────────────────────────────────────────────
 function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setNotes, onSave, saving, proposal, setProposal, generateProposal, coachPainQuery, onDismissPain, fragileZones = [] }) {
+  const { t } = useI18n();
   const [showOverview, setShowOverview] = useState(false);
   const navigate = useNavigate();
 
@@ -998,14 +1004,14 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
       </div>
 
       <Button variant="outline" className="w-full border-white/30 text-white hover:bg-white/10 hover:text-white" onClick={() => setShowOverview(true)}>
-        <Eye className="w-4 h-4 mr-2" /> Revoir et modifier la séance complète
+        <Eye className="w-4 h-4 mr-2" /> {t('se_review_edit')}
       </Button>
 
       <Card className="p-5 space-y-5 bg-white/15 backdrop-blur-sm border-white/20">
-        <h3 className="font-heading font-semibold text-base text-white">Bilan</h3>
+        <h3 className="font-heading font-semibold text-base text-white">{t('se_summary')}</h3>
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <label className="text-sm font-medium text-white">Fatigue globale</label>
+            <label className="text-sm font-medium text-white">{t('se_global_fatigue')}</label>
             <Popover>
               <PopoverTrigger asChild>
                 <button className="text-white/50 hover:text-white transition-colors">
@@ -1047,11 +1053,11 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
           </div>
           <div className="flex gap-2">
             {[
-            { value: 1, label: 'Frais', bg: 'bg-accent', ring: 'ring-accent' },
-            { value: 2, label: 'Normal', bg: 'bg-primary', ring: 'ring-primary' },
-            { value: 3, label: 'Fatigué', bg: 'bg-primary', ring: 'ring-primary' },
-            { value: 4, label: 'Épuisé', bg: 'bg-chart-4', ring: 'ring-chart-4' },
-            { value: 5, label: 'Détruit', bg: 'bg-destructive', ring: 'ring-destructive' }].
+            { value: 1, label: t('se_fat_1'), bg: 'bg-accent', ring: 'ring-accent' },
+            { value: 2, label: t('se_fat_2'), bg: 'bg-primary', ring: 'ring-primary' },
+            { value: 3, label: t('se_fat_3'), bg: 'bg-primary', ring: 'ring-primary' },
+            { value: 4, label: t('se_fat_4'), bg: 'bg-chart-4', ring: 'ring-chart-4' },
+            { value: 5, label: t('se_fat_5'), bg: 'bg-destructive', ring: 'ring-destructive' }].
             map(({ value, label, bg, ring }) =>
             <button
               key={value}
@@ -1067,7 +1073,7 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
         </div>
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <label className="text-sm font-medium text-white">Notes (optionnel)</label>
+            <label className="text-sm font-medium text-white">{t('se_notes')}</label>
             <Popover>
               <PopoverTrigger asChild>
                 <button className="text-white/50 hover:text-white transition-colors">
@@ -1095,7 +1101,7 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
               </PopoverContent>
             </Popover>
           </div>
-          <Textarea placeholder="Comment tu te sens ? Quelque chose à signaler ?" value={notes} onChange={(e) => { setNotes(e.target.value); setProposal(null); }} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
+          <Textarea placeholder={t('se_notes_ph')} value={notes} onChange={(e) => { setNotes(e.target.value); setProposal(null); }} className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
         </div>
         {/* Propositions IA */}
         {proposal === null ? (
@@ -1132,16 +1138,16 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
           <div className="flex gap-2">
             <Button onClick={() => onSave(true)} disabled={saving} className="flex-1" size="lg">
               {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
-              Valider la séance
+              {t('se_validate_session')}
             </Button>
             <button onClick={() => onSave(false)} disabled={saving} className="px-4 text-sm text-white/50 hover:text-white/80 transition-colors">
-              Ignorer
+              {t('ignore')}
             </button>
           </div>
         ) : (
           <Button onClick={() => onSave(false)} disabled={saving} className="w-full" size="lg">
             {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
-            Valider la séance
+            {t('se_validate_session')}
           </Button>
         )}
       </Card>
@@ -1153,6 +1159,7 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
 export default function SessionLog() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { t } = useI18n();
   const urlParams = new URLSearchParams(window.location.search);
   // Fallback : le swipe navigue vers /session SANS le ?id= → on récupère la
   // séance active depuis localStorage pour ne pas afficher l'écran vide.
@@ -2298,19 +2305,19 @@ Ce que l'utilisateur dit : "${painNote}"`;
       {/* Top bar */}
       <div className="space-y-2">
         <div>
-          <h1 className="text-2xl font-heading font-bold text-white">{(session.day_label || 'Séance').replace(/\s*§\d+/g, '').replace(/^(week|semaine)\s*\d+\s*[-–:·]?\s*/i, '').replace(/\bmonday\b/gi, 'Lundi').replace(/\btuesday\b/gi, 'Mardi').replace(/\bwednesday\b/gi, 'Mercredi').replace(/\bthursday\b/gi, 'Jeudi').replace(/\bfriday\b/gi, 'Vendredi').replace(/\bsaturday\b/gi, 'Samedi').replace(/\bsunday\b/gi, 'Dimanche')}</h1>
-          <p className="text-white/70 text-sm">{exercises.length} exercices</p>
+          <h1 className="text-2xl font-heading font-bold text-white">{(session.day_label || t('nav_session')).replace(/\s*§\d+/g, '').replace(/^(week|semaine)\s*\d+\s*[-–:·]?\s*/i, '').replace(/\bmonday\b/gi, 'Lundi').replace(/\btuesday\b/gi, 'Mardi').replace(/\bwednesday\b/gi, 'Mercredi').replace(/\bthursday\b/gi, 'Jeudi').replace(/\bfriday\b/gi, 'Vendredi').replace(/\bsaturday\b/gi, 'Samedi').replace(/\bsunday\b/gi, 'Dimanche')}</h1>
+          <p className="text-white/70 text-sm">{exercises.length} {t('se_exercises')}</p>
         </div>
         {!showEnd && (
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={() => setShowOverview((v) => !v)}
               className="border-white/30 text-white hover:bg-white/10 hover:text-white">
               <LayoutList className="w-4 h-4 mr-1" />
-              {showOverview ? 'Vue focus' : 'Vue d\'ensemble'}
+              {showOverview ? t('se_focus_view') : t('se_overview')}
             </Button>
             <Button variant="ghost" size="sm" onClick={() => setShowQuitConfirm(true)}
               className="text-white/50 hover:text-white hover:bg-white/10">
-              Quitter
+              {t('se_quit')}
             </Button>
           </div>
         )}
@@ -2321,7 +2328,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
         <div className="rounded-2xl p-3 bg-white/10 border border-white/15 flex items-start gap-2.5">
           <ListOrdered className="w-4 h-4 text-violet-300 flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0 text-xs text-white/80 leading-relaxed">
-            <span className="font-semibold text-white">La dernière fois, tu avais fait cette séance dans cet ordre : </span>
+            <span className="font-semibold text-white">{t('se_order_last')} </span>
             {orderHint.map((n, i) => `${i + 1}. ${n}`).join(' · ')}
           </div>
           <button onClick={() => setOrderHint(null)} className="text-white/30 hover:text-white/60 flex-shrink-0" aria-label="Fermer">
@@ -2347,16 +2354,16 @@ Ce que l'utilisateur dit : "${painNote}"`;
       {showQuitConfirm && createPortal(
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
           <div className="w-full max-w-sm rounded-2xl p-6 text-center space-y-4" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)' }}>
-            <p className="font-bold text-white text-lg">Quitter la séance ?</p>
-            <p className="text-white/60 text-sm">Ta progression est sauvegardée, tu pourras reprendre plus tard.</p>
+            <p className="font-bold text-white text-lg">{t('se_quit_title')}</p>
+            <p className="text-white/60 text-sm">{t('se_quit_sub')}</p>
             <div className="flex gap-3">
               <button onClick={() => setShowQuitConfirm(false)}
                 className="flex-1 py-2.5 rounded-xl border border-white/20 text-white/70 text-sm font-semibold hover:bg-white/10">
-                Continuer
+                {t('se_continue')}
               </button>
               <button onClick={() => { try { localStorage.removeItem('active_session_id'); } catch {} navigate('/'); }}
                 className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
-                Quitter
+                {t('se_quit')}
               </button>
             </div>
           </div>
@@ -2372,17 +2379,17 @@ Ce que l'utilisateur dit : "${painNote}"`;
               <GripVertical className="w-6 h-6 text-violet-300" />
             </div>
             <div>
-              <p className="font-bold text-white text-lg">Réorganiser les exercices</p>
-              <p className="text-white/60 text-sm mt-1">Tu as déjà utilisé ton essai gratuit de la semaine. Réorganiser tes exercices à volonté (machine occupée, etc.) est réservé aux abonnements supérieurs à Starter.</p>
+              <p className="font-bold text-white text-lg">{t('se_reorder_title')}</p>
+              <p className="text-white/60 text-sm mt-1">{t('se_reorder_body')}</p>
             </div>
             <div className="flex gap-3">
               <button onClick={() => setReorderUpsell(false)}
                 className="flex-1 py-2.5 rounded-xl border border-white/20 text-white/70 text-sm font-semibold hover:bg-white/10">
-                Plus tard
+                {t('se_reorder_later')}
               </button>
               <button onClick={() => { setReorderUpsell(false); navigate('/pricing'); }}
                 className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
-                Voir les offres
+                {t('se_reorder_offers')}
               </button>
             </div>
           </div>
@@ -2426,7 +2433,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
 
             <div className="mt-4">
               <Button className="w-full" onClick={() => {setShowOverview(false);setShowEnd(true);}}>
-                <CheckCircle className="w-4 h-4 mr-2" /> Terminer la séance
+                <CheckCircle className="w-4 h-4 mr-2" /> {t('se_finish_session')}
               </Button>
             </div>
           </motion.div> :

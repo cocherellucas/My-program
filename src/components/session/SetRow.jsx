@@ -5,6 +5,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { HelpCircle, AlertTriangle, Send, Loader2 } from 'lucide-react';
 import { computeTargetRIR, ririLabel, rirToMode } from '@/lib/rir-optimizer';
 import ReactMarkdown from 'react-markdown';
+import { useI18n } from '@/lib/i18n';
 
 const ZONE_LABELS = {
   wrists: 'Poignets', shoulders: 'Épaules', elbows: 'Coudes',
@@ -76,6 +77,7 @@ function LocalNumberInput({ value, onCommit, placeholder, decimal = false, readO
 }
 
 export default function SetRow({ setIdx, totalSets, log, onUpdate, onWeightBlur, onWeightPropagate, rirContext, previousWeight, previousReps, previousMode, previousQuality, nextWeights, exerciseFragileZones = [], locked = false, onAskCoach }) {
+  const { t } = useI18n();
   const [manuallyEdited, setManuallyEdited] = useState(false);
   const [propagated, setPropagated] = useState(false);
   const [showPain, setShowPain] = useState(false);
@@ -113,7 +115,7 @@ const shouldShowPropagate =
   return (
     <div className="space-y-2 p-3 bg-white/10 rounded-lg border border-white/20">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-bold text-white">Série {setIdx + 1}</span>
+        <span className="text-sm font-bold text-white">{t('se_set')} {setIdx + 1}</span>
         <button
           onClick={() => setShowPain(p => !p)}
           className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border transition-all ${
@@ -122,7 +124,7 @@ const shouldShowPropagate =
               : 'border-white/20 text-white/40 hover:text-white/70 hover:border-white/40'
           }`}>
           <AlertTriangle className="w-3 h-3" />
-          Douleur ?
+          {t('se_pain_q')}
         </button>
       </div>
 
@@ -154,7 +156,7 @@ const shouldShowPropagate =
                   onClick={() => { setPainThread([]); onUpdate('pain_note', ''); }}
                   className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-white/15 text-white border border-white/25 hover:bg-white/25 transition-colors"
                 >
-                  ↩ Recommencer
+                  ↩ {t('se_restart')}
                 </button>
               )}
               {aiLoading && (
@@ -214,7 +216,7 @@ const shouldShowPropagate =
                   className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-red-500/30 border border-red-400/40 text-red-200 text-xs font-medium disabled:opacity-40 transition-all hover:bg-red-500/50"
                 >
                   <Send className="w-3 h-3" />
-                  Envoyer au coach
+                  {t('se_send_coach')}
                 </button>
               </div>
             ) : null
@@ -254,7 +256,7 @@ const shouldShowPropagate =
     ↓ Propager
   </button>
 ) : (
-  <span className="text-white/50">kg / lbs</span>
+  <span className="text-white/50">{t('se_kg')}</span>
 )}
           </div>
         </div>
@@ -266,7 +268,7 @@ const shouldShowPropagate =
            onCommit={(v) => onUpdate('reps', v === '' ? '' : v)}
            className={`flex h-10 w-full rounded-md border bg-white/10 border-white/20 ${log.prefill?.reps ? 'text-white/50' : 'text-white'} placeholder:text-white/35 text-sm text-center px-3 py-1 shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring`}
           />
-          <span className="text-xs text-white/50 text-center block mt-1">Reps</span>
+          <span className="text-xs text-white/50 text-center block mt-1">{t('se_reps_label')}</span>
         </div>
       </div>
 
@@ -280,7 +282,7 @@ const shouldShowPropagate =
               <SelectItem value="RIR_3+">RIR 3+</SelectItem>
               <SelectItem value="RIR_2">RIR 2</SelectItem>
               <SelectItem value="RIR_1">RIR 1</SelectItem>
-              <SelectItem value="failure">Échec (RIR 0)</SelectItem>
+              <SelectItem value="failure">{t('se_failure_rir0')}</SelectItem>
             </SelectContent>
           </Select>
           <div className="flex items-center justify-center gap-1 mt-1">
@@ -310,12 +312,12 @@ const shouldShowPropagate =
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="good">✓ Bonne</SelectItem>
-              <SelectItem value="degraded">~ Dégradée</SelectItem>
-              <SelectItem value="bad">✗ Mauvaise</SelectItem>
+              <SelectItem value="good">{t('se_q_good')}</SelectItem>
+              <SelectItem value="degraded">{t('se_q_degraded')}</SelectItem>
+              <SelectItem value="bad">{t('se_q_bad')}</SelectItem>
             </SelectContent>
           </Select>
-          <span className="text-xs text-white/50 text-center block mt-1">Exécution</span>
+          <span className="text-xs text-white/50 text-center block mt-1">{t('se_execution')}</span>
         </div>
       </div>
 

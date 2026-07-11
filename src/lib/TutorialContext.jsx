@@ -34,8 +34,11 @@ export function TutorialProvider({ children }) {
   useEffect(() => { saveState(state); }, [state]);
 
   // Démarre un tuto (s'il n'a pas déjà été vu/skippé et que le skip global n'est pas actif)
-  const startTutorial = useCallback((id, steps) => {
-    if (state.skipAll) return;
+  // opts.ignoreSkipAll : pour les tutos de découverte d'une NOUVELLE fonctionnalité,
+  // qui doivent apparaître même si l'utilisateur avait "passé tous les tutos" avant
+  // (le skip global visait l'onboarding). Reste montré une seule fois (flag completed).
+  const startTutorial = useCallback((id, steps, opts = {}) => {
+    if (state.skipAll && !opts.ignoreSkipAll) return;
     if (state.completed?.[id]) return;
     setActiveTutorial({ id, steps, currentStep: 0 });
   }, [state]);
