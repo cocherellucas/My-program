@@ -162,6 +162,16 @@ export default function Legal() {
   const docKey = ['cgu', 'confidentialite', 'mentions'].includes(params.get('doc')) ? params.get('doc') : 'cgu';
   const doc = DOCS[docKey];
 
+  // Synchronise le fond body/html avec le violet de la page (évite la bande sombre à l'overscroll)
+  React.useEffect(() => {
+    document.body.classList.add('legal-active');
+    document.documentElement.classList.add('legal-active');
+    return () => {
+      document.body.classList.remove('legal-active');
+      document.documentElement.classList.remove('legal-active');
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-violet-600">
       <div className="max-w-3xl mx-auto p-4 sm:p-6 space-y-6 pb-16">

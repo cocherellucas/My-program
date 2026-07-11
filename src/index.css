@@ -147,6 +147,11 @@ button:focus, button:focus-visible {
   body.login-active {
     background-color: #5b21b6 !important;
   }
+  /* Pages légales : fond violet-600 (#7c3aed) pour matcher la page à l'overscroll */
+  html.legal-active,
+  body.legal-active {
+    background-color: #7c3aed !important;
+  }
 }
 
 /* Clavier ouvert (CoachIA) : cache la nav et supprime le padding réservé */

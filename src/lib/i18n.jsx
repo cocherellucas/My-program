@@ -80,6 +80,9 @@ const DICT = {
     no_account: 'Pas encore de compte ?', have_account: 'Déjà un compte ?',
     accept_1: "J'accepte les", accept_and: 'et la',
     accept_3: "et j'ai lu l'avertissement santé (consulter un médecin avant de commencer un programme).",
+    accept_sep_privacy: ', la', accept_sep_mentions: ' et les',
+    signup_must_accept: "Tu dois accepter les conditions d'utilisation pour créer un compte.",
+    signup_check_email: 'Vérifie ton email pour confirmer ton compte.',
     // Profil / StepProfile
     sp_title: 'Parle-nous de toi', sp_sub: 'Ces infos nous aident à personnaliser ton coaching',
     sp_required: 'sont obligatoires',
@@ -382,6 +385,9 @@ const DICT = {
     no_account: 'No account yet?', have_account: 'Already have an account?',
     accept_1: 'I accept the', accept_and: 'and the',
     accept_3: 'and I have read the health warning (consult a doctor before starting a program).',
+    accept_sep_privacy: ', the', accept_sep_mentions: ' and the',
+    signup_must_accept: 'You must accept the terms of use to create an account.',
+    signup_check_email: 'Check your email to confirm your account.',
     // Profile / StepProfile
     sp_title: 'Tell us about you', sp_sub: 'This helps us tailor your coaching',
     sp_required: 'are required',

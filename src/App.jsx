@@ -27,6 +27,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { ThemeProvider } from '@/lib/ThemeContext';
 import { I18nProvider } from '@/lib/i18n';
+import { TERMS_VERSION, markTermsAcceptedLocal, getLocalAcceptedVersion, hasAcceptedCurrentTerms } from '@/lib/terms';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import AppLayout from '@/components/layout/AppLayout';
 import { RestTimerProvider } from '@/lib/RestTimerContext';
@@ -62,12 +63,31 @@ const PROFILE_RESET_FIELDS = {
   pref_volume: null, pref_intensity: null, pref_frequency: null,
   volume_mode: null, volume_overrides: null,
   onboarding_completed: false, onboarding_step: 0,
+  accepted_terms_at: null, accepted_terms_version: 0, // un « repart à neuf » redemande les CGU
 };
 const RESET_USER_ENTITIES = ['Objective', 'SeriesLog', 'Session', 'Program', 'Measurement', 'SavedProgram', 'UserMemory'];
 const RESET_LOCALSTORAGE_KEYS = [
   'onboarding_draft', 'tutorial_state', 'program_generated_snapshot', 'pending_program_regen',
   'imported_program_ids', '_import_form', '_import_scroll', 'active_session_id',
+  'accepted_terms_v1', 'accepted_terms_version', // rejoue le portail CGU
 ];
+
+// updateMe tolérant : certains champs de PROFILE_RESET_FIELDS ne sont pas des
+// colonnes de `profiles` (mensurations, objectifs, equipment_validated… stockés
+// ailleurs). PostgREST renvoie alors PGRST204 « Could not find the 'X' column »
+// et rejette TOUTE la requête. On retire la colonne fautive et on réessaie, pour
+// que les vrais champs (onboarding_completed, accepted_terms_at…) soient bien remis à zéro.
+async function updateMeTolerant(fields) {
+  let payload = { ...fields };
+  for (let i = 0; i < 30 && Object.keys(payload).length; i++) {
+    try { await base44.auth.updateMe(payload); return; }
+    catch (e) {
+      const col = (e?.message || '').match(/Could not find the '([^']+)' column/)?.[1];
+      if (col && col in payload) { delete payload[col]; continue; }
+      throw e; // autre erreur → on remonte
+    }
+  }
+}
 
 // ?resetProfile → repart à neuf : efface profil + objectifs + programme + séances, puis onboarding
 async function runProfileReset() {
@@ -84,23 +104,22 @@ async function runProfileReset() {
       } while (batch.length);
     } catch (err) { console.warn('[resetProfile] entité ignorée :', name, err); }
   }
-  await base44.auth.updateMe(PROFILE_RESET_FIELDS);
+  await updateMeTolerant(PROFILE_RESET_FIELDS);
   RESET_LOCALSTORAGE_KEYS.forEach(k => { try { localStorage.removeItem(k); } catch {} });
 }
 
-// ─── Portail d'acceptation des CGU (bloquant tant que non accepté) ───────────
-// L'acceptation est enregistrée côté serveur (profiles.accepted_terms_at) pour
-// être opposable et suivre le compte ; repli localStorage si la colonne
+// ─── Portail d'acceptation des CGU (rattrapage : anciens comptes, autre appareil,
+// ou nouvelle version des documents) ─────────────────────────────────────────
+// L'acceptation est enregistrée côté serveur (profiles.accepted_terms_at +
+// accepted_terms_version) pour être opposable ; repli localStorage si la colonne
 // n'existe pas encore (l'app ne doit jamais être bloquée par une migration).
-const TERMS_LS_KEY = 'accepted_terms_v1';
-
 function TermsGate({ onAccepted }) {
   const [busy, setBusy] = React.useState(false);
   const accept = async () => {
     setBusy(true);
-    try { await base44.auth.updateMe({ accepted_terms_at: new Date().toISOString() }); }
-    catch (e) { console.warn('[terms] colonne accepted_terms_at absente ?', e); }
-    try { localStorage.setItem(TERMS_LS_KEY, new Date().toISOString()); } catch {}
+    try { await base44.auth.updateMe({ accepted_terms_at: new Date().toISOString(), accepted_terms_version: TERMS_VERSION }); }
+    catch (e) { console.warn('[terms] colonnes accepted_terms_* absentes ?', e); }
+    markTermsAcceptedLocal();
     onAccepted();
   };
   const openDoc = (doc) => { window.location.href = `/legal?doc=${doc}`; };
@@ -132,11 +151,23 @@ function TermsGate({ onAccepted }) {
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user, isAuthenticated } = useAuth();
 
-  // CGU : bloquant tant que non accepté (serveur OU repli local)
-  const [termsAccepted, setTermsAccepted] = React.useState(() => {
-    try { return !!localStorage.getItem(TERMS_LS_KEY); } catch { return false; }
-  });
-  const needsTerms = isAuthenticated && !!user && !user.accepted_terms_at && !termsAccepted;
+  // CGU : bloquant tant que la version courante n'est pas acceptée (preuve
+  // serveur OU relais local). Le portail ne s'affiche donc qu'aux comptes sans
+  // preuve (anciens, autre appareil) ou quand TERMS_VERSION a été incrémentée.
+  const [termsAccepted, setTermsAccepted] = React.useState(() => getLocalAcceptedVersion() >= TERMS_VERSION);
+  const needsTerms = isAuthenticated && !!user && !hasAcceptedCurrentTerms(user) && !termsAccepted;
+
+  // Preuve serveur : si l'utilisateur a accepté (au signup, relayé en local) mais
+  // que le serveur ne le sait pas encore pour cette version, on l'écrit en silence
+  // à la 1ʳᵉ connexion authentifiée (au signup il n'y avait pas de session).
+  React.useEffect(() => {
+    if (!isAuthenticated || !user) return;
+    const serverVersion = Number(user.accepted_terms_version ?? 0);
+    if (serverVersion >= TERMS_VERSION) return;
+    if (getLocalAcceptedVersion() < TERMS_VERSION) return; // pas encore accepté → le portail s'en charge
+    base44.auth.updateMe({ accepted_terms_at: new Date().toISOString(), accepted_terms_version: TERMS_VERSION })
+      .catch((e) => console.warn('[terms] enregistrement serveur différé (colonnes absentes ?)', e));
+  }, [isAuthenticated, user]);
 
   // Réinitialisation complète via ?resetProfile
   React.useEffect(() => {
@@ -145,7 +176,9 @@ const AuthenticatedApp = () => {
     (async () => {
       try {
         await runProfileReset();
-        window.location.href = '/onboarding';
+        // Repart vraiment de zéro : on déconnecte et on revient à l'écran de
+        // connexion (choix de langue → CGU → onboarding, comme un nouvel arrivant).
+        base44.auth.logout('/login');
       } catch (e) {
         console.error('[resetProfile] erreur :', e);
         alert(`Erreur lors de la réinitialisation : ${e?.message || e}`);

@@ -7,10 +7,11 @@ import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
+import { markTermsAcceptedLocal } from '@/lib/terms';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { t } = useI18n();
+  const { t, lang, setLang } = useI18n();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -47,10 +48,14 @@ export default function Login() {
         const params = new URLSearchParams(window.location.search);
         navigate(params.get('redirect') || '/');
       } else {
-        if (!acceptTerms) { setError("Tu dois accepter les conditions d'utilisation pour créer un compte."); setLoading(false); return; }
+        if (!acceptTerms) { setError(t('signup_must_accept')); setLoading(false); return; }
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        setError('Vérifie ton email pour confirmer ton compte.');
+        // Acceptation validée ici (case cochée). L'utilisateur n'a pas encore de
+        // session (confirmation email) → on la mémorise localement ; l'app écrira
+        // la preuve serveur à la 1ʳᵉ connexion (voir src/lib/terms.js + App.jsx).
+        markTermsAcceptedLocal();
+        setError(t('signup_check_email'));
       }
     } catch (err) {
       setError(err.message);
@@ -60,7 +65,14 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-violet-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-violet-800 flex items-center justify-center p-4 relative">
+      {/* Choix de la langue (avant même de se connecter / créer un compte) */}
+      <div className="absolute top-4 right-4 flex items-center gap-0.5 rounded-full bg-white/10 border border-white/20 p-0.5 text-xs font-bold" style={{ top: 'max(1rem, env(safe-area-inset-top))' }}>
+        <button type="button" onClick={() => setLang('fr')}
+          className={`px-2.5 py-1 rounded-full transition-colors ${lang === 'fr' ? 'bg-white text-violet-700' : 'text-white/70 hover:text-white'}`}>🇫🇷 FR</button>
+        <button type="button" onClick={() => setLang('en')}
+          className={`px-2.5 py-1 rounded-full transition-colors ${lang === 'en' ? 'bg-white text-violet-700' : 'text-white/70 hover:text-white'}`}>🇬🇧 EN</button>
+      </div>
       <div className="w-full max-w-md">
         <div className="flex items-center justify-center gap-3 mb-8">
           <img src="/robotapp.png" alt="Coach IA" className="w-10 h-10 rounded-xl object-cover" />
@@ -126,8 +138,10 @@ export default function Login() {
                 <span className="text-[11px] text-white/60 leading-snug">
                   {t('accept_1')}{' '}
                   <button type="button" onClick={() => navigate('/legal?doc=cgu')} className="underline hover:text-white/90 text-white/80">{t('legal_cgu')}</button>
-                  {' '}{t('accept_and')}{' '}
+                  {t('accept_sep_privacy')}{' '}
                   <button type="button" onClick={() => navigate('/legal?doc=confidentialite')} className="underline hover:text-white/90 text-white/80">{t('legal_privacy')}</button>
+                  {t('accept_sep_mentions')}{' '}
+                  <button type="button" onClick={() => navigate('/legal?doc=mentions')} className="underline hover:text-white/90 text-white/80">{t('legal_mentions')}</button>
                   {', '}{t('accept_3')}
                 </span>
               </label>
