@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import { base44 } from '@/api/base44Client';
 import { useTutorial } from '@/lib/TutorialContext';
 import { useI18n, switchLanguageAndRestart } from '@/lib/i18n';
-import { ChevronLeft, LogOut, RotateCcw, FileText, Brain, ChevronRight, Check, Globe } from 'lucide-react';
+import { ChevronLeft, LogOut, RotateCcw, FileText, Brain, ChevronRight, Check, Globe, Dumbbell } from 'lucide-react';
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -121,6 +121,22 @@ export default function Settings() {
             <div className="min-w-0">
               <p className="text-sm font-medium text-white">{t('set_memory')}</p>
               <p className="text-xs text-white/45 mt-0.5 leading-snug">{t('set_memory_hint')}</p>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-white/40 flex-shrink-0" />
+        </button>
+      </div>
+
+      {/* Techniques avancées — guide */}
+      <div className="space-y-3">
+        <p className="text-xs font-medium text-white/50 uppercase tracking-wide">{t('set_techniques')}</p>
+        <button type="button" onClick={() => navigate('/techniques')}
+          className="w-full flex items-center justify-between gap-3 p-4 rounded-2xl bg-white/10 border border-white/15 text-left hover:bg-white/[0.13] transition-colors">
+          <div className="flex items-center gap-3 min-w-0">
+            <Dumbbell className="w-5 h-5 text-white/60 flex-shrink-0" />
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-white">{t('set_techniques')}</p>
+              <p className="text-xs text-white/45 mt-0.5 leading-snug">{t('set_techniques_hint')}</p>
             </div>
           </div>
           <ChevronRight className="w-5 h-5 text-white/40 flex-shrink-0" />
