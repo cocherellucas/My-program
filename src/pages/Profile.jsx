@@ -13,6 +13,7 @@ import { normalizeUser } from '@/lib/utils';
 import { useAuth } from '@/lib/AuthContext';
 import { useI18n } from '@/lib/i18n';
 import { estimateMaintenanceCalories } from '@/lib/calories';
+import { ensureOnline } from '@/lib/net';
 
 // Champs dont le changement nécessite une régénération du programme
 const PROGRAM_IMPACTING_FIELDS = [
@@ -78,6 +79,7 @@ export default function Profile() {
   }, [user, authUser]);
 
   const save = async () => {
+    if (!ensureOnline()) return;
     setSaving(true);
     try {
     const { id, email, full_name, created_date, role, ...editableFields } = form;

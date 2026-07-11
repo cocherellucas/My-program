@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import ReactMarkdown from 'react-markdown';
 import { ZONE_LABELS } from '@/lib/pain-engine';
+import { ensureOnline } from '@/lib/net';
 
 export default function Memory() {
   const queryClient = useQueryClient();
@@ -26,18 +27,24 @@ export default function Memory() {
 
   const removePreference = async (index) => {
     if (!memory) return;
+    if (!ensureOnline()) return;
     const updated = [...(memory.exercise_preferences || [])];
     updated.splice(index, 1);
-    await base44.entities.UserMemory.update(memory.id, { exercise_preferences: updated });
-    queryClient.invalidateQueries({ queryKey: ['memory'] });
+    try {
+      await base44.entities.UserMemory.update(memory.id, { exercise_preferences: updated });
+      queryClient.invalidateQueries({ queryKey: ['memory'] });
+    } catch (e) { console.error('[memory] removePreference', e); }
   };
 
   const removeInjury = async (index) => {
     if (!memory) return;
+    if (!ensureOnline()) return;
     const updated = [...(memory.injuries || [])];
     updated.splice(index, 1);
-    await base44.entities.UserMemory.update(memory.id, { injuries: updated });
-    queryClient.invalidateQueries({ queryKey: ['memory'] });
+    try {
+      await base44.entities.UserMemory.update(memory.id, { injuries: updated });
+      queryClient.invalidateQueries({ queryKey: ['memory'] });
+    } catch (e) { console.error('[memory] removeInjury', e); }
   };
 
   // Tout supprimer : vide l'intégralité de la mémoire du coach (avec confirmation).
@@ -46,6 +53,7 @@ export default function Memory() {
   const [wiping, setWiping] = useState(false);
   const wipeMemory = async () => {
     if (!memory) { setConfirmWipe(false); return; }
+    if (!ensureOnline()) return;
     setWiping(true);
     try {
       await base44.entities.UserMemory.update(memory.id, {

@@ -38,6 +38,10 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      setError(t('needs_connection'));
+      return;
+    }
     setLoading(true);
     setError('');
 

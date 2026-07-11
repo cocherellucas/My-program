@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { Plus, Trash2, Loader2, Save, ChevronDown, HelpCircle } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from 'sonner';
+import { ensureOnline } from '@/lib/net';
 
 const TYPES = [
   { value: 'hypertrophy', label: '💪 Prendre du muscle' },
@@ -69,6 +70,7 @@ export default function ObjectivesTab({ userId }) {
   const removeObj = async (idx) => {
     const obj = objectives[idx];
     if (obj.id) {
+      if (!ensureOnline()) return;
       await base44.entities.Objective.delete(obj.id);
     }
     let remaining = objectives.filter((_, i) => i !== idx);
@@ -85,20 +87,27 @@ export default function ObjectivesTab({ userId }) {
   };
 
   const save = async () => {
+    if (!ensureOnline()) return;
     setSaving(true);
-    for (const obj of objectives) {
-      const { _local, id, created_date, updated_date, created_by, ...fields } = obj;
-      if (Array.isArray(fields.focus_group)) fields.focus_group = fields.focus_group.join(', ');
-      fields.user_id = userId;
-      if (id) {
-        await base44.entities.Objective.update(id, fields);
-      } else {
-        await base44.entities.Objective.create(fields);
+    try {
+      for (const obj of objectives) {
+        const { _local, id, created_date, updated_date, created_by, ...fields } = obj;
+        if (Array.isArray(fields.focus_group)) fields.focus_group = fields.focus_group.join(', ');
+        fields.user_id = userId;
+        if (id) {
+          await base44.entities.Objective.update(id, fields);
+        } else {
+          await base44.entities.Objective.create(fields);
+        }
       }
+      setSavedSnapshot(snapshotOf(objectives));
+      toast.success('Objectifs mis à jour');
+    } catch (e) {
+      console.error('[objectives] save', e);
+      toast.error('Erreur lors de la sauvegarde');
+    } finally {
+      setSaving(false);
     }
-    setSavedSnapshot(snapshotOf(objectives));
-    toast.success('Objectifs mis à jour');
-    setSaving(false);
   };
 
   if (loading) return <div className="flex justify-center py-10"><Loader2 className="w-5 h-5 animate-spin text-white/50" /></div>;

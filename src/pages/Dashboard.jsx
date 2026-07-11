@@ -17,6 +17,7 @@ import {
 import { applyVolumeProposal, markVolumeHandled, isVolumeSuppressed } from '@/lib/volume-adjust';
 import { loadEpisodes, saveEpisodes, episodesToCheck, computePainPrescription } from '@/lib/pain-engine';
 import { applyPainLevel } from '@/lib/pain-adjust';
+import { ensureOnline } from '@/lib/net';
 import { useI18n } from '@/lib/i18n';
 
 const CHECKIN_KEY = 'coaching_checkins';
@@ -100,6 +101,7 @@ export default function Dashboard() {
 
   const handleVolumeApply = async () => {
     if (!activeProgram || !volumeProposal) return;
+    if (!ensureOnline()) return;
     setVolumeBusy(true);
     try { await applyVolumeProposal(activeProgram.id, volumeProposal.apply); }
     catch (e) { console.error('[volume] apply', e); }
@@ -147,6 +149,7 @@ export default function Dashboard() {
   };
   const handlePainReaction = async (reaction) => {
     if (!painCheckEp) return;
+    if (!ensureOnline()) return;
     setPainBusy(true);
     try {
       const { episode: upd, proposal } = computePainPrescription(painCheckEp, reaction, lang);
@@ -159,6 +162,7 @@ export default function Dashboard() {
   const handlePainApply = async () => {
     if (!painCheckEp || !painProposal?.apply) return;
     if (!activeProgram) { setPainCheckEp(null); setPainProposal(null); return; } // rien à ajuster sans programme
+    if (!ensureOnline()) return;
     setPainBusy(true);
     try {
       const upd = await applyPainLevel(activeProgram.id, painCheckEp, painProposal.apply.toLevel);
@@ -172,13 +176,19 @@ export default function Dashboard() {
   // Épisode en pause (douleur vive) : reprendre le suivi ou le terminer
   const handlePainResume = async () => {
     if (!painCheckEp) return;
-    await persistEpisode({ ...painCheckEp, status: 'active', betterStreak: 0, lastCheckDate: new Date().toISOString().split('T')[0] });
-    setPainCheckEp(null);
+    if (!ensureOnline()) return;
+    try {
+      await persistEpisode({ ...painCheckEp, status: 'active', betterStreak: 0, lastCheckDate: new Date().toISOString().split('T')[0] });
+      setPainCheckEp(null);
+    } catch (e) { console.error('[pain] resume', e); }
   };
   const handlePainEnd = async () => {
     if (!painCheckEp) return;
-    await persistEpisode({ ...painCheckEp, status: 'resolved' });
-    setPainCheckEp(null);
+    if (!ensureOnline()) return;
+    try {
+      await persistEpisode({ ...painCheckEp, status: 'resolved' });
+      setPainCheckEp(null);
+    } catch (e) { console.error('[pain] end', e); }
   };
 
   if (!user?.onboarding_completed) return null;
