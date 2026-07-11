@@ -163,6 +163,17 @@ const DICT = {
     lib_gate_title: 'Tu as déjà un programme actif', lib_gate_sub: 'Pour relancer ce programme, choisis quoi faire avec le programme actuel.',
     lib_save_relaunch: 'Sauvegarder puis relancer', lib_save_relaunch_d: 'Le programme actuel sera conservé dans Bibliothèque',
     lib_del_relaunch: 'Supprimer et relancer', lib_del_relaunch_d: 'Le programme actuel sera définitivement supprimé',
+    // Coach
+    co_greeting: 'Salut ! Je suis ton coach IA',
+    co_intro: 'Je connais ton profil, tes objectifs et ton historique. Pose-moi une question ou demande un ajustement.',
+    co_import_btn: "Importer ce programme dans l'app",
+    co_placeholder: 'Écrire un message...',
+    co_footer: 'Ton assistant entraînement',
+    co_sug_1: "Je veux changer d'exercice pour les pecs",
+    co_sug_2: 'Comment améliorer mon squat ?',
+    co_sug_3: 'Je suis très fatigué cette semaine',
+    co_sug_4: 'Est-ce que je peux passer en PPL ?',
+    co_error: 'Une erreur est survenue. Réessaie.',
   },
   en: {
     // Navigation
@@ -317,6 +328,17 @@ const DICT = {
     lib_gate_title: 'You already have an active program', lib_gate_sub: 'To relaunch this program, choose what to do with your current one.',
     lib_save_relaunch: 'Save then relaunch', lib_save_relaunch_d: 'The current program will be kept in your Library',
     lib_del_relaunch: 'Delete then relaunch', lib_del_relaunch_d: 'The current program will be permanently deleted',
+    // Coach
+    co_greeting: "Hi! I'm your AI coach",
+    co_intro: 'I know your profile, goals and history. Ask me a question or request an adjustment.',
+    co_import_btn: 'Import this program into the app',
+    co_placeholder: 'Write a message...',
+    co_footer: 'Your training assistant',
+    co_sug_1: 'I want to swap my chest exercise',
+    co_sug_2: 'How can I improve my squat?',
+    co_sug_3: "I'm very tired this week",
+    co_sug_4: 'Can I switch to PPL?',
+    co_error: 'Something went wrong. Try again.',
   },
 };
 

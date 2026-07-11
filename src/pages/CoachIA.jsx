@@ -15,8 +15,10 @@ import { normalizeUser } from '@/lib/utils';
 import { buildPainAdvice, detectZoneFromText, loadEpisodes, saveEpisodes, upsertEpisode } from '@/lib/pain-engine';
 import { calcDuration } from '@/lib/duration';
 import ImportSessionDialog from '@/components/coach/ImportSessionDialog';
+import { useI18n } from '@/lib/i18n';
 
 export default function CoachIA() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
@@ -324,7 +326,7 @@ export default function CoachIA() {
       if (/douleur|mal\b|gêne|gene\b|pincement|blessure|douloureux|tendinite|inflammation|brûl|brul|craqu|fourmi|engourd/i.test(userMsg)) {
         return buildPainAdvice(userMsg);
       }
-      return "Une erreur est survenue. Réessaie.";
+      return t('co_error');
     });
 
     setMessages(prev => [...prev, { role: 'assistant', content: result, ts: Date.now() }]);
@@ -489,12 +491,7 @@ export default function CoachIA() {
     }
   };
 
-  const suggestions = [
-    "Je veux changer d'exercice pour les pecs",
-    "Comment améliorer mon squat ?",
-    "Je suis très fatigué cette semaine",
-    "Est-ce que je peux passer en PPL ?",
-  ];
+  const suggestions = [t('co_sug_1'), t('co_sug_2'), t('co_sug_3'), t('co_sug_4')];
 
   // navOffset = 0 quand clavier ouvert ou textarea focus (MobileNav cachée)
   //           = 80 quand clavier fermé (espace pour MobileNav)
@@ -604,9 +601,9 @@ export default function CoachIA() {
             <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mb-4">
               <Bot className="w-8 h-8 text-white" />
             </div>
-            <h3 className="font-heading font-bold text-lg mb-2 text-white">Salut ! Je suis ton coach IA</h3>
+            <h3 className="font-heading font-bold text-lg mb-2 text-white">{t('co_greeting')}</h3>
             <p className="text-white/70 text-sm mb-6 max-w-md">
-              Je connais ton profil, tes objectifs et ton historique. Pose-moi une question ou demande un ajustement.
+              {t('co_intro')}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-lg">
               {suggestions.map((s) => (
@@ -666,7 +663,7 @@ export default function CoachIA() {
                         className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-violet-700 font-semibold text-sm hover:bg-white/90 transition-colors"
                       >
                         <Sparkles className="w-4 h-4" />
-                        Importer ce programme dans l'app
+                        {t('co_import_btn')}
                       </button>
                     )}
                   </>
@@ -737,7 +734,7 @@ export default function CoachIA() {
           onChange={(e) => setInput(e.target.value)}
           onFocus={handleInputFocus}
           onBlur={handleInputBlur}
-          placeholder="Écrire un message..."
+          placeholder={t('co_placeholder')}
           autoCorrect="off"
           autoComplete="off"
           spellCheck="false"
@@ -756,7 +753,7 @@ export default function CoachIA() {
         </button>
         </div>
         <div className="flex items-center px-1 pt-1 pb-2">
-          <p className="text-xs text-white/50"><span className="font-bold text-white">Coach IA</span> · Ton assistant entraînement</p>
+          <p className="text-xs text-white/50"><span className="font-bold text-white">Coach IA</span> · {t('co_footer')}</p>
         </div>
       </div>
 
