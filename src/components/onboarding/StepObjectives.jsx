@@ -10,6 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, D
 import { cn } from '@/lib/utils';
 import { Plus, Trash2, HelpCircle, ChevronDown, Zap, SlidersHorizontal } from 'lucide-react';
 import { VOLUME_TABLES, LARGE_MUSCLES } from '@/lib/coaching-engine';
+import { useI18n } from '@/lib/i18n';
 
 // Muscles par zone (noms du moteur, pas noms affichés)
 const ZONE_MUSCLES_MAP = {
@@ -84,6 +85,11 @@ const selectClass = 'h-9 bg-white/20 border-white/40 text-white [&>span]:text-wh
 
 
 export default function StepObjectives({ data, onChange }) {
+  const { t } = useI18n();
+  // Affichage d'un nom de muscle (valeur stockée en FR) dans la langue active
+  const mDisp = (name) => { const r = t('m_' + name); return r === 'm_' + name ? name : r; };
+  const ZONE_TKEYS = { full_body: 'oj_full_body', upper_body: 'oj_upper', lower_body: 'oj_lower', specific_group: 'oj_specific' };
+  const zDisp = (value) => (ZONE_TKEYS[value] ? t(ZONE_TKEYS[value]) : value);
   const objectives      = data.objectives || [];
   const level           = data.level || 'intermediate';
   const volumeMode      = level === 'beginner' ? 'auto' : (data.volume_mode || 'auto');
@@ -99,17 +105,17 @@ export default function StepObjectives({ data, onChange }) {
   // Tuto Step 2 : grosses cartes à choisir
   useEffect(() => {
     if (!startTutorial) return;
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       startTutorial('objectives-intro', [
         {
           target: 'big-card',
-          title: 'Sélectionner une option',
-          description: 'Clique sur une carte pour la choisir. La carte sélectionnée a une bordure blanche bien visible. Tu peux changer à tout moment.',
+          title: t('oj_tuto_title'),
+          description: t('oj_tuto_d'),
         },
       ]);
     }, 700);
-    return () => clearTimeout(t);
-  }, [startTutorial]);
+    return () => clearTimeout(timer);
+  }, [startTutorial]); // eslint-disable-line
   const dismissedPairs = React.useRef(new Set());
 
   // Auto-détection : 2 objectifs du même type + MÊME priorité + zones complémentaires → propose fusion
@@ -235,8 +241,8 @@ export default function StepObjectives({ data, onChange }) {
   return (
     <div className="space-y-6">
       <div className="mb-2">
-        <h2 className="text-2xl font-heading font-bold text-white">Tes objectifs</h2>
-        <p className="text-white/70 mt-1 text-sm">Qu'est-ce que tu veux accomplir ?</p>
+        <h2 className="text-2xl font-heading font-bold text-white">{t('oj_title')}</h2>
+        <p className="text-white/70 mt-1 text-sm">{t('oj_sub')}</p>
       </div>
       <div className="text-center mb-8 hidden">
       </div>
@@ -255,7 +261,7 @@ export default function StepObjectives({ data, onChange }) {
                           'flex items-center gap-1 text-xs font-bold uppercase px-2.5 py-1 rounded-full transition-colors',
                           obj.priority === 'primary' ? 'bg-white/30 text-white hover:bg-white/40' : 'bg-white/10 text-white/60 hover:bg-white/20'
                         )}>
-                        {obj.priority === 'primary' ? '🎯 Focus principal' : '📌 Focus secondaire'}
+                        {obj.priority === 'primary' ? `🎯 ${t('oj_fp')}` : `📌 ${t('oj_fs')}`}
                         <ChevronDown className="w-3 h-3 opacity-60" />
                       </button>
                     </DropdownMenuTrigger>
@@ -291,18 +297,18 @@ export default function StepObjectives({ data, onChange }) {
                             updateObj(idx, 'priority', 'primary');
                           }
                         }}>
-                        🎯 Focus principal
+                        🎯 {t('oj_fp')}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="focus:bg-white/20 focus:text-white cursor-pointer"
                         onClick={() => updateObj(idx, 'priority', 'secondary')}>
-                        📌 Focus secondaire
+                        📌 {t('oj_fs')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
                   <span className="text-xs font-bold uppercase px-2.5 py-1 rounded-full bg-white/30 text-white">
-                    Objectif
+                    {t('oj_objective')}
                   </span>
                 )}
                 {objectives.length > 1 && (
@@ -313,14 +319,14 @@ export default function StepObjectives({ data, onChange }) {
                       </button>
                     </PopoverTrigger>
                     <PopoverContent className="w-72 text-xs space-y-2">
-                      <p className="text-white/60 text-[10px] uppercase tracking-wider font-semibold">Clique sur le badge pour basculer</p>
+                      <p className="text-white/60 text-[10px] uppercase tracking-wider font-semibold">{t('oj_toggle_badge')}</p>
                       <div>
-                        <p className="font-semibold">🎯 Focus principal</p>
-                        <p className="text-white/70 mt-0.5">Objectif central, progression plus rapide. Tu peux en avoir plusieurs s'ils ont la même importance pour toi.</p>
+                        <p className="font-semibold">🎯 {t('oj_fp')}</p>
+                        <p className="text-white/70 mt-0.5">{t('oj_primary_d')}</p>
                       </div>
                       <div>
-                        <p className="font-semibold">📌 Focus secondaire</p>
-                        <p className="text-white/70 mt-0.5">Objectif d'appoint, en complément. Un focus principal aura toujours plus de volume qu'un secondaire.</p>
+                        <p className="font-semibold">📌 {t('oj_fs')}</p>
+                        <p className="text-white/70 mt-0.5">{t('oj_secondary_d')}</p>
                       </div>
                     </PopoverContent>
                   </Popover>
@@ -334,7 +340,7 @@ export default function StepObjectives({ data, onChange }) {
             {/* Type — 3 grandes cartes visuelles */}
             <div className="space-y-2">
               <div className="flex items-center gap-1">
-                <Label className="text-sm font-bold text-white">Que veux-tu faire ?</Label>
+                <Label className="text-sm font-bold text-white">{t('oj_what')}</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <button type="button" className="text-white/40 hover:text-white/70 transition-colors">
@@ -343,29 +349,29 @@ export default function StepObjectives({ data, onChange }) {
                   </PopoverTrigger>
                   <PopoverContent className="w-72 text-xs space-y-2.5">
                     <div>
-                      <p className="font-semibold mb-1">💪 Prendre du muscle <span className="text-white/50 font-normal">(hypertrophie)</span></p>
-                      <p className="text-white/70">Volume musculaire visible, meilleure composition corporelle, métabolisme plus élevé. L'objectif le plus courant.</p>
+                      <p className="font-semibold mb-1">💪 {t('oj_hyp')}</p>
+                      <p className="text-white/70">{t('oj_hyp_d')}</p>
                     </div>
                     <div>
-                      <p className="font-semibold mb-1">🏋️ Devenir plus fort <span className="text-white/50 font-normal">(force)</span></p>
-                      <p className="text-white/70">Soulever plus lourd, articulations et tendons renforcés, meilleure posture, performance sportive.</p>
+                      <p className="font-semibold mb-1">🏋️ {t('oj_str')}</p>
+                      <p className="text-white/70">{t('oj_str_d')}</p>
                     </div>
                     <div>
-                      <p className="font-semibold mb-1">🏃 Améliorer l'endurance</p>
-                      <p className="text-white/70">Tenir plus longtemps sans fatigue, meilleure récupération entre les séries, cardio renforcé.</p>
+                      <p className="font-semibold mb-1">🏃 {t('oj_end')}</p>
+                      <p className="text-white/70">{t('oj_end_d')}</p>
                     </div>
                     <div className="pt-2 border-t border-white/15">
-                      <p className="font-semibold text-violet-300">🔥 Tu veux perdre du poids ?</p>
-                      <p className="text-white/70 mt-0.5">Choisis <span className="font-semibold text-white">Prendre du muscle</span>. Le muscle brûle des calories au repos et préserve ton physique en déficit. La perte de poids = 80% diététique.</p>
+                      <p className="font-semibold text-violet-300">🔥 {t('oj_weightloss_q')}</p>
+                      <p className="text-white/70 mt-0.5">{t('oj_weightloss')} <span className="font-semibold text-white">{t('oj_hyp')}</span>. {t('oj_weightloss_d')}</p>
                     </div>
                   </PopoverContent>
                 </Popover>
               </div>
               <div className="space-y-2" data-tutorial={idx === 0 ? 'big-card' : undefined}>
                 {[
-                  { type: 'hypertrophy', emoji: '💪', label: 'Prendre du muscle',   advantages: ['Look tonique', 'Métabolisme ↑', 'Brûle les graisses au repos'] },
-                  { type: 'strength',    emoji: '🏋️', label: 'Devenir plus fort',   advantages: ['Articulations solides', 'Meilleure posture', 'Performance sportive'] },
-                  { type: 'endurance',   emoji: '🏃', label: 'Améliorer endurance', advantages: ['Cardio renforcé', 'Récupération rapide', 'Tenir plus longtemps'] },
+                  { type: 'hypertrophy', emoji: '💪', label: t('oj_hyp'), advantages: t('oj_adv_hyp') },
+                  { type: 'strength',    emoji: '🏋️', label: t('oj_str'), advantages: t('oj_adv_str') },
+                  { type: 'endurance',   emoji: '🏃', label: t('oj_end'), advantages: t('oj_adv_end') },
                 ].map(({ type, emoji, label, advantages }) => {
                   const selected = obj.type === type;
                   // Vérifier si tous les muscles de ce type sont déjà pris par un autre objectif
@@ -374,7 +380,7 @@ export default function StepObjectives({ data, onChange }) {
                     lower_body: ['Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets'],
                     full_body:  ['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Abdominaux'],
                   };
-                  const TYPE_LABEL = { hypertrophy: 'Prendre du muscle', strength: 'Devenir plus fort', endurance: 'Améliorer endurance' };
+                  const TYPE_LABEL = { hypertrophy: t('oj_hyp'), strength: t('oj_str'), endurance: t('oj_end') };
                   const takenBy = []; // indices des objectifs qui prennent ce type
                   const taken = new Set();
                   objectives.forEach((o, i) => {
@@ -413,7 +419,7 @@ export default function StepObjectives({ data, onChange }) {
                         <p className="text-sm font-bold text-white leading-tight">{label}</p>
                         {allTaken && !selected ? (
                           <p className="text-[11px] text-white/50 mt-1 italic">
-                            Tous les muscles sont déjà couverts par ton autre objectif {TYPE_LABEL[type]}. Retire des muscles pour libérer ce type.
+                            {t('oj_all_taken').replace('{type}', TYPE_LABEL[type])}
                           </p>
                         ) : (
                           <ul className="mt-1.5 space-y-0.5">
@@ -440,7 +446,7 @@ export default function StepObjectives({ data, onChange }) {
                       (strengthFocus[idx] || 'zone') === 'zone'
                         ? 'bg-white text-violet-700 border-white'
                         : 'bg-white/10 text-white border-white/20')}>
-                    Sur une zone du corps
+                    {t('oj_on_zone')}
                   </button>
                   <button type="button"
                     onClick={() => {
@@ -464,7 +470,7 @@ export default function StepObjectives({ data, onChange }) {
                       strengthFocus[idx] === 'movement'
                         ? 'bg-white text-violet-700 border-white'
                         : 'bg-white/10 text-white border-white/20')}>
-                    Sur un exercice
+                    {t('oj_on_exercise')}
                   </button>
                 </div>
               )}
@@ -520,7 +526,7 @@ export default function StepObjectives({ data, onChange }) {
               }
               return (
                 <div className="space-y-1.5">
-                  <Label className="text-sm font-bold text-white">Sur quoi ?</Label>
+                  <Label className="text-sm font-bold text-white">{t('oj_onwhat')}</Label>
                   <Select value={obj.zone} onValueChange={(v) => {
                     updateObj(idx, 'zone', v);
                     // Si passage en specific_group, auto-fill focus_group avec tous les muscles dispos
@@ -534,9 +540,9 @@ export default function StepObjectives({ data, onChange }) {
                       }
                     }
                   }}>
-                    <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                    <SelectTrigger className={selectClass}><SelectValue placeholder={t('oj_select')} /></SelectTrigger>
                     <SelectContent>
-                      {availableZones.map(z => <SelectItem key={z.value} value={z.value}>{z.label}</SelectItem>)}
+                      {availableZones.map(z => <SelectItem key={z.value} value={z.value}>{zDisp(z.value)}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
@@ -551,8 +557,8 @@ export default function StepObjectives({ data, onChange }) {
 
               return (
                 <div className="space-y-2">
-                  <Label className="text-xs text-white">Groupes musculaires</Label>
-                  <p className="text-[11px] text-white/50">Clique sur un muscle pour le retirer du programme.</p>
+                  <Label className="text-xs text-white">{t('oj_muscles')}</Label>
+                  <p className="text-[11px] text-white/50">{t('oj_muscles_hint')}</p>
 
                   <div className="flex flex-wrap gap-2">
                     {GROUPS.map(g => {
@@ -570,7 +576,7 @@ export default function StepObjectives({ data, onChange }) {
                             isConflict  ? 'bg-white/5 text-white/30 border-white/15 line-through cursor-not-allowed'
                             : isChecked  ? 'bg-white/30 text-white border-white/40'
                             : 'bg-white/10 text-white/40 border-white/20 line-through')}>
-                          {g}
+                          {mDisp(g)}
                         </button>
                       );
                     })}
@@ -582,14 +588,14 @@ export default function StepObjectives({ data, onChange }) {
 
             {obj.type === 'strength' && strengthFocus[idx] === 'movement' && (
               <div className="space-y-2">
-                <Label className="text-xs text-white">Mouvement focus</Label>
-                <p className="text-[11px] text-white/50">Clique sur un exercice pour le retirer du programme.</p>
+                <Label className="text-xs text-white">{t('oj_focus_move')}</Label>
+                <p className="text-[11px] text-white/50">{t('oj_focus_move_hint')}</p>
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { label: 'Squat',            value: 'Squat barre' },
-                    { label: 'Développé couché', value: 'Développé couché' },
-                    { label: 'Soulevé de terre', value: 'Soulevé de terre' },
-                    { label: 'Traction',         value: 'Traction lestée' },
+                    { label: t('oj_mv_squat'),  value: 'Squat barre' },
+                    { label: t('oj_mv_bench'),  value: 'Développé couché' },
+                    { label: t('oj_mv_dl'),     value: 'Soulevé de terre' },
+                    { label: t('oj_mv_pullup'), value: 'Traction lestée' },
                   ].map(({ label, value }) => {
                     const current = Array.isArray(obj.focus_movement)
                       ? obj.focus_movement
@@ -633,12 +639,12 @@ export default function StepObjectives({ data, onChange }) {
       {objectives.length < 3 ? (
         <Button variant="outline" onClick={addObjective} className="w-full border-white/30 text-white hover:bg-white/10 hover:text-white">
           <Plus className="w-4 h-4 mr-2" />
-          Ajouter un objectif {objectives.length > 0 && <span className="ml-1 opacity-60">({objectives.length}/3)</span>}
+          {t('oj_add')} {objectives.length > 0 && <span className="ml-1 opacity-60">({objectives.length}/3)</span>}
         </Button>
       ) : (
         <div className="text-center py-3 px-4 rounded-xl bg-white/5 border border-white/10">
           <p className="text-xs text-white/60">
-            <span className="font-semibold text-white">3 objectifs maximum</span> — au-delà, le programme manquerait de focus et chaque objectif progresserait moins.
+            <span className="font-semibold text-white">{t('oj_max3')}</span> {t('oj_max3_d')}
           </p>
         </div>
       )}
@@ -647,7 +653,7 @@ export default function StepObjectives({ data, onChange }) {
       {volumeMode === 'manual' && objectiveMuscles.length > 0 && (
         <div className="p-4 bg-white/10 rounded-xl border border-white/20 space-y-3">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-white">Séries par muscle / semaine</p>
+            <p className="text-sm font-semibold text-white">{t('oj_sets_muscle')}</p>
             <p className="text-xs text-white/40">MEV · MAV · MRV</p>
           </div>
           <div className="space-y-2">
@@ -658,7 +664,7 @@ export default function StepObjectives({ data, onChange }) {
               const valColor = { below: 'text-red-300', mev: 'text-yellow-300', mav: 'text-green-300', over: 'text-orange-300' }[zone];
               return (
                 <div key={muscle} className="flex items-center gap-3">
-                  <span className="text-xs text-white w-20 flex-shrink-0">{MUSCLE_DISPLAY[muscle] || muscle}</span>
+                  <span className="text-xs text-white w-20 flex-shrink-0">{mDisp(muscle)}</span>
                   <span className="text-xs text-white/25 flex-1 text-right tabular-nums">{mev}·{mav}·{mrv}</span>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     <button type="button" onClick={() => setVolumeOverride(muscle, val - 1)}
@@ -673,15 +679,15 @@ export default function StepObjectives({ data, onChange }) {
           </div>
           <div className={cn('flex items-center justify-between pt-2 border-t border-white/10 text-xs font-medium',
             totalRequested > totalAchievable ? 'text-red-300' : 'text-green-300')}>
-            <span>Demandé : {totalRequested} séries/sem</span>
-            <span>Disponible : {totalAchievable === 0 ? '—' : totalAchievable + ' séries/sem'}</span>
+            <span>{t('oj_requested')} : {totalRequested} {t('oj_sets_wk')}</span>
+            <span>{t('oj_available')} : {totalAchievable === 0 ? '—' : totalAchievable + ' ' + t('oj_sets_wk')}</span>
           </div>
           {totalRequested > totalAchievable && totalAchievable > 0 && (
             <p className="text-xs text-red-300">
-              ⚠️ +{totalRequested - totalAchievable} séries au-delà de tes disponibilités — le programme réduira proportionnellement chaque muscle.
+              ⚠️ +{totalRequested - totalAchievable} {t('oj_overage')}
             </p>
           )}
-          <p className="text-xs text-white/30">Le programme répartit automatiquement ces séries sur tes jours disponibles.</p>
+          <p className="text-xs text-white/30">{t('oj_distribute')}</p>
         </div>
       )}
 
@@ -691,7 +697,7 @@ export default function StepObjectives({ data, onChange }) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Zap className="w-4 h-4 text-yellow-300" />
-              <span className="text-sm font-semibold text-white">Semaine de peaking</span>
+              <span className="text-sm font-semibold text-white">{t('oj_peaking')}</span>
               <Popover>
                 <PopoverTrigger asChild>
                   <button type="button" className="text-white/40 hover:text-white/70 transition-colors">
@@ -700,11 +706,11 @@ export default function StepObjectives({ data, onChange }) {
                 </PopoverTrigger>
                 <PopoverContent className="w-72 text-xs space-y-2">
                   <div>
-                    <p className="font-semibold">⚡ Semaine de peaking</p>
-                    <p className="text-white/70 mt-0.5">La dernière semaine du cycle d'entraînement, tu testes ta force max <span className="font-semibold text-white">sur une répétition</span>.</p>
+                    <p className="font-semibold">⚡ {t('oj_peaking')}</p>
+                    <p className="text-white/70 mt-0.5">{t('oj_peaking_d1')}</p>
                   </div>
                   <div>
-                    <p className="text-white/70">On réduit fortement le volume <span className="font-semibold text-white">sur tous tes objectifs</span> (force, hypertrophie, endurance) pour que ton corps soit complètement reposé. La fatigue accumulée par n'importe quel entraînement empêche d'exprimer sa vraie force max.</p>
+                    <p className="text-white/70">{t('oj_peaking_d2')}</p>
                   </div>
                 </PopoverContent>
               </Popover>
@@ -726,7 +732,7 @@ export default function StepObjectives({ data, onChange }) {
             </button>
           </div>
           <p className="text-xs text-white/50">
-            Tester ta force max en fin de cycle d'entraînement · volume réduit partout pour optimiser ta récupération
+            {t('oj_peaking_toggle_d')}
           </p>
         </div>
       )}
@@ -735,14 +741,14 @@ export default function StepObjectives({ data, onChange }) {
       {mergePrompt && (() => {
         const curObj = objectives[mergePrompt.idx];
         const otherObj = objectives[mergePrompt.otherIdx];
-        const TYPE_LABEL = { hypertrophy: 'Prendre du muscle', strength: 'Devenir plus fort', endurance: 'Améliorer endurance' };
+        const TYPE_LABEL = { hypertrophy: t('oj_hyp'), strength: t('oj_str'), endurance: t('oj_end') };
         return createPortal(
           <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
             <div className="w-full max-w-sm rounded-2xl p-5 space-y-4" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.2)' }}>
               <div>
-                <p className="text-base font-bold text-white">Deux objectifs identiques</p>
+                <p className="text-base font-bold text-white">{t('oj_dup_title')}</p>
                 <p className="text-xs text-white/70 mt-1">
-                  Tu as déjà un objectif <span className="font-semibold text-white">{TYPE_LABEL[curObj.type]}</span> en focus principal. Tu peux les combiner en un seul pour réunir tous tes exercices ou muscles au même endroit.
+                  {(() => { const parts = t('oj_dup_d').split('{type}'); return <>{parts[0]}<span className="font-semibold text-white">{TYPE_LABEL[curObj.type]}</span>{parts[1]}</>; })()}
                 </p>
               </div>
               <div className="flex flex-col gap-2">
@@ -787,7 +793,7 @@ export default function StepObjectives({ data, onChange }) {
                     setMergePrompt(null);
                   }}
                   className="w-full py-2.5 rounded-xl text-sm font-semibold bg-white text-violet-700 hover:bg-white/90 transition-colors">
-                  ✨ Fusionner en un seul objectif
+                  {t('oj_merge')}
                 </button>
                 <button
                   type="button"
@@ -799,7 +805,7 @@ export default function StepObjectives({ data, onChange }) {
                     setMergePrompt(null);
                   }}
                   className="w-full py-2.5 rounded-xl text-sm font-medium bg-white/10 text-white/70 hover:bg-white/20 transition-colors">
-                  Annuler
+                  {t('oj_cancel')}
                 </button>
               </div>
             </div>
