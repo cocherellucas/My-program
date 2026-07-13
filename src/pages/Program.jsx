@@ -191,7 +191,8 @@ export default function Program() {
             exercises: (s.exercises || []).map(e => refWeight[e.name] != null ? { ...e, target_weight: refWeight[e.name] } : e),
             content: (s.exercises || []).map(e => {
               const w = refWeight[e.name] != null ? refWeight[e.name] : e.target_weight;
-              return `${e.sets || 3}×${e.target_reps || 10} ${e.name}${w ? ` (${w}${e.weight_unit || 'kg'})` : ''} ${e.rest_seconds || 90}s`;
+              // Ordre = format annoncé : exercice, séries × reps, repos, poids (si présent)
+              return `${e.name} ${e.sets || 3}×${e.target_reps || 10} ${e.rest_seconds || 90}s${w ? ` (${w}${e.weight_unit || 'kg'})` : ''}`;
             }).join('\n'),
             type: s.type || 'mixed',
             estimated_duration: s.estimated_duration || calcDuration(s.exercises || []),

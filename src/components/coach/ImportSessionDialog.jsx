@@ -79,7 +79,7 @@ const IMPORT_TUTORIAL_STEPS = [
   {
     target: 'session-content-area',
     title: 'Écris ta séance ici',
-    description: 'Entre tes exercices un par ligne. Les indications juste au-dessus te rappellent le format : exercice, séries × reps, repos. Le poids est optionnel.',
+    description: 'Entre tes exercices un par ligne. Les indications juste au-dessus te rappellent le format : exercice, séries × reps. Le repos et le poids sont optionnels.',
     forceBelow: true,
   },
   {
@@ -351,10 +351,11 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
                     : exs.map((ex, ei) => (
                       <div key={ei} className="flex flex-col gap-0.5 pb-2 border-b border-white/5 last:border-0 last:pb-0">
                         <p className="text-white text-sm font-semibold">{ex.name}</p>
+                        {/* Ordre = format annoncé : séries × reps, repos, puis poids (si présent) */}
                         <div className="flex gap-3 text-xs text-white/50">
                           <span>{ex.sets} séries × {ex.target_reps} reps</span>
-                          {ex.target_weight && <span>· {ex.target_weight} {ex.weight_unit || 'kg'}</span>}
                           <span>· {ex.rest_seconds}s repos</span>
+                          {ex.target_weight && <span>· {ex.target_weight} {ex.weight_unit || 'kg'}</span>}
                         </div>
                       </div>
                     ))
@@ -369,7 +370,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
               })() : (
                 <div className="mb-2">
                   <div {...(i === 0 ? { 'data-tutorial': 'session-content-area' } : {})}>
-                    <p className="text-white/40 text-xs mb-1.5">Exercice, séries × reps, repos. <span className="text-white/25">Le poids est optionnel.</span></p>
+                    <p className="text-white/40 text-xs mb-1.5">Exercice, séries × reps. <span className="text-white/25">Repos et poids optionnels.</span></p>
                     <textarea
                       value={s.content || ''}
                       onChange={e => updateSession(i, 'content', e.target.value)}

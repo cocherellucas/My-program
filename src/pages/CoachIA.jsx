@@ -13,8 +13,6 @@ import { getContextualKnowledge, getMessageKnowledge } from '@/lib/scientific-kn
 import { getAvailableExercises, getTensionProfile } from '@/lib/exercise-database';
 import { normalizeUser } from '@/lib/utils';
 import { buildPainAdvice, detectZoneFromText, loadEpisodes, saveEpisodes, upsertEpisode } from '@/lib/pain-engine';
-import { calcDuration } from '@/lib/duration';
-import ImportSessionDialog from '@/components/coach/ImportSessionDialog';
 import { useI18n } from '@/lib/i18n';
 
 export default function CoachIA() {
@@ -22,18 +20,13 @@ export default function CoachIA() {
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
-  const [importing, setImporting] = useState(false);
   const [user, setUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [slowHint, setSlowHint] = useState(false); // réseau lent : réponse plus longue
   const [attachedFile, setAttachedFile] = useState(null);
-  const [pendingImportJson, setPendingImportJson] = useState(null);
-  const [pendingImportSessions, setPendingImportSessions] = useState(null);
-  const [pendingConflict, setPendingConflict] = useState(null);
   const [hasActiveProgram, setHasActiveProgram] = useState(false);
-  const [activeImportedProgram, setActiveImportedProgram] = useState(null);
   const [showImportBlocked, setShowImportBlocked] = useState(false);
   const bottomRef = useRef(null);
 
@@ -43,9 +36,6 @@ export default function CoachIA() {
       setUser(normalized);
       base44.entities.Program.filter({ status: 'active' }, '-created_date', 1).then(progs => {
         setHasActiveProgram(progs.length > 0);
-        const p = progs[0] || null;
-        const importedIds = JSON.parse(localStorage.getItem('imported_program_ids') || '[]');
-        if (p && (importedIds.includes(p.id) || p.weekly_structure === 'custom')) setActiveImportedProgram(p);
       }).catch(() => {});
       if (u?.id) {
         try {
@@ -63,11 +53,6 @@ export default function CoachIA() {
           if (history.length > 0) setMessages(history);
         } catch {}
       }
-      // Restaure le dialog d'import si l'utilisateur avait changé d'onglet
-      const savedPending = localStorage.getItem('_import_pending');
-      if (savedPending) {
-        try { setPendingImportSessions(JSON.parse(savedPending)); } catch {}
-      }
       // Import direct depuis l'onboarding (texte collé)
       if (location.state?.importText) {
         setInput(location.state.importText);
@@ -77,14 +62,6 @@ export default function CoachIA() {
   }, []);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
-  // Persiste le dialog d'import ouvert (survit au changement d'onglet / mise en veille)
-  useEffect(() => {
-    if (pendingImportSessions) {
-      try { localStorage.setItem('_import_pending', JSON.stringify(pendingImportSessions)); } catch {}
-    } else {
-      try { localStorage.removeItem('_import_pending'); localStorage.removeItem('_import_form'); localStorage.removeItem('_import_scroll'); } catch {}
-    }
-  }, [pendingImportSessions]);
 
   // Sauvegarder l'historique à chaque changement
   useEffect(() => {
@@ -102,17 +79,6 @@ export default function CoachIA() {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
   }, []);
-
-  // Cache la nav et bloque tout scroll pendant l'import
-  useEffect(() => {
-    const nav = document.querySelector('.mobile-nav');
-    if (importing) {
-      if (nav) nav.style.display = 'none';
-      document.body.style.overflow = 'hidden';
-    } else {
-      if (nav) nav.style.display = '';
-    }
-  }, [importing]);
 
   const inputRef = useRef(null);
   const inputAreaRef = useRef(null);
@@ -240,31 +206,6 @@ export default function CoachIA() {
     }
   });
 
-  const openEditDialog = async () => {
-    try { localStorage.removeItem('_import_form'); localStorage.removeItem('_import_scroll'); } catch {}
-    if (!activeImportedProgram) { setPendingImportSessions({ json: '{}', sessions: [], isEditing: true }); return; }
-    try {
-      const existing = await base44.entities.Session.filter({ program_id: activeImportedProgram.id, week_number: 1 });
-      const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
-      const formatted = existing
-        .sort((a, b) => new Date(a.planned_date) - new Date(b.planned_date))
-        .map(s => ({
-          label: s.day_label || '',
-          day: s.planned_date ? dayNames[new Date(s.planned_date + 'T12:00:00').getDay()] : 'monday',
-          exercises: s.exercises || [],
-          content: (s.exercises || []).map(e => `${e.sets || 3}×${e.target_reps || 10} ${e.name}${e.target_weight ? ` (${e.target_weight}${e.weight_unit || 'kg'})` : ''} ${e.rest_seconds || 90}s`).join('\n'),
-          type: s.type || 'mixed',
-          estimated_duration: s.estimated_duration || calcDuration(s.exercises || []),
-        }));
-      const sessionsJson = JSON.stringify({ sessions: formatted.map(s => ({ ...s, week_number: 1 })) });
-      const pw = activeImportedProgram.planned_weeks;
-      const initialWeeks = pw && pw >= 52 ? 'infinite' : (pw || 4);
-      setPendingImportSessions({ json: sessionsJson, sessions: formatted, isEditing: true, initialWeeks });
-    } catch {
-      setPendingImportSessions({ json: '{}', sessions: [], isEditing: true });
-    }
-  };
-
   const sendMessage = async () => {
     if ((!input.trim() && !attachedFile) || loading) return;
     let userMsg = input.trim();
@@ -321,7 +262,7 @@ export default function CoachIA() {
     const history = messages.map(m => `${m.role === 'user' ? 'Utilisateur' : 'Coach'}: ${m.content}`).join('\n');
 
     // Instruction spéciale pour l'import de programme
-    const importInstruction = `\n\nINSTRUCTION IMPORT : Cette instruction concerne UNIQUEMENT le cas où l'utilisateur veut importer un programme externe (d'un autre coach, d'une feuille Excel, d'un PDF, etc.) dans l'app. Dans CE CAS UNIQUEMENT, dis-lui de cliquer sur **"+ Importer"** en haut à droite. NE PAS confondre avec "génère-moi un programme" ou "crée un programme" ou "carte blanche" : dans ce cas, génère directement le programme (PROMPT 3). Ne génère jamais de bloc IMPORT_READY dans le chat.`;
+    const importInstruction = `\n\nINSTRUCTION IMPORT : Cette instruction concerne UNIQUEMENT le cas où l'utilisateur veut importer un programme externe (d'un autre coach, d'une feuille Excel, d'un PDF, etc.) dans l'app. Dans CE CAS UNIQUEMENT, dis-lui d'aller dans l'onglet **Programme** puis d'appuyer sur **Modifier** (disponible tant qu'il n'a pas de programme généré actif) pour coller sa séance. NE PAS confondre avec "génère-moi un programme" ou "crée un programme" ou "carte blanche" : dans ce cas, génère directement le programme (PROMPT 3). Ne génère jamais de bloc IMPORT_READY dans le chat.`;
 
     const llmParams = {
       prompt: `${systemContext}${importInstruction}\n\n${history}\n\nUtilisateur: ${userMsg}`,
@@ -385,132 +326,6 @@ export default function CoachIA() {
     }
   };
 
-  // Importe le programme détecté dans la DB
-  const importProgramFromCoach = async (jsonStr, targetWeeks, skipConflict = false, orderSuffix = null, replaceExisting = false) => {
-    setPendingImportJson(null);
-    setPendingConflict(null);
-    setImporting(true);
-    try {
-      const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error('JSON introuvable');
-      const data = JSON.parse(jsonMatch[0]);
-      const sessions = data.sessions || [];
-      if (!sessions.length) throw new Error('Aucune séance dans le programme');
-
-      const activePrograms = await base44.entities.Program.filter({ user_id: user.id, status: 'active' });
-      const existingProgram = activePrograms[0] || null;
-
-      const importedProgramIds = JSON.parse(localStorage.getItem('imported_program_ids') || '[]');
-      const isImportedProgram = (p) => p && (importedProgramIds.includes(p.id) || p.weekly_structure === 'custom');
-
-      // Bloquer uniquement si programme généré (pas custom)
-      if (existingProgram && !isImportedProgram(existingProgram)) {
-        setMessages(prev => [...prev, {
-          role: 'assistant',
-          content: `⚠️ Tu as déjà un programme généré actif. Pour importer depuis le Coach, supprime-le d'abord depuis l'onglet **Programme** (tu peux le sauvegarder en bibliothèque avant).`
-        }]);
-        return;
-      }
-
-      const maxWeek = Math.max(...sessions.map(s => s.week_number || 1), 1);
-      const CYCLE_WEEKS = targetWeeks === 'infinite' ? 52 : (targetWeeks || 4);
-      const expandedSessions = maxWeek >= CYCLE_WEEKS ? sessions :
-        Array.from({ length: Math.ceil(CYCLE_WEEKS / maxWeek) }, (_, i) =>
-          sessions.map(s => ({ ...s, week_number: (s.week_number || 1) + i * maxWeek }))
-        ).flat().filter(s => s.week_number <= CYCLE_WEEKS);
-
-      let program;
-      if (existingProgram) {
-        program = existingProgram;
-        if (replaceExisting) {
-          const oldSessions = await base44.entities.Session.filter({ program_id: existingProgram.id, status: 'planned' });
-          for (const s of oldSessions) { await base44.entities.Session.delete(s.id); }
-          await base44.entities.Program.update(existingProgram.id, { planned_weeks: CYCLE_WEEKS });
-        }
-      } else {
-        // Pas de programme actif — créer un nouveau
-        program = await base44.entities.Program.create({
-          user_id: user.id,
-          version: 1,
-          objective_ids: [],
-          weekly_structure: 'custom',
-          planned_weeks: Math.max(...expandedSessions.map(s => s.week_number || 1), 1),
-          active_phase: 'MEV',
-          status: 'active',
-          program_data: data,
-        });
-        // Mémoriser que ce programme est un import
-        const ids = JSON.parse(localStorage.getItem('imported_program_ids') || '[]');
-        localStorage.setItem('imported_program_ids', JSON.stringify([...ids, program.id]));
-      }
-
-      const today = new Date(); today.setHours(0,0,0,0);
-      const dayMap = { monday:0, tuesday:1, wednesday:2, thursday:3, friday:4, saturday:5, sunday:6 };
-      const thisMon = new Date(today);
-      thisMon.setDate(today.getDate() - ((today.getDay() + 6) % 7));
-      // Toujours utiliser la date locale pour éviter le décalage UTC (ex: lundi 00h local = dimanche 22h UTC)
-      const toLocalDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-
-      const isInfinite = targetWeeks === 'infinite';
-
-      // Infini → lundi courant, tout visible même si passé (répétition hebdo)
-      // Fini → chaque jour trouve sa prochaine occurrence (passé décalé à semaine suivante)
-      const sessionsWithDates = expandedSessions.map(s => {
-        const dayOffset = dayMap[s.day?.toLowerCase()] ?? 0;
-        const weekNum = (s.week_number || 1) - 1;
-        if (isInfinite) {
-          const d = new Date(thisMon);
-          d.setDate(thisMon.getDate() + dayOffset + weekNum * 7);
-          return { ...s, plannedDate: toLocalDate(d) };
-        }
-        const firstOccurrence = new Date(thisMon);
-        firstOccurrence.setDate(thisMon.getDate() + dayOffset);
-        if (firstOccurrence < today) firstOccurrence.setDate(firstOccurrence.getDate() + 7);
-        const d = new Date(firstOccurrence);
-        d.setDate(firstOccurrence.getDate() + weekNum * 7);
-        return { ...s, plannedDate: toLocalDate(d) };
-      });
-
-      // Détection de conflits same-day (seulement pour les 2 premières semaines pour éviter les faux positifs sur les répétitions)
-      if (existingProgram && !skipConflict) {
-        const existingSessions = await base44.entities.Session.filter({ program_id: existingProgram.id, status: 'planned' });
-        const existingByDate = {};
-        existingSessions.forEach(s => { existingByDate[s.planned_date] = s; });
-        const conflicts = sessionsWithDates.filter(s => s.week_number <= 2 && existingByDate[s.plannedDate]);
-        if (conflicts.length > 0) {
-          setPendingConflict({ jsonStr, targetWeeks, conflicts: conflicts.map(s => ({ newLabel: s.day_label || s.day, date: s.plannedDate, existingLabel: existingByDate[s.plannedDate].day_label })) });
-          return;
-        }
-      }
-
-      for (const s of sessionsWithDates) {
-        await base44.entities.Session.create({
-          user_id: user.id,
-          program_id: program.id,
-          week_number: s.week_number || 1,
-          day_label: orderSuffix ? `${s.day_label || s.day} §${orderSuffix}` : (s.day_label || s.day),
-          type: ['strength','hypertrophy','endurance','mixed','cardio','mobility'].includes(s.type) ? s.type : 'mixed',
-          status: 'planned',
-          planned_date: s.plannedDate,
-          estimated_duration: s.estimated_duration || 60,
-          exercises: s.exercises || [],
-          active_zones: [...new Set((s.exercises || []).map(e => e.muscle_group).filter(Boolean))].map(m => ({ muscle_group: m })),
-        });
-      }
-
-      queryClient.invalidateQueries({ queryKey: ['programs'] });
-      queryClient.invalidateQueries({ queryKey: ['program-sessions'] });
-      // Restaure la nav avant de naviguer (CoachIA va démonter, l'effet importing ne tournera pas)
-      const navEl = document.querySelector('.mobile-nav');
-      if (navEl) navEl.style.display = '';
-      document.body.style.overflow = '';
-      setImporting(false);
-      navigate('/program');
-    } catch (e) {
-      setImporting(false);
-      setMessages(prev => [...prev, { role: 'assistant', content: `❌ Erreur lors de l'import : ${e.message}. Réessaie.` }]);
-    }
-  };
 
   const suggestions = [t('co_sug_1'), t('co_sug_2'), t('co_sug_3'), t('co_sug_4')];
 
@@ -521,100 +336,6 @@ export default function CoachIA() {
   return (
     <div ref={containerRef} style={{ position: 'fixed', top: containerTop, left: 0, right: 0, height: containerH, zIndex: 10 }}>
 
-      {importing && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4" style={{ background: 'linear-gradient(160deg, #2e1065 0%, #1e0050 100%)' }}>
-          <img src="/robotapp.png" alt="Coach IA" style={{ width: 72, height: 72, borderRadius: 18, objectFit: 'cover', animation: 'splash-glow 2s ease-in-out infinite' }} />
-          <div className="text-center space-y-1">
-            <p className="text-white font-bold text-base">Import en cours…</p>
-            <p className="text-white/40 text-sm">Création des séances</p>
-          </div>
-        </div>
-      )}
-
-      {/* Modal conflit même jour */}
-      {pendingConflict && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm">
-          <div className="w-full max-w-sm mx-4 mb-6 rounded-2xl p-5 space-y-4" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)' }}>
-            <div>
-              <p className="font-bold text-white text-base">Séance le même jour</p>
-              <p className="text-white/50 text-xs mt-1">
-                {pendingConflict.conflicts.map(c => `"${c.newLabel}" et "${c.existingLabel}" sont le même jour.`).join(' ')}
-              </p>
-              <p className="text-white/70 text-sm mt-2">C'est voulu ? Si oui, choisis l'ordre dans la journée.</p>
-            </div>
-            <div className="flex flex-col gap-2">
-              <p className="text-white/40 text-xs uppercase tracking-wider font-semibold">La nouvelle séance passe :</p>
-              <button onClick={async () => {
-                  await importProgramFromCoach(pendingConflict.jsonStr, pendingConflict.targetWeeks, true, '2');
-                }}
-                className="w-full py-3 rounded-xl font-bold text-sm text-white flex items-center justify-center gap-2"
-                style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
-                <span className="text-lg">②</span> En 2ème (après l'existante)
-              </button>
-              <button onClick={async () => {
-                  await importProgramFromCoach(pendingConflict.jsonStr, pendingConflict.targetWeeks, true, '1');
-                }}
-                className="w-full py-3 rounded-xl font-bold text-sm text-white/80 border border-white/20 flex items-center justify-center gap-2">
-                <span className="text-lg">①</span> En 1ère (avant l'existante)
-              </button>
-              <button onClick={() => setPendingConflict(null)} className="w-full py-2 text-white/40 text-sm">Annuler</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Dialog import stylé */}
-      {pendingImportSessions && (
-        <ImportSessionDialog
-          sessions={pendingImportSessions.sessions}
-          isEditing={pendingImportSessions.isEditing || false}
-          initialWeeks={pendingImportSessions.initialWeeks}
-          onClose={() => setPendingImportSessions(null)}
-          onImport={(editedSessions, weeks) => {
-            const wasEditing = pendingImportSessions.isEditing || false;
-            try { localStorage.removeItem('_import_pending'); localStorage.removeItem('_import_form'); localStorage.removeItem('_import_scroll'); } catch {}
-            setPendingImportSessions(null);
-            // Construire directement depuis editedSessions — pas de fusion JSON qui pourrait écraser le jour
-            const directJson = JSON.stringify({
-              sessions: editedSessions.map(s => ({
-                day: s.day,
-                day_label: s.label || s.day,
-                exercises: s.exercises || [],
-                type: s.type || 'mixed',
-                estimated_duration: s.estimated_duration || calcDuration(s.exercises || []),
-                week_number: 1,
-              }))
-            });
-            importProgramFromCoach(directJson, weeks, wasEditing, null, wasEditing);
-          }}
-        />
-      )}
-
-      {/* Sélecteur de semaines pour l'import */}
-      {pendingImportJson && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm" onClick={() => setPendingImportJson(null)}>
-          <div className="w-full max-w-sm mx-4 mb-6 rounded-2xl p-5 space-y-4" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)' }} onClick={e => e.stopPropagation()}>
-            <div>
-              <p className="font-bold text-white text-base">Durée du programme</p>
-              <p className="text-white/50 text-xs mt-0.5">Le cycle se répète automatiquement sur la durée choisie.</p>
-            </div>
-            <div className="grid grid-cols-5 gap-2">
-              {[1,2,3,4,5,6,7,8,9,10].map(w => (
-                <button key={w} onClick={() => importProgramFromCoach(pendingImportJson, w)}
-                  className="py-2.5 rounded-xl border border-white/15 bg-white/5 text-white font-bold text-sm hover:bg-white/15 transition-colors">
-                  {w}
-                </button>
-              ))}
-            </div>
-            <button onClick={() => importProgramFromCoach(pendingImportJson, 'infinite')}
-              className="w-full py-3 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90 flex items-center justify-center gap-2"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
-              ∞ Infini — se répète indéfiniment
-            </button>
-            <button onClick={() => setPendingImportJson(null)} className="w-full py-2 text-white/40 text-sm">Annuler</button>
-          </div>
-        </div>
-      )}
       {/* Messages */}
       <div ref={messagesRef} className="overflow-y-auto space-y-4 overscroll-contain" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: navOffset + 96, touchAction: 'pan-y', padding: '0 16px 16px' }}>
         {messages.length === 0 && (
@@ -665,31 +386,11 @@ export default function CoachIA() {
             >
               {msg.role === 'user' ? (
                 <p className="text-sm">{msg.content}</p>
-              ) : (() => {
-                const importMatch = msg.content.match(/IMPORT_READY:(\{[\s\S]*\})/);
-                const cleanContent = msg.content.replace(/IMPORT_READY:\{[\s\S]*\}/, '').trim();
-                return (
-                  <>
-                    <ReactMarkdown className="text-sm prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
-                      {cleanContent}
-                    </ReactMarkdown>
-                    {importMatch && (
-                      <button
-                        onClick={() => {
-                          try {
-                            const d = JSON.parse(importMatch[1].match(/\{[\s\S]*\}/)?.[0] || '{}');
-                            setPendingImportSessions({ json: importMatch[1], sessions: d.sessions || [] });
-                          } catch { setPendingImportSessions({ json: importMatch[1], sessions: [] }); }
-                        }}
-                        className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-violet-700 font-semibold text-sm hover:bg-white/90 transition-colors"
-                      >
-                        <Sparkles className="w-4 h-4" />
-                        {t('co_import_btn')}
-                      </button>
-                    )}
-                  </>
-                );
-              })()}
+              ) : (
+                <ReactMarkdown className="text-sm prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                  {msg.content}
+                </ReactMarkdown>
+              )}
             </div>
             {shownTs === i && (
               <div className="flex items-center gap-2 mt-1.5 px-1">
