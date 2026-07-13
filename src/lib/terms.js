@@ -12,9 +12,13 @@
 // l'app persiste en silence à la première connexion authentifiée.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// v2 (12 juillet 2026) : ajout du suivi de cycle menstruel (donnée de santé,
-// opt-in) à la politique de confidentialité → ré-acceptation demandée une fois.
-export const TERMS_VERSION = 2;
+// On NE bump PAS pour l'ajout du suivi de cycle (12 juillet 2026) : cette
+// fonctionnalité est opt-in et dispose de son PROPRE consentement dédié (toggle +
+// texte au moment de l'activer). Forcer en plus une ré-acceptation globale des
+// CGU ferait doublon. La politique de confidentialité est simplement mise à jour
+// (transparence). On ne bumpera cette version que pour un changement qui impacte
+// TOUS les utilisateurs sans action de leur part.
+export const TERMS_VERSION = 1;
 
 const LS_KEY = 'accepted_terms_version';
 const LS_LEGACY_KEY = 'accepted_terms_v1'; // ancienne clé (timestamp) = version 1
