@@ -12,7 +12,9 @@
 // l'app persiste en silence à la première connexion authentifiée.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const TERMS_VERSION = 1;
+// v2 (12 juillet 2026) : ajout du suivi de cycle menstruel (donnée de santé,
+// opt-in) à la politique de confidentialité → ré-acceptation demandée une fois.
+export const TERMS_VERSION = 2;
 
 const LS_KEY = 'accepted_terms_version';
 const LS_LEGACY_KEY = 'accepted_terms_v1'; // ancienne clé (timestamp) = version 1

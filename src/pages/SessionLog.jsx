@@ -25,6 +25,7 @@ import { applyVolumeProposal, markVolumeHandled, isVolumeSuppressed } from '@/li
 import VolumeProposalCard from '@/components/coaching/VolumeProposalCard';
 import PainCheckCard from '@/components/coaching/PainCheckCard';
 import { detectZoneFromText, loadEpisodes, saveEpisodes, upsertEpisode, episodesToCheck, sessionTouchesZone, computePainPrescription, buildPainAdvice, isSeverePain } from '@/lib/pain-engine';
+import { computeCycle } from '@/lib/cycle-engine';
 import { useI18n } from '@/lib/i18n';
 import { applyPainLevel } from '@/lib/pain-adjust';
 import { EXERCISES } from '@/lib/exercise-database';
@@ -1479,6 +1480,22 @@ export default function SessionLog() {
     return () => { cancelled = true; };
   }, [session?.id, user?.id]); // eslint-disable-line
 
+  // Cycle : rappel échauffement/technique en tête de séance UNIQUEMENT pendant
+  // la fenêtre d'ovulation (laxité ligamentaire ↑ → protection genou/LCA).
+  // Dismissible, et ne revient pas après un rechargement (garde localStorage).
+  const [cycleTip, setCycleTip] = useState(null);
+  useEffect(() => {
+    if (!session || !user || session.status === 'completed') return;
+    if (user.gender !== 'female') return;
+    try { if (localStorage.getItem(`cycle_tip_${session.id}`)) return; } catch {}
+    const c = computeCycle(user);
+    if (c?.phase === 'ovulation') setCycleTip(c);
+  }, [session?.id, user?.id]); // eslint-disable-line
+  const dismissCycleTip = () => {
+    try { localStorage.setItem(`cycle_tip_${session?.id}`, '1'); } catch {}
+    setCycleTip(null);
+  };
+
   // Persiste un épisode (remplace celui de la même zone)
   const persistEpisode = async (ep) => {
     const eps = await loadEpisodes(user.id);
@@ -2424,6 +2441,22 @@ Ce que l'utilisateur dit : "${painNote}"`;
           <button onClick={() => setOrderHint(null)} className="text-white/30 hover:text-white/60 flex-shrink-0" aria-label="Fermer">
             <X className="w-4 h-4" />
           </button>
+        </div>
+      )}
+
+      {/* Cycle : rappel ovulation (échauffement + technique) en tête de séance */}
+      {cycleTip && !showEnd && (
+        <div className="relative rounded-2xl p-4 border bg-white/15 backdrop-blur-sm border-white/20 mb-4">
+          <div className="flex items-start gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0 text-lg">{cycleTip.emoji}</div>
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-white">{cycleTip.name?.[lang] ?? cycleTip.name?.fr}</p>
+              <p className="text-xs text-white/70 mt-1 leading-relaxed">{cycleTip.advice?.[lang] ?? cycleTip.advice?.fr}</p>
+            </div>
+            <button onClick={dismissCycleTip} className="ml-auto text-white/30 hover:text-white/60 flex-shrink-0" aria-label="Fermer">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       )}
 

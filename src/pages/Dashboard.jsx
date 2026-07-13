@@ -9,6 +9,9 @@ import StatsRow from '@/components/dashboard/StatsRow';
 import CheckIn24h from '@/components/dashboard/CheckIn24h';
 import VolumeProposalCard from '@/components/coaching/VolumeProposalCard';
 import PainCheckCard from '@/components/coaching/PainCheckCard';
+import CycleCard from '@/components/coaching/CycleCard';
+import { computeCycle, reanchor } from '@/lib/cycle-engine';
+import { X } from 'lucide-react';
 import {
   computeDashboardAlerts,
   getSessionsNeedingCheckin,
@@ -191,6 +194,35 @@ export default function Dashboard() {
     } catch (e) { console.error('[pain] end', e); }
   };
 
+  // ── Cycle menstruel : conseil du jour (profil femme, suivi activé) ──
+  const cycle = useMemo(
+    () => (user?.gender === 'female' ? computeCycle(user) : null),
+    [user]
+  );
+  // Découvrabilité : petit bandeau une seule fois pour les profils femme qui
+  // n'ont pas (encore) activé le suivi. Disparaît définitivement une fois traité.
+  const [cycleHintDone, setCycleHintDone] = useState(() => {
+    try { return !!localStorage.getItem('cycle_hint_done'); } catch { return true; }
+  });
+  const showCycleHint = !cycleHintDone && user?.gender === 'female' && !user?.cycle_tracking_enabled;
+  const dismissCycleHint = (goProfile) => {
+    try { localStorage.setItem('cycle_hint_done', '1'); } catch {}
+    setCycleHintDone(true);
+    if (goProfile) navigate('/profile');
+  };
+  const [cycleBusy, setCycleBusy] = useState(false);
+  const handleCycleReanchor = async () => {
+    if (!user) return;
+    if (!ensureOnline()) return;
+    setCycleBusy(true);
+    try {
+      await base44.auth.updateMe(reanchor(user));
+      const fresh = await base44.auth.me();
+      setUser(fresh);
+    } catch (e) { console.error('[cycle] reanchor', e); }
+    setCycleBusy(false);
+  };
+
   if (!user?.onboarding_completed) return null;
 
   return (
@@ -236,6 +268,25 @@ export default function Dashboard() {
           onDismiss={handleVolumeDismiss}
         />
       )}
+
+      {/* Cycle : bandeau de découverte (une seule fois, profils femme, suivi inactif) */}
+      {showCycleHint && (
+        <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-white/10 border border-white/15">
+          <span className="text-lg flex-shrink-0">🌙</span>
+          <p className="text-xs text-white/70 leading-snug flex-1">{t('cy_home_hint')}</p>
+          <button onClick={() => dismissCycleHint(true)}
+            className="text-xs font-bold px-3 py-1.5 rounded-lg bg-white text-violet-700 hover:bg-white/90 transition-colors flex-shrink-0">
+            {t('cy_home_hint_cta')}
+          </button>
+          <button onClick={() => dismissCycleHint(false)} aria-label="Fermer"
+            className="text-white/30 hover:text-white/60 transition-colors flex-shrink-0">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Cycle : conseil du jour, discret (jamais d'ajustement automatique) */}
+      {cycle && <CycleCard cycle={cycle} busy={cycleBusy} onReanchor={handleCycleReanchor} />}
 
       <AlertsCard alerts={alerts} />
 

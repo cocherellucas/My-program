@@ -8,7 +8,7 @@ import { ChevronLeft, FileText } from 'lucide-react';
 // droit avant toute commercialisation, et compléter les champs [À COMPLÉTER].
 // ─────────────────────────────────────────────────────────────────────────────
 
-const UPDATED = '8 juillet 2026';
+const UPDATED = '12 juillet 2026';
 const CONTACT = 'cocherellucas@gmail.com';
 
 const DOCS = {
@@ -83,12 +83,14 @@ const DOCS = {
         `• Données de compte : adresse email, nom (facultatif), mot de passe (stocké sous forme hachée par notre prestataire d'authentification — jamais en clair).`,
         `• Données de profil : âge, sexe, taille, poids, taux de masse grasse, mensurations, niveau sportif, équipement disponible, disponibilités d'entraînement, préférences d'exercices, zones sensibles déclarées.`,
         `• Données d'entraînement : programmes, séances réalisées, charges, répétitions, temps de repos, fatigue ressentie, gênes et douleurs signalées et leur suivi, retours sur les exercices.`,
+        `• Données de cycle menstruel (uniquement si tu actives ce suivi optionnel) : date du premier jour des dernières règles, durée moyenne du cycle, indication d'une contraception hormonale.`,
         `• Données techniques : journaux de connexion minimaux nécessaires au fonctionnement et à la sécurité du service.`,
         `Aucune donnée n'est collectée à ton insu : tout ce qui est traité provient de ce que tu saisis dans l'Application.`,
       ]},
       { h: '3. Données de santé — consentement explicite', c: [
-        `Certaines données (mensurations, fatigue, douleurs, zones sensibles) sont des données de santé au sens de l'article 9 du RGPD. Elles sont traitées uniquement avec ton consentement explicite, recueilli lors de leur saisie, et dans le seul but de personnaliser ton entraînement et d'assurer le suivi que tu as demandé.`,
-        `Tu peux retirer ce consentement à tout moment en supprimant ces données (page Mémoire du coach, bouton « Tout supprimer ») ou en demandant la suppression de ton compte à ${'' + CONTACT}. Le retrait ne remet pas en cause la licéité du traitement antérieur.`,
+        `Certaines données (mensurations, fatigue, douleurs, zones sensibles, et données de cycle menstruel si tu actives ce suivi) sont des données de santé au sens de l'article 9 du RGPD. Elles sont traitées uniquement avec ton consentement explicite, recueilli lors de leur saisie ou de l'activation du suivi concerné, et dans le seul but de personnaliser ton entraînement et d'assurer le suivi que tu as demandé.`,
+        `Le suivi de cycle menstruel est optionnel et désactivé par défaut : il n'est proposé qu'aux profils concernés, requiert une activation volontaire dédiée (interrupteur accompagné d'une information de consentement) valant consentement explicite, et ses données sont effaçables en un bouton (Profil → « Désactiver et effacer mes données de cycle »). Elles ne servent qu'à adapter les conseils d'entraînement — jamais à prédire une fertilité ni à aucune autre fin.`,
+        `Tu peux retirer ce consentement à tout moment en supprimant ces données (page Mémoire du coach, bouton « Tout supprimer » ; Profil pour les données de cycle) ou en demandant la suppression de ton compte à ${'' + CONTACT}. Le retrait ne remet pas en cause la licéité du traitement antérieur.`,
       ]},
       { h: '4. Finalités et bases légales', c: [
         `• Fournir le service (compte, programmes, suivi de séances) — exécution du contrat (CGU).`,
@@ -116,7 +118,7 @@ const DOCS = {
         `Tu peux également introduire une réclamation auprès de la CNIL (cnil.fr).`,
       ]},
       { h: '9. Cookies et stockage local', c: [
-        `L'Application n'utilise ni cookies publicitaires ni traceurs tiers. Seul un stockage local strictement fonctionnel est utilisé sur ton appareil : session de connexion, préférences d'affichage, brouillons de séance en cours, état des tutoriels. Ces informations restent sur ton appareil et ne servent à aucun suivi.`,
+        `L'Application n'utilise ni cookies publicitaires ni traceurs tiers. Seul un stockage local strictement fonctionnel est utilisé sur ton appareil : session de connexion, préférences d'affichage, brouillons de séance en cours, file d'attente de synchronisation hors connexion (séances validées sans réseau, envoyées au retour de la connexion), état des tutoriels. Ces informations restent sur ton appareil et ne servent à aucun suivi.`,
       ]},
       { h: '10. Sécurité', c: [
         `Mesures mises en œuvre : chiffrement des échanges (HTTPS), cloisonnement des données par utilisateur au niveau de la base de données (Row Level Security), mots de passe hachés, accès restreints.`,

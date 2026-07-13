@@ -66,6 +66,7 @@ const PROFILE_RESET_FIELDS = {
   volume_mode: null, volume_overrides: null,
   onboarding_completed: false, onboarding_step: 0,
   accepted_terms_at: null, accepted_terms_version: 0, // un « repart à neuf » redemande les CGU
+  cycle_tracking_enabled: null, cycle_last_period_date: null, cycle_avg_length: null, cycle_hormonal_contraception: null,
 };
 const RESET_USER_ENTITIES = ['Objective', 'SeriesLog', 'Session', 'Program', 'Measurement', 'SavedProgram', 'UserMemory'];
 const RESET_LOCALSTORAGE_KEYS = [
@@ -144,7 +145,7 @@ function TermsGate({ onAccepted }) {
           className="w-full py-3 rounded-xl text-sm font-bold bg-white text-violet-700 hover:bg-white/90 transition-colors disabled:opacity-60">
           {busy ? 'Un instant…' : "J'ai lu et j'accepte"}
         </button>
-        <p className="text-[11px] text-white/40 leading-snug">En acceptant, tu consens aussi au traitement de tes données de santé (mensurations, fatigue, douleurs) pour personnaliser ton entraînement, comme décrit dans la politique de confidentialité.</p>
+        <p className="text-[11px] text-white/40 leading-snug">En acceptant, tu consens aussi au traitement de tes données de santé (mensurations, fatigue, douleurs — et suivi de cycle menstruel uniquement si tu l'actives, avec un consentement dédié) pour personnaliser ton entraînement, comme décrit dans la politique de confidentialité.</p>
       </div>
     </div>
   );

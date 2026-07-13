@@ -243,6 +243,7 @@ export default function StepObjectives({ data, onChange }) {
       <div className="mb-2">
         <h2 className="text-2xl font-heading font-bold text-white">{t('oj_title')}</h2>
         <p className="text-white/70 mt-1 text-sm">{t('oj_sub')}</p>
+        <p className="text-white/40 text-xs mt-3"><span className="text-red-400 font-bold">*</span> {t('sp_required')}</p>
       </div>
       <div className="text-center mb-8 hidden">
       </div>
@@ -340,7 +341,7 @@ export default function StepObjectives({ data, onChange }) {
             {/* Type — 3 grandes cartes visuelles */}
             <div className="space-y-2">
               <div className="flex items-center gap-1">
-                <Label className="text-sm font-bold text-white">{t('oj_what')}</Label>
+                <Label className="text-sm font-bold text-white">{t('oj_what')} <span className="text-red-400">*</span></Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <button type="button" className="text-white/40 hover:text-white/70 transition-colors">
@@ -526,7 +527,7 @@ export default function StepObjectives({ data, onChange }) {
               }
               return (
                 <div className="space-y-1.5">
-                  <Label className="text-sm font-bold text-white">{t('oj_onwhat')}</Label>
+                  <Label className="text-sm font-bold text-white">{t('oj_onwhat')} <span className="text-red-400">*</span></Label>
                   <Select value={obj.zone} onValueChange={(v) => {
                     updateObj(idx, 'zone', v);
                     // Si passage en specific_group, auto-fill focus_group avec tous les muscles dispos

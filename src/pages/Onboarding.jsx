@@ -240,7 +240,9 @@ export default function Onboarding() {
 
   // Si un programme existe déjà → on passe par la modale "sauvegarder / supprimer puis générer"
   const finish = () => saveAndNavigate(hasProgram ? '/program?regenGate=true' : '/program?configureProgram=true');
-  const finishAndImport = (programText) => saveAndNavigate('/coach', { importText: programText });
+  // Même flux que « J'ai déjà un programme » au tout début : le VRAI dialog
+  // d'import de la page Programme (à jour), après sauvegarde du profil.
+  const finishAndImport = () => saveAndNavigate('/program?openImport=true');
 
   const steps = [
     <StepProfile data={data} onChange={update} />,
@@ -360,8 +362,9 @@ export default function Onboarding() {
 
 function FinalChoiceSheet({ show, onClose, onGenerate, onImport, hasProgram, onBackToApp, saving }) {
   const { t } = useI18n();
-  const [importMode, setImportMode] = React.useState(false);
-  const [text, setText] = React.useState('');
+  // `saving` est partagé → on mémorise QUEL bouton a été cliqué pour ne montrer
+  // le spinner que sur celui-là (jamais sur Importer : navigation directe).
+  const [pending, setPending] = React.useState(null);
 
   if (!show) return null;
 
@@ -375,13 +378,11 @@ function FinalChoiceSheet({ show, onClose, onGenerate, onImport, hasProgram, onB
         className="relative w-full max-w-sm space-y-3"
         onClick={e => e.stopPropagation()}
       >
-        {!importMode ? (
-          <>
             <div className="text-center mb-2">
               <p className="text-white font-bold text-lg">{t('ob_ready')}</p>
               <p className="text-white/50 text-sm mt-1">{hasProgram ? t('ob_has_prog') : t('ob_one_step')}</p>
             </div>
-            <button type="button" onClick={onGenerate} disabled={saving}
+            <button type="button" onClick={() => { setPending('generate'); onGenerate(); }} disabled={saving}
               className="w-full flex items-center gap-4 p-4 rounded-2xl bg-white text-violet-700 hover:bg-white/90 shadow-xl transition-all disabled:opacity-50">
               <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
                 <Sparkles className="w-5 h-5 text-violet-600" />
@@ -390,10 +391,10 @@ function FinalChoiceSheet({ show, onClose, onGenerate, onImport, hasProgram, onB
                 <p className="font-bold text-sm">{t('ob_create')}</p>
                 <p className="text-xs text-violet-500 mt-0.5">{hasProgram ? t('ob_create_replace') : t('ob_create_ai')}</p>
               </div>
-              {saving ? <Loader2 className="w-4 h-4 ml-auto animate-spin" /> : <ArrowRight className="w-4 h-4 ml-auto" />}
+              {saving && pending === 'generate' ? <Loader2 className="w-4 h-4 ml-auto animate-spin" /> : <ArrowRight className="w-4 h-4 ml-auto" />}
             </button>
             {hasProgram ? (
-              <button type="button" onClick={onBackToApp} disabled={saving}
+              <button type="button" onClick={() => { setPending('back'); onBackToApp(); }} disabled={saving}
                 className="w-full flex items-center gap-4 p-4 rounded-2xl bg-white/10 border border-white/20 text-white hover:bg-white/15 transition-all disabled:opacity-50">
                 <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
                   <ArrowRight className="w-5 h-5 text-white/80" />
@@ -402,11 +403,11 @@ function FinalChoiceSheet({ show, onClose, onGenerate, onImport, hasProgram, onB
                   <p className="font-bold text-sm">{t('ob_back_app')}</p>
                   <p className="text-xs text-white/50 mt-0.5">{t('ob_keep_imported')}</p>
                 </div>
-                {saving && <Loader2 className="w-4 h-4 ml-auto animate-spin" />}
+                {saving && pending === 'back' && <Loader2 className="w-4 h-4 ml-auto animate-spin" />}
               </button>
             ) : (
               <>
-                <button type="button" onClick={() => setImportMode(true)} disabled={saving}
+                <button type="button" onClick={onImport} disabled={saving}
                   className="w-full flex items-center gap-4 p-4 rounded-2xl bg-white/10 border border-white/20 text-white hover:bg-white/15 transition-all disabled:opacity-50">
                   <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
                     <FolderUp className="w-5 h-5 text-white/80" />
@@ -423,33 +424,6 @@ function FinalChoiceSheet({ show, onClose, onGenerate, onImport, hasProgram, onB
                 </button>
               </>
             )}
-          </>
-        ) : (
-          <>
-            <button type="button" onClick={() => setImportMode(false)}
-              className="flex items-center gap-1 text-white/50 hover:text-white text-sm transition-colors">
-              <ArrowLeft className="w-3.5 h-3.5" /> {t('ob_back')}
-            </button>
-            <div className="bg-white/10 border border-white/20 rounded-2xl p-4 space-y-3">
-              <p className="text-white font-semibold text-sm">{t('ob_paste_here')}</p>
-              <p className="text-white/50 text-xs">{t('ob_paste_formats')}</p>
-              <textarea
-                value={text}
-                onChange={e => setText(e.target.value)}
-                placeholder={t('ob_paste_ph')}
-                className="w-full h-36 bg-white/10 border border-white/20 rounded-xl p-3 text-sm text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-white/40"
-                autoFocus
-              />
-              <button type="button"
-                onClick={() => onImport(text)}
-                disabled={!text.trim() || saving}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white text-violet-700 font-semibold text-sm hover:bg-white/90 transition-all disabled:opacity-40">
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <FolderUp className="w-4 h-4" />}
-                {t('ob_import_btn')}
-              </button>
-            </div>
-          </>
-        )}
       </motion.div>
     </div>
   );

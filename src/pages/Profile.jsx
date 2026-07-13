@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,9 @@ import { useAuth } from '@/lib/AuthContext';
 import { useI18n } from '@/lib/i18n';
 import { estimateMaintenanceCalories } from '@/lib/calories';
 import { ensureOnline } from '@/lib/net';
+import { Calendar as CalendarPicker } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { fr as frLocale } from 'date-fns/locale';
 
 // Champs dont le changement nécessite une régénération du programme
 const PROGRAM_IMPACTING_FIELDS = [
@@ -30,9 +33,10 @@ import ObjectivesTab from '@/components/profile/ObjectivesTab';
 import SubscriptionBadge from '@/components/profile/SubscriptionBadge';
 
 export default function Profile() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user: authUser } = useAuth();
   const [user, setUser] = useState(null);
   const [form, setForm] = useState({});
@@ -41,6 +45,9 @@ export default function Profile() {
   const [showRegenBanner, setShowRegenBanner] = useState(false);
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'basics');
   const NO_SAVE_TABS = ['equipment', 'objectives'];
+  // Cycle menstruel : l'activation du toggle (off par défaut, dédié, texte de
+  // consentement adjacent) vaut acte positif de consentement — rien ne part
+  // au serveur avant « Sauvegarder ».
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -79,6 +86,14 @@ export default function Profile() {
   }, [user, authUser]);
 
   const save = async () => {
+    // Suivi de cycle activé sans date → on bloque LA SAUVEGARDE (uniquement ce cas) :
+    // sinon le suivi serait enregistré inerte, sans que les conseils puissent démarrer.
+    // Exception : sous contraception hormonale la date ne sert pas (pas de conseils de phase).
+    if (form.gender === 'female' && form.cycle_tracking_enabled && !form.cycle_hormonal_contraception && !form.cycle_last_period_date) {
+      toast.error(t('cy_save_blocked'));
+      setActiveTab('basics'); // ramène sur l'onglet où se trouve le champ
+      return;
+    }
     if (!ensureOnline()) return;
     setSaving(true);
     try {
@@ -131,6 +146,19 @@ export default function Profile() {
     ? Object.keys(form).some(k => !IGNORED.has(k) && JSON.stringify(normVal(form[k])) !== JSON.stringify(normVal(user[k])))
     : false;
 
+  // La page Profil reste montée en permanence (carrousel) → quand on y revient,
+  // on resynchronise depuis le serveur (ex : recalage du cycle fait sur l'Accueil).
+  // On n'écrase JAMAIS des modifications non enregistrées (garde isDirty).
+  useEffect(() => {
+    if (location.pathname !== '/profile') return;
+    if (isDirty) return;
+    base44.auth.me().then(u => {
+      const n = normalizeUser(u);
+      setUser(n);
+      if (!isDirty) setForm(n);
+    }).catch(() => {});
+  }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
   if (!user) {
     return (
       <div className="flex items-center justify-center py-24">
@@ -146,10 +174,8 @@ export default function Profile() {
     <div className="space-y-6 max-w-3xl mx-auto">
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-3">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white">Profil</h1>
-            <p className="text-white/70 mt-0.5 text-sm">{user.email}</p>
-          </div>
+          {/* Email volontairement absent : déjà affiché dans Paramètres → Compte */}
+          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white">Profil</h1>
           <button onClick={() => navigate('/settings')} aria-label="Paramètres"
             className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl border border-white/30 text-white hover:bg-white/10 transition-colors">
             <Settings className="w-5 h-5" />
@@ -289,6 +315,128 @@ export default function Profile() {
                 </div>
               );
             })()}
+
+            {/* Cycle menstruel — opt-in, visible uniquement pour les profils féminins.
+                Donnée de santé : consentement explicite requis, effaçable en un bouton. */}
+            {form.gender === 'female' && (
+              <div className="space-y-3 pt-4 border-t border-white/15">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-white">🌙 {t('cy_title')}</p>
+                    <p className="text-[11px] text-white/45 mt-0.5 leading-snug">{t('cy_hint')}</p>
+                  </div>
+                  <button type="button" aria-label={t('cy_title')} className="flex-shrink-0"
+                    onClick={() => {
+                      if (form.cycle_tracking_enabled) update('cycle_tracking_enabled', false);
+                      else {
+                        update('cycle_tracking_enabled', true);
+                        if (form.cycle_hormonal_contraception === undefined || form.cycle_hormonal_contraception === null) update('cycle_hormonal_contraception', false);
+                      }
+                    }}>
+                    <span className={`relative block w-11 h-6 rounded-full transition-colors ${form.cycle_tracking_enabled ? 'bg-violet-500' : 'bg-white/20'}`}>
+                      <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${form.cycle_tracking_enabled ? 'left-[22px]' : 'left-0.5'}`} />
+                    </span>
+                  </button>
+                </div>
+
+                {form.cycle_tracking_enabled && (
+                  <div className="space-y-3">
+                    {/* La question du mode d'abord : elle détermine si le reste a un sens */}
+                    <div className="space-y-2">
+                      <Label className="text-white text-xs">{t('cy_mode_q')}</Label>
+                      <div className="grid grid-cols-2 gap-3">
+                        {[{ v: false, l: t('cy_natural') }, { v: true, l: t('cy_hormonal') }].map(({ v, l }) => (
+                          <button key={String(v)} type="button" onClick={() => update('cycle_hormonal_contraception', v)}
+                            className={`py-2.5 rounded-xl border-2 text-xs font-semibold transition-all ${!!form.cycle_hormonal_contraception === v ? 'border-white bg-white/20 text-white' : 'border-white/20 bg-white/10 text-white/50 hover:border-white/40'}`}>
+                            {l}
+                          </button>
+                        ))}
+                      </div>
+                      {!!form.cycle_hormonal_contraception && (
+                        <p className="text-[11px] text-amber-200/80 leading-snug">{t('cy_hormonal_note')}</p>
+                      )}
+                    </div>
+                    {/* Date + durée : uniquement en cycle naturel (inutiles sous contraception hormonale) */}
+                    {!form.cycle_hormonal_contraception && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-white text-xs">{t('cy_last_period')} <span className="text-red-400">*</span></Label>
+                        {/* Calendrier du thème (pas le natif du navigateur) : seules les dates
+                            plausibles sont cliquables → aucune valeur absurde possible. */}
+                        {(() => {
+                          const v = form.cycle_last_period_date;
+                          const selected = v ? (() => { const [y, m, d] = v.split('-').map(Number); return new Date(y, m - 1, d); })() : undefined;
+                          const today = new Date(); today.setHours(0, 0, 0, 0);
+                          const oneYearAgo = new Date(today); oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+                          return (
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <button type="button"
+                                  className="w-full h-10 px-3 rounded-md bg-white/10 border border-white/20 text-white text-sm text-left flex items-center justify-between gap-2 hover:bg-white/15 focus:outline-none focus:border-white/40 transition-colors">
+                                  <span className={selected ? '' : 'text-white/40'}>
+                                    {selected
+                                      ? format(selected, 'd MMM yyyy', lang === 'fr' ? { locale: frLocale } : undefined)
+                                      : (lang === 'fr' ? 'jj/mm/aaaa' : 'dd/mm/yyyy')}
+                                  </span>
+                                  <Calendar className="w-4 h-4 text-white/50 flex-shrink-0" />
+                                </button>
+                              </PopoverTrigger>
+                              <PopoverContent align="start" className="w-auto p-0 bg-violet-950 border border-white/20 text-white">
+                                <CalendarPicker mode="single" selected={selected}
+                                  defaultMonth={selected || today}
+                                  fromMonth={oneYearAgo} toMonth={today} /* pas de navigation hors de la plage utile */
+                                  disabled={(d) => d > today || d < oneYearAgo}
+                                  /* On garde les CASES des jours voisins (sinon la grille flex se
+                                     décale), mais on rend leur contenu INVISIBLE → alignement correct
+                                     ET aucun jour d'un autre mois affiché. (invisible = non cliquable) */
+                                  classNames={{
+                                    /* Neutralise la couleur « accent » (bleue/teal) du kit : survol des
+                                       flèches et flash au clic d'un jour. */
+                                    day_today: '',
+                                    day_outside: 'invisible',
+                                    cell: 'relative p-0 text-center text-sm focus-within:relative focus-within:z-20',
+                                    day: 'h-8 w-8 p-0 font-normal rounded-md inline-flex items-center justify-center text-white hover:bg-white/15 focus:bg-white/15 transition-colors aria-selected:opacity-100',
+                                    day_selected: 'bg-violet-500 text-white hover:bg-violet-500 focus:bg-violet-500',
+                                    nav_button: 'h-7 w-7 p-0 rounded-md border border-white/20 bg-transparent text-white/70 hover:bg-white/10 hover:text-white inline-flex items-center justify-center transition-colors',
+                                  }}
+                                  locale={lang === 'fr' ? frLocale : undefined}
+                                  onSelect={(d) => {
+                                    if (!d) return;
+                                    update('cycle_last_period_date', `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`);
+                                  }} />
+                              </PopoverContent>
+                            </Popover>
+                          );
+                        })()}
+                        {!form.cycle_last_period_date && (
+                          <p className="text-[11px] text-amber-200/80 leading-snug">{t('cy_date_needed')}</p>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-white text-xs">{t('cy_length')}</Label>
+                        {/* 28 = valeur par défaut affichée en placeholder estompé (pas une saisie) */}
+                        <NumInput value={form.cycle_avg_length} placeholder="28"
+                          onChange={(v) => update('cycle_avg_length', v === '' ? '' : Math.min(35, Math.max(21, parseInt(v) || 28)))}
+                          min={21} max={35} step={1} defaultValue={28}
+                          className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
+                      </div>
+                    </div>
+                    )}
+                    <p className="text-[11px] text-white/40 leading-snug">{t('cy_consent')}</p>
+                    <button type="button"
+                      onClick={() => {
+                        update('cycle_tracking_enabled', null);
+                        update('cycle_last_period_date', null);
+                        update('cycle_avg_length', null);
+                        update('cycle_hormonal_contraception', null);
+                      }}
+                      className="text-xs text-red-300 underline underline-offset-2 hover:text-red-200 transition-colors">
+                      {t('cy_erase')}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </Card>
         </TabsContent>
 

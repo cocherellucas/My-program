@@ -432,6 +432,17 @@ export default function Program() {
     enabled: !!user,
   });
 
+  // Profil incomplet (parcours « J'ai déjà un programme » : onboarding sauté) →
+  // générer donnerait un programme générique. On envoie d'abord compléter le Profil.
+  const [showProfileGate, setShowProfileGate] = useState(false);
+  const profileIncomplete = (() => {
+    if (!user) return true;
+    if (!objectives.length || !user.level) return true;
+    const d = user.available_days;
+    if (Array.isArray(d)) return d.length === 0;
+    try { const p = JSON.parse(d || '[]'); return !(Array.isArray(p) && p.length > 0); } catch { return true; }
+  })();
+
   const { data: programs = [], isLoading: programsLoading } = useQuery({
     queryKey: ['programs'],
     queryFn: () => base44.entities.Program.filter({ status: 'active' }, '-created_date', 1),
@@ -1229,12 +1240,31 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
           <Dumbbell className="w-12 h-12 mx-auto text-white/60 mb-4" />
           <h3 className="font-heading font-bold text-xl mb-2 text-white">{t('pg_no_program')}</h3>
           <p className="text-white/70 mb-6">{lang === 'fr' ? "L'IA va créer un programme personnalisé basé sur ton profil" : 'The AI will create a program tailored to your profile'}</p>
-          <Button onClick={() => setShowDialog(true)} disabled={generating} size="lg">
+          <Button onClick={() => (profileIncomplete ? setShowProfileGate(true) : setShowDialog(true))} disabled={generating} size="lg">
             <Sparkles className="w-5 h-5 mr-2" />
             {t('pg_generate_mine')}
           </Button>
         </Card>
       )}
+
+      {/* Gate profil incomplet — parcours import sans onboarding : compléter le Profil avant de générer */}
+      <AlertDialog open={showProfileGate} onOpenChange={setShowProfileGate}>
+        <AlertDialogContent className="bg-violet-800 border-violet-700 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">{t('pg_profile_gate_title')}</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/70">
+              {t('pg_profile_gate_d')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white">{t('cancel')}</AlertDialogCancel>
+            {/* Direct dans le parcours guidé de complétion (même flux que le bandeau du Profil) */}
+            <AlertDialogAction onClick={() => navigate('/onboarding?skipIntro=true')} className="bg-white text-violet-700 hover:bg-white/90">
+              {t('pg_profile_gate_go')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       {/* Gate régénération — si programme existant */}
       <AlertDialog open={showRegenGate} onOpenChange={setShowRegenGate}>
         <AlertDialogContent className="bg-violet-800 border-violet-700 text-white">
