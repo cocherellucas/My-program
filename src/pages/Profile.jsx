@@ -413,11 +413,21 @@ export default function Profile() {
                         )}
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-white text-xs">{t('cy_length')}</Label>
+                        <div className="flex items-center gap-1.5">
+                          <Label className="text-white text-xs">{t('cy_length')}</Label>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <button type="button" className="text-white/40 hover:text-white/70 transition-colors"><HelpCircle className="w-3.5 h-3.5" /></button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-72 text-xs">
+                              <p className="text-white/70 leading-relaxed">{t('cy_length_help')}</p>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
                         {/* 28 = valeur par défaut affichée en placeholder estompé (pas une saisie) */}
                         <NumInput value={form.cycle_avg_length} placeholder="28"
-                          onChange={(v) => update('cycle_avg_length', v === '' ? '' : Math.min(35, Math.max(21, parseInt(v) || 28)))}
-                          min={21} max={35} step={1} defaultValue={28}
+                          onChange={(v) => update('cycle_avg_length', v === '' ? '' : Math.min(45, Math.max(21, parseInt(v) || 28)))}
+                          min={21} max={45} step={1} defaultValue={28}
                           className="bg-white/10 border-white/20 text-white placeholder:text-white/30" />
                       </div>
                     </div>

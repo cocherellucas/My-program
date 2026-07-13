@@ -12,7 +12,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const CYCLE_MIN = 21;
-export const CYCLE_MAX = 35;
+// Max large pour n'exclure personne : couvre les cycles longs mais réguliers
+// (ex. SOPK ~40 j) où les phases restent valides (lutéale fixe ~14 j, folliculaire
+// allongée). Au-delà, les cycles sont généralement irréguliers → la pause/recalage
+// prend le relais. Min 21 = plancher physiologique (sinon ovulation = durée−14
+// tomberait pendant les règles).
+export const CYCLE_MAX = 45;
 export const CYCLE_DEFAULT = 28;
 const DAY_MS = 86400000;
 const GRACE_DAYS = 5; // au-delà de durée+5 j sans recalage → on coupe les conseils
@@ -31,12 +36,12 @@ const ADVICE = {
     en: 'Energy can be lower during your period: easing off is fine, and moving often helps. Listen to your body — no pressure.',
   },
   follicular: {
-    fr: 'C\'est ta meilleure fenêtre du cycle : récupération et force au top. Bon moment pour charger et tenter des records.',
-    en: 'This is your best window of the cycle: recovery and strength peak. Great time to go heavy and chase PRs.',
+    fr: 'Récupération et force souvent au top : bonne fenêtre pour progresser. Si ça vient bien, ajoute une charge ou une rép — en gardant ta technique, sans forcer l\'exploit.',
+    en: 'Recovery and strength are often at their best: a good window to progress. If it feels good, add a little load or a rep — keep your form, no need to force a max.',
   },
   ovulation: {
-    fr: 'Perfs souvent au sommet, mais ligaments plus laxes : échauffement soigné et technique stricte sur squats profonds, fentes et sauts (protège tes genoux).',
-    en: 'Performance often peaks, but ligaments are laxer: warm up thoroughly and keep strict form on deep squats, lunges and jumps (protect your knees).',
+    fr: 'Perfs souvent au sommet, mais les ligaments sont plus laxes sur tout le corps : échauffement soigné et technique contrôlée sur toutes tes articulations. Prudence sur les charges lourdes, grandes amplitudes et mouvements explosifs (genoux, épaules, chevilles…).',
+    en: 'Performance often peaks, but ligaments are laxer throughout the body: warm up well and keep controlled form on all your joints. Go careful with heavy loads, deep ranges and explosive moves (knees, shoulders, ankles…).',
   },
   luteal: {
     fr: "Température un peu plus haute, cardio parfois plus dur : maintiens tes charges sans t'inquiéter si ça stagne — c'est normal.",
