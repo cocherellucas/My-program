@@ -36,6 +36,7 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
   const audioRef = useRef(null);
   const barRef = useRef(null);
   const dragging = useRef(false);
+  const tapRef = useRef(null); // position du doigt au down → marge d'erreur pour le tap plein écran
 
   // Reset le timer uniquement au démarrage d'un NOUVEAU timer (initialEndTime change)
   // Pas quand seconds change (ce qui arrive si on restore après scrub)
@@ -213,10 +214,16 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
         style={{ top: '-60px', paddingTop: 'calc(60px + max(16px, env(safe-area-inset-top)))', background: 'linear-gradient(135deg, #3b0764 0%, #6d28d9 50%, #4c1d95 100%)' }}
         className="fixed left-0 right-0 z-50 shadow-xl">
 
-        {/* Tape n'importe où sur la rangée → plein écran (sauf boutons ci-dessous
-            et barre de scrub, qui sont hors de ce onClick / stoppent la propagation) */}
+        {/* Tap sur la rangée → plein écran. MARGE D'ERREUR : si le doigt a bougé
+            (tentative de scrub / imprécision), on n'agrandit pas — seul un tap quasi
+            immobile agrandit. (Boutons et barre de scrub sont hors de ce onClick.) */}
         <div className="px-5 pb-4 flex items-center justify-between gap-4 cursor-pointer"
-          onClick={() => setFullscreen(true)}>
+          onPointerDown={(e) => { tapRef.current = { x: e.clientX, y: e.clientY }; }}
+          onClick={(e) => {
+            const s = tapRef.current; tapRef.current = null;
+            if (s && Math.hypot(e.clientX - s.x, e.clientY - s.y) > 10) return; // bougé → pas d'agrandissement
+            setFullscreen(true);
+          }}>
 
         {/* Label + timer */}
         <div className="flex items-center gap-3">
