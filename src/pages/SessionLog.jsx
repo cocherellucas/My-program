@@ -11,7 +11,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Loader2, LayoutList, ChevronRight, ChevronLeft, ChevronDown, Timer, Eye, HelpCircle, TrendingDown, Bot, MessageSquare, X, Dumbbell, GripVertical, ListOrdered } from 'lucide-react';
+import { CheckCircle, Loader2, LayoutList, ChevronRight, ChevronLeft, ChevronDown, Timer, Eye, HelpCircle, TrendingDown, Bot, MessageSquare, X, Dumbbell, GripVertical, ListOrdered, Pin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -324,8 +324,12 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 
     markSetComplete(setIdx);
     updateLog(exIdx, setIdx, 'done', true); // persiste la validation (survit au changement d'exo)
+    // À la fin (ou coupure) du repos, on avance à la série suivante — MAIS seulement
+    // si l'utilisateur n'a PAS navigué entre-temps (Passer/Précédent). On compare la
+    // valeur COURANTE de la série active (updater fonctionnel) à celle d'où le repos
+    // a été lancé : s'il a bougé, on respecte sa position ; sinon on avance.
     onStartRest(baseRest, () => {
-      if (setIdx < sets - 1) setActiveSetIdx(setIdx + 1);
+      setActiveSetIdx((cur) => (cur === setIdx && setIdx < sets - 1) ? setIdx + 1 : cur);
     });
   };
 
@@ -585,15 +589,9 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
               onAskCoach={onAskCoach ? (painNote, sIdx, thread) => onAskCoach({ exercise: { ...exercise, _sessionIdx: exIdx }, setIdx: sIdx, painNote, thread, logs: Object.fromEntries(Object.entries(logs).filter(([k]) => k.startsWith(`${exIdx}-`))), allLogs: logs, prevLogs: previousLogs, sessionsHistory }) : undefined} />
             
               <div className="space-y-2">
-                {(isLast && setIdx === sets - 1) ? (
-                  // Toute dernière série de la séance → pas de repos, juste valider
-                  <button
-                  onClick={() => { markSetComplete(setIdx); updateLog(exIdx, setIdx, 'done', true); }}
-                  disabled={!isActive}
-                  className="w-full text-xs flex items-center justify-center gap-1 py-1 rounded-lg transition-colors disabled:opacity-0 disabled:pointer-events-none text-white/50 hover:text-white hover:bg-white/10">
-                    <CheckCircle className="w-3 h-3" /> {t('se_validate_set')}
-                  </button>
-                ) : (
+                {/* Toute dernière série de la séance → aucun bouton (pas de repos,
+                    et « valider » ne changeait rien : on termine via le bouton Terminer). */}
+                {!(isLast && setIdx === sets - 1) && (
                 <button
                 onClick={() => handleSetDone(setIdx)}
                 disabled={!isActive}
@@ -627,9 +625,13 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
           </Button>
         }
         <Button onClick={onNext} className="flex-1">
-          {allSetsDone
-            ? isLast ? <><CheckCircle className="w-4 h-4 mr-1" /> {t('se_finish')}</> : <>{t('se_next')} <ChevronRight className="w-4 h-4 ml-1" /></>
-            : isLast ? t('se_finish_anyway') : t('se_skip')
+          {isLast
+            ? (allSetsDone || activeSetIdx === sets - 1)
+              ? <><CheckCircle className="w-4 h-4 mr-1" /> {t('se_finish')}</>
+              : t('se_finish_anyway')
+            : allSetsDone
+              ? <>{t('se_next')} <ChevronRight className="w-4 h-4 ml-1" /></>
+              : t('se_skip')
           }
         </Button>
       </div>
@@ -1821,9 +1823,26 @@ export default function SessionLog() {
   // Minuteur libre — lancé depuis la barre du haut (réutilise le timer flottant du repos)
   const [timerMenuOpen, setTimerMenuOpen] = useState(false);
   const [customTimer, setCustomTimer] = useState('');
+  // Épinglage : un bouton minuteur flottant à droite de l'écran, accessible toute
+  // la séance (préférence mémorisée localement).
+  const [timerPinned, setTimerPinned] = useState(() => {
+    try { return localStorage.getItem('timer_pinned') === '1'; } catch { return false; }
+  });
+  const toggleTimerPinned = () => setTimerPinned((p) => {
+    const nv = !p;
+    try { localStorage.setItem('timer_pinned', nv ? '1' : '0'); } catch {}
+    return nv;
+  });
+  // Dernière durée de minuteur utilisée → proposée en 3ᵉ raccourci
+  const [lastTimer, setLastTimer] = useState(() => {
+    try { const v = parseInt(localStorage.getItem('timer_last_used') || '', 10); return Number.isNaN(v) ? null : v; } catch { return null; }
+  });
+  const fmtTimer = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   const startManualTimer = (secs) => {
     if (!secs || secs < 1) return;
     secs = Math.min(3600, Math.max(1, Math.floor(secs)));
+    try { localStorage.setItem('timer_last_used', String(secs)); } catch {}
+    setLastTimer(secs);
     const endTime = Date.now() + secs * 1000;
     try { localStorage.setItem(`rest_timer_${sessionId}`, JSON.stringify({ endTime, totalSeconds: secs, label: t('se_timer'), mode: 'manual' })); } catch {}
     startTimer(secs, endTime, () => { try { localStorage.removeItem(`rest_timer_${sessionId}`); } catch {} }, (newEndTime) => {
@@ -1832,6 +1851,44 @@ export default function SessionLog() {
     setTimerMenuOpen(false);
     setCustomTimer('');
   };
+
+  // Contenu du menu minuteur — réutilisé par le bouton de la barre du haut ET par
+  // le bouton flottant épinglé à droite de l'écran.
+  const timerMenu = (
+    <>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-semibold text-white/70">{t('se_timer')}</p>
+        <button type="button" onClick={toggleTimerPinned} aria-label={t('se_timer_pin')} title={t('se_timer_pin')}
+          className={`h-6 w-6 rounded-md flex items-center justify-center transition-colors ${timerPinned ? 'bg-white text-violet-700' : 'bg-white/10 text-white/60 hover:bg-white/20'}`}>
+          <Pin className="w-3.5 h-3.5" />
+        </button>
+      </div>
+      <div className={`grid gap-2 ${lastTimer && lastTimer !== 30 && lastTimer !== 60 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+        <button onClick={() => startManualTimer(30)} className="py-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-bold transition-colors">0:30</button>
+        <button onClick={() => startManualTimer(60)} className="py-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-bold transition-colors">1:00</button>
+        {lastTimer && lastTimer !== 30 && lastTimer !== 60 && (
+          <button onClick={() => startManualTimer(lastTimer)} title={t('se_timer_last')}
+            className="py-2.5 rounded-lg bg-violet-500/30 hover:bg-violet-500/45 border border-violet-300/30 text-sm font-bold transition-colors">
+            {fmtTimer(lastTimer)}
+          </button>
+        )}
+      </div>
+      <div className="flex items-stretch gap-2">
+        <input type="number" inputMode="numeric" min="1" max="3600" value={customTimer}
+          onChange={(e) => {
+            const v = e.target.value;
+            if (v === '') { setCustomTimer(''); return; }
+            const n = Math.min(3600, Math.max(1, parseInt(v, 10) || 0));
+            setCustomTimer(String(n));
+          }}
+          onKeyDown={(e) => { if (e.key === 'Enter') startManualTimer(parseInt(customTimer, 10)); }}
+          placeholder={t('se_timer_custom')}
+          className="min-w-0 flex-1 h-9 rounded-lg bg-white/10 border border-white/20 text-white text-sm text-center placeholder:text-white/35 focus:outline-none focus:border-white/40 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+        <button onClick={() => startManualTimer(parseInt(customTimer, 10))} disabled={!customTimer}
+          className="flex-shrink-0 h-9 px-3 rounded-lg bg-white text-violet-700 text-sm font-bold hover:bg-white/90 transition-colors disabled:opacity-40">OK</button>
+      </div>
+    </>
+  );
 
   const handleExtendRest = (exIdx, newRestSecs) => {
     const updatedExercises = exercises.map((ex, i) =>
@@ -2396,25 +2453,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
                 </button>
               </PopoverTrigger>
               <PopoverContent align="end" sideOffset={6} className="w-52 max-w-[calc(100vw-1.5rem)] p-3 space-y-2.5 bg-violet-950 border border-white/25 text-white shadow-2xl z-[200]">
-                <p className="text-xs font-semibold text-white/70">{t('se_timer')}</p>
-                <div className="grid grid-cols-2 gap-2">
-                  <button onClick={() => startManualTimer(30)} className="py-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-bold transition-colors">0:30</button>
-                  <button onClick={() => startManualTimer(60)} className="py-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-bold transition-colors">1:00</button>
-                </div>
-                <div className="flex items-stretch gap-2">
-                  <input type="number" inputMode="numeric" min="1" max="3600" value={customTimer}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      if (v === '') { setCustomTimer(''); return; }
-                      const n = Math.min(3600, Math.max(1, parseInt(v, 10) || 0));
-                      setCustomTimer(String(n));
-                    }}
-                    onKeyDown={(e) => { if (e.key === 'Enter') startManualTimer(parseInt(customTimer, 10)); }}
-                    placeholder={t('se_timer_custom')}
-                    className="min-w-0 flex-1 h-9 rounded-lg bg-white/10 border border-white/20 text-white text-sm text-center placeholder:text-white/35 focus:outline-none focus:border-white/40 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
-                  <button onClick={() => startManualTimer(parseInt(customTimer, 10))} disabled={!customTimer}
-                    className="flex-shrink-0 h-9 px-3 rounded-lg bg-white text-violet-700 text-sm font-bold hover:bg-white/90 transition-colors disabled:opacity-40">OK</button>
-                </div>
+                {timerMenu}
               </PopoverContent>
             </Popover>
             <Button variant="outline" size="sm" onClick={() => setShowOverview((v) => !v)}
@@ -2429,6 +2468,27 @@ Ce que l'utilisateur dit : "${painNote}"`;
           </div>
         )}
       </div>
+
+      {/* Bouton minuteur ÉPINGLÉ — flottant à droite de l'écran, accessible toute
+          la séance. Portal → réellement fixé au viewport (le conteneur scrolle). */}
+      {timerPinned && !showEnd && createPortal(
+        <Popover>
+          <PopoverTrigger asChild>
+            <button type="button" aria-label={t('se_timer')}
+              className="fixed right-0 top-1/2 -translate-y-1/2 z-40 h-48 w-7 flex items-center justify-center text-white shadow-lg shadow-violet-950/50"
+              style={{
+                background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)',
+                clipPath: 'polygon(12px 0, 100% 0, 100% 100%, 12px 100%, 0 calc(100% - 12px), 0 12px)',
+              }}>
+              <Timer className="w-4 h-4" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent align="center" side="left" sideOffset={10} className="w-52 max-w-[calc(100vw-1.5rem)] p-3 space-y-2.5 bg-violet-950 border border-white/25 text-white shadow-2xl z-[200]">
+            {timerMenu}
+          </PopoverContent>
+        </Popover>,
+        document.body
+      )}
 
       {/* Ordre pratiqué la dernière fois (si différent du planifié) */}
       {orderHint && !showEnd && (

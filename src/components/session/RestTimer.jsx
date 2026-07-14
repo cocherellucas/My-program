@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Timer, X, Play, Pause, Edit2, Check } from 'lucide-react';
+import { Timer, X, Play, Pause } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRestTimer } from '@/lib/RestTimerContext';
 import { useI18n } from '@/lib/i18n';
@@ -31,8 +31,7 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
     return left > 0 ? left : seconds;
   });
   const [running, setRunning] = useState(true);
-  const [editing, setEditing] = useState(false);
-  const [editValue, setEditValue] = useState(String(seconds));
+  const [fullscreen, setFullscreen] = useState(false); // chrono en grand (visible de loin)
   const intervalRef = useRef(null);
   const audioRef = useRef(null);
   const barRef = useRef(null);
@@ -146,17 +145,6 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
     } catch {}
   };
 
-  const handleEditSave = () => {
-    const newValue = Math.max(parseInt(editValue) || remaining, 1);
-    endTimeRef.current = Date.now() + newValue * 1000;
-    setRemaining(newValue);
-    setEditValue(String(newValue));
-    setEditing(false);
-    setRunning(true);
-    onRestTimeChange?.(newValue);
-    notifyEndTimeChange?.(endTimeRef.current);
-    postToSW({ type: 'SCHEDULE_REST_END', endTime: endTimeRef.current });
-  };
 
   const total = seconds;
   const progress = remaining / total;
@@ -211,8 +199,11 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
   const timeStr = `${m}:${s.toString().padStart(2, '0')}`;
 
   const urgentColor = remaining <= 5 ? '#ef4444' : remaining <= 15 ? '#f97316' : 'hsl(var(--primary))';
+  // En plein écran, blanc quand tout va bien (contraste max, lisible de loin)
+  const bigColor = remaining <= 5 ? '#ef4444' : remaining <= 15 ? '#f97316' : '#ffffff';
 
   return (
+    <>
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0, y: -80 }}
@@ -222,26 +213,24 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
         style={{ top: '-60px', paddingTop: 'calc(60px + max(16px, env(safe-area-inset-top)))', background: 'linear-gradient(135deg, #3b0764 0%, #6d28d9 50%, #4c1d95 100%)' }}
         className="fixed left-0 right-0 z-50 shadow-xl">
 
-        <div className="px-5 pb-4 flex items-center justify-between gap-4">
+        {/* Tape n'importe où sur la rangée → plein écran (sauf boutons ci-dessous
+            et barre de scrub, qui sont hors de ce onClick / stoppent la propagation) */}
+        <div className="px-5 pb-4 flex items-center justify-between gap-4 cursor-pointer"
+          onClick={() => setFullscreen(true)}>
 
         {/* Label + timer */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 text-violet-300/70 text-xs font-semibold uppercase tracking-widest">
-            <Timer className="w-3.5 h-3.5" /> {label || t('se_rest_label')}
-          </div>
-          {editing ? (
-            <div className="flex items-center gap-2">
-              <Input type="number" value={editValue} onChange={(e) => setEditValue(e.target.value)} className="h-8 w-20 text-center text-sm bg-white/10 border-white/20 text-white" autoFocus />
-              <Button size="icon" variant="ghost" className="h-7 w-7 text-violet-300 hover:text-white" onClick={handleEditSave}><Check className="w-4 h-4" /></Button>
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-1.5 text-violet-300/70 text-xs font-semibold uppercase tracking-widest">
+              <Timer className="w-3.5 h-3.5" /> {label || t('se_rest_label')}
             </div>
-          ) : (
-            <span
-              className="text-3xl font-black font-heading cursor-pointer tracking-tight"
-              style={{ color: urgentColor }}
-              onClick={() => { setEditing(true); setEditValue(String(remaining)); }}>
-              {timeStr}
-            </span>
-          )}
+            <span className="text-[9px] text-violet-300/45 font-medium tracking-wide">{t('se_timer_tap_expand')}</span>
+          </div>
+          <span
+            className="text-3xl font-black font-heading tracking-tight"
+            style={{ color: urgentColor }}>
+            {timeStr}
+          </span>
           {remaining === 0
             ? <span className="text-base font-bold text-white animate-pulse whitespace-nowrap">{mode === 'manual' ? t('se_timer_done') : t('se_go')}</span>
             : remaining <= 15
@@ -249,8 +238,8 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
             : null}
         </div>
 
-        {/* Boutons */}
-        <div className="flex items-center gap-1">
+        {/* Boutons — stopPropagation pour NE PAS déclencher le plein écran */}
+        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => setRunning((r) => !r)}
             className="h-10 w-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
@@ -276,7 +265,42 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
           </div>
         </div>
       </motion.div>
-    </AnimatePresence>);
+    </AnimatePresence>
+
+    {/* Chrono plein écran — visible de loin. Touche l'écran pour réduire. */}
+    {fullscreen && (
+      <div
+        className="fixed inset-0 z-[9999] flex flex-col items-center justify-center gap-6 px-6"
+        style={{ background: 'linear-gradient(160deg, #1e0050 0%, #6d28d9 55%, #4c1d95 100%)' }}
+        onClick={() => setFullscreen(false)}>
+        <div className="flex items-center gap-2 text-violet-200/70 text-base font-semibold uppercase tracking-widest">
+          <Timer className="w-5 h-5" /> {label || t('se_rest_label')}
+        </div>
+        <span className="font-black font-heading tracking-tight leading-none tabular-nums"
+          style={{ color: bigColor, fontSize: 'min(38vw, 44vh)' }}>
+          {timeStr}
+        </span>
+        {remaining === 0
+          ? <span className="text-2xl font-bold text-white animate-pulse">{mode === 'manual' ? t('se_timer_done') : t('se_go')}</span>
+          : remaining <= 15
+          ? <span className="text-xl font-semibold text-orange-300 animate-pulse">{mode === 'manual' ? t('se_timer_almost') : t('se_ready')}</span>
+          : null}
+        <div className="flex items-center gap-4 mt-2" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => setRunning((r) => !r)}
+            className="h-14 w-14 rounded-2xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+            {running ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7" />}
+          </button>
+          <button
+            onClick={() => { postToSW({ type: 'CANCEL_REST_TIMER' }); onComplete?.(); }}
+            className="h-14 w-14 rounded-2xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+            <X className="w-7 h-7" />
+          </button>
+        </div>
+        <p className="absolute bottom-10 text-white/40 text-sm">{t('se_timer_tap_reduce')}</p>
+      </div>
+    )}
+    </>);
 
 }
 

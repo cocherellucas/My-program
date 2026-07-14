@@ -40,8 +40,8 @@ const ADVICE = {
     en: 'Recovery and strength are often at their best: a good window to progress. If it feels good, add a little load or a rep — keep your form, no need to force a max.',
   },
   ovulation: {
-    fr: 'Perfs souvent au sommet, mais les ligaments sont plus laxes sur tout le corps : échauffement soigné et technique contrôlée sur toutes tes articulations. Prudence sur les charges lourdes, grandes amplitudes et mouvements explosifs (genoux, épaules, chevilles…).',
-    en: 'Performance often peaks, but ligaments are laxer throughout the body: warm up well and keep controlled form on all your joints. Go careful with heavy loads, deep ranges and explosive moves (knees, shoulders, ankles…).',
+    fr: 'Perfs au top, mais ligaments plus laxes partout : échauffe-toi bien, technique stricte sur toutes les articulations, et prudence sur le lourd et l\'explosif.',
+    en: 'Performance peaks, but ligaments are laxer everywhere: warm up well, strict form on all joints, and go easy on heavy and explosive work.',
   },
   luteal: {
     fr: "Température un peu plus haute, cardio parfois plus dur : maintiens tes charges sans t'inquiéter si ça stagne — c'est normal.",
