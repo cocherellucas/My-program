@@ -231,7 +231,7 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
             <div className="flex items-center gap-1.5 text-violet-300/70 text-xs font-semibold uppercase tracking-widest">
               <Timer className="w-3.5 h-3.5" /> {label || t('se_rest_label')}
             </div>
-            <span className="text-[9px] text-violet-300/45 font-medium tracking-wide">{t('se_timer_tap_expand')}</span>
+            <span className="text-[10px] text-violet-100/80 font-semibold tracking-wide">{t('se_timer_tap_expand')}</span>
           </div>
           <span
             className="text-3xl font-black font-heading tracking-tight"
