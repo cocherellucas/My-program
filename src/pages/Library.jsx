@@ -15,6 +15,7 @@ import { addDays, startOfWeek, endOfWeek, parseISO, format as fmtDate } from 'da
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useI18n } from '@/lib/i18n';
 import { ensureOnline } from '@/lib/net';
+import { devNow } from '@/lib/dev-time';
 
 const STRUCTURE_LABELS = {
   full_body: 'Full Body',
@@ -402,7 +403,7 @@ export default function Library() {
       // On ancre sur le lundi de la semaine COURANTE et on crée TOUTE la semaine
       // (semaine 0 = en cours). Les jours déjà passés de cette semaine restent
       // visibles en "passées". Aucune semaine antérieure n'est créée.
-      const monday = startOfWeek(new Date(), { weekStartsOn: 1 });
+      const monday = startOfWeek(devNow(), { weekStartsOn: 1 });
       const templates = prog.sessions_templates || [];
 
       for (const s of templates) {

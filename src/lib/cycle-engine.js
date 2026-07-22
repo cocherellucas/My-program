@@ -10,6 +10,7 @@
 // Fonctions pures (testables sans UI) ; textes bilingues {fr,en} portés par le
 // moteur (même approche que pain-engine.js).
 // ─────────────────────────────────────────────────────────────────────────────
+import { devNow } from './dev-time.js';
 
 export const CYCLE_MIN = 21;
 // Max large pour n'exclure personne : couvre les cycles longs mais réguliers
@@ -64,7 +65,7 @@ const toLocalISO = (d) => {
 
 // Calcule l'état du cycle pour un profil. Renvoie null si le suivi ne
 // s'applique pas (désactivé, contraception hormonale, données manquantes).
-export function computeCycle(profile, today = new Date()) {
+export function computeCycle(profile, today = devNow()) {
   if (!profile?.cycle_tracking_enabled) return null;
   if (profile.cycle_hormonal_contraception) return null; // pas de cycle naturel → pas de phases
   if (!profile.cycle_last_period_date) return null;
@@ -107,7 +108,7 @@ export function computeCycle(profile, today = new Date()) {
 // « Mes règles ont commencé » → champs profil à sauvegarder : recale J1 à
 // aujourd'hui et apprend doucement la durée réelle (lissage 2/3 ancien + 1/3
 // observé, uniquement si la longueur observée est plausible).
-export function reanchor(profile, today = new Date()) {
+export function reanchor(profile, today = devNow()) {
   const fields = { cycle_last_period_date: toLocalISO(today) };
   const L = Math.min(CYCLE_MAX, Math.max(CYCLE_MIN, Number(profile?.cycle_avg_length) || CYCLE_DEFAULT));
   const last = profile?.cycle_last_period_date ? startOfDay(new Date(profile.cycle_last_period_date)) : null;

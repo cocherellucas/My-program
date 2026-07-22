@@ -235,9 +235,11 @@ const shouldShowPropagate =
              if (v === '') { onUpdate('weight', ''); return; }
              onUpdate('weight', v);
              setPropagated(false);
+             // onWeightBlur auto-remplit les séries suivantes VIDES. Si une série suivante a
+             // déjà un poids DIFFÉRENT, on garde manuallyEdited=true pour proposer « Propager »
+             // (écraser). Le reset se fait au clic sur Propager, ou sur Entrée (onEnter).
              setManuallyEdited(true);
              if (v) onWeightBlur?.(v);
-             setManuallyEdited(false);
            }}
            onEnter={() => setManuallyEdited(false)}
            className={`flex h-10 w-full rounded-md border bg-white/10 border-white/20 ${(locked || log.prefill?.weight) ? 'text-white/50' : 'text-white'} placeholder:text-white/35 text-sm text-center px-3 py-1 shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring`}
@@ -251,9 +253,10 @@ const shouldShowPropagate =
       setPropagated(true);
       setManuallyEdited(false);
     }}
-    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary text-white text-[11px] font-semibold shadow-md hover:bg-primary/90 active:scale-95 transition-all"
+    className="relative overflow-hidden inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 border border-white/30 text-white text-[11px] font-semibold shadow-md hover:bg-white/30 active:scale-95 transition-all"
   >
-    ↓ Propager
+    <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/50 to-transparent motion-safe:animate-shine" />
+    <span className="relative">↓ Propager</span>
   </button>
 ) : (
   <span className="text-white/50">{t('se_kg')}</span>

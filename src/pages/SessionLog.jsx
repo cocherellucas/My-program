@@ -11,7 +11,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Loader2, LayoutList, ChevronRight, ChevronLeft, ChevronDown, Timer, Eye, HelpCircle, TrendingDown, Bot, MessageSquare, X, Dumbbell, GripVertical, ListOrdered, Pin } from 'lucide-react';
+import { CheckCircle, Loader2, LayoutList, ChevronRight, ChevronLeft, ChevronDown, Timer, Eye, HelpCircle, TrendingDown, Bot, MessageSquare, X, Dumbbell, GripVertical, ListOrdered, Pin, Pencil } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -26,6 +26,7 @@ import VolumeProposalCard from '@/components/coaching/VolumeProposalCard';
 import PainCheckCard from '@/components/coaching/PainCheckCard';
 import { detectZoneFromText, loadEpisodes, saveEpisodes, upsertEpisode, episodesToCheck, sessionTouchesZone, computePainPrescription, buildPainAdvice, isSeverePain } from '@/lib/pain-engine';
 import { computeCycle } from '@/lib/cycle-engine';
+import { devNow } from '@/lib/dev-time';
 import { useI18n } from '@/lib/i18n';
 import { applyPainLevel } from '@/lib/pain-adjust';
 import { EXERCISES } from '@/lib/exercise-database';
@@ -313,15 +314,28 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
     return () => clearTimeout(t);
   }, [coachTip, coachTipsOff, startTutorial]);
 
+  // Valider une série = adopter les valeurs AFFICHÉES (placeholders repris de la séance
+  // passée) comme perfs saisies → les champs vides (kg/reps/RIR/Exécution) passent en blanc.
+  // Même source que le placeholder (SetRow L585-588) → aucun saut de valeur. Ne touche jamais
+  // une valeur déjà saisie. Le prefill des champs déjà remplis est nettoyé par updateLog('done').
+  const commitDisplayedValues = (setIdx) => {
+    const cur = logs[`${exIdx}-${setIdx}`];
+    const isEmpty = (v) => v === undefined || v === null || v === '';
+    const prevW = (previousLogs?.[exercise.name]?.[setIdx + 1]?.weight) || exercise.target_weight;
+    const prevR = previousLogs?.[exercise.name]?.[setIdx + 1]?.reps;
+    const prevM = previousLogs?.[exercise.name]?.[setIdx + 1]?.mode;
+    const prevQ = previousLogs?.[exercise.name]?.[setIdx + 1]?.quality;
+    if (isEmpty(cur?.weight)  && !isEmpty(prevW) && prevW !== 0) updateLog(exIdx, setIdx, 'weight', prevW);
+    if (isEmpty(cur?.reps)    && !isEmpty(prevR))                updateLog(exIdx, setIdx, 'reps', prevR);
+    if (isEmpty(cur?.mode)    && !isEmpty(prevM))                updateLog(exIdx, setIdx, 'mode', prevM);
+    if (isEmpty(cur?.quality) && !isEmpty(prevQ))                updateLog(exIdx, setIdx, 'quality', prevQ);
+  };
+
   const handleSetDone = (setIdx) => {
-    const key = `${exIdx}-${setIdx}`;
-    const lastLog    = logs[key];
-    const mode       = lastLog?.mode || 'RIR_2';
     const isLastSet  = setIdx === sets - 1;
     const baseRest   = isLastSet && nextExRestSeconds ? nextExRestSeconds : (currentRestSeconds ?? exercise.rest_seconds ?? 90);
-    const isBodyweight = !lastLog?.weight || lastLog?.weight === 0;
-    const isIsometric  = /planche|gainage|isométr/i.test(exercise.name || '');
 
+    commitDisplayedValues(setIdx);
     markSetComplete(setIdx);
     updateLog(exIdx, setIdx, 'done', true); // persiste la validation (survit au changement d'exo)
     // À la fin (ou coupure) du repos, on avance à la série suivante — MAIS seulement
@@ -558,7 +572,11 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                   {setIdx < sets - 1 && (
                     <button
                       onClick={() => {
+                        // Passer = on valide aussi les valeurs affichées (blanc), comme
+                        // « Lancer le repos » — mais sans chrono. done nettoie le prefill.
+                        commitDisplayedValues(setIdx);
                         updateLog(exIdx, setIdx, 'skipped', true);
+                        updateLog(exIdx, setIdx, 'done', true);
                         markSetComplete(setIdx);
                         setActiveSetIdx(setIdx + 1);
                       }}
@@ -1170,6 +1188,11 @@ export default function SessionLog() {
   const sessionId = urlParams.get('id') || (() => {
     try { return localStorage.getItem('active_session_id'); } catch { return null; }
   })();
+  // Mode CORRECTION : rouvrir une séance déjà validée pour corriger ses perfs
+  // (?edit=true, posé par la carte d'une séance complétée dans Programme).
+  const editMode = urlParams.get('edit') === 'true';
+  const [editLogsLoaded, setEditLogsLoaded] = useState(false);
+  const editLoadedRef = useRef(false);
 
   const [user, setUser] = useState(null);
   const _draft = (() => { try { const s = localStorage.getItem(`session_draft_${sessionId}`); return s ? JSON.parse(s) : {}; } catch { return {}; } })();
@@ -1189,7 +1212,7 @@ export default function SessionLog() {
   const [showOverview, setShowOverview] = useState(false);
   const [showEnd, setShowEnd] = useState(() => _draft.showEnd || false);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
-  const { startTimer } = useRestTimer();
+  const { startTimer, stopTimer } = useRestTimer();
 
   // Conteneur scrollable propre (Séance est rendue HORS du carrousel, comme CoachIA,
   // pour pouvoir se pinner au viewport visible quand le clavier s'ouvre).
@@ -1317,6 +1340,11 @@ export default function SessionLog() {
   // Auto-save des logs en BDD (debounce 2s) pour persister même sans "Terminer la séance"
   useEffect(() => {
     if (!session || !user || saving) return;
+    // Mode correction : surtout PAS d'auto-save. Les perfs déjà enregistrées sont
+    // rechargées dans `logs` → l'auto-save se déclencherait et, avec sa règle
+    // « if (!weight && !reps) return », supprimerait les séries sans poids (poids
+    // du corps) sans les recréer. Ici la sauvegarde est explicite (bouton Terminer).
+    if (editMode) return;
     if (Object.keys(logs).length === 0) return;
     const timer = setTimeout(async () => {
       try {
@@ -1359,11 +1387,15 @@ export default function SessionLog() {
 
   useEffect(() => {
     if (!sessionId) return;
+    // Mode correction : on n'écrit AUCUN brouillon et on ne marque pas la séance
+    // comme « active » — sinon une séance déjà validée deviendrait la séance en
+    // cours (fallback du swipe) et laisserait un brouillon fantôme.
+    if (editMode) return;
     try {
       localStorage.setItem(`session_draft_${sessionId}`, JSON.stringify({ logs, currentExIdx, fatigue, notes, restTimeForEx, sessionExercises, showEnd }));
       localStorage.setItem('active_session_id', sessionId);
     } catch {}
-  }, [logs, currentExIdx, fatigue, notes, restTimeForEx, sessionExercises, showEnd, sessionId]);
+  }, [logs, currentExIdx, fatigue, notes, restTimeForEx, sessionExercises, showEnd, sessionId, editMode]);
 
   // Changement d'exercice (Suivant/Précédent) ou passage à l'écran de fin →
   // remonter en haut pour voir l'exercice en cours (sinon on reste en bas,
@@ -1377,6 +1409,15 @@ export default function SessionLog() {
     exScrollRef.current = snapshot;
     scrollRootRef.current?.scrollTo({ top: 0, behavior: 'instant' });
   }, [currentExIdx, showEnd]);
+
+  // Séance terminée (écran de fin) → on coupe le repos en cours (sans déclencher son
+  // callback : pas d'avance de série). Couvre tous les chemins vers l'écran de fin.
+  useEffect(() => {
+    if (showEnd) {
+      stopTimer();
+      try { localStorage.removeItem(`rest_timer_${sessionId}`); } catch {}
+    }
+  }, [showEnd, stopTimer, sessionId]);
 
   useEffect(() => {
     if (!sessionId) return;
@@ -1543,9 +1584,10 @@ export default function SessionLog() {
     return activePrograms[0]?.weekly_structure === 'custom';
   })();
 
-  // Redirige si la séance est déjà validée (retour arrière, mise en veille, changement d'onglet)
+  // Redirige si la séance est déjà validée (retour arrière, mise en veille, changement
+  // d'onglet) — SAUF en mode correction, où l'utilisateur vient exprès la rouvrir.
   useEffect(() => {
-    if (session?.status === 'completed' && !coachPainQuery) {
+    if (session?.status === 'completed' && !coachPainQuery && !editMode) {
       try { localStorage.removeItem(`session_draft_${sessionId}`); localStorage.removeItem('active_session_id'); } catch {}
       navigate('/program');
     }
@@ -1561,16 +1603,23 @@ export default function SessionLog() {
     if (previousLogsFetched.current) return;
     previousLogsFetched.current = true;
     const fetchPreviousLogs = async () => {
-      // On inclut aussi les séances "planned" car elles peuvent avoir des logs auto-sauvegardés
       const allSessions = await base44.entities.Session.filter({ program_id: session.program_id });
+      // On ne garde QUE les séances réellement complétées (seules à avoir des perfs).
+      // Avant, on incluait les planifiées : sans actual_date, elles retombaient sur
+      // leur created_date (= date d'import, récente) et se triaient DEVANT les vraies
+      // séances faites ; et si une date manquait, getTime() = NaN → comparateur NaN →
+      // tri sans effet → ordre d'insertion (semaine 1 en tête) → on relisait toujours
+      // les PREMIÈRES perfs au lieu des dernières.
+      // Ancre chronologique : on ne pré-remplit qu'avec des séances ANTÉRIEURES (ou du même jour)
+      // à celle-ci. Sinon, en rejouant une séance passée — ou en test avec le voyage dans le temps —
+      // une séance datée APRÈS remonterait comme « la plus récente » → on verrait des perfs « du futur ».
+      const currentTs = new Date(session.actual_date || session.planned_date || devNow().toISOString().split('T')[0]).getTime();
       const sorted = allSessions
-        .filter(s => s.id !== session.id)
-        .sort((a, b) => {
-          // Tri par actual_date (complétées) ou updated_date (drafts) — plus récent en premier
-          const dateA = new Date(a.actual_date || a.updated_date || a.created_date).getTime();
-          const dateB = new Date(b.actual_date || b.updated_date || b.created_date).getTime();
-          return dateB - dateA;
-        });
+        .filter(s => s.id !== session.id && s.status === 'completed')
+        .map(s => ({ s, ts: new Date(s.actual_date || s.updated_date || s.created_date || 0).getTime() }))
+        .filter(x => !Number.isNaN(x.ts) && (Number.isNaN(currentTs) || x.ts <= currentTs))
+        .sort((a, b) => b.ts - a.ts) // plus récent d'abord
+        .map(x => x.s);
 
       // previousLogs = dernière séance du même type (même day_label) AVEC des logs
       // On itère du plus récent au plus ancien et on prend la première qui a des données
@@ -1633,6 +1682,39 @@ export default function SessionLog() {
   };
 
   const exercises = (sessionExercises ?? (session?.exercises || [])).filter((ex) => ex && ex.name);
+
+  // Mode correction : recharge les perfs DÉJÀ ENREGISTRÉES depuis la base (le
+  // brouillon local a été effacé à la validation). On marque chaque série `done`
+  // → activeSetIdx se cale sur la dernière → rien n'est verrouillé, tout est éditable.
+  // ⚠️ Doit rester APRÈS la déclaration de `exercises` (référence dans les deps).
+  useEffect(() => {
+    if (!editMode || !session || !user?.id || session.status !== 'completed') return;
+    if (!exercises.length || editLoadedRef.current) return;
+    editLoadedRef.current = true;
+    (async () => {
+      try {
+        const saved = await base44.entities.SeriesLog.filter({ session_id: session.id, user_id: user.id });
+        const next = {};
+        saved.forEach((sl) => {
+          const exIdx = exercises.findIndex((e) => e.name === sl.exercise_name);
+          if (exIdx < 0) return;
+          next[`${exIdx}-${(sl.set_number || 1) - 1}`] = {
+            weight: sl.weight ?? '', reps: sl.reps_done ?? '',
+            mode: sl.mode, quality: sl.execution_quality,
+            feedback: sl.feedback || null, tempo: sl.tempo || null,
+            done: true,
+          };
+        });
+        setLogs(next);
+        setFatigue(session.global_fatigue ?? 2);
+        setNotes(session.notes || '');
+      } catch (e) {
+        console.error('[edit] chargement des perfs enregistrées', e);
+      } finally {
+        setEditLogsLoaded(true);
+      }
+    })();
+  }, [editMode, session?.id, user?.id, exercises.length]); // eslint-disable-line
 
   // ── Réordonner les exercices PENDANT la séance (machine prise, etc.) ──
   // Effet séance uniquement : on permute sessionExercises (brouillon local),
@@ -1938,7 +2020,7 @@ export default function SessionLog() {
       const allSessions = await base44.entities.Session.filter({ program_id: session.program_id });
       const future = allSessions.filter(s =>
         s.status === 'planned' &&
-        s.planned_date > new Date().toISOString().split('T')[0] &&
+        s.planned_date > devNow().toISOString().split('T')[0] &&
         new Date(s.planned_date).getDay() === currentDayOfWeek
       ).slice(0, 8);
       await Promise.all(future.map(fs => {
@@ -1965,7 +2047,7 @@ export default function SessionLog() {
   // Conseil IA en temps réel pendant la séance (bouton "Douleur ?")
   const handleAskCoach = async ({ exercise, setIdx, painNote, logs: setLogs, thread = [], allLogs, prevLogs, sessionsHistory: history }) => {
     // Sauvegarder immédiatement en mémoire coach + récupérer l'historique des douleurs passées
-    const today = new Date().toISOString().split('T')[0];
+    const today = devNow().toISOString().split('T')[0];
     const painEntry = `[${today} — séance en cours] ${exercise.name} série ${setIdx + 1} : "${painNote}"`;
     let coachNotes = '';
     try {
@@ -2154,6 +2236,55 @@ Ce que l'utilisateur dit : "${painNote}"`;
   };
 
   const saveSession = async (acceptProposal = false) => {
+    // MODE CORRECTION : la séance est déjà validée, on remplace juste les perfs
+    // enregistrées (suppression + recréation des logs de CETTE séance = pas de
+    // doublon) et on met à jour fatigue/notes. On ne rejoue PAS les flux de fin de
+    // séance (proposition de volume, épisodes douleur) : c'est une correction, pas
+    // une nouvelle séance.
+    if (editMode) {
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        toast.error(t('needs_connection'));
+        return;
+      }
+      setSaving(true);
+      try {
+        const existing = await base44.entities.SeriesLog.filter({ session_id: session.id });
+        await Promise.all(existing.map((l) => base44.entities.SeriesLog.delete(l.id)));
+        await Promise.all(Object.entries(logs).map(([key, log]) => {
+          const [exIdx, setIdx] = key.split('-').map(Number);
+          const exercise = exercises[exIdx];
+          if (!exercise) return Promise.resolve();
+          return base44.entities.SeriesLog.create({
+            session_id: session.id,
+            user_id: user.id,
+            exercise_name: exercise.name,
+            exercise_variant: exercise.name,
+            set_number: setIdx + 1,
+            weight: log.weight || 0,
+            reps_done: log.reps || 0,
+            reps_target: exercise.target_reps || '',
+            rest_seconds: restTimeForEx[exIdx] || exercise.rest_seconds || 90,
+            mode: log.mode || 'RIR_2',
+            execution_quality: log.quality || 'good',
+            feedback: log.feedback || null,
+            tempo: log.tempo || null,
+          });
+        }));
+        await base44.entities.Session.update(session.id, { global_fatigue: fatigue, notes });
+        queryClient.invalidateQueries({ queryKey: ['sessions'] });
+        queryClient.invalidateQueries({ queryKey: ['program-sessions'] });
+        queryClient.invalidateQueries({ queryKey: ['completed-sessions'] });
+        toast.success(t('se_edit_saved'));
+        navigate('/program');
+      } catch (e) {
+        console.error('saveSession edit error:', e);
+        toast.error(`Erreur lors de la sauvegarde : ${e?.message || e}`);
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
+
     // Hors-ligne : on met la finalisation en file d'attente (payload autonome) et
     // on la synchronisera automatiquement au retour du réseau. Les fonctions en
     // ligne (propositions de volume, mémoire douleur) sont sautées — elles
@@ -2184,7 +2315,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
           logs: payloadLogs,
           fatigue,
           notes,
-          actual_date: new Date().toISOString().split('T')[0],
+          actual_date: devNow().toISOString().split('T')[0],
           actual_duration: session.estimated_duration,
         });
         // Les données sont désormais dans l'outbox → on peut nettoyer le brouillon.
@@ -2205,7 +2336,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
     if (acceptProposal && proposal?.length) {
       const allSessions = await base44.entities.Session.filter({ program_id: session.program_id });
       const future = allSessions
-        .filter(s => s.status === 'planned' && s.planned_date > new Date().toISOString().split('T')[0])
+        .filter(s => s.status === 'planned' && s.planned_date > devNow().toISOString().split('T')[0])
         .sort((a, b) => new Date(a.planned_date) - new Date(b.planned_date))
         .slice(0, 5);
       await Promise.all(future.map(fs => {
@@ -2247,7 +2378,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
 
     await base44.entities.Session.update(session.id, {
       status: 'completed',
-      actual_date: new Date().toISOString().split('T')[0],
+      actual_date: devNow().toISOString().split('T')[0],
       actual_duration: session.estimated_duration,
       global_fatigue: fatigue,
       notes
@@ -2262,7 +2393,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
     const hasPain = /douleur|mal\b|gêne|pincement|blessure/.test(noteText) || painZone || setPainEntries.length > 0;
     if (hasPain && user?.id) {
       try {
-        const today = new Date().toISOString().split('T')[0];
+        const today = devNow().toISOString().split('T')[0];
         const painDetail = setPainEntries.length > 0 ? `\n  ${setPainEntries.join('\n  ')}` : '';
         const painNote = `[${today}] Douleur signalée${painZone ? ` (${painZone})` : ''}${painDetail} — réduire charges sur exercices concernés, surveiller évolution.`;
         const existing = await base44.entities.UserMemory.filter({ user_id: user.id });
@@ -2385,6 +2516,16 @@ Ce que l'utilisateur dit : "${painNote}"`;
     return <EmptyState title="Séance vide" text="Cette séance ne contient aucun exercice." cta="Voir mon programme" />;
   }
 
+  // Mode correction : on attend les perfs enregistrées avant de monter les séries
+  // (sinon elles se monteraient vides → verrouillées).
+  if (editMode && session.status === 'completed' && !editLogsLoaded) {
+    return (
+      <div style={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5 }}>
+        <Loader2 className="w-6 h-6 animate-spin text-white/60" />
+      </div>
+    );
+  }
+
   // Étape "fin de séance" : proposition d'ajustement du volume avant de revenir au programme
   if (volumeProposal) {
     const pid = volumeProposal.programId;
@@ -2488,6 +2629,14 @@ Ce que l'utilisateur dit : "${painNote}"`;
           </PopoverContent>
         </Popover>,
         document.body
+      )}
+
+      {/* Mode correction : rappel que la séance est déjà validée */}
+      {editMode && !showEnd && (
+        <div className="rounded-2xl p-3 bg-amber-500/15 border border-amber-300/30 flex items-start gap-2.5">
+          <Pencil className="w-4 h-4 text-amber-200 flex-shrink-0 mt-0.5" />
+          <p className="flex-1 min-w-0 text-xs text-amber-100/90 leading-relaxed">{t('se_edit_banner')}</p>
+        </div>
       )}
 
       {/* Ordre pratiqué la dernière fois (si différent du planifié) */}

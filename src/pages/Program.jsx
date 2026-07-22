@@ -19,6 +19,7 @@ import { buildProgramContext, formatProgramBrief } from '@/lib/program-builder';
 import { getContextualKnowledge } from '@/lib/scientific-knowledge-base';
 import { normalizeUser } from '@/lib/utils';
 import { ensureOnline } from '@/lib/net';
+import { devNow } from '@/lib/dev-time';
 import ImportSessionDialog from '@/components/coach/ImportSessionDialog';
 import { calcDuration } from '@/lib/duration';
 import { exportProgramPDF } from '@/lib/program-pdf';
@@ -129,7 +130,7 @@ export default function Program() {
     try {
       const all = await base44.entities.Session.filter({ program_id: activeProgram.id });
       const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = devNow().toISOString().split('T')[0];
       // La structure ACTUELLE du programme = ses séances PLANIFIÉES (recréées en
       // bloc à chaque sauvegarde). Les complétées sont de l'historique : les
       // inclure ferait réapparaître d'anciens créneaux (jour déplacé, ancien
@@ -236,7 +237,7 @@ export default function Program() {
       }
       const CYCLE_WEEKS = targetWeeks === 'infinite' ? 52 : (targetWeeks || 4);
       const dayMap = { monday:0, tuesday:1, wednesday:2, thursday:3, friday:4, saturday:5, sunday:6 };
-      const today = new Date(); today.setHours(0,0,0,0);
+      const today = devNow(); today.setHours(0,0,0,0);
       const thisMon = new Date(today);
       thisMon.setDate(today.getDate() - ((today.getDay() + 6) % 7));
       const toLocalDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -330,7 +331,7 @@ export default function Program() {
       if (!program || (program.planned_weeks || 0) < INFINITE_THRESHOLD) return;
       const all = await base44.entities.Session.filter({ program_id: program.id });
       if (!all.length) return;
-      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const today = devNow(); today.setHours(0, 0, 0, 0);
       const toLocalDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 
       // Réparation de la semaine calendaire EN COURS : d'anciennes versions ne
@@ -663,8 +664,8 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
     });
 
     // Create sessions — start from this Monday if today IS Monday, else next Monday
-    const todayD = new Date(); todayD.setHours(0, 0, 0, 0);
-    const thisMon = startOfWeek(new Date(), { weekStartsOn: 1 });
+    const todayD = devNow(); todayD.setHours(0, 0, 0, 0);
+    const thisMon = startOfWeek(devNow(), { weekStartsOn: 1 });
     const monday = thisMon >= todayD ? thisMon : addDays(thisMon, 7);
     const dayMap = {
       monday: 0, lundi: 0,
@@ -852,7 +853,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
   };
 
   // Group sessions by week
-  const today = new Date();
+  const today = devNow();
   today.setHours(0, 0, 0, 0);
 
   const isPast = (session) => {
@@ -1206,7 +1207,7 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                                  </Badge>
                                )}
                                {past && <Badge variant="outline" className="text-xs text-white/50 border-white/20">{t('pg_past')}</Badge>}
-                               {session.status === 'completed' && <Badge variant="default" className="text-xs">{t('pg_done')}</Badge>}
+                               {session.status === 'completed' && <Badge className="text-xs bg-green-500/20 text-green-300 border-green-400/30">{t('pg_done')}</Badge>}
                              </div>
                              <div className="flex items-center gap-3 mt-1 text-xs text-white/60">
                                <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{session.estimated_duration} {t('pg_min')}</span>
@@ -1226,7 +1227,8 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                        animate={{ opacity: 1, y: 0 }}
                        transition={{ delay: i * 0.05 }}
                      >
-                       <Link to={`/session?id=${session.id}`}>{card}</Link>
+                       {/* Séance déjà validée → mode correction (sinon SessionLog redirige) */}
+                       <Link to={`/session?id=${session.id}${session.status === 'completed' ? '&edit=true' : ''}`}>{card}</Link>
                      </motion.div>
                    );
                  })}

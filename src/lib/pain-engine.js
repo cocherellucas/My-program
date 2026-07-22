@@ -9,6 +9,7 @@
 import { base44 } from '@/api/base44Client';
 import { FRAGILE_ZONE_MUSCLES } from '@/lib/coaching-engine';
 import { EXERCISES } from '@/lib/exercise-database';
+import { devNow } from '@/lib/dev-time';
 
 export const ZONE_LABELS = {
   wrists: 'poignet', shoulders: 'épaule', elbows: 'coude',
@@ -32,7 +33,7 @@ export function detectZoneFromText(text) {
   return null;
 }
 
-const todayStr = () => new Date().toISOString().split('T')[0];
+const todayStr = () => devNow().toISOString().split('T')[0];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CONSEIL DOULEUR EN SÉANCE — arbre de décision (remplace l'IA, 100 % code).

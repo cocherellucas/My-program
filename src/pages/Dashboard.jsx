@@ -21,6 +21,7 @@ import { applyVolumeProposal, markVolumeHandled, isVolumeSuppressed } from '@/li
 import { loadEpisodes, saveEpisodes, episodesToCheck, computePainPrescription } from '@/lib/pain-engine';
 import { applyPainLevel } from '@/lib/pain-adjust';
 import { ensureOnline } from '@/lib/net';
+import { devNow } from '@/lib/dev-time';
 import { useI18n } from '@/lib/i18n';
 
 const CHECKIN_KEY = 'coaching_checkins';
@@ -31,7 +32,7 @@ function loadCheckins() {
 
 function saveCheckin(sessionId, data) {
   const checkins = loadCheckins();
-  checkins[sessionId] = { ...data, timestamp: new Date().toISOString() };
+  checkins[sessionId] = { ...data, timestamp: devNow().toISOString() };
   localStorage.setItem(CHECKIN_KEY, JSON.stringify(checkins));
   return checkins;
 }
@@ -79,7 +80,7 @@ export default function Dashboard() {
     enabled: !!user?.id,
   });
 
-  const today        = new Date().toISOString().split('T')[0];
+  const today        = devNow().toISOString().split('T')[0];
   const todaySession = sessions.find(s => s.status === 'planned' && s.planned_date === today);
   const nextSession  = sessions.find(s => s.status === 'planned' && s.planned_date > today);
   const hasSessions  = sessions.length > 0;
@@ -181,7 +182,7 @@ export default function Dashboard() {
     if (!painCheckEp) return;
     if (!ensureOnline()) return;
     try {
-      await persistEpisode({ ...painCheckEp, status: 'active', betterStreak: 0, lastCheckDate: new Date().toISOString().split('T')[0] });
+      await persistEpisode({ ...painCheckEp, status: 'active', betterStreak: 0, lastCheckDate: devNow().toISOString().split('T')[0] });
       setPainCheckEp(null);
     } catch (e) { console.error('[pain] resume', e); }
   };

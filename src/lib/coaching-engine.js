@@ -2,6 +2,7 @@
 // COACHING ENGINE — Moteur déterministe (zéro appel API)
 // Hiérarchie : Spécificité → Overload → Fatigue → SRA → Variation → Phase → Individuel
 // ─────────────────────────────────────────────────────────────────────────────
+import { devNow } from './dev-time.js';
 
 // ─── Grands muscles (fatigue systémique élevée, tolèrent plus de volume) ───
 export const LARGE_MUSCLES = new Set(['Dos', 'Poitrine', 'Quadriceps', 'Fessiers', 'Épaules']);
@@ -98,7 +99,7 @@ export function getMesocyclePosition(program) {
   if (!program) return null;
 
   const startDate    = new Date(program.created_date);
-  const today        = new Date();
+  const today        = devNow();
   const msPerWeek    = 7 * 24 * 60 * 60 * 1000;
   const weeksElapsed = Math.max(0, Math.floor((today - startDate) / msPerWeek));
   const plannedWeeks = program.planned_weeks || 8;
@@ -588,7 +589,7 @@ export function computeProgressiveOverload(seriesLogs = [], exerciseName) {
 // RÈGLE DES 24H — sessions complétées hier sans check-in
 // ─────────────────────────────────────────────────────────────────────────────
 export function getSessionsNeedingCheckin(sessions = [], checkins = {}) {
-  const yesterday = new Date();
+  const yesterday = devNow();
   yesterday.setDate(yesterday.getDate() - 1);
   const yStr = yesterday.toISOString().split('T')[0];
 
@@ -785,7 +786,7 @@ export function computeDashboardAlerts({ sessions = [], program = null, user = {
   }
 
   // Séances manquées
-  const today   = new Date().toISOString().split('T')[0];
+  const today   = devNow().toISOString().split('T')[0];
   const missed  = sessions.filter(s => s.status === 'planned' && s.planned_date && s.planned_date < today);
   if (missed.length >= 2) {
     alerts.push({ type: 'missed', message: P(`${missed.length} séances non complétées — adhérence à surveiller.`, `${missed.length} missed workouts — watch your consistency.`) });
