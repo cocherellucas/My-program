@@ -112,6 +112,12 @@ export default function StepObjectives({ data, onChange }) {
           title: t('oj_tuto_title'),
           description: t('oj_tuto_d'),
         },
+        {
+          // Sans cible → bulle centrée. Incite à prioriser le muscle autour d'une
+          // douleur (remplace l'intention « Renforcer » des zones sensibles).
+          title: t('oj_tuto_pain_title'),
+          description: t('oj_tuto_pain_d'),
+        },
       ]);
     }, 700);
     return () => clearTimeout(timer);
