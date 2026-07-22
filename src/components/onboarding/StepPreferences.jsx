@@ -5,10 +5,11 @@ import { useI18n } from '@/lib/i18n';
 
 export default function StepPreferences({ data, onChange }) {
   const { t } = useI18n();
+  // Ordre anatomique haut → bas (cervicales → genoux) pour un affichage bien rangé.
   const FRAGILE_ZONES = [
-    { key: 'wrists', label: t('pf_z_wrists') }, { key: 'shoulders', label: t('pf_z_shoulders') },
-    { key: 'elbows', label: t('pf_z_elbows') }, { key: 'knees', label: t('pf_z_knees') },
-    { key: 'lower_back', label: t('pf_z_lower_back') }, { key: 'neck', label: t('pf_z_neck') },
+    { key: 'neck', label: t('pf_z_neck') }, { key: 'shoulders', label: t('pf_z_shoulders') },
+    { key: 'elbows', label: t('pf_z_elbows') }, { key: 'wrists', label: t('pf_z_wrists') },
+    { key: 'lower_back', label: t('pf_z_lower_back') }, { key: 'knees', label: t('pf_z_knees') },
   ];
   // Style « à protéger » (orange/bouclier) — seule intention restante.
   const PROTECT = { chip: 'border-orange-300 bg-orange-500 text-white', color: 'border-orange-300 bg-orange-500 text-white' };
@@ -58,20 +59,17 @@ export default function StepPreferences({ data, onChange }) {
           })}
         </div>
 
-        {/* Résumé zones sélectionnées — toutes à protéger */}
+        {/* Résumé : une seule ligne — zones sélectionnées séparées par des virgules (ordre
+            anatomique haut → bas, comme la grille) + le suffixe « à protéger » une seule fois. */}
         {zones.length > 0 && (
           <div className="space-y-1.5">
-            {zones.map(z => {
-              const zDef = FRAGILE_ZONES.find(f => f.key === z.key);
-              if (!zDef) return null;
-              return (
-                <div key={z.key} className={cn('flex items-center gap-2 px-3 py-2 rounded-lg border text-xs', PROTECT.color)}>
-                  <Shield className="w-3.5 h-3.5 flex-shrink-0" />
-                  <span className="font-medium">{zDef.label}</span>
-                  <span className="opacity-70">— {t('pf_sum_protect')}</span>
-                </div>
-              );
-            })}
+            <div className={cn('flex items-start gap-2 px-3 py-2 rounded-lg border text-xs', PROTECT.color)}>
+              <Shield className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+              <p className="leading-snug">
+                <span className="font-medium">{FRAGILE_ZONES.filter(({ key }) => getZone(key)).map(({ label }) => label).join(', ')}</span>
+                <span className="opacity-70"> — {t('pf_sum_protect')}</span>
+              </p>
+            </div>
             <p className="text-xs text-white/40 px-1 pt-1">{t('pf_auto')}</p>
           </div>
         )}

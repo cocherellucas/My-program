@@ -100,7 +100,7 @@ export default function StepObjectives({ data, onChange }) {
   const [detailMode, setDetailMode] = useState({});
   const [expandedGroup, setExpandedGroup] = useState({});
   const [mergePrompt, setMergePrompt] = useState(null); // { idx, otherIdx }
-  const { startTutorial } = useTutorial() || {};
+  const { startTutorial, activeTutorial } = useTutorial() || {};
 
   // Tuto Step 2 : grosses cartes à choisir
   useEffect(() => {
@@ -113,15 +113,34 @@ export default function StepObjectives({ data, onChange }) {
           description: t('oj_tuto_d'),
         },
         {
-          // Sans cible → bulle centrée. Incite à prioriser le muscle autour d'une
-          // douleur (remplace l'intention « Renforcer » des zones sensibles).
-          title: t('oj_tuto_pain_title'),
-          description: t('oj_tuto_pain_d'),
+          // Message consolidé posé sur « Ajouter un objectif » : ajouter + prioriser
+          // (donc les groupes musculaires) + le cas douleur (renforcer une zone en priorité).
+          target: 'add-objective',
+          title: t('oj_tuto_add_title'),
+          description: t('oj_tuto_add_d'),
         },
       ]);
     }, 700);
     return () => clearTimeout(timer);
   }, [startTutorial]); // eslint-disable-line
+
+  // Tuto focus : le badge « Focus principal/secondaire » n'apparaît qu'à partir de 2 objectifs.
+  // On l'explique une seule fois, une fois le 2e objectif ajouté ET aucun tuto en cours (on
+  // n'interrompt pas l'intro — l'effet se relance quand activeTutorial redevient null).
+  useEffect(() => {
+    if (!startTutorial) return;
+    if (objectives.length < 2 || activeTutorial) return;
+    const timer = setTimeout(() => {
+      startTutorial('objectives-focus', [
+        {
+          target: 'badge-dropdown',
+          title: t('oj_tuto_focus_title'),
+          description: t('oj_tuto_focus_d'),
+        },
+      ]);
+    }, 450); // laisse le badge se rendre + le scroll
+    return () => clearTimeout(timer);
+  }, [objectives.length, activeTutorial, startTutorial]); // eslint-disable-line
   const dismissedPairs = React.useRef(new Set());
 
   // Auto-détection : 2 objectifs du même type + MÊME priorité + zones complémentaires → propose fusion
@@ -644,7 +663,7 @@ export default function StepObjectives({ data, onChange }) {
       </div>
 
       {objectives.length < 3 ? (
-        <Button variant="outline" onClick={addObjective} className="w-full border-white/30 text-white hover:bg-white/10 hover:text-white">
+        <Button data-tutorial="add-objective" variant="outline" onClick={addObjective} className="w-full border-white/30 text-white hover:bg-white/10 hover:text-white">
           <Plus className="w-4 h-4 mr-2" />
           {t('oj_add')} {objectives.length > 0 && <span className="ml-1 opacity-60">({objectives.length}/3)</span>}
         </Button>

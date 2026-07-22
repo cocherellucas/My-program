@@ -114,11 +114,11 @@ export default function TutorialOverlay() {
             const vw = window.innerWidth;
             const vh = window.innerHeight;
             const bubbleW = Math.min(320, vw - 24);
+            const ROBOT = 32; // le robot dépasse de ~28px au-dessus de la bulle → marge pour ne pas le couper
             if (!hasTarget || !bubbleH) {
-              return { top: 16, left: (vw - bubbleW) / 2 };
+              return { top: ROBOT + 8, left: (vw - bubbleW) / 2 };
             }
             const gap = 16;
-            const ROBOT = 32; // le 🤖 dépasse de ~28px au-dessus de la bulle → marge pour ne pas le couper
             const spaceAbove = targetRect.top - padding;
             const spaceBelow = vh - targetRect.bottom - padding;
             const idealLeft = targetRect.left + targetRect.width / 2 - bubbleW / 2;
@@ -141,11 +141,11 @@ export default function TutorialOverlay() {
             }
             // Fallback haut d'écran (sous le robot)
             if (bubbleBelow) setBubbleBelow(false);
-            return { top: ROBOT, left: (vw - bubbleW) / 2 };
+            return { top: ROBOT + 8, left: (vw - bubbleW) / 2 };
           })()}>
 
           {/* Coach IA — au-dessus si bulle au-dessus, en-dessous si bulle en-dessous */}
-          <div className={`absolute ${bubbleBelow ? '-bottom-4' : '-top-7'} left-3 z-10`}>
+          <div className={`absolute ${bubbleBelow ? '-bottom-4' : '-top-6'} left-3 z-10`}>
             <motion.div
               initial={{ scale: 0, rotate: -15 }}
               animate={{ scale: 1, rotate: 0, y: [0, -3, 0] }}
@@ -154,9 +154,9 @@ export default function TutorialOverlay() {
                 rotate: { delay: 0.1, type: 'spring', stiffness: 400, damping: 18 },
                 y: { repeat: Infinity, duration: 2.4, ease: 'easeInOut' },
               }}
-              className="text-4xl leading-none"
+              className="leading-none"
               style={{ filter: 'drop-shadow(0 4px 12px rgba(124,58,237,0.6))' }}>
-              🤖
+              <img src="/robotapp.png" alt="Coach IA" className="w-11 h-11 rounded-xl object-cover" />
             </motion.div>
           </div>
 
@@ -168,10 +168,10 @@ export default function TutorialOverlay() {
             }}>
 
             <div className="relative space-y-2">
-              <div className="flex items-baseline gap-2 pl-9">
-                <p className="text-[9px] uppercase tracking-[0.18em] font-bold text-violet-200/80">Coach IA</p>
+              <div className="flex items-baseline gap-x-2 gap-y-0.5 flex-wrap pl-9">
+                <p className="text-[9px] uppercase tracking-[0.18em] font-bold text-violet-200/80 flex-shrink-0">Coach IA</p>
                 {step.title && (
-                  <p className="text-sm font-bold text-white leading-tight truncate">{step.title}</p>
+                  <p className="text-sm font-bold text-white leading-tight">{step.title}</p>
                 )}
               </div>
 
