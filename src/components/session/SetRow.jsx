@@ -278,7 +278,7 @@ const shouldShowPropagate =
       <div className="grid grid-cols-2 gap-2">
         <div>
           <Select value={log.mode || previousMode || defaultMode} onValueChange={(v) => !locked && onUpdate('mode', v)}>
-            <SelectTrigger className={`w-full h-10 text-xs bg-white/10 border-white/20 ${(locked || log.prefill?.mode || !log.mode) ? 'text-white/50' : 'text-white'}${locked ? ' pointer-events-none' : ''}`}>
+            <SelectTrigger className={`w-full h-10 text-xs bg-white/10 border-white/20 ${(locked || log.prefill?.mode || (!log.mode && !log.done)) ? 'text-white/50' : 'text-white'}${locked ? ' pointer-events-none' : ''}`}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -311,7 +311,7 @@ const shouldShowPropagate =
         </div>
         <div>
           <Select value={log.quality || 'good'} onValueChange={(v) => !locked && onUpdate('quality', v)}>
-            <SelectTrigger className={`w-full h-10 text-xs bg-white/10 border-white/20 ${(locked || log.prefill?.quality || !log.quality) ? 'text-white/50' : 'text-white'}${locked ? ' pointer-events-none' : ''}`}>
+            <SelectTrigger className={`w-full h-10 text-xs bg-white/10 border-white/20 ${(locked || log.prefill?.quality || (!log.quality && !log.done)) ? 'text-white/50' : 'text-white'}${locked ? ' pointer-events-none' : ''}`}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
