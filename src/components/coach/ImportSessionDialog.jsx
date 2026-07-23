@@ -105,6 +105,22 @@ const IMPORT_TUTORIAL_STEPS = [
   },
 ];
 
+const DAY_ORDER = { monday:0, tuesday:1, wednesday:2, thursday:3, friday:4, saturday:5, sunday:6 };
+// Tri par jour PUIS par ordre dans la journée, puis renumérotation (1, 2) par jour.
+// → l'affichage suit toujours les numéros (1ère au-dessus de 2ème) et une séance seule sur
+//   son jour redevient « 1ère ». Corrige l'ordre incohérent après déplacement d'une séance
+//   sur un jour déjà occupé (tri stable = 2ème laissée au-dessus de la 1ère), ET à l'ouverture
+//   du dialogue (deux séances du même jour affichées « 1ère »).
+const byDayThenOrder = (a, b) =>
+  ((DAY_ORDER[a.day] ?? 7) - (DAY_ORDER[b.day] ?? 7)) || ((a.order || 1) - (b.order || 1));
+const sortAndRenumber = (arr) => {
+  const seen = {};
+  return [...arr].sort(byDayThenOrder).map(s => {
+    seen[s.day] = (seen[s.day] || 0) + 1;
+    return (s.order || 1) === seen[s.day] ? s : { ...s, order: seen[s.day] };
+  });
+};
+
 export default function ImportSessionDialog({ sessions: initialSessions, onPersist, onClose, isEditing = false, initialWeeks }) {
   const { startTutorial, nextStep, skipStep, wakeTutorial, endTutorial, activeTutorial } = useTutorial() || {};
   const activeTutorialRef = useRef(null);
@@ -129,9 +145,11 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
   const [sessions, setSessions] = useState(() => {
     try {
       const f = JSON.parse(localStorage.getItem('_import_form') || 'null');
-      if (f?.sessions?.length && f.sessionCount === _expLen) return f.sessions;
+      if (f?.sessions?.length && f.sessionCount === _expLen) return sortAndRenumber(f.sessions);
     } catch {}
-    return (initialSessions || [{ label: '', day: 'monday', exercises: [] }]).map((s, i) => ({
+    // On relit l'ordre persisté (s.order) et on renumérote : sinon deux séances du même jour
+    // rechargées sans ordre retombaient toutes les deux sur « 1ère ».
+    return sortAndRenumber((initialSessions || [{ label: '', day: 'monday', exercises: [] }]).map((s, i) => ({
       _id: i,
       label: s.day_label || s.label || '',
       day: s.day || 'monday',
@@ -139,14 +157,13 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
       content: s.content || '',
       type: s.type || 'mixed',
       estimated_duration: s.estimated_duration || 60,
-    }));
+      order: s.order,
+    })));
   });
   const [weeks, setWeeks] = useState(() => {
     try { const f = JSON.parse(localStorage.getItem('_import_form') || 'null'); if (f?.weeks !== undefined && f?.sessionCount === _expLen) return f.weeks; } catch {}
     return initialWeeks !== undefined ? initialWeeks : 'infinite';
   });
-
-  const DAY_ORDER = { monday:0, tuesday:1, wednesday:2, thursday:3, friday:4, saturday:5, sunday:6 };
 
   // Construit la liste à persister : seules les séances "complètes" (avec exercices)
   // entrent dans le programme — une séance non vérifiée/vide n'y apparaît pas.
@@ -188,13 +205,15 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
         const day = updated[i].day;
         const sibling = updated.findIndex((s, idx) => idx !== i && s.day === day);
         if (sibling !== -1) updated[sibling] = { ...updated[sibling], order: value === 1 ? 2 : 1 };
+        return sortAndRenumber(updated);
       }
-      // Si on change le jour, recalculer l'ordre et réordonner
+      // Si on change le jour, la séance déplacée passe en dernier sur son nouveau jour,
+      // puis on re-trie + renumérote (couvre aussi l'ancien jour qu'elle vient de quitter).
       if (field === 'day') {
         const countOnNewDay = updated.filter((s, idx) => idx !== i && s.day === value).length;
         updated[i] = { ...updated[i], order: countOnNewDay + 1 };
         setScrollToId(updated[i]._id);
-        return [...updated].sort((a, b) => (DAY_ORDER[a.day] ?? 7) - (DAY_ORDER[b.day] ?? 7));
+        return sortAndRenumber(updated);
       }
       return updated;
     });
@@ -212,14 +231,14 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
     setScrollToId(newId);
     setSessions(prev => {
       const next = [...prev, { _id: newId, label: '', day: nextDay, exercises: [], content: '', type: 'mixed', estimated_duration: 60, order }];
-      return next.sort((a, b) => (DAY_ORDER[a.day] ?? 7) - (DAY_ORDER[b.day] ?? 7));
+      return sortAndRenumber(next);
     });
   };
 
   const countForDay = (day, excludeIdx) => sessions.filter((s, i) => i !== excludeIdx && s.day === day).length;
 
   const removeSession = (i) => {
-    setSessions(prev => prev.filter((_, idx) => idx !== i));
+    setSessions(prev => sortAndRenumber(prev.filter((_, idx) => idx !== i)));
   };
 
   useEffect(() => {

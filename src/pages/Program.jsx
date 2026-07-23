@@ -1197,7 +1197,10 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
                                  const label = raw.replace(/§\d/, '').replace(/^(week|semaine)\s*\d+\s*[-–:·]?\s*/i, '').replace(/\bmonday\b/gi, 'Lundi').replace(/\btuesday\b/gi, 'Mardi').replace(/\bwednesday\b/gi, 'Mercredi').replace(/\bthursday\b/gi, 'Jeudi').replace(/\bfriday\b/gi, 'Vendredi').replace(/\bsaturday\b/gi, 'Samedi').replace(/\bsunday\b/gi, 'Dimanche').trim();
                                  return <>
                                    <span className="font-semibold text-white">{label}</span>
-                                   {orderMatch && <span className="text-base">{orderMatch[1] === '1' ? '①' : '②'}</span>}
+                                   {/* Badge d'ordre : §N encodé (comportement d'origine) OU 2 séances le
+                                       même jour (la 1ère n'a pas de §1 encodé → on affiche quand même ①). */}
+                                   {(orderMatch || weekSessions.filter(s => s.planned_date && s.planned_date === session.planned_date).length > 1) &&
+                                     <span className="text-base text-amber-300 font-bold">{(orderMatch ? orderMatch[1] : '1') === '1' ? '①' : '②'}</span>}
                                  </>;
                                })()}
                                {/* Pas de badge de type (Mixte…) sur les séances importées */}
