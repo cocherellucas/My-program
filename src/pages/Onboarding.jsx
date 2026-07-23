@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { base44 } from '@/api/base44Client';
@@ -21,6 +22,7 @@ const STORAGE_KEY = 'onboarding_draft';
 export default function Onboarding() {
   const navigate = useNavigate();
   const { t } = useI18n();
+  const queryClient = useQueryClient();
 
   // ?resetOnboarding → le nettoyage localStorage est fait par TutorialProvider (qui mount avant).
   // Ici on retire juste le paramètre de l'URL après coup.
@@ -35,7 +37,12 @@ export default function Onboarding() {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
   })();
 
-  const [step, setStep] = useState(savedDraft.step ?? 0);
+  // ?end (DEV, à retirer avant commercialisation) → saute direct à l'écran final « profil prêt »
+  const jumpEnd = (() => {
+    try { return typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('end'); } catch { return false; }
+  })();
+
+  const [step, setStep] = useState(jumpEnd ? TOTAL_STEPS - 1 : (savedDraft.step ?? 0));
   const [data, setData] = useState({
     objectives: [],
     available_days: [],
@@ -46,17 +53,24 @@ export default function Onboarding() {
   });
   const [saving, setSaving] = useState(false);
   const [stepError, setStepError] = useState('');
-  const [showFinalChoice, setShowFinalChoice] = useState(false);
+  const [showFinalChoice, setShowFinalChoice] = useState(jumpEnd);
   // Un programme actif existe déjà (ex: import préalable) → on ne propose plus d'importer
   const [hasProgram, setHasProgram] = useState(false);
   useEffect(() => {
     base44.entities.Program.filter({ status: 'active' }, '-created_date', 1)
-      .then(progs => setHasProgram((progs || []).length > 0))
+      .then(progs => {
+        setHasProgram((progs || []).length > 0);
+        // On réchauffe le cache de la page Programme (même requête, même clé) → en arrivant
+        // dessus après « Créer mon programme », activeProgram est déjà là : le panneau
+        // s'affiche direct, sans état vide ni skeleton, et sans refaire d'appel réseau.
+        queryClient.setQueryData(['programs'], progs || []);
+      })
       .catch(() => {});
-  }, []);
+  }, []); // eslint-disable-line
   const [showWelcome, setShowWelcome] = useState(() => {
-    // ?skipIntro → on saute la présentation et on va direct au formulaire
-    // (ex: "Compléter mon profil" depuis le Profil après un import)
+    // ?end (DEV) ou ?skipIntro → on saute la présentation
+    // (?skipIntro : "Compléter mon profil" depuis le Profil après un import)
+    if (jumpEnd) return false;
     if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('skipIntro')) return false;
     // Affiché uniquement si aucun brouillon n'existe encore
     return !savedDraft.step && !savedDraft.data;
@@ -389,7 +403,7 @@ function FinalChoiceSheet({ show, onClose, onGenerate, onImport, hasProgram, onB
               </div>
               <div className="text-left">
                 <p className="font-bold text-sm">{t('ob_create')}</p>
-                <p className="text-xs text-violet-500 mt-0.5">{hasProgram ? t('ob_create_replace') : t('ob_create_ai')}</p>
+                {!hasProgram && <p className="text-xs text-violet-500 mt-0.5">{t('ob_create_ai')}</p>}
               </div>
               {saving && pending === 'generate' ? <Loader2 className="w-4 h-4 ml-auto animate-spin" /> : <ArrowRight className="w-4 h-4 ml-auto" />}
             </button>
@@ -401,7 +415,6 @@ function FinalChoiceSheet({ show, onClose, onGenerate, onImport, hasProgram, onB
                 </div>
                 <div className="text-left">
                   <p className="font-bold text-sm">{t('ob_back_app')}</p>
-                  <p className="text-xs text-white/50 mt-0.5">{t('ob_keep_imported')}</p>
                 </div>
                 {saving && pending === 'back' && <Loader2 className="w-4 h-4 ml-auto animate-spin" />}
               </button>

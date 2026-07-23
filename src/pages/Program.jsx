@@ -445,7 +445,7 @@ export default function Program() {
     try { const p = JSON.parse(d || '[]'); return !(Array.isArray(p) && p.length > 0); } catch { return true; }
   })();
 
-  const { data: programs = [], isLoading: programsLoading } = useQuery({
+  const { data: programs = [], isLoading: programsLoading, isFetched: programsFetched } = useQuery({
     queryKey: ['programs'],
     queryFn: () => base44.entities.Program.filter({ status: 'active' }, '-created_date', 1),
     enabled: !!user,
@@ -915,13 +915,15 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
   // Sort each week's sessions by day order
   Object.values(weeks).forEach(wSessions => {
     wSessions.sort((a, b) => {
-      const dayA = (a.day_label || '').toLowerCase();
-      const dayB = (b.day_label || '').toLowerCase();
       const dateA = a.planned_date ? new Date(a.planned_date).getTime() : Infinity;
       const dateB = b.planned_date ? new Date(b.planned_date).getTime() : Infinity;
-      // If dates differ, sort by date; otherwise sort by day_label
+      // Dates différentes → tri par date ; même date → ordre dans la journée encodé §N
+      // (1ère avant 2ème, défaut 1). Avant : dayOrder[day_label] valait toujours 99 pour
+      // un nom de séance → tri sans effet, la 2ème pouvait passer au-dessus de la 1ère.
       if (dateA !== dateB) return dateA - dateB;
-      return (dayOrder[dayA] ?? 99) - (dayOrder[dayB] ?? 99);
+      const ordA = parseInt((a.day_label || '').match(/§(\d)/)?.[1] || '1', 10);
+      const ordB = parseInt((b.day_label || '').match(/§(\d)/)?.[1] || '1', 10);
+      return ordA - ordB;
     });
   });
 
@@ -1241,7 +1243,9 @@ Les groupes musculaires (muscle_group) doivent aussi être en FRANÇAIS. Exemple
         </Tabs>);
       })()}
 
-      {!activeProgram && !generating && (
+      {/* programsFetched : n'afficher l'état vide qu'APRÈS le chargement des programmes,
+          sinon il flashe le temps que la query (activeProgram) se résolve. */}
+      {!activeProgram && !generating && programsFetched && (
         <Card className="p-12 text-center bg-white/15 backdrop-blur-sm border-white/20">
           <Dumbbell className="w-12 h-12 mx-auto text-white/60 mb-4" />
           <h3 className="font-heading font-bold text-xl mb-2 text-white">{t('pg_no_program')}</h3>
