@@ -8,7 +8,7 @@ import { NumInput } from '@/components/ui/num-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Save, Loader2, User, Ruler, Dumbbell, Calendar, Target, SlidersHorizontal, CheckCircle2, RefreshCw, HelpCircle, Settings } from 'lucide-react';
+import { Save, Loader2, User, Ruler, Dumbbell, Calendar, Target, SlidersHorizontal, CheckCircle2, RefreshCw, HelpCircle, Settings, ChevronDown } from 'lucide-react';
 import { normalizeUser } from '@/lib/utils';
 import { useAuth } from '@/lib/AuthContext';
 import { useI18n } from '@/lib/i18n';
@@ -42,6 +42,7 @@ export default function Profile() {
   const [form, setForm] = useState({});
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showMaintenance, setShowMaintenance] = useState(false); // valeur kcal cachée derrière « Voir »
   const [showRegenBanner, setShowRegenBanner] = useState(false);
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'basics');
   const NO_SAVE_TABS = ['equipment', 'objectives'];
@@ -304,14 +305,20 @@ export default function Profile() {
               });
               if (!cal) return null;
               return (
-                <div className="p-3 rounded-xl bg-white/10 border border-white/15">
-                  <div className="flex items-center justify-between gap-2">
+                <div className="rounded-xl bg-white/10 border border-white/15 overflow-hidden">
+                  <button type="button" onClick={() => setShowMaintenance(v => !v)}
+                    className="w-full flex items-center justify-between gap-2 p-3 text-left hover:bg-white/5 transition-colors">
                     <span className="text-sm font-medium text-white">{t('sp_maintenance')}</span>
-                    <span className="text-lg font-bold text-white whitespace-nowrap">~{cal.maintenance} {t('sp_kcal_day')}</span>
-                  </div>
-                  <p className="text-[11px] text-white/45 mt-1 leading-snug">
-                    {cal.method === 'katch' ? t('sp_maint_katch') : t('sp_maint_mifflin')}
-                  </p>
+                    <span className="flex items-center gap-1.5 text-white/90 font-semibold whitespace-nowrap">
+                      {showMaintenance ? `~${cal.maintenance} ${t('sp_kcal_day')}` : t('sp_see')}
+                      <ChevronDown className={`w-4 h-4 transition-transform ${showMaintenance ? 'rotate-180' : ''}`} />
+                    </span>
+                  </button>
+                  {showMaintenance && (
+                    <p className="text-[11px] text-white/45 px-3 pb-3 leading-snug">
+                      {cal.method === 'katch' ? t('sp_maint_katch') : t('sp_maint_mifflin')}
+                    </p>
+                  )}
                 </div>
               );
             })()}

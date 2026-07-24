@@ -11,7 +11,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Loader2, LayoutList, ChevronRight, ChevronLeft, ChevronDown, Timer, Eye, HelpCircle, TrendingDown, Bot, MessageSquare, X, Dumbbell, GripVertical, ListOrdered, Pin, Pencil } from 'lucide-react';
+import { CheckCircle, Loader2, LayoutList, ChevronRight, ChevronLeft, ChevronDown, Timer, Eye, HelpCircle, TrendingDown, Bot, MessageSquare, X, Dumbbell, GripVertical, ListOrdered, Pin, Pencil, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -169,7 +169,7 @@ function WarmupAccordion({ exercise, logs, exIdx, sets: totalSets }) {
 }
 
 // ─── Single Exercise Focus View ───────────────────────────────────────────────
-function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, openAtLastSet, isImported, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, suggestion, onClearSuggestion, onApplyVariant, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach, sessionsHistory }) {
+function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, openAtLastSet, isImported, editMode, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, suggestion, onClearSuggestion, onApplyVariant, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach, sessionsHistory }) {
   const { t } = useI18n();
   const sets = Math.max(1, exercise.sets || 3);
   // L'exercice fait-il partie de la base (chaînes de progression) ? Sinon on ne
@@ -554,13 +554,13 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
             return (
           <div key={setIdx}
             className={`space-y-1 rounded-xl transition-all border-2 ${
-              isActive
+              (isActive || editMode)
                 ? 'border-white bg-white/15 shadow-lg shadow-white/10'
                 : isDone
                 ? 'border-transparent opacity-50'
                 : 'border-transparent opacity-80'
             }`}>
-              {isActive && (
+              {isActive && !editMode && (
                 <div className="flex items-center justify-between px-3 pt-2">
                   {setIdx > 0 ? (
                     <button
@@ -603,13 +603,15 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
               previousReps={previousLogs?.[exercise.name]?.[setIdx + 1]?.reps}
               previousMode={previousLogs?.[exercise.name]?.[setIdx + 1]?.mode}
               previousQuality={previousLogs?.[exercise.name]?.[setIdx + 1]?.quality}
-              locked={setIdx > activeSetIdx}
+              locked={editMode ? false : setIdx > activeSetIdx}
               onAskCoach={onAskCoach ? (painNote, sIdx, thread) => onAskCoach({ exercise: { ...exercise, _sessionIdx: exIdx }, setIdx: sIdx, painNote, thread, logs: Object.fromEntries(Object.entries(logs).filter(([k]) => k.startsWith(`${exIdx}-`))), allLogs: logs, prevLogs: previousLogs, sessionsHistory }) : undefined} />
             
               <div className="space-y-2">
                 {/* Toute dernière série de la séance → aucun bouton (pas de repos,
-                    et « valider » ne changeait rien : on termine via le bouton Terminer). */}
-                {!(isLast && setIdx === sets - 1) && (
+                    et « valider » ne changeait rien : on termine via le bouton Terminer).
+                    En édition : pas de « Lancer le repos » (toutes les séries sont éditables
+                    d'un coup, pas de flux série-par-série). */}
+                {!(isLast && setIdx === sets - 1) && !editMode && (
                 <button
                 onClick={() => handleSetDone(setIdx)}
                 disabled={!isActive}
@@ -618,7 +620,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
                   <Timer className="w-3 h-3" /> {t('se_start_rest')}
                 </button>
                 )}
-                {setIdx === 0 &&
+                {setIdx === 0 && !editMode &&
               <RestTimerControl
                 seconds={currentRestSeconds ?? exercise.rest_seconds ?? 90}
                 onSave={(newSecs) => onRestTimeSave(exIdx, newSecs)} />
@@ -644,10 +646,10 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
         }
         <Button onClick={onNext} className="flex-1">
           {isLast
-            ? (allSetsDone || activeSetIdx === sets - 1)
+            ? (editMode || allSetsDone || activeSetIdx === sets - 1)
               ? <><CheckCircle className="w-4 h-4 mr-1" /> {t('se_finish')}</>
               : t('se_finish_anyway')
-            : allSetsDone
+            : (editMode || allSetsDone)
               ? <>{t('se_next')} <ChevronRight className="w-4 h-4 ml-1" /></>
               : t('se_skip')
           }
@@ -1212,7 +1214,32 @@ export default function SessionLog() {
   const [showOverview, setShowOverview] = useState(false);
   const [showEnd, setShowEnd] = useState(() => _draft.showEnd || false);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
+  const [showRelaunchConfirm, setShowRelaunchConfirm] = useState(false);
+  // Change de valeur à chaque « Relancer » → remonte l'ExerciseFocusCard (série active/validées
+  // repartent de zéro) une fois les logs vidés.
+  const [relaunchKey, setRelaunchKey] = useState(0);
+  // « Relancer » bascule de la vue correction (toutes séries) vers le flux normal (série-par-série,
+  // repos) SANS effacer les perfs — on les garde comme base, on retire juste le flag `done`.
+  const [relaunched, setRelaunched] = useState(false);
+  // Vue « correction toutes séries » : mode édition tant qu'on n'a pas relancé.
+  const editView = editMode && !relaunched;
   const { startTimer, stopTimer } = useRestTimer();
+  const { startTutorial } = useTutorial() || {};
+
+  // Tuto « Relancer » : en mode correction, on montre une fois le bouton ↺ (icône peu
+  // explicite). ignoreSkipAll : découverte d'une nouvelle possibilité, s'affiche même si
+  // l'utilisateur avait passé les tutos d'onboarding. Complété = ne revient pas.
+  useEffect(() => {
+    if (!editView || showEnd || !startTutorial) return;
+    const timer = setTimeout(() => {
+      startTutorial('relaunch-session', [{
+        target: 'relaunch-session',
+        title: t('se_relaunch_tuto_title'),
+        description: t('se_relaunch_tuto_d'),
+      }], { ignoreSkipAll: true });
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [editView, showEnd, startTutorial]); // eslint-disable-line
 
   // Conteneur scrollable propre (Séance est rendue HORS du carrousel, comme CoachIA,
   // pour pouvoir se pinner au viewport visible quand le clavier s'ouvre).
@@ -2602,6 +2629,13 @@ Ce que l'utilisateur dit : "${painNote}"`;
               <LayoutList className="w-4 h-4 mr-1" />
               {showOverview ? t('se_focus_view') : t('se_overview')}
             </Button>
+            {editView && (
+              <button type="button" data-tutorial="relaunch-session" onClick={() => setShowRelaunchConfirm(true)}
+                aria-label={t('se_relaunch')} title={t('se_relaunch')}
+                className="flex items-center justify-center h-9 w-9 rounded-md border border-white/30 text-white hover:bg-white/10 transition-colors">
+                <RotateCcw className="w-4 h-4" />
+              </button>
+            )}
             <Button variant="ghost" size="sm" onClick={() => setShowQuitConfirm(true)}
               className="text-white/50 hover:text-white hover:bg-white/10">
               {t('se_quit')}
@@ -2631,8 +2665,8 @@ Ce que l'utilisateur dit : "${painNote}"`;
         document.body
       )}
 
-      {/* Mode correction : rappel que la séance est déjà validée */}
-      {editMode && !showEnd && (
+      {/* Mode correction : rappel que la séance est déjà validée (masqué après « Relancer ») */}
+      {editView && !showEnd && (
         <div className="rounded-2xl p-3 bg-amber-500/15 border border-amber-300/30 flex items-start gap-2.5">
           <Pencil className="w-4 h-4 text-amber-200 flex-shrink-0 mt-0.5" />
           <p className="flex-1 min-w-0 text-xs text-amber-100/90 leading-relaxed">{t('se_edit_banner')}</p>
@@ -2696,6 +2730,42 @@ Ce que l'utilisateur dit : "${painNote}"`;
               <button onClick={() => { try { localStorage.removeItem('active_session_id'); } catch {} navigate('/'); }}
                 className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
                 {t('se_quit')}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Relancer la séance : on vide les perfs et on repart de la 1re série. Non destructif —
+          en édition il n'y a pas d'auto-save, donc la BDD garde l'ancienne perf tant qu'on ne
+          re-valide pas. Le changement de relaunchKey remonte la carte (série active/validées à 0). */}
+      {showRelaunchConfirm && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+          <div className="w-full max-w-sm rounded-2xl p-6 text-center space-y-4" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)' }}>
+            <p className="font-bold text-white text-lg">{t('se_relaunch_title')}</p>
+            <p className="text-white/60 text-sm">{t('se_relaunch_sub')}</p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowRelaunchConfirm(false)}
+                className="flex-1 py-2.5 rounded-xl border border-white/20 text-white/70 text-sm font-semibold hover:bg-white/10">
+                {t('se_continue')}
+              </button>
+              <button onClick={() => {
+                // On GARDE les perfs (valeurs) — on retire juste le flag done/skipped pour que
+                // le flux normal reparte du début. relaunched → bascule vue correction → flux normal.
+                setLogs((prev) => Object.fromEntries(Object.entries(prev).map(([k, v]) => {
+                  const { done, skipped, ...rest } = v;
+                  return [k, rest];
+                })));
+                setRelaunched(true);
+                setCurrentExIdx(0);
+                setShowEnd(false);
+                setRelaunchKey((k) => k + 1);
+                setShowRelaunchConfirm(false);
+                scrollRootRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+              }}
+                className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
+                {t('se_relaunch')}
               </button>
             </div>
           </div>
@@ -2771,7 +2841,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
           </motion.div> :
 
         <ExerciseFocusCard
-          key={currentExIdx}
+          key={`${currentExIdx}-${relaunchKey}`}
           exercise={exercises[currentExIdx]}
           originalExercise={session.exercises[currentExIdx]}
           exIdx={currentExIdx}
@@ -2811,6 +2881,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
           setEditingObjectif={setEditingObjectif}
           onUpdateExercise={handleUpdateExercise}
           isImported={isImportedProgram}
+          editMode={editView}
           previousLogs={previousLogs}
           propagateWeight={propagateWeight}
           forcePropagateWeight={forcePropagateWeight}
