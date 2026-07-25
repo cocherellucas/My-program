@@ -2,7 +2,6 @@
  * Calcule le RIR cible optimal pour un exercice donné en tenant compte de :
  * - Phase de progression (MEV / MAV / MRV)
  * - Type de séance (force, hypertrophie, endurance, mixed)
- * - Bloc de l'exercice (A = composés lourds, B = accessoires, C = isolation)
  * - Numéro de série (dernières séries plus intenses)
  * - Numéro de semaine (progression intra-bloc)
  * - Numéro de semaine dans le programme (fatigue accumulée)
@@ -24,10 +23,9 @@ export function computeTargetRIR({ phase, sessionType, block, setIndex, totalSet
   if (sessionType === 'hypertrophy') rir += 0;     // Hypertrophie : on reste sur la base phase
   if (sessionType === 'mixed') rir += 0;
 
-  // Ajustement selon le bloc (A = composé lourd, B = accessoire, C = isolation)
-  const blockUpper = (block || 'B').toString().toUpperCase();
-  if (blockUpper === 'A') rir += 1;   // Composés : une série en plus de réserve pour sécurité
-  if (blockUpper === 'C') rir -= 1;   // Isolation : on peut aller plus près de l'échec
+  // (Ajustement par block retiré : le conseil en séance « pas d'échec si c'est dangereux »
+  // + le RIR éditable gèrent la sécurité. Un défaut uniforme évite de brider inutilement les
+  // composés — un Smith bench / une presse peuvent aller à l'échec.)
 
   // Progression intra-série (dernière série = plus proche de l'échec)
   // Hypertrophie: progression agressive (RIR 0 en dernier)
