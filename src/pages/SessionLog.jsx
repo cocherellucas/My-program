@@ -169,7 +169,7 @@ function WarmupAccordion({ exercise, logs, exIdx, sets: totalSets }) {
 }
 
 // ─── Single Exercise Focus View ───────────────────────────────────────────────
-function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, openAtLastSet, isImported, editMode, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, suggestion, onClearSuggestion, onApplyVariant, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach, sessionsHistory }) {
+function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, openAtLastSet, isImported, editMode, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, suggestion, onClearSuggestion, onApplyVariant, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach, sessionsHistory, sessionId }) {
   const { t } = useI18n();
   const sets = Math.max(1, exercise.sets || 3);
   // L'exercice fait-il partie de la base (chaînes de progression) ? Sinon on ne
@@ -195,12 +195,27 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
   const [activeSetIdx, setActiveSetIdx] = useState(() => {
     // Retour à l'exercice précédent → on ouvre directement sur la dernière série
     if (openAtLastSet) return Math.max(0, sets - 1);
+    // Restaure la position quittée (survit à quitter/revenir la séance). Sans ça
+    // on recalculait sur la 1ère série non-validée → ça « resautait » à la série
+    // suivante quand on était revenu en arrière via Précédent.
+    try {
+      const saved = localStorage.getItem(`active_set_${sessionId}_${exIdx}`);
+      if (saved != null) {
+        const n = parseInt(saved, 10);
+        if (Number.isInteger(n) && n >= 0 && n < sets) return n;
+      }
+    } catch {}
     for (let i = 0; i < sets; i++) {
       if (!logs[`${exIdx}-${i}`]?.done) return i;
     }
     return Math.max(0, sets - 1);
   });
   const [ackedGoodSeries, setAckedGoodSeries] = useState(0);
+
+  // Persiste la position de série → restaurée si on quitte puis revient la séance.
+  useEffect(() => {
+    try { localStorage.setItem(`active_set_${sessionId}_${exIdx}`, String(activeSetIdx)); } catch {}
+  }, [activeSetIdx, sessionId, exIdx]);
 
   const markSetComplete = (idx) => setCompletedSets(prev => new Set([...prev, idx]));
   const isSetDone = (idx) => completedSets.has(idx);
@@ -372,6 +387,9 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
         <ExerciseGif exerciseName={exercise.name} className="h-52 w-full" />
         <div className="p-4">
           <h2 className="font-heading font-bold text-xl text-white">{exercise.name}</h2>
+          {exercise.notes && (
+            <p className="text-xs text-amber-200/90 mt-1 leading-snug">💡 {exercise.notes}</p>
+          )}
           {exercise.muscle_group && <Badge variant="outline" className="text-xs mt-2 border-white/30 text-white">{exercise.muscle_group}</Badge>}
           <div className="mt-3 space-y-2" data-objectif>
             <div className="flex items-center gap-2">
@@ -2845,6 +2863,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
           exercise={exercises[currentExIdx]}
           originalExercise={session.exercises[currentExIdx]}
           exIdx={currentExIdx}
+          sessionId={sessionId}
           logs={logs}
           updateLog={updateLog}
           openAtLastSet={navDir === 'prev'}

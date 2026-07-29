@@ -1,0 +1,1782 @@
+[
+  {
+    "match": {
+      "level": "beginner",
+      "training_context": "full_gym",
+      "availability_optimal": true,
+      "objectives_signature": "hypertrophy:full_body:primary"
+    },
+    "program": {
+      "name": "Full Body Hypertrophie — Débutant",
+      "level": "beginner",
+      "planned_weeks": 8,
+      "split": "full_body",
+      "weekly_frequency": 3,
+      "sessions": [
+        {
+          "day_label": "Full body A",
+          "type": "hypertrophy",
+          "estimated_duration": 54,
+          "exercises": [
+            {
+              "name": "Squat barre",
+              "muscle_group": "Quadriceps",
+              "muscles_secondary": [
+                "Fessiers",
+                "Ischio-jambiers"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre olympique",
+                "Rack squat"
+              ],
+              "sets": 3,
+              "target_reps": "6-8",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Développé couché barre",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [
+                "Triceps",
+                "Épaules"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre olympique",
+                "Banc réglable"
+              ],
+              "sets": 4,
+              "target_reps": "6-8",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Rowing barre",
+              "muscle_group": "Dos",
+              "muscles_secondary": [
+                "Biceps"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre olympique"
+              ],
+              "sets": 4,
+              "target_reps": "8-10",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Développé militaire haltères",
+              "muscle_group": "Épaules",
+              "muscles_secondary": [
+                "Triceps"
+              ],
+              "block": "B",
+              "equipment": [
+                "Haltères",
+                "Banc réglable"
+              ],
+              "sets": 4,
+              "target_reps": "8-12",
+              "rest_seconds": 90
+            },
+            {
+              "name": "Leg curl assis",
+              "muscle_group": "Ischio-jambiers",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Leg curl assis"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 75
+            },
+            {
+              "name": "Curl haltères",
+              "muscle_group": "Biceps",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Haltères"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            }
+          ]
+        },
+        {
+          "day_label": "Full body B",
+          "type": "hypertrophy",
+          "estimated_duration": 54,
+          "exercises": [
+            {
+              "name": "Presse à cuisses",
+              "muscle_group": "Quadriceps",
+              "muscles_secondary": [
+                "Fessiers"
+              ],
+              "block": "B",
+              "equipment": [
+                "Leg press"
+              ],
+              "sets": 4,
+              "target_reps": "10-12",
+              "rest_seconds": 90
+            },
+            {
+              "name": "Fentes haltères",
+              "muscle_group": "Fessiers",
+              "muscles_secondary": [
+                "Quadriceps",
+                "Ischio-jambiers"
+              ],
+              "block": "B",
+              "equipment": [
+                "Haltères"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 90
+            },
+            {
+              "name": "Développé incliné haltères",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [
+                "Épaules",
+                "Triceps"
+              ],
+              "block": "B",
+              "equipment": [
+                "Haltères",
+                "Banc réglable"
+              ],
+              "sets": 4,
+              "target_reps": "8-12",
+              "rest_seconds": 90
+            },
+            {
+              "name": "Tirage vertical",
+              "muscle_group": "Dos",
+              "muscles_secondary": [
+                "Biceps"
+              ],
+              "block": "B",
+              "equipment": [
+                "Tirage vertical"
+              ],
+              "sets": 4,
+              "target_reps": "8-12",
+              "rest_seconds": 90
+            },
+            {
+              "name": "Élévations latérales haltères",
+              "muscle_group": "Épaules",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Haltères"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            },
+            {
+              "name": "Extension triceps à la poulie",
+              "muscle_group": "Triceps",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Câble poulie haute"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            }
+          ]
+        },
+        {
+          "day_label": "Full body C",
+          "type": "hypertrophy",
+          "estimated_duration": 59,
+          "exercises": [
+            {
+              "name": "Squat barre",
+              "muscle_group": "Quadriceps",
+              "muscles_secondary": [
+                "Fessiers",
+                "Ischio-jambiers"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre olympique",
+                "Rack squat"
+              ],
+              "sets": 3,
+              "target_reps": "6-8",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Développé couché haltères",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [
+                "Triceps",
+                "Épaules"
+              ],
+              "block": "B",
+              "equipment": [
+                "Haltères",
+                "Banc réglable"
+              ],
+              "sets": 3,
+              "target_reps": "8-12",
+              "rest_seconds": 90
+            },
+            {
+              "name": "Tirage horizontal câble",
+              "muscle_group": "Dos",
+              "muscles_secondary": [
+                "Biceps"
+              ],
+              "block": "B",
+              "equipment": [
+                "Câble poulie basse"
+              ],
+              "sets": 4,
+              "target_reps": "8-12",
+              "rest_seconds": 90
+            },
+            {
+              "name": "Soulevé de terre roumain haltères",
+              "muscle_group": "Ischio-jambiers",
+              "muscles_secondary": [
+                "Fessiers",
+                "Dos"
+              ],
+              "block": "B",
+              "equipment": [
+                "Haltères"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 90
+            },
+            {
+              "name": "Mollets debout à la presse",
+              "muscle_group": "Mollets",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Leg press"
+              ],
+              "sets": 5,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            },
+            {
+              "name": "Crunch au sol",
+              "muscle_group": "Abdominaux",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Poids du corps"
+              ],
+              "sets": 5,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            }
+          ]
+        }
+      ],
+      "volume_check": {
+        "Quadriceps": 11.5,
+        "Fessiers": 9.5,
+        "Ischio-jambiers": 10.5,
+        "Pectoraux": 11,
+        "Triceps": 10.5,
+        "Épaules": 12.5,
+        "Dos": 13.5,
+        "Biceps": 9,
+        "Mollets": 5,
+        "Abdominaux": 5
+      }
+    }
+  },
+  {
+    "match": {
+      "level": "intermediate",
+      "training_context": "home_barbell",
+      "availability_optimal": false,
+      "objectives_signature": "hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary"
+    },
+    "program": {
+      "name": "Haut Prioritaire — Hypertrophie",
+      "level": "intermediate",
+      "planned_weeks": 6,
+      "split": "upper_lower",
+      "weekly_frequency": 3,
+      "sessions": [
+        {
+          "day_label": "Haut A",
+          "type": "hypertrophy",
+          "estimated_duration": 59,
+          "exercises": [
+            {
+              "name": "Développé couché barre",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [
+                "Triceps",
+                "Épaules"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre olympique",
+                "Banc réglable"
+              ],
+              "sets": 4,
+              "target_reps": "6-8",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Tractions",
+              "muscle_group": "Dos",
+              "muscles_secondary": [
+                "Biceps"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre de traction"
+              ],
+              "sets": 4,
+              "target_reps": "8-12",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Développé militaire barre",
+              "muscle_group": "Épaules",
+              "muscles_secondary": [
+                "Triceps"
+              ],
+              "block": "B",
+              "equipment": [
+                "Barre olympique"
+              ],
+              "sets": 3,
+              "target_reps": "8-10",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Rowing barre",
+              "muscle_group": "Dos",
+              "muscles_secondary": [
+                "Biceps"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre olympique"
+              ],
+              "sets": 3,
+              "target_reps": "8-10",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Curl haltères",
+              "muscle_group": "Biceps",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Haltères"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 75
+            }
+          ]
+        },
+        {
+          "day_label": "Bas",
+          "type": "hypertrophy",
+          "estimated_duration": 59,
+          "exercises": [
+            {
+              "name": "Squat barre",
+              "muscle_group": "Quadriceps",
+              "muscles_secondary": [
+                "Fessiers",
+                "Ischio-jambiers"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre olympique",
+                "Rack squat"
+              ],
+              "sets": 4,
+              "target_reps": "6-8",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Fentes bulgares haltères",
+              "muscle_group": "Quadriceps",
+              "muscles_secondary": [
+                "Fessiers",
+                "Ischio-jambiers"
+              ],
+              "block": "B",
+              "equipment": [
+                "Haltères"
+              ],
+              "sets": 4,
+              "target_reps": "8-12",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Hip thrust barre",
+              "muscle_group": "Fessiers",
+              "muscles_secondary": [
+                "Ischio-jambiers"
+              ],
+              "block": "B",
+              "equipment": [
+                "Barre olympique",
+                "Banc réglable"
+              ],
+              "sets": 3,
+              "target_reps": "8-12",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Soulevé de terre roumain barre",
+              "muscle_group": "Ischio-jambiers",
+              "muscles_secondary": [
+                "Fessiers",
+                "Dos"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre olympique"
+              ],
+              "sets": 3,
+              "target_reps": "8-10",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Mollets debout haltères",
+              "muscle_group": "Mollets",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Haltères"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            }
+          ]
+        },
+        {
+          "day_label": "Haut B",
+          "type": "hypertrophy",
+          "estimated_duration": 59,
+          "exercises": [
+            {
+              "name": "Développé incliné haltères",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [
+                "Épaules",
+                "Triceps"
+              ],
+              "block": "A",
+              "equipment": [
+                "Haltères",
+                "Banc réglable"
+              ],
+              "sets": 4,
+              "target_reps": "8-10",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Développé couché haltères",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [
+                "Triceps",
+                "Épaules"
+              ],
+              "block": "B",
+              "equipment": [
+                "Haltères",
+                "Banc réglable"
+              ],
+              "sets": 4,
+              "target_reps": "8-12",
+              "rest_seconds": 90
+            },
+            {
+              "name": "Rowing haltère unilatéral",
+              "muscle_group": "Dos",
+              "muscles_secondary": [
+                "Biceps"
+              ],
+              "block": "A",
+              "equipment": [
+                "Haltères",
+                "Banc réglable"
+              ],
+              "sets": 3,
+              "target_reps": "8-12",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Élévations latérales haltères",
+              "muscle_group": "Épaules",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Haltères"
+              ],
+              "sets": 4,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            },
+            {
+              "name": "Extension triceps nuque haltère",
+              "muscle_group": "Triceps",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Haltères"
+              ],
+              "sets": 2,
+              "target_reps": "10-12",
+              "rest_seconds": 75
+            }
+          ]
+        }
+      ],
+      "volume_check": {
+        "Pectoraux": 12,
+        "Triceps": 9.5,
+        "Épaules": 13,
+        "Dos": 11.5,
+        "Biceps": 8,
+        "Quadriceps": 8,
+        "Fessiers": 8.5,
+        "Ischio-jambiers": 8.5,
+        "Mollets": 3
+      }
+    }
+  },
+  {
+    "match": {
+      "level": "advanced",
+      "training_context": "full_gym",
+      "availability_optimal": true,
+      "objectives_signature": "strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:specific_group[Dos]:secondary"
+    },
+    "program": {
+      "name": "Force SBD + Dos",
+      "level": "advanced",
+      "planned_weeks": 8,
+      "split": "powerbuilding",
+      "weekly_frequency": 4,
+      "sessions": [
+        {
+          "day_label": "Squat + Dos",
+          "type": "mixed",
+          "estimated_duration": 62,
+          "exercises": [
+            {
+              "name": "Squat barre",
+              "muscle_group": "Quadriceps",
+              "muscles_secondary": [
+                "Fessiers",
+                "Ischio-jambiers"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre olympique",
+                "Rack squat"
+              ],
+              "sets": 5,
+              "target_reps": "3-5",
+              "rest_seconds": 240
+            },
+            {
+              "name": "Presse à cuisses",
+              "muscle_group": "Quadriceps",
+              "muscles_secondary": [
+                "Fessiers"
+              ],
+              "block": "B",
+              "equipment": [
+                "Leg press"
+              ],
+              "sets": 3,
+              "target_reps": "6-8",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Tirage vertical prise large",
+              "muscle_group": "Dos",
+              "muscles_secondary": [
+                "Biceps"
+              ],
+              "block": "B",
+              "equipment": [
+                "Tirage vertical"
+              ],
+              "sets": 4,
+              "target_reps": "8-12",
+              "rest_seconds": 90
+            }
+          ]
+        },
+        {
+          "day_label": "Développé couché + Dos",
+          "type": "mixed",
+          "estimated_duration": 73,
+          "exercises": [
+            {
+              "name": "Développé couché barre",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [
+                "Triceps",
+                "Épaules"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre olympique",
+                "Banc plat"
+              ],
+              "sets": 5,
+              "target_reps": "3-5",
+              "rest_seconds": 240
+            },
+            {
+              "name": "Développé incliné haltères",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [
+                "Épaules",
+                "Triceps"
+              ],
+              "block": "B",
+              "equipment": [
+                "Haltères",
+                "Banc réglable"
+              ],
+              "sets": 3,
+              "target_reps": "6-8",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Rowing horizontal machine",
+              "muscle_group": "Dos",
+              "muscles_secondary": [
+                "Biceps"
+              ],
+              "block": "B",
+              "equipment": [
+                "Rowing horizontal machine"
+              ],
+              "sets": 4,
+              "target_reps": "8-12",
+              "rest_seconds": 90
+            },
+            {
+              "name": "Extension triceps à la poulie",
+              "muscle_group": "Triceps",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Câble poulie haute"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            }
+          ]
+        },
+        {
+          "day_label": "Soulevé de terre + Dos",
+          "type": "mixed",
+          "estimated_duration": 70,
+          "exercises": [
+            {
+              "name": "Soulevé de terre barre",
+              "muscle_group": "Ischio-jambiers",
+              "muscles_secondary": [
+                "Fessiers",
+                "Dos",
+                "Quadriceps"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre olympique"
+              ],
+              "sets": 5,
+              "target_reps": "3-5",
+              "rest_seconds": 240
+            },
+            {
+              "name": "Squat barre (volume)",
+              "muscle_group": "Quadriceps",
+              "muscles_secondary": [
+                "Fessiers",
+                "Ischio-jambiers"
+              ],
+              "block": "B",
+              "equipment": [
+                "Barre olympique",
+                "Rack squat"
+              ],
+              "sets": 3,
+              "target_reps": "6-8",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Tirage vertical prise neutre",
+              "muscle_group": "Dos",
+              "muscles_secondary": [
+                "Biceps"
+              ],
+              "block": "B",
+              "equipment": [
+                "Tirage vertical"
+              ],
+              "sets": 4,
+              "target_reps": "8-12",
+              "rest_seconds": 90
+            },
+            {
+              "name": "Curl haltères",
+              "muscle_group": "Biceps",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Haltères"
+              ],
+              "sets": 2,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            }
+          ]
+        },
+        {
+          "day_label": "Développé + Dos (volume)",
+          "type": "mixed",
+          "estimated_duration": 68,
+          "exercises": [
+            {
+              "name": "Développé couché barre (volume)",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [
+                "Triceps",
+                "Épaules"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre olympique",
+                "Banc plat"
+              ],
+              "sets": 4,
+              "target_reps": "6-8",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Développé militaire barre",
+              "muscle_group": "Épaules",
+              "muscles_secondary": [
+                "Triceps"
+              ],
+              "block": "B",
+              "equipment": [
+                "Barre olympique"
+              ],
+              "sets": 3,
+              "target_reps": "6-8",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Tractions lestées",
+              "muscle_group": "Dos",
+              "muscles_secondary": [
+                "Biceps"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre de traction"
+              ],
+              "sets": 4,
+              "target_reps": "8-12",
+              "rest_seconds": 90
+            },
+            {
+              "name": "Élévations latérales haltères",
+              "muscle_group": "Épaules",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Haltères"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            },
+            {
+              "name": "Face pull câble",
+              "muscle_group": "Épaules",
+              "muscles_secondary": [
+                "Dos"
+              ],
+              "block": "C",
+              "equipment": [
+                "Câble poulie haute"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 75
+            }
+          ]
+        }
+      ],
+      "volume_check": {
+        "Quadriceps": 13.5,
+        "Fessiers": 8,
+        "Ischio-jambiers": 9,
+        "Dos": 20,
+        "Biceps": 10,
+        "Pectoraux": 12,
+        "Triceps": 10.5,
+        "Épaules": 15
+      }
+    }
+  },
+  {
+    "match": {
+      "level": "beginner",
+      "training_context": "bodyweight",
+      "availability_optimal": false,
+      "objectives_signature": "endurance:full_body:primary"
+    },
+    "program": {
+      "name": "Circuit Endurance — Poids du Corps",
+      "level": "beginner",
+      "planned_weeks": 6,
+      "split": "full_body",
+      "weekly_frequency": 3,
+      "sessions": [
+        {
+          "day_label": "Séance 1 (30 min)",
+          "type": "endurance",
+          "estimated_duration": 30,
+          "exercises": [
+            {
+              "name": "Tractions",
+              "muscle_group": "Dos",
+              "muscles_secondary": [
+                "Biceps"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre de traction haute"
+              ],
+              "sets": 3,
+              "target_reps": "12-15",
+              "rest_seconds": 45
+            },
+            {
+              "name": "Dips",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [
+                "Triceps",
+                "Épaules"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barres parallèles"
+              ],
+              "sets": 3,
+              "target_reps": "12-15",
+              "rest_seconds": 45
+            },
+            {
+              "name": "Squats poids du corps",
+              "muscle_group": "Quadriceps",
+              "muscles_secondary": [
+                "Fessiers"
+              ],
+              "block": "A",
+              "equipment": [
+                "Poids du corps"
+              ],
+              "sets": 3,
+              "target_reps": "15-20",
+              "rest_seconds": 45
+            },
+            {
+              "name": "Gainage planche",
+              "muscle_group": "Abdominaux",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Poids du corps"
+              ],
+              "sets": 3,
+              "target_reps": "15-20",
+              "rest_seconds": 30
+            }
+          ]
+        },
+        {
+          "day_label": "Séance 2 (30 min)",
+          "type": "endurance",
+          "estimated_duration": 30,
+          "exercises": [
+            {
+              "name": "Rowing australien barre basse",
+              "muscle_group": "Dos",
+              "muscles_secondary": [
+                "Biceps"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre basse"
+              ],
+              "sets": 4,
+              "target_reps": "15-20",
+              "rest_seconds": 45
+            },
+            {
+              "name": "Pompes",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [
+                "Triceps",
+                "Épaules"
+              ],
+              "block": "A",
+              "equipment": [
+                "Poids du corps"
+              ],
+              "sets": 3,
+              "target_reps": "15-20",
+              "rest_seconds": 45
+            },
+            {
+              "name": "Fentes alternées",
+              "muscle_group": "Fessiers",
+              "muscles_secondary": [
+                "Quadriceps",
+                "Ischio-jambiers"
+              ],
+              "block": "B",
+              "equipment": [
+                "Poids du corps"
+              ],
+              "sets": 3,
+              "target_reps": "15-20",
+              "rest_seconds": 45
+            },
+            {
+              "name": "Pompes piquées",
+              "muscle_group": "Épaules",
+              "muscles_secondary": [
+                "Triceps"
+              ],
+              "block": "B",
+              "equipment": [
+                "Poids du corps"
+              ],
+              "sets": 2,
+              "target_reps": "12-15",
+              "rest_seconds": 45
+            }
+          ]
+        },
+        {
+          "day_label": "Séance 3 (45 min)",
+          "type": "endurance",
+          "estimated_duration": 44,
+          "exercises": [
+            {
+              "name": "Tractions",
+              "muscle_group": "Dos",
+              "muscles_secondary": [
+                "Biceps"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre de traction haute"
+              ],
+              "sets": 3,
+              "target_reps": "12-15",
+              "rest_seconds": 45
+            },
+            {
+              "name": "Dips",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [
+                "Triceps",
+                "Épaules"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barres parallèles"
+              ],
+              "sets": 3,
+              "target_reps": "12-15",
+              "rest_seconds": 45
+            },
+            {
+              "name": "Squats poids du corps",
+              "muscle_group": "Quadriceps",
+              "muscles_secondary": [
+                "Fessiers"
+              ],
+              "block": "A",
+              "equipment": [
+                "Poids du corps"
+              ],
+              "sets": 3,
+              "target_reps": "15-20",
+              "rest_seconds": 45
+            },
+            {
+              "name": "Rowing australien barre basse",
+              "muscle_group": "Dos",
+              "muscles_secondary": [
+                "Biceps"
+              ],
+              "block": "B",
+              "equipment": [
+                "Barre basse"
+              ],
+              "sets": 3,
+              "target_reps": "15-20",
+              "rest_seconds": 45
+            },
+            {
+              "name": "Fentes alternées",
+              "muscle_group": "Fessiers",
+              "muscles_secondary": [
+                "Quadriceps",
+                "Ischio-jambiers"
+              ],
+              "block": "B",
+              "equipment": [
+                "Poids du corps"
+              ],
+              "sets": 3,
+              "target_reps": "15-20",
+              "rest_seconds": 45
+            },
+            {
+              "name": "Mollets debout",
+              "muscle_group": "Mollets",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Poids du corps"
+              ],
+              "sets": 3,
+              "target_reps": "15-20",
+              "rest_seconds": 30
+            },
+            {
+              "name": "Relevé de jambes suspendu",
+              "muscle_group": "Abdominaux",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Barre de traction haute"
+              ],
+              "sets": 2,
+              "target_reps": "15-20",
+              "rest_seconds": 30
+            }
+          ]
+        }
+      ],
+      "volume_check": {
+        "Dos": 13,
+        "Biceps": 6.5,
+        "Pectoraux": 9,
+        "Triceps": 5.5,
+        "Épaules": 6.5,
+        "Quadriceps": 9,
+        "Fessiers": 9,
+        "Abdominaux": 5,
+        "Ischio-jambiers": 3,
+        "Mollets": 3
+      }
+    }
+  },
+  {
+    "match": {
+      "level": "intermediate",
+      "training_context": "custom",
+      "availability_optimal": true,
+      "objectives_signature": "hypertrophy:specific_group[Pectoraux,Épaules,Triceps]:primary"
+    },
+    "program": {
+      "name": "Spécialisation Push — Hypertrophie",
+      "level": "intermediate",
+      "planned_weeks": 6,
+      "split": "push",
+      "weekly_frequency": 3,
+      "sessions": [
+        {
+          "day_label": "Push A (pectoraux)",
+          "type": "hypertrophy",
+          "estimated_duration": 47,
+          "exercises": [
+            {
+              "name": "Développé couché haltères",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [
+                "Triceps",
+                "Épaules"
+              ],
+              "block": "A",
+              "equipment": [
+                "Haltères",
+                "Banc réglable"
+              ],
+              "sets": 4,
+              "target_reps": "6-8",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Développé incliné haltères",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [
+                "Épaules",
+                "Triceps"
+              ],
+              "block": "B",
+              "equipment": [
+                "Haltères",
+                "Banc réglable"
+              ],
+              "sets": 4,
+              "target_reps": "8-12",
+              "rest_seconds": 90
+            },
+            {
+              "name": "Élévations latérales haltères",
+              "muscle_group": "Épaules",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Haltères"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            },
+            {
+              "name": "Extension triceps nuque haltère",
+              "muscle_group": "Triceps",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Haltères"
+              ],
+              "sets": 2,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            }
+          ]
+        },
+        {
+          "day_label": "Push B (épaules)",
+          "type": "hypertrophy",
+          "estimated_duration": 47,
+          "exercises": [
+            {
+              "name": "Développé haltères assis",
+              "muscle_group": "Épaules",
+              "muscles_secondary": [
+                "Triceps"
+              ],
+              "block": "A",
+              "equipment": [
+                "Haltères",
+                "Banc réglable"
+              ],
+              "sets": 3,
+              "target_reps": "6-8",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Écarté haltères",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Haltères",
+                "Banc réglable"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 75
+            },
+            {
+              "name": "Élévations latérales haltères",
+              "muscle_group": "Épaules",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Haltères"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            },
+            {
+              "name": "Oiseau haltères (deltoïde postérieur)",
+              "muscle_group": "Épaules",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Haltères"
+              ],
+              "sets": 2,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            },
+            {
+              "name": "Extension triceps élastique",
+              "muscle_group": "Triceps",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Élastiques de résistance"
+              ],
+              "sets": 2,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            }
+          ]
+        },
+        {
+          "day_label": "Push C (bras)",
+          "type": "hypertrophy",
+          "estimated_duration": 44,
+          "exercises": [
+            {
+              "name": "Dips (buste droit, triceps)",
+              "muscle_group": "Triceps",
+              "muscles_secondary": [
+                "Pectoraux",
+                "Épaules"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barres parallèles"
+              ],
+              "sets": 3,
+              "target_reps": "8-12",
+              "rest_seconds": 90
+            },
+            {
+              "name": "Développé couché haltères",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [
+                "Triceps",
+                "Épaules"
+              ],
+              "block": "A",
+              "equipment": [
+                "Haltères",
+                "Banc réglable"
+              ],
+              "sets": 4,
+              "target_reps": "8-10",
+              "rest_seconds": 90
+            },
+            {
+              "name": "Écarté incliné haltères",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Haltères",
+                "Banc réglable"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 75
+            },
+            {
+              "name": "Élévations latérales haltères",
+              "muscle_group": "Épaules",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Haltères"
+              ],
+              "sets": 2,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            }
+          ]
+        }
+      ],
+      "volume_check": {
+        "Pectoraux": 19.5,
+        "Triceps": 14.5,
+        "Épaules": 20.5
+      }
+    }
+  },
+  {
+    "match": {
+      "level": "advanced",
+      "training_context": "full_gym",
+      "availability_optimal": false,
+      "objectives_signature": "hypertrophy:full_body:primary+strength:lower_body:secondary"
+    },
+    "program": {
+      "name": "Full Body Hypertrophie + Force Bas",
+      "level": "advanced",
+      "planned_weeks": 6,
+      "split": "ppl_upper_lower",
+      "weekly_frequency": 5,
+      "sessions": [
+        {
+          "day_label": "Bas du corps (Force)",
+          "type": "mixed",
+          "estimated_duration": 74,
+          "exercises": [
+            {
+              "name": "Squat barre",
+              "muscle_group": "Quadriceps",
+              "muscles_secondary": [
+                "Fessiers",
+                "Ischio-jambiers"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre olympique",
+                "Rack squat"
+              ],
+              "sets": 4,
+              "target_reps": "3-5",
+              "rest_seconds": 240
+            },
+            {
+              "name": "Soulevé de terre barre",
+              "muscle_group": "Ischio-jambiers",
+              "muscles_secondary": [
+                "Fessiers",
+                "Dos",
+                "Quadriceps"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre olympique"
+              ],
+              "sets": 3,
+              "target_reps": "3-5",
+              "rest_seconds": 240
+            },
+            {
+              "name": "Presse à cuisses",
+              "muscle_group": "Quadriceps",
+              "muscles_secondary": [
+                "Fessiers"
+              ],
+              "block": "B",
+              "equipment": [
+                "Leg press"
+              ],
+              "sets": 3,
+              "target_reps": "8-10",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Leg curl assis",
+              "muscle_group": "Ischio-jambiers",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Leg curl assis"
+              ],
+              "sets": 2,
+              "target_reps": "10-12",
+              "rest_seconds": 75
+            },
+            {
+              "name": "Mollets à la presse",
+              "muscle_group": "Mollets",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Leg press"
+              ],
+              "sets": 2,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            }
+          ]
+        },
+        {
+          "day_label": "Push (Hypertrophie)",
+          "type": "hypertrophy",
+          "estimated_duration": 74,
+          "exercises": [
+            {
+              "name": "Développé couché barre",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [
+                "Triceps",
+                "Épaules"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre olympique",
+                "Banc plat"
+              ],
+              "sets": 4,
+              "target_reps": "6-8",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Développé incliné haltères",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [
+                "Épaules",
+                "Triceps"
+              ],
+              "block": "B",
+              "equipment": [
+                "Haltères",
+                "Banc réglable"
+              ],
+              "sets": 3,
+              "target_reps": "8-12",
+              "rest_seconds": 90
+            },
+            {
+              "name": "Écarté à la machine (pec deck)",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Pec deck"
+              ],
+              "sets": 2,
+              "target_reps": "10-12",
+              "rest_seconds": 75
+            },
+            {
+              "name": "Développé militaire haltères",
+              "muscle_group": "Épaules",
+              "muscles_secondary": [
+                "Triceps"
+              ],
+              "block": "B",
+              "equipment": [
+                "Haltères",
+                "Banc réglable"
+              ],
+              "sets": 4,
+              "target_reps": "8-12",
+              "rest_seconds": 90
+            },
+            {
+              "name": "Élévations latérales haltères",
+              "muscle_group": "Épaules",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Haltères"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            },
+            {
+              "name": "Mollets à la presse",
+              "muscle_group": "Mollets",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Leg press"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            }
+          ]
+        },
+        {
+          "day_label": "Pull (Hypertrophie)",
+          "type": "hypertrophy",
+          "estimated_duration": 74,
+          "exercises": [
+            {
+              "name": "Tractions lestées",
+              "muscle_group": "Dos",
+              "muscles_secondary": [
+                "Biceps"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre de traction"
+              ],
+              "sets": 4,
+              "target_reps": "6-8",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Rowing barre",
+              "muscle_group": "Dos",
+              "muscles_secondary": [
+                "Biceps"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre olympique"
+              ],
+              "sets": 4,
+              "target_reps": "8-10",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Tirage vertical",
+              "muscle_group": "Dos",
+              "muscles_secondary": [
+                "Biceps"
+              ],
+              "block": "B",
+              "equipment": [
+                "Tirage vertical"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 90
+            },
+            {
+              "name": "Curl barre EZ",
+              "muscle_group": "Biceps",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Barre EZ"
+              ],
+              "sets": 3,
+              "target_reps": "8-12",
+              "rest_seconds": 75
+            },
+            {
+              "name": "Crunch à la poulie",
+              "muscle_group": "Abdominaux",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Station câbles double"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            },
+            {
+              "name": "Mollets à la presse",
+              "muscle_group": "Mollets",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Leg press"
+              ],
+              "sets": 2,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            }
+          ]
+        },
+        {
+          "day_label": "Bas du corps (Hypertrophie)",
+          "type": "hypertrophy",
+          "estimated_duration": 74,
+          "exercises": [
+            {
+              "name": "Hack squat",
+              "muscle_group": "Quadriceps",
+              "muscles_secondary": [
+                "Fessiers"
+              ],
+              "block": "A",
+              "equipment": [
+                "Hack squat machine"
+              ],
+              "sets": 4,
+              "target_reps": "8-10",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Presse à cuisses",
+              "muscle_group": "Quadriceps",
+              "muscles_secondary": [
+                "Fessiers"
+              ],
+              "block": "B",
+              "equipment": [
+                "Leg press"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 90
+            },
+            {
+              "name": "Hip thrust machine",
+              "muscle_group": "Fessiers",
+              "muscles_secondary": [
+                "Ischio-jambiers"
+              ],
+              "block": "B",
+              "equipment": [
+                "Hip thrust machine"
+              ],
+              "sets": 4,
+              "target_reps": "8-12",
+              "rest_seconds": 90
+            },
+            {
+              "name": "Leg curl assis",
+              "muscle_group": "Ischio-jambiers",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Leg curl assis"
+              ],
+              "sets": 2,
+              "target_reps": "10-12",
+              "rest_seconds": 75
+            },
+            {
+              "name": "Mollets à la presse",
+              "muscle_group": "Mollets",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Leg press"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            },
+            {
+              "name": "Crunch à la poulie",
+              "muscle_group": "Abdominaux",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Station câbles double"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            }
+          ]
+        },
+        {
+          "day_label": "Haut du corps (Hypertrophie)",
+          "type": "hypertrophy",
+          "estimated_duration": 74,
+          "exercises": [
+            {
+              "name": "Développé incliné barre",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [
+                "Épaules",
+                "Triceps"
+              ],
+              "block": "A",
+              "equipment": [
+                "Barre olympique",
+                "Banc réglable"
+              ],
+              "sets": 4,
+              "target_reps": "8-10",
+              "rest_seconds": 120
+            },
+            {
+              "name": "Écarté à la poulie",
+              "muscle_group": "Pectoraux",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Station câbles double"
+              ],
+              "sets": 2,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            },
+            {
+              "name": "Rowing à la poulie (station câbles)",
+              "muscle_group": "Dos",
+              "muscles_secondary": [
+                "Biceps"
+              ],
+              "block": "A",
+              "equipment": [
+                "Station câbles double"
+              ],
+              "sets": 3,
+              "target_reps": "8-12",
+              "rest_seconds": 90
+            },
+            {
+              "name": "Élévations latérales haltères",
+              "muscle_group": "Épaules",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Haltères"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            },
+            {
+              "name": "Extension triceps nuque barre EZ",
+              "muscle_group": "Triceps",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Barre EZ"
+              ],
+              "sets": 3,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            },
+            {
+              "name": "Crunch à la poulie",
+              "muscle_group": "Abdominaux",
+              "muscles_secondary": [],
+              "block": "C",
+              "equipment": [
+                "Station câbles double"
+              ],
+              "sets": 4,
+              "target_reps": "10-12",
+              "rest_seconds": 60
+            }
+          ]
+        }
+      ],
+      "volume_check": {
+        "Quadriceps": 15.5,
+        "Fessiers": 12.5,
+        "Ischio-jambiers": 11,
+        "Dos": 15.5,
+        "Mollets": 10,
+        "Pectoraux": 15,
+        "Triceps": 10.5,
+        "Épaules": 15.5,
+        "Biceps": 10,
+        "Abdominaux": 10
+      }
+    }
+  }
+]

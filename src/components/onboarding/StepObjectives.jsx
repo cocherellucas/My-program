@@ -8,47 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { Plus, Trash2, HelpCircle, ChevronDown, Zap, SlidersHorizontal } from 'lucide-react';
-import { VOLUME_TABLES, LARGE_MUSCLES } from '@/lib/coaching-engine';
+import { Plus, Trash2, HelpCircle, ChevronDown, Zap } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
-
-// Muscles par zone (noms du moteur, pas noms affichés)
-const ZONE_MUSCLES_MAP = {
-  upper_body: ['Poitrine', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Abdos'],
-  lower_body: ['Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Adducteurs'],
-  full_body:  ['Poitrine', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Abdos'],
-};
-
-// Correspondance nom moteur → nom affiché
-const MUSCLE_DISPLAY = {
-  'Poitrine': 'Pectoraux', 'Dos': 'Dos', 'Épaules': 'Épaules',
-  'Biceps': 'Biceps', 'Triceps': 'Triceps', 'Quadriceps': 'Quadriceps',
-  'Ischio-jambiers': 'Ischio', 'Fessiers': 'Fessiers', 'Mollets': 'Mollets',
-  'Abdos': 'Abdominaux', 'Adducteurs': 'Adducteurs',
-};
-
-// Correspondance noms affichés (GROUPS) → noms moteur
-const GROUP_TO_MUSCLE = {
-  'Pectoraux': 'Poitrine', 'Abdominaux': 'Abdos',
-};
-
-function getMuscleVolumeRef(muscle, level, objType) {
-  const size = LARGE_MUSCLES.has(muscle) ? 'large' : 'small';
-  const tbl  = (VOLUME_TABLES[objType] || VOLUME_TABLES.hypertrophy)[size]?.[level]
-            || VOLUME_TABLES.hypertrophy.large.intermediate;
-  return { mev: tbl.MEV, mav: tbl.MAV, mrv: tbl.MRV };
-}
-
-// Temps par série (min) par objectif — cohérent avec program-builder
-const SET_DUR_BY_LEVEL = {
-  strength:    { beginner: 3.5, intermediate: 5,   advanced: 6   },
-  hypertrophy: { beginner: 2.2, intermediate: 3,   advanced: 3.5 },
-  endurance:   { beginner: 1.8, intermediate: 1.5, advanced: 1.2 },
-};
-const getSetDurUI = (obj, lvl) =>
-  (SET_DUR_BY_LEVEL[obj] || SET_DUR_BY_LEVEL.hypertrophy)[lvl] || 3;
-const TRANSITION = 1.5 / 4;
-const WARMUP_MIN = 8;
 
 const TYPES = [
   { value: 'strength', label: 'Devenir plus fort' },
@@ -68,19 +29,6 @@ const GROUPS = [
   'Fessiers', 'Quadriceps', 'Ischio-jambiers', 'Mollets'
 ];
 
-const MUSCLE_DETAILS = {
-  'Pectoraux':       ['Faisceau claviculaire (haut)', 'Faisceau sternal (milieu)', 'Faisceau abdominal (bas)', 'Petit pectoral'],
-  'Dos':             ['Grand dorsal', 'Trapèze (sup. / moy. / inf.)', 'Rhomboïdes', 'Grand rond', 'Érecteurs spinaux (thoracique)', 'Lombaires'],
-  'Épaules':         ['Deltoïde antérieur (devant)', 'Deltoïde médian (côté)', 'Deltoïde postérieur (derrière)', 'Coiffe des rotateurs'],
-  'Biceps':          ['Chef long (longue portion)', 'Chef court (courte portion)', 'Brachial antérieur', 'Brachio-radial'],
-  'Triceps':         ['Chef long', 'Chef médial', 'Chef latéral'],
-  'Quadriceps':      ['Droit fémoral', 'Vaste latéral', 'Vaste médial', 'Vaste intermédiaire'],
-  'Ischio-jambiers': ['Biceps fémoral (chef long + court)', 'Semi-tendineux', 'Semi-membraneux'],
-  'Fessiers':        ['Grand fessier (gluteus maximus)', 'Moyen fessier (gluteus medius)', 'Petit fessier (gluteus minimus)'],
-  'Mollets':         ['Gastrocnémien — chef interne', 'Gastrocnémien — chef externe', 'Soléaire'],
-  'Abdominaux':      ['Droit abdominal', 'Oblique externe', 'Oblique interne', 'Transverse'],
-};
-
 const selectClass = 'h-9 bg-white/20 border-white/40 text-white [&>span]:text-white [&>span[data-placeholder]]:text-white/50 [&>svg]:opacity-100 [&>svg]:text-white';
 
 
@@ -92,9 +40,6 @@ export default function StepObjectives({ data, onChange }) {
   const zDisp = (value) => (ZONE_TKEYS[value] ? t(ZONE_TKEYS[value]) : value);
   const objectives      = data.objectives || [];
   const level           = data.level || 'intermediate';
-  const volumeMode      = level === 'beginner' ? 'auto' : (data.volume_mode || 'auto');
-  const volumeOverrides = data.volume_overrides || {};
-  const primaryType     = objectives.find(o => o.priority === 'primary')?.type || 'hypertrophy';
 
   const [strengthFocus, setStrengthFocus] = useState({});
   const [detailMode, setDetailMode] = useState({});
@@ -176,33 +121,6 @@ export default function StepObjectives({ data, onChange }) {
     }
   }, []); // eslint-disable-line
 
-
-  // Union des muscles couverts par les objectifs actuels (noms moteur)
-  const objectiveMuscles = [...new Set(
-    objectives.flatMap(obj => {
-      if (obj.zone === 'specific_group' && Array.isArray(obj.focus_group))
-        return obj.focus_group.map(g => GROUP_TO_MUSCLE[g] || g);
-      return ZONE_MUSCLES_MAP[obj.zone] || ZONE_MUSCLES_MAP.full_body;
-    })
-  )];
-
-  // Séries totales atteignables par semaine selon les dispo
-  const totalAchievable = (data.available_days || []).reduce((sum, day) => {
-    const dur  = parseInt(data.duration_per_day?.[day]) || 0;
-    const avail = Math.max(0, dur - WARMUP_MIN);
-    return sum + Math.floor(avail / (getSetDurUI(primaryType, level) + TRANSITION));
-  }, 0);
-
-  const totalRequested = objectiveMuscles.reduce((s, m) => {
-    const { mav } = getMuscleVolumeRef(m, level, primaryType);
-    return s + (volumeOverrides[m] ?? mav);
-  }, 0);
-
-  const setVolumeOverride = (muscle, value) => {
-    const { mrv } = getMuscleVolumeRef(muscle, level, primaryType);
-    const clamped = Math.min(Math.max(0, value), mrv);
-    onChange({ volume_overrides: { ...volumeOverrides, [muscle]: clamped } });
-  };
 
   const addObjective = () => {
     onChange({
@@ -672,48 +590,6 @@ export default function StepObjectives({ data, onChange }) {
           <p className="text-xs text-white/60">
             <span className="font-semibold text-white">{t('oj_max3')}</span> {t('oj_max3_d')}
           </p>
-        </div>
-      )}
-
-      {/* Volume précis — affiché uniquement en mode manuel */}
-      {volumeMode === 'manual' && objectiveMuscles.length > 0 && (
-        <div className="p-4 bg-white/10 rounded-xl border border-white/20 space-y-3">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-white">{t('oj_sets_muscle')}</p>
-            <p className="text-xs text-white/40">MEV · MAV · MRV</p>
-          </div>
-          <div className="space-y-2">
-            {objectiveMuscles.map(muscle => {
-              const { mev, mav, mrv } = getMuscleVolumeRef(muscle, level, primaryType);
-              const val = volumeOverrides[muscle] ?? mav;
-              const zone = val < mev ? 'below' : val <= mav ? 'mev' : val <= mrv ? 'mav' : 'over';
-              const valColor = { below: 'text-red-300', mev: 'text-yellow-300', mav: 'text-green-300', over: 'text-orange-300' }[zone];
-              return (
-                <div key={muscle} className="flex items-center gap-3">
-                  <span className="text-xs text-white w-20 flex-shrink-0">{mDisp(muscle)}</span>
-                  <span className="text-xs text-white/25 flex-1 text-right tabular-nums">{mev}·{mav}·{mrv}</span>
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <button type="button" onClick={() => setVolumeOverride(muscle, val - 1)}
-                      className="w-6 h-6 rounded bg-white/10 text-white/60 hover:bg-white/20 flex items-center justify-center text-sm leading-none">−</button>
-                    <span className={cn('w-7 text-center text-sm font-bold tabular-nums', valColor)}>{val}</span>
-                    <button type="button" onClick={() => setVolumeOverride(muscle, val + 1)}
-                      className="w-6 h-6 rounded bg-white/10 text-white/60 hover:bg-white/20 flex items-center justify-center text-sm leading-none">+</button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className={cn('flex items-center justify-between pt-2 border-t border-white/10 text-xs font-medium',
-            totalRequested > totalAchievable ? 'text-red-300' : 'text-green-300')}>
-            <span>{t('oj_requested')} : {totalRequested} {t('oj_sets_wk')}</span>
-            <span>{t('oj_available')} : {totalAchievable === 0 ? '—' : totalAchievable + ' ' + t('oj_sets_wk')}</span>
-          </div>
-          {totalRequested > totalAchievable && totalAchievable > 0 && (
-            <p className="text-xs text-red-300">
-              ⚠️ +{totalRequested - totalAchievable} {t('oj_overage')}
-            </p>
-          )}
-          <p className="text-xs text-white/30">{t('oj_distribute')}</p>
         </div>
       )}
 

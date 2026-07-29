@@ -1,0 +1,628 @@
+[
+  {
+    "name": "Dips",
+    "muscle_group": "Pectoraux",
+    "muscles_secondary": [
+      "Triceps",
+      "Épaules"
+    ],
+    "block": "A",
+    "equipment": [
+      "Barres parallèles"
+    ]
+  },
+  {
+    "name": "Développé couché barre",
+    "muscle_group": "Pectoraux",
+    "muscles_secondary": [
+      "Triceps",
+      "Épaules"
+    ],
+    "block": "A",
+    "equipment": [
+      "Barre olympique",
+      "Banc réglable"
+    ]
+  },
+  {
+    "name": "Développé couché barre (volume)",
+    "muscle_group": "Pectoraux",
+    "muscles_secondary": [
+      "Triceps",
+      "Épaules"
+    ],
+    "block": "A",
+    "equipment": [
+      "Barre olympique",
+      "Banc plat"
+    ]
+  },
+  {
+    "name": "Développé incliné barre",
+    "muscle_group": "Pectoraux",
+    "muscles_secondary": [
+      "Épaules",
+      "Triceps"
+    ],
+    "block": "A",
+    "equipment": [
+      "Barre olympique",
+      "Banc réglable"
+    ]
+  },
+  {
+    "name": "Pompes",
+    "muscle_group": "Pectoraux",
+    "muscles_secondary": [
+      "Triceps",
+      "Épaules"
+    ],
+    "block": "A",
+    "equipment": [
+      "Poids du corps"
+    ]
+  },
+  {
+    "name": "Développé couché haltères",
+    "muscle_group": "Pectoraux",
+    "muscles_secondary": [
+      "Triceps",
+      "Épaules"
+    ],
+    "block": "B",
+    "equipment": [
+      "Haltères",
+      "Banc réglable"
+    ]
+  },
+  {
+    "name": "Développé incliné haltères",
+    "muscle_group": "Pectoraux",
+    "muscles_secondary": [
+      "Épaules",
+      "Triceps"
+    ],
+    "block": "B",
+    "equipment": [
+      "Haltères",
+      "Banc réglable"
+    ]
+  },
+  {
+    "name": "Écarté haltères",
+    "muscle_group": "Pectoraux",
+    "muscles_secondary": [],
+    "block": "C",
+    "equipment": [
+      "Haltères",
+      "Banc réglable"
+    ]
+  },
+  {
+    "name": "Écarté incliné haltères",
+    "muscle_group": "Pectoraux",
+    "muscles_secondary": [],
+    "block": "C",
+    "equipment": [
+      "Haltères",
+      "Banc réglable"
+    ]
+  },
+  {
+    "name": "Écarté à la machine (pec deck)",
+    "muscle_group": "Pectoraux",
+    "muscles_secondary": [],
+    "block": "C",
+    "equipment": [
+      "Pec deck"
+    ]
+  },
+  {
+    "name": "Écarté à la poulie",
+    "muscle_group": "Pectoraux",
+    "muscles_secondary": [],
+    "block": "C",
+    "equipment": [
+      "Station câbles double"
+    ]
+  },
+  {
+    "name": "Développé haltères assis",
+    "muscle_group": "Épaules",
+    "muscles_secondary": [
+      "Triceps"
+    ],
+    "block": "A",
+    "equipment": [
+      "Haltères",
+      "Banc réglable"
+    ]
+  },
+  {
+    "name": "Développé militaire barre",
+    "muscle_group": "Épaules",
+    "muscles_secondary": [
+      "Triceps"
+    ],
+    "block": "B",
+    "equipment": [
+      "Barre olympique"
+    ]
+  },
+  {
+    "name": "Développé militaire haltères",
+    "muscle_group": "Épaules",
+    "muscles_secondary": [
+      "Triceps"
+    ],
+    "block": "B",
+    "equipment": [
+      "Haltères",
+      "Banc réglable"
+    ]
+  },
+  {
+    "name": "Pompes piquées",
+    "muscle_group": "Épaules",
+    "muscles_secondary": [
+      "Triceps"
+    ],
+    "block": "B",
+    "equipment": [
+      "Poids du corps"
+    ]
+  },
+  {
+    "name": "Face pull câble",
+    "muscle_group": "Épaules",
+    "muscles_secondary": [
+      "Dos"
+    ],
+    "block": "C",
+    "equipment": [
+      "Câble poulie haute"
+    ]
+  },
+  {
+    "name": "Oiseau haltères (deltoïde postérieur)",
+    "muscle_group": "Épaules",
+    "muscles_secondary": [],
+    "block": "C",
+    "equipment": [
+      "Haltères"
+    ]
+  },
+  {
+    "name": "Élévations latérales haltères",
+    "muscle_group": "Épaules",
+    "muscles_secondary": [],
+    "block": "C",
+    "equipment": [
+      "Haltères"
+    ]
+  },
+  {
+    "name": "Dips (buste droit, triceps)",
+    "muscle_group": "Triceps",
+    "muscles_secondary": [
+      "Pectoraux",
+      "Épaules"
+    ],
+    "block": "A",
+    "equipment": [
+      "Barres parallèles"
+    ]
+  },
+  {
+    "name": "Extension triceps nuque barre EZ",
+    "muscle_group": "Triceps",
+    "muscles_secondary": [],
+    "block": "C",
+    "equipment": [
+      "Barre EZ"
+    ]
+  },
+  {
+    "name": "Extension triceps nuque haltère",
+    "muscle_group": "Triceps",
+    "muscles_secondary": [],
+    "block": "C",
+    "equipment": [
+      "Haltères"
+    ]
+  },
+  {
+    "name": "Extension triceps à la poulie",
+    "muscle_group": "Triceps",
+    "muscles_secondary": [],
+    "block": "C",
+    "equipment": [
+      "Câble poulie haute"
+    ]
+  },
+  {
+    "name": "Extension triceps élastique",
+    "muscle_group": "Triceps",
+    "muscles_secondary": [],
+    "block": "C",
+    "equipment": [
+      "Élastiques de résistance"
+    ]
+  },
+  {
+    "name": "Rowing australien barre basse",
+    "muscle_group": "Dos",
+    "muscles_secondary": [
+      "Biceps"
+    ],
+    "block": "A",
+    "equipment": [
+      "Barre basse"
+    ]
+  },
+  {
+    "name": "Rowing barre",
+    "muscle_group": "Dos",
+    "muscles_secondary": [
+      "Biceps"
+    ],
+    "block": "A",
+    "equipment": [
+      "Barre olympique"
+    ]
+  },
+  {
+    "name": "Rowing haltère unilatéral",
+    "muscle_group": "Dos",
+    "muscles_secondary": [
+      "Biceps"
+    ],
+    "block": "A",
+    "equipment": [
+      "Haltères",
+      "Banc réglable"
+    ]
+  },
+  {
+    "name": "Rowing à la poulie (station câbles)",
+    "muscle_group": "Dos",
+    "muscles_secondary": [
+      "Biceps"
+    ],
+    "block": "A",
+    "equipment": [
+      "Station câbles double"
+    ]
+  },
+  {
+    "name": "Tractions",
+    "muscle_group": "Dos",
+    "muscles_secondary": [
+      "Biceps"
+    ],
+    "block": "A",
+    "equipment": [
+      "Barre de traction"
+    ]
+  },
+  {
+    "name": "Tractions lestées",
+    "muscle_group": "Dos",
+    "muscles_secondary": [
+      "Biceps"
+    ],
+    "block": "A",
+    "equipment": [
+      "Barre de traction"
+    ]
+  },
+  {
+    "name": "Rowing horizontal machine",
+    "muscle_group": "Dos",
+    "muscles_secondary": [
+      "Biceps"
+    ],
+    "block": "B",
+    "equipment": [
+      "Rowing horizontal machine"
+    ]
+  },
+  {
+    "name": "Tirage horizontal câble",
+    "muscle_group": "Dos",
+    "muscles_secondary": [
+      "Biceps"
+    ],
+    "block": "B",
+    "equipment": [
+      "Câble poulie basse"
+    ]
+  },
+  {
+    "name": "Tirage vertical",
+    "muscle_group": "Dos",
+    "muscles_secondary": [
+      "Biceps"
+    ],
+    "block": "B",
+    "equipment": [
+      "Tirage vertical"
+    ]
+  },
+  {
+    "name": "Tirage vertical prise large",
+    "muscle_group": "Dos",
+    "muscles_secondary": [
+      "Biceps"
+    ],
+    "block": "B",
+    "equipment": [
+      "Tirage vertical"
+    ]
+  },
+  {
+    "name": "Tirage vertical prise neutre",
+    "muscle_group": "Dos",
+    "muscles_secondary": [
+      "Biceps"
+    ],
+    "block": "B",
+    "equipment": [
+      "Tirage vertical"
+    ]
+  },
+  {
+    "name": "Curl barre EZ",
+    "muscle_group": "Biceps",
+    "muscles_secondary": [],
+    "block": "C",
+    "equipment": [
+      "Barre EZ"
+    ]
+  },
+  {
+    "name": "Curl haltères",
+    "muscle_group": "Biceps",
+    "muscles_secondary": [],
+    "block": "C",
+    "equipment": [
+      "Haltères"
+    ]
+  },
+  {
+    "name": "Hack squat",
+    "muscle_group": "Quadriceps",
+    "muscles_secondary": [
+      "Fessiers"
+    ],
+    "block": "A",
+    "equipment": [
+      "Hack squat machine"
+    ]
+  },
+  {
+    "name": "Squat barre",
+    "muscle_group": "Quadriceps",
+    "muscles_secondary": [
+      "Fessiers",
+      "Ischio-jambiers"
+    ],
+    "block": "A",
+    "equipment": [
+      "Barre olympique",
+      "Rack squat"
+    ]
+  },
+  {
+    "name": "Squats poids du corps",
+    "muscle_group": "Quadriceps",
+    "muscles_secondary": [
+      "Fessiers"
+    ],
+    "block": "A",
+    "equipment": [
+      "Poids du corps"
+    ]
+  },
+  {
+    "name": "Fentes bulgares haltères",
+    "muscle_group": "Quadriceps",
+    "muscles_secondary": [
+      "Fessiers",
+      "Ischio-jambiers"
+    ],
+    "block": "B",
+    "equipment": [
+      "Haltères"
+    ]
+  },
+  {
+    "name": "Presse à cuisses",
+    "muscle_group": "Quadriceps",
+    "muscles_secondary": [
+      "Fessiers"
+    ],
+    "block": "B",
+    "equipment": [
+      "Leg press"
+    ]
+  },
+  {
+    "name": "Squat barre (volume)",
+    "muscle_group": "Quadriceps",
+    "muscles_secondary": [
+      "Fessiers",
+      "Ischio-jambiers"
+    ],
+    "block": "B",
+    "equipment": [
+      "Barre olympique",
+      "Rack squat"
+    ]
+  },
+  {
+    "name": "Fentes alternées",
+    "muscle_group": "Fessiers",
+    "muscles_secondary": [
+      "Quadriceps",
+      "Ischio-jambiers"
+    ],
+    "block": "B",
+    "equipment": [
+      "Poids du corps"
+    ]
+  },
+  {
+    "name": "Fentes haltères",
+    "muscle_group": "Fessiers",
+    "muscles_secondary": [
+      "Quadriceps",
+      "Ischio-jambiers"
+    ],
+    "block": "B",
+    "equipment": [
+      "Haltères"
+    ]
+  },
+  {
+    "name": "Hip thrust barre",
+    "muscle_group": "Fessiers",
+    "muscles_secondary": [
+      "Ischio-jambiers"
+    ],
+    "block": "B",
+    "equipment": [
+      "Barre olympique",
+      "Banc réglable"
+    ]
+  },
+  {
+    "name": "Hip thrust machine",
+    "muscle_group": "Fessiers",
+    "muscles_secondary": [
+      "Ischio-jambiers"
+    ],
+    "block": "B",
+    "equipment": [
+      "Hip thrust machine"
+    ]
+  },
+  {
+    "name": "Soulevé de terre barre",
+    "muscle_group": "Ischio-jambiers",
+    "muscles_secondary": [
+      "Fessiers",
+      "Dos",
+      "Quadriceps"
+    ],
+    "block": "A",
+    "equipment": [
+      "Barre olympique"
+    ]
+  },
+  {
+    "name": "Soulevé de terre roumain barre",
+    "muscle_group": "Ischio-jambiers",
+    "muscles_secondary": [
+      "Fessiers",
+      "Dos"
+    ],
+    "block": "A",
+    "equipment": [
+      "Barre olympique"
+    ]
+  },
+  {
+    "name": "Soulevé de terre roumain haltères",
+    "muscle_group": "Ischio-jambiers",
+    "muscles_secondary": [
+      "Fessiers",
+      "Dos"
+    ],
+    "block": "B",
+    "equipment": [
+      "Haltères"
+    ]
+  },
+  {
+    "name": "Leg curl assis",
+    "muscle_group": "Ischio-jambiers",
+    "muscles_secondary": [],
+    "block": "C",
+    "equipment": [
+      "Leg curl assis"
+    ]
+  },
+  {
+    "name": "Mollets debout",
+    "muscle_group": "Mollets",
+    "muscles_secondary": [],
+    "block": "C",
+    "equipment": [
+      "Poids du corps"
+    ]
+  },
+  {
+    "name": "Mollets debout haltères",
+    "muscle_group": "Mollets",
+    "muscles_secondary": [],
+    "block": "C",
+    "equipment": [
+      "Haltères"
+    ]
+  },
+  {
+    "name": "Mollets debout à la presse",
+    "muscle_group": "Mollets",
+    "muscles_secondary": [],
+    "block": "C",
+    "equipment": [
+      "Leg press"
+    ]
+  },
+  {
+    "name": "Mollets à la presse",
+    "muscle_group": "Mollets",
+    "muscles_secondary": [],
+    "block": "C",
+    "equipment": [
+      "Leg press"
+    ]
+  },
+  {
+    "name": "Crunch au sol",
+    "muscle_group": "Abdominaux",
+    "muscles_secondary": [],
+    "block": "C",
+    "equipment": [
+      "Poids du corps"
+    ]
+  },
+  {
+    "name": "Crunch à la poulie",
+    "muscle_group": "Abdominaux",
+    "muscles_secondary": [],
+    "block": "C",
+    "equipment": [
+      "Station câbles double"
+    ]
+  },
+  {
+    "name": "Gainage planche",
+    "muscle_group": "Abdominaux",
+    "muscles_secondary": [],
+    "block": "C",
+    "equipment": [
+      "Poids du corps"
+    ]
+  },
+  {
+    "name": "Relevé de jambes suspendu",
+    "muscle_group": "Abdominaux",
+    "muscles_secondary": [],
+    "block": "C",
+    "equipment": [
+      "Barre de traction haute"
+    ]
+  }
+]

@@ -1063,6 +1063,40 @@ export const EXERCISES = [
     type: 'compound', block: 'A', objectives: ['strength','hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: false,
   },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // AJOUTS — exercices requis par les programmes pré-générés (2026-07)
+  // (mouvements non couverts par la base existante : écarté incliné, pompes
+  //  piquées, extension triceps élastique, fentes alternées au poids du corps)
+  // ══════════════════════════════════════════════════════════════════════════
+  {
+    id: 'incline_fly_dumbbell', name: 'Écarté incliné haltères',
+    equipmentOptions: [['Haltères','Banc réglable']],
+    muscles: { primary: ['Poitrine'], secondary: [] },
+    type: 'isolation', block: 'C', objectives: ['hypertrophy'],
+    level: ['beginner','intermediate','advanced'], failureAllowed: true,
+  },
+  {
+    id: 'pike_pushup', name: 'Pompes piquées',
+    equipmentOptions: [[]],
+    muscles: { primary: ['Épaules'], secondary: ['Triceps'] },
+    type: 'compound', block: 'B', objectives: ['hypertrophy','endurance'],
+    level: ['beginner','intermediate'], failureAllowed: true,
+  },
+  {
+    id: 'triceps_extension_band', name: 'Extension triceps élastique',
+    equipmentOptions: [['Élastiques de résistance']],
+    muscles: { primary: ['Triceps'], secondary: [] },
+    type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
+    level: ['beginner','intermediate','advanced'], failureAllowed: true,
+  },
+  {
+    id: 'lunge_bodyweight', name: 'Fentes alternées',
+    equipmentOptions: [[]],
+    muscles: { primary: ['Quadriceps','Fessiers'], secondary: ['Ischio-jambiers'] },
+    type: 'compound', block: 'B', objectives: ['hypertrophy','endurance'],
+    level: ['beginner','intermediate'], failureAllowed: true,
+  },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -104,8 +104,14 @@ export default function Onboarding() {
         setStepError(t('ob_err_obj'));
         return false;
       }
-      // Chaque objectif doit avoir un type ET une cible ("Sur quoi ?")
-      if (data.objectives.some(o => !o.type || !o.zone)) {
+      // Chaque objectif doit avoir un type ET une cible : soit une zone
+      // ("Sur quoi ?"), soit — pour la Force en mode "Sur un exercice" — au
+      // moins un mouvement (focus_movement).
+      const objHasTarget = (o) => {
+        const movs = Array.isArray(o.focus_movement) ? o.focus_movement : (o.focus_movement ? [o.focus_movement] : []);
+        return !!o.zone || movs.length > 0;
+      };
+      if (data.objectives.some(o => !o.type || !objHasTarget(o))) {
         setStepError(t('ob_err_obj_target'));
         return false;
       }
@@ -173,7 +179,7 @@ export default function Onboarding() {
   const saveAndNavigate = async (destination, extraState = {}) => {
     setSaving(true);
     try {
-      const { objectives, equipment_validated, shoulders, waist, hips, right_arm, left_arm, right_thigh, left_thigh, peaking_enabled, no_volume_muscles, volume_mode, volume_overrides, availability_optimal, ...userData } = data;
+      const { objectives, equipment_validated, gym_chain, shoulders, waist, hips, right_arm, left_arm, right_thigh, left_thigh, peaking_enabled, no_volume_muscles, volume_mode, volume_overrides, availability_optimal, ...userData } = data;
 
       await base44.auth.updateMe({
         ...userData,
@@ -201,7 +207,9 @@ export default function Onboarding() {
         await base44.entities.Objective.create({
           user_id: user.id,
           type: obj.type,
-          zone: obj.zone,
+          // Force "Sur un exercice" n'a pas de zone → NULL (et pas '' qui viole
+          // la contrainte SQL objectives_zone_check).
+          zone: obj.zone || null,
           priority: obj.priority,
           focus_group: Array.isArray(obj.focus_group) ? obj.focus_group.join(', ') : (obj.focus_group || null),
           focus_movement: Array.isArray(obj.focus_movement) ? obj.focus_movement.join(', ') : (obj.focus_movement || null),

@@ -37,11 +37,10 @@ export function computeTargetRIR({ phase, sessionType, block, setIndex, totalSet
     rir -= serieProgression;
   }
 
-  // Progression intra-programme (semaines avancées = plus proche de l'échec)
-  if (weekNumber && plannedWeeks && plannedWeeks > 1) {
-    const weekRatio = (weekNumber - 1) / (plannedWeeks - 1); // 0 → 1
-    rir -= Math.round(weekRatio * 1);
-  }
+  // (Rampe fixe par nombre de semaines retirée : les programmes tournent en
+  // boucle sans durée définie. La progression d'intensité est pilotée par
+  // l'AUTORÉGULATION — avancement de phase MEV→MAV→MRV, deloads sur signaux,
+  // double progression sur la charge — pas par un ratio semaine/plannedWeeks.)
 
   // Clamp entre 0 (échec) et 4
   rir = Math.max(0, Math.min(4, rir));

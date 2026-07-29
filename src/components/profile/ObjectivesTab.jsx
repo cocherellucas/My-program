@@ -93,6 +93,9 @@ export default function ObjectivesTab({ userId }) {
       for (const obj of objectives) {
         const { _local, id, created_date, updated_date, created_by, ...fields } = obj;
         if (Array.isArray(fields.focus_group)) fields.focus_group = fields.focus_group.join(', ');
+        if (Array.isArray(fields.focus_movement)) fields.focus_movement = fields.focus_movement.join(', ');
+        // zone vide (Force "Sur un exercice") → NULL (contrainte SQL objectives_zone_check)
+        if (!fields.zone) fields.zone = null;
         fields.user_id = userId;
         if (id) {
           await base44.entities.Objective.update(id, fields);
