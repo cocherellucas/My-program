@@ -249,7 +249,7 @@ const VOLUME_BANDS = {
   // atteint uniquement par un muscle en objectif PRIMAIRE lors d'une
   // spécialisation. Pas de MEV ici : il ne sert plus (le secondaire vise le MAV,
   // et les muscles non ciblés sont retirés — brief §4bis).
-  beginner: { mav: 12, mrv: 16 },
+  beginner: { mav: 12, mrv: 14 },
   intermediate: { mav: 16, mrv: 20 },
   advanced: { mav: 20, mrv: 24 },
 };
@@ -377,10 +377,10 @@ function specializeProgram(program, focus, user, objectiveType = 'hypertrophy') 
   const level = user?.level || 'intermediate';
   const bands = VOLUME_BANDS[level] || VOLUME_BANDS.intermediate;
   // Plafond de séries PAR EXERCICE, repris de TRAINING_PARAMS (le primaire vise le
-  // MRV, donc on prend la borne haute de cette phase). Évite d'empiler 8 séries sur
-  // un même mouvement : au-delà, la fatigue monte plus que le stimulus.
+  // MAV : c'est la borne que le catalogue lui-même ne dépasse jamais — 5 séries en
+  // hypertrophie, 4 en endurance. Mieux vaut répartir sur deux mouvements.
   const maxSetsPerExercise =
-    TRAINING_PARAMS[objectiveType]?.MRV?.sets?.[1] || TRAINING_PARAMS.hypertrophy.MRV.sets[1];
+    TRAINING_PARAMS[objectiveType]?.MAV?.sets?.[1] || TRAINING_PARAMS.hypertrophy.MAV.sets[1];
   const { primary, secondary } = focus;
   const isFocus = (m) => primary.has(m) || secondary.has(m);
   const blockRank = { A: 0, B: 1, C: 2 };
@@ -507,7 +507,10 @@ function specializeProgram(program, focus, user, objectiveType = 'hypertrophy') 
     for (const e of pool) {
       if (gap <= 2 || added >= 2) break; // au plus 2 nouveaux exercices par muscle
       const loads = loadedBy(e);
-      const perAdd = e.type === 'compound' ? 4 : 3;
+      // 3 séries : c'est la médiane ET la valeur la plus fréquente du catalogue,
+      // pour les polyarticulaires comme pour les isolations (3,25 vs 3,03 de
+      // moyenne — l'écart entre les deux est négligeable, mesuré sur 4942 exos).
+      const perAdd = 3;
       let placed = false;
       for (const i of focusIdx) {
         if (gap <= 2) break;
