@@ -15,19 +15,19 @@ import StepPreferences from '@/components/onboarding/StepPreferences';
 import StepMeasurements from '@/components/onboarding/StepMeasurements';
 import WelcomeIntro from '@/components/onboarding/WelcomeIntro';
 import { useI18n } from '@/lib/i18n';
-import { EXERCISES } from '@/lib/exercise-database';
 
 const TOTAL_STEPS = 6;
 const STORAGE_KEY = 'onboarding_draft';
 
-// Les mouvements proposés en objectif de force portent un libellé plus court que
-// l'exercice correspondant dans la base (« Développé couché » vs « Développé couché
-// barre »). Ce pont sert à retrouver le matériel réellement exigé.
-const MOVEMENT_EXERCISE = {
-  'Squat barre': 'Squat barre',
-  'Développé couché': 'Développé couché barre',
+// Mouvements de force qui exigent une BARRE, et leur nom tel qu'on l'écrit à
+// l'utilisateur. On ne vérifie que la barre : un rack ou un banc peuvent
+// s'improviser, la barre non. La traction lestée est volontairement absente —
+// une porte ou un escalier suffisent, il n'y a aucune raison de bloquer.
+const BARBELL = 'Barre olympique';
+const BARBELL_MOVEMENTS = {
+  'Squat barre': 'Squat',
+  'Développé couché': 'Développé couché',
   'Soulevé de terre': 'Soulevé de terre',
-  'Traction lestée': 'Traction pronation',
 };
 
 // updateMe tolérant (même repli que App.jsx) : si une colonne n'existe pas encore
@@ -199,21 +199,18 @@ export default function Onboarding() {
       for (const o of data.objectives || []) {
         const movs = Array.isArray(o.focus_movement) ? o.focus_movement : (o.focus_movement ? [o.focus_movement] : []);
         for (const mv of movs) {
-          const ex = EXERCISES.find((e) => e.name === (MOVEMENT_EXERCISE[mv] || mv));
-          if (!ex?.equipmentOptions?.length) continue;
-          const faisable = ex.equipmentOptions.some((opt) => opt.every((item) => equip.includes(item)));
-          if (faisable || manquants.some((m) => m.mv === mv)) continue;
-          // On propose l'option la MOINS coûteuse (le moins d'items à ajouter).
-          const best = ex.equipmentOptions
-            .map((opt) => opt.filter((item) => !equip.includes(item)))
-            .sort((a, b) => a.length - b.length)[0];
-          manquants.push({ mv, need: best });
+          const label = BARBELL_MOVEMENTS[mv];
+          if (!label || equip.includes(BARBELL)) continue;
+          if (!manquants.includes(label)) manquants.push(label);
         }
       }
       if (manquants.length) {
+        const liste = manquants.length > 1
+          ? `${manquants.slice(0, -1).join(', ')} et ${manquants[manquants.length - 1]}`
+          : manquants[0];
         setStepError(
-          `${manquants.map((m) => `${m.mv} → ${m.need.join(', ')}`).join(' · ')}. `
-          + `Ajoute ce matériel, ou reviens à l'étape Objectifs pour en choisir un autre.`
+          `${liste} ${manquants.length > 1 ? 'demandent' : 'demande'} une barre — impossible avec ton matériel actuel. `
+          + `Ajoute une barre, ou choisis un autre objectif.`
         );
         return false;
       }

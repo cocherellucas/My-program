@@ -41,6 +41,16 @@ export default function StepObjectives({ data, onChange }) {
   const level           = data.level || 'intermediate';
 
   const [strengthFocus, setStrengthFocus] = useState({});
+  // Mode d'un objectif Force : 'zone' ou 'movement'. `strengthFocus` est un état
+  // LOCAL : en quittant puis revenant sur cette étape, le composant se remonte et
+  // cet état repart vide — l'affichage retombait alors sur « Sur une zone » alors
+  // que l'objectif contenait déjà des mouvements. On déduit donc le mode des
+  // DONNÉES par défaut : un objectif qui porte des mouvements est en mode exercice.
+  const focusModeOf = (idx, o) => {
+    if (strengthFocus[idx]) return strengthFocus[idx];
+    const movs = Array.isArray(o?.focus_movement) ? o.focus_movement : (o?.focus_movement ? [o.focus_movement] : []);
+    return movs.length ? 'movement' : 'zone';
+  };
   const [detailMode, setDetailMode] = useState({});
   const [expandedGroup, setExpandedGroup] = useState({});
   const [mergePrompt, setMergePrompt] = useState(null); // { idx, otherIdx }
@@ -386,7 +396,7 @@ export default function StepObjectives({ data, onChange }) {
                   <button type="button"
                     onClick={() => setStrengthFocus(prev => ({ ...prev, [idx]: 'zone' }))}
                     className={cn('px-3 py-2 rounded-lg border text-xs font-medium transition-all',
-                      (strengthFocus[idx] || 'zone') === 'zone'
+                      focusModeOf(idx, obj) === 'zone'
                         ? 'bg-white text-violet-700 border-white'
                         : 'bg-white/10 text-white border-white/20')}>
                     {t('oj_on_zone')}
@@ -410,7 +420,7 @@ export default function StepObjectives({ data, onChange }) {
                       }
                     }}
                     className={cn('px-3 py-2 rounded-lg border text-xs font-medium transition-all',
-                      strengthFocus[idx] === 'movement'
+                      focusModeOf(idx, obj) === 'movement'
                         ? 'bg-white text-violet-700 border-white'
                         : 'bg-white/10 text-white border-white/20')}>
                     {t('oj_on_exercise')}
@@ -420,7 +430,7 @@ export default function StepObjectives({ data, onChange }) {
             </div>
 
             {/* Zone — visible quand un type est choisi, sauf Force en mode "exercice" */}
-            {obj.type && (obj.type !== 'strength' || (strengthFocus[idx] || 'zone') === 'zone') && (() => {
+            {obj.type && (obj.type !== 'strength' || focusModeOf(idx, obj) === 'zone') && (() => {
               // Filtre les zones pour éviter les overlaps avec autres objectifs du même type
               const ZONE_TO_MUSCLES = {
                 upper_body: new Set(['Poitrine', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Abdos']),
@@ -493,7 +503,7 @@ export default function StepObjectives({ data, onChange }) {
             })()}
 
             {/* Groupes musculaires si specific_group */}
-            {obj.zone === 'specific_group' && (obj.type !== 'strength' || (strengthFocus[idx] || 'zone') === 'zone') && (() => {
+            {obj.zone === 'specific_group' && (obj.type !== 'strength' || focusModeOf(idx, obj) === 'zone') && (() => {
               const taken = getTakenMuscles(idx);
               // Base par défaut : tous les muscles MOINS ceux pris ailleurs
               const base  = Array.isArray(obj.focus_group) ? obj.focus_group.filter(g => !taken.has(g)) : GROUPS.filter(g => !taken.has(g));
@@ -529,7 +539,7 @@ export default function StepObjectives({ data, onChange }) {
               );
             })()}
 
-            {obj.type === 'strength' && strengthFocus[idx] === 'movement' && (
+            {obj.type === 'strength' && focusModeOf(idx, obj) === 'movement' && (
               <div className="space-y-2">
                 <Label className="text-xs text-white">{t('oj_focus_move')}</Label>
                 <p className="text-[11px] text-white/50">{t('oj_focus_move_hint')}</p>
