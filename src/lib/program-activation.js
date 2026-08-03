@@ -298,6 +298,185 @@ function availableDayCount(user) {
   return days || Number(user?.frequency_max) || 7;
 }
 
+// ── Objectifs de FORCE sur des mouvements précis ─────────────────────────────
+// Le catalogue ne contient qu'UNE signature de force : les trois lifts ensemble
+// (Squat + Développé + Soulevé). Or l'interface laisse choisir n'importe quelle
+// combinaison parmi quatre mouvements — soit 15 possibilités, dont 14 tombaient
+// dans le vide (« aucun programme ne correspond »). Les pré-générer toutes
+// ferait exploser le catalogue : c'est au CODE de dériver, comme pour la
+// spécialisation par muscles.
+const MOVEMENT_TO_EXERCISE = {
+  'Squat barre': 'Squat barre',
+  'Développé couché': 'Développé couché barre',
+  'Soulevé de terre': 'Soulevé de terre',
+  'Traction lestée': 'Traction pronation',
+};
+
+const movementsOf = (objectives) => {
+  const set = new Set();
+  for (const o of objectives || []) toList(o.focus_movement).forEach((m) => set.add(m));
+  return set;
+};
+
+// Familles de mouvement : quels exercices du catalogue « appartiennent » à quel
+// lift. Motifs relevés sur les noms réellement utilisés par les programmes de
+// force (Squat barre / Front squat · Développé couché / incliné · Soulevé de
+// terre / roumain / rack pull · Traction pronation / supination). Le développé
+// MILITAIRE n'appartient à aucune famille : c'est un accessoire, il reste.
+// Profils d'une journée de force, RELEVÉS dans le catalogue (pas inventés) : un
+// même lift s'y travaille lourd une fois et en volume une autre — c'est
+// l'ondulation d'intensité qui fait progresser en force. Les cues font partie de
+// la prescription au même titre que les séries.
+const STRENGTH_HEAVY = { sets: 4, target_reps: '3-5', rest_seconds: 210, notes: 'Charge lourde, récupération complète entre séries.' };
+const STRENGTH_VOLUME = { sets: 4, target_reps: '6-8', rest_seconds: 150, notes: 'Jour volume : charge modérée, exécution stricte.' };
+
+const MOVEMENT_FAMILY = {
+  'Squat barre': /squat/i,
+  'Développé couché': /développé (couché|incliné)/i,
+  'Soulevé de terre': /soulevé de terre|rack pull/i,
+  'Traction lestée': /traction/i,
+};
+
+// Filtrer par MUSCLE serait faux ici : le soulevé sollicite les quadriceps, donc
+// « soulevé seul » aurait gardé tout le squat. L'unité d'un objectif de force est
+// le MOUVEMENT. On garde donc un exercice s'il appartient à un mouvement choisi,
+// ou s'il n'appartient à aucune famille (accessoire) ; on ne retire que ce qui
+// relève exclusivement d'un mouvement NON choisi.
+function specializeMovements(program, selected, user) {
+  const dropped = Object.keys(MOVEMENT_FAMILY).filter((mv) => !selected.has(mv));
+  const belongsToDropped = (name) =>
+    dropped.some((mv) => MOVEMENT_FAMILY[mv].test(name))
+    && ![...selected].some((mv) => MOVEMENT_FAMILY[mv]?.test(name));
+
+  // On garde TOUTES les séances à ce stade : une journée dont le lift a disparu
+  // peut encore accueillir un mouvement choisi (sinon un objectif « traction »
+  // seule ne récupérait qu'une séance, faute de place).
+  // Muscles réellement concernés par les mouvements choisis : sert à écarter les
+  // accessoires hérités du programme complet qui n'ont plus de rapport (un
+  // objectif « traction » n'a que faire d'une leg press). Les abdos restent
+  // toujours : le gainage soutient tous les lifts lourds.
+  const musclesCibles = new Set(['Abdominaux']);
+  for (const mv of selected) {
+    const e = EXERCISES.find((x) => x.name === (MOVEMENT_TO_EXERCISE[mv] || mv));
+    if (!e) continue;
+    [...(e.muscles?.primary || []), ...(e.muscles?.secondary || [])].forEach((m) => musclesCibles.add(appMuscle(m)));
+  }
+  const estFamille = (name) => Object.values(MOVEMENT_FAMILY).some((re) => re.test(name));
+
+  let sessions = program.sessions.map((s) => ({
+    ...s,
+    exercises: s.exercises.filter((x) => {
+      if (belongsToDropped(x.name)) return false;
+      if (estFamille(x.name)) return true;              // lift choisi → gardé
+      return musclesCibles.has(x.muscle_group);         // accessoire → seulement s'il sert
+    }),
+  }));
+
+  // Le brief impose ~2 séances par lift : on pose chaque mouvement choisi dans les
+  // séances les plus légères tant qu'il n'y est pas deux fois.
+  const isFamily = (name) => [...selected].some((mv) => MOVEMENT_FAMILY[mv]?.test(name));
+  const estLourd = (x) => /^[1-5]\s*-\s*[1-5]$/.test(String(x.target_reps).trim());
+  for (const mv of selected) {
+    const exName = MOVEMENT_TO_EXERCISE[mv] || mv;
+    const e = EXERCISES.find((x) => x.name === exName);
+    if (!e) continue;
+    const famille = MOVEMENT_FAMILY[mv];
+    const occurrences = () => sessions.filter((s) => s.exercises.some((x) => famille?.test(x.name)));
+    const ordre = sessions
+      .map((s, i) => ({ i, charge: s.exercises.reduce((n, x) => n + (x.sets || 0), 0) }))
+      .sort((a, b) => a.charge - b.charge);
+    for (const { i } of ordre) {
+      const actuelles = occurrences();
+      if (actuelles.length >= 2) break;
+      if (sessions[i].exercises.some((x) => famille?.test(x.name))) continue;
+      // La séance manquante COMPLÈTE l'existante : si le lift a déjà son jour
+      // lourd, on ajoute le jour VOLUME (et inversement). Deux jours lourds du
+      // même lift dans la semaine seraient irrécupérables. Valeurs et cues repris
+      // tels quels du catalogue, pas inventés.
+      const dejaLourd = actuelles.some((s) => s.exercises.some((x) => famille?.test(x.name) && estLourd(x)));
+      const profil = dejaLourd ? STRENGTH_VOLUME : STRENGTH_HEAVY;
+      const ex = makeExercise(e, appMuscle(e.muscles?.primary?.[0] || 'Dos'), profil.sets);
+      sessions[i] = { ...sessions[i], exercises: [{ ...ex, block: 'A', ...profil }, ...sessions[i].exercises] };
+    }
+  }
+
+  // Une séance sans aucun mouvement choisi ne sert plus l'objectif → on la retire.
+  sessions = sessions.filter((s) => s.exercises.some((x) => isFamily(x.name)));
+
+  // Réordonnancement : deux séances du MÊME lift ne doivent pas se suivre (les
+  // jours sont attribués dans l'ordre des séances). On alterne les mouvements, et
+  // le jour LOURD passe avant le jour volume — on attaque le lourd plus frais.
+  const leadOf = (s) => {
+    const x = s.exercises.find((e) => e.block === 'A' && isFamily(e.name)) || s.exercises.find((e) => isFamily(e.name));
+    if (!x) return '';
+    return Object.keys(MOVEMENT_FAMILY).find((mv) => MOVEMENT_FAMILY[mv].test(x.name)) || x.name;
+  };
+  const reste = sessions
+    .slice()
+    .sort((a, b) => {
+      const la = a.exercises.find((x) => x.block === 'A' && isFamily(x.name));
+      const lb = b.exercises.find((x) => x.block === 'A' && isFamily(x.name));
+      return (la && estLourd(la) ? 0 : 1) - (lb && estLourd(lb) ? 0 : 1); // lourd d'abord
+    });
+  const ordonnees = [];
+  while (reste.length) {
+    const precedent = ordonnees.length ? leadOf(ordonnees[ordonnees.length - 1]) : null;
+    const i = reste.findIndex((s) => leadOf(s) !== precedent);
+    ordonnees.push(reste.splice(i >= 0 ? i : 0, 1)[0]);
+  }
+  sessions = ordonnees;
+
+  // Libellés REGÉNÉRÉS depuis le lift réellement en tête : ceux d'origine nomment
+  // le lift du programme complet et deviennent faux après filtrage (« Jour
+  // Développé couché » sans aucun développé couché).
+  sessions = sessions.map((s) => {
+    const lead = s.exercises.find((x) => x.block === 'A' && isFamily(x.name)) || s.exercises.find((x) => isFamily(x.name));
+    if (!lead) return s;
+    // On conserve la mention (lourd)/(volume) : elle dit à l'utilisateur quelle
+    // séance il attaque, ce qui est le cœur d'un programme de force.
+    return { ...s, day_label: `Jour ${lead.name} (${estLourd(lead) ? 'lourd' : 'volume'})` };
+  });
+
+  // active_zones + durée re-dérivées.
+  sessions = sessions.map((s, idx) => {
+    const seen = new Set();
+    const active_zones = [];
+    for (const x of s.exercises) {
+      if (!seen.has(x.muscle_group)) { seen.add(x.muscle_group); active_zones.push({ muscle_group: x.muscle_group }); }
+    }
+    const orig = program.sessions[idx] || s;
+    const oldSets = (orig.exercises || []).reduce((n, x) => n + (x.sets || 0), 0);
+    const newSets = s.exercises.reduce((n, x) => n + (x.sets || 0), 0);
+    const estimated_duration = oldSets > 0
+      ? Math.max(20, Math.round((orig.estimated_duration || 60) * (newSets / oldSets)))
+      : s.estimated_duration;
+    return { ...s, active_zones, estimated_duration };
+  });
+
+  return {
+    ...program,
+    name: `Force — ${[...selected].join(' / ')}`,
+    weekly_frequency: sessions.length || program.weekly_frequency,
+    sessions,
+  };
+}
+
+// Programme de force du catalogue le plus proche (les 3 lifts), pour le niveau et
+// le tier de l'utilisateur — on en retirera ensuite les mouvements non choisis.
+function pickStrengthBase(catalog, user, movements) {
+  const tier = mapContextToTier(userTrainingContext(user));
+  const cands = catalog.filter(
+    (p) => p.match.level === user.level
+      && p.match.training_context === tier
+      && /^strength:movements\[[^\]]*\]:primary$/.test(p.match.objectives_signature)
+  );
+  // On vise ~1 séance par mouvement choisi (min 2), dans la limite des jours dispo.
+  const maxDays = availableDayCount(user);
+  const ideal = Math.min(Math.max(2, movements.size), maxDays);
+  return cands.slice().sort((a, b) =>
+    Math.abs(a.match.weekly_frequency - ideal) - Math.abs(b.match.weekly_frequency - ideal))[0] || null;
+}
+
 // Nombre de séances d'un programme qui travaillent au moins un muscle ciblé.
 const focusSessionCount = (program, focusMuscles) =>
   program.sessions.filter((s) => s.exercises.some((x) => focusMuscles.has(x.muscle_group))).length;
@@ -407,7 +586,17 @@ function specializeProgram(program, focus, user, objectiveType = 'hypertrophy') 
   // L'écart primaire↔secondaire exigé par le brief reste garanti par les repères
   // eux-mêmes (MRV > MAV). Si le temps manque, le rognage redescend le secondaire
   // en premier — il n'y a donc rien à plafonner à la main.
-  const targetFor = (m) => (primary.has(m) ? bands.mrv : bands.mav);
+  //
+  // EXCEPTION FORCE : les repères ci-dessus sont ceux de l'HYPERTROPHIE. Un
+  // programme de force est calibré autrement (« plus d'intensité, moins de
+  // volume », brief §4 : ~9-12 séries/muscle contre 16-20). Y appliquer le MRV
+  // d'hypertrophie doublerait le volume et casserait la programmation. Sur un
+  // objectif de force on garde donc le volume tel quel : on se contente de
+  // retirer les mouvements non choisis, le budget libéré profite à la récup.
+  const targetFor = (m) => {
+    if (objectiveType === 'strength') return current[m] || 0;
+    return primary.has(m) ? bands.mrv : bands.mav;
+  };
 
   // Volume hebdo direct actuel par muscle (somme des séries sur toutes les séances).
   const current = {};
@@ -790,6 +979,22 @@ export async function buildActivationResult(user, objectives) {
       const base = pickBaseProgram(catalog, user, primarySpecificType(objectives), coverZoneForMuscles(focus.primary), allFocus);
       if (base) {
         match = { ...base, program: specializeProgram(base.program, focus, user, primarySpecificType(objectives)) };
+        specialized = true;
+      }
+    }
+  }
+
+  // Objectif de FORCE sur une combinaison de mouvements absente du catalogue
+  // (14 des 15 combinaisons possibles) → on part du programme des 3 lifts et on
+  // retire ce qui ne sert pas les mouvements choisis. Le volume n'est PAS gonflé :
+  // celui d'un programme de force est déjà le bon (cf. targetFor).
+  if (!match && user) {
+    const movements = movementsOf(objectives);
+    if (movements.size) {
+      const catalog = await loadCatalog();
+      const base = pickStrengthBase(catalog, user, movements);
+      if (base) {
+        match = { ...base, program: specializeMovements(base.program, movements, user) };
         specialized = true;
       }
     }
