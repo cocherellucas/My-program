@@ -85,7 +85,9 @@ export const TRAINING_PARAMS = {
 };
 
 // Fenêtres SRA par type de séance (heures minimum entre deux stimuli du même groupe)
-const SRA_WINDOWS = {
+// Exporté : program-activation s'en sert pour ne pas ajouter un exercice qui
+// solliciterait un muscle déjà travaillé dans la fenêtre de récupération.
+export const SRA_WINDOWS = {
   strength:     72, // force composée lourde : 72-96h
   hypertrophy:  48, // hypertrophie modérée : 48-72h
   endurance:    24, // isolation légère : 24-36h

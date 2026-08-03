@@ -31,7 +31,7 @@ for (const p of PRE_GENERATED_PROGRAMS) {
     available_days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].slice(0, p.match.weekly_frequency),
     // Pas de duration_per_day → aucune contrainte de temps → seule la rotation peut agir
   };
-  const r = buildActivationResult(user, objectives);
+  const r = await buildActivationResult(user, objectives);
   if (!r) continue;
   const got = r.sessions.filter((s) => s.week === 1);
   if (got.length !== p.program.sessions.length) continue;

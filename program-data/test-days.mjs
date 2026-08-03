@@ -39,10 +39,10 @@ function bestPossibleGap(available, n) {
   return best;
 }
 
-function run(label, available, objectives) {
+async function run(label, available, objectives) {
   const user = { level: 'intermediate', training_context: 'full_gym', availability_optimal: false,
     frequency_max: available.length, available_days: available, equipment: GYM };
-  const r = buildActivationResult(user, objectives);
+  const r = await buildActivationResult(user, objectives);
   if (!r) { console.log(`  ✗ ${label} → NULL`); return; }
   const wk1 = r.sessions.filter((s) => s.week === 1);
   const days = wk1.map((s) => s.day);
@@ -55,12 +55,12 @@ function run(label, available, objectives) {
 
 console.log('=== Répartition des jours (spécialisation : moins de séances que de jours dispo) ===');
 const spec = [{ type: 'hypertrophy', zone: 'specific_group', priority: 'primary', focus_group: ['Pectoraux', 'Triceps'] }];
-run('4 jours dispo, 2 séances', ['monday', 'tuesday', 'thursday', 'friday'], spec);
-run('Tous les jours dispo, 2 séances', ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'], spec);
-run('Lun-Mar-Mer collés, 2 séances', ['monday', 'tuesday', 'wednesday'], spec);
-run('Sam-Dim seulement', ['saturday', 'sunday'], spec);
+await run('4 jours dispo, 2 séances', ['monday', 'tuesday', 'thursday', 'friday'], spec);
+await run('Tous les jours dispo, 2 séances', ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'], spec);
+await run('Lun-Mar-Mer collés, 2 séances', ['monday', 'tuesday', 'wednesday'], spec);
+await run('Sam-Dim seulement', ['saturday', 'sunday'], spec);
 
 console.log('\n=== Non-régression : objectif large, jours = fréquence (cas normal) ===');
 const large = [{ type: 'hypertrophy', zone: 'upper_body', priority: 'primary' }];
-run('4 jours dispo, 4 séances', ['monday', 'tuesday', 'thursday', 'friday'], large);
-run('3 jours dispo, 3 séances', ['monday', 'wednesday', 'friday'], large);
+await run('4 jours dispo, 4 séances', ['monday', 'tuesday', 'thursday', 'friday'], large);
+await run('3 jours dispo, 3 séances', ['monday', 'wednesday', 'friday'], large);

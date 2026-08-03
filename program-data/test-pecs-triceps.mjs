@@ -11,7 +11,7 @@ const objectives = [{ type: 'hypertrophy', zone: 'specific_group', priority: 'pr
 
 for (const freq of [4]) {
   const user = { level: 'intermediate', training_context: 'full_gym', availability_optimal: true, frequency_max: freq, equipment: GYM };
-  const r = buildActivationResult(user, objectives);
+  const r = await buildActivationResult(user, objectives);
   console.log(`\n════ ${r.matched_program_name} ════`);
   const vol = {};
   for (const s of r.sessions.filter((x) => x.week === 1)) {

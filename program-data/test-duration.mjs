@@ -31,14 +31,14 @@ const dump = (r, label) => {
 
 // ── 3. ROGNAGE : 30 min/jour ────────────────────────────────────────────────
 const short = { level: 'intermediate', training_context: 'full_gym', availability_optimal: false, frequency_max: 4, available_days: ['monday', 'tuesday', 'thursday', 'friday'], duration_per_day: { monday: 30, tuesday: 30, thursday: 30, friday: 30 }, equipment: GYM };
-const rShort = buildActivationResult(short, OBJ_UPPER);
+const rShort = await buildActivationResult(short, OBJ_UPPER);
 dump(rShort, 'ROGNAGE 30 min');
 const over = rShort.sessions.filter((s) => s.week === 1 && mins(s.exercises) > 30 + 0.6);
 console.log('  → séances qui dépassent 30 min : ' + over.length + (over.length ? ' ✗' : ' ✓'));
 
 // ── 4. Temps confortable (90 min) → ne doit RIEN rogner ─────────────────────
 const roomy = { ...short, duration_per_day: { monday: 90, tuesday: 90, thursday: 90, friday: 90 } };
-const rRoomy = buildActivationResult(roomy, OBJ_UPPER);
+const rRoomy = await buildActivationResult(roomy, OBJ_UPPER);
 const setsOf = (r) => r.sessions.filter((s) => s.week === 1).reduce((n, s) => n + s.exercises.reduce((a, x) => a + x.sets, 0), 0);
 console.log('\n=== 90 min (aucun rognage attendu) ===');
 console.log(`  séries totales S1 : 90min=${setsOf(rRoomy)}  vs  30min=${setsOf(rShort)}  (le 30 min doit être PLUS BAS)`);
@@ -51,7 +51,7 @@ console.log('\n=== COMPOUNDS (bloc A) en 30 min ===');
 console.log('  compounds réduits/perdus : ' + (lost.length ? '⚠ ' + lost.map((k) => `${k} ${cRoomy[k]}→${cShort[k] || 0}`).join(', ') : '✓ aucun (séries pleines)'));
 
 // ── 6. Spécialisation toujours OK + rognée ──────────────────────────────────
-const rSpec = buildActivationResult(short, [{ type: 'hypertrophy', zone: 'specific_group', priority: 'primary', focus_group: ['Biceps'] }]);
+const rSpec = await buildActivationResult(short, [{ type: 'hypertrophy', zone: 'specific_group', priority: 'primary', focus_group: ['Biceps'] }]);
 console.log('\n=== SPÉCIALISATION + 30 min ===');
 console.log(rSpec ? '  ✓ ' + rSpec.matched_program_name : '  ✗ NULL');
 if (rSpec) {

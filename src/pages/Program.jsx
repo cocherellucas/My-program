@@ -551,7 +551,9 @@ export default function Program() {
     // selon le profil (niveau, contexte d'entraînement, disponibilités,
     // objectifs), puis dépliés en séances. Voir program-activation.js.
     setGenPhase('Sélection du programme adapté à ton profil…');
-    const result = buildActivationResult(user, objectives);
+    // await : le catalogue des programmes est chargé à la demande (il n'est plus
+    // embarqué au démarrage de l'app).
+    const result = await buildActivationResult(user, objectives);
     if (!result) {
       throw new Error("Aucun programme pré-généré ne correspond encore à ce profil (niveau, équipement, objectifs ou disponibilités). Ajuste un critère et réessaie.");
     }

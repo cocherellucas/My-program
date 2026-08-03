@@ -9,8 +9,29 @@
 // stockée ET les objectifs de l'utilisateur en un même jeu de jetons canoniques.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { PRE_GENERATED_PROGRAMS } from './pre-generated-programs';
+// Le catalogue (170 programmes, ~2,4 Mo) est chargé À LA DEMANDE, pas au
+// démarrage : il n'est utile qu'au moment où l'on génère un programme. Sans ça,
+// tout le monde téléchargeait et analysait ces 2,4 Mo à chaque ouverture de
+// l'app, y compris pour aller voir une séance. Le module est mis en cache par le
+// navigateur après le premier appel ; les appels concurrents partagent la même
+// promesse (pas de double téléchargement).
+let catalogCache = null;
+let catalogLoading = null;
+async function loadCatalog() {
+  if (catalogCache) return catalogCache;
+  if (!catalogLoading) {
+    catalogLoading = import('./pre-generated-programs').then((m) => {
+      catalogCache = m.PRE_GENERATED_PROGRAMS;
+      return catalogCache;
+    });
+  }
+  return catalogLoading;
+}
 import { EXERCISES } from './exercise-database';
+// Tables de référence du projet — on ne réinvente PAS ces chiffres ici :
+// TRAINING_PARAMS = séries/reps/repos par type d'objectif et par phase ;
+// SRA_WINDOWS = heures de récupération mini entre deux stimuli d'un même muscle.
+import { TRAINING_PARAMS, SRA_WINDOWS } from './coaching-engine';
 
 // Normalise en liste : tableau, OU chaîne "a, b, c" (format stocké en base pour
 // focus_group / focus_movement), OU vide. Le split gère les deux formes.
@@ -108,12 +129,13 @@ function chooseByFrequency(candidates, user) {
 //           recommended_for_optimal }. On sélectionne le niveau + tier +
 //           objectifs, puis la fréquence (recommandée si dispo optimales, sinon
 //           la fréquence demandée — ou la plus proche).
-export function findMatchingProgram(user, objectives) {
+export async function findMatchingProgram(user, objectives) {
   if (!user || !objectives?.length) return null;
+  const catalog = await loadCatalog();
   const level = user.level;
   const tier = mapContextToTier(userTrainingContext(user));
 
-  const candidates = PRE_GENERATED_PROGRAMS.filter(
+  const candidates = catalog.filter(
     (p) =>
       p.match.level === level &&
       p.match.training_context === tier &&
@@ -302,7 +324,7 @@ function chooseBaseForFocus(candidates, user, focusMuscles) {
 // Programme de base = cible large la plus proche (type demandé, sinon hypertrophie ;
 // zone couvrante, sinon full_body), en privilégiant la variante qui donne la bonne
 // fréquence aux muscles ciblés.
-function pickBaseProgram(user, type, zone, focusMuscles) {
+function pickBaseProgram(catalog, user, type, zone, focusMuscles) {
   const level = user.level;
   const tier = mapContextToTier(userTrainingContext(user));
   const types = type === 'hypertrophy' ? ['hypertrophy'] : [type, 'hypertrophy'];
@@ -310,7 +332,7 @@ function pickBaseProgram(user, type, zone, focusMuscles) {
   for (const ty of types) {
     for (const zo of zones) {
       const sig = `${ty}:${zo}:primary`;
-      const cands = PRE_GENERATED_PROGRAMS.filter(
+      const cands = catalog.filter(
         (p) => p.match.level === level && p.match.training_context === tier && p.match.objectives_signature === sig
       );
       if (cands.length) return chooseBaseForFocus(cands, user, focusMuscles);
@@ -351,9 +373,14 @@ function makeExercise(e, focusMuscle, sets) {
 // (1) réallocation du volume par muscle, (2) complément des muscles focus
 // plafonnés via la base d'exos (matériel+niveau OK, compounds à haute tension
 // d'abord), (3) réordonnancement muscles focus en tête de chaque séance.
-function specializeProgram(program, focus, user) {
+function specializeProgram(program, focus, user, objectiveType = 'hypertrophy') {
   const level = user?.level || 'intermediate';
   const bands = VOLUME_BANDS[level] || VOLUME_BANDS.intermediate;
+  // Plafond de séries PAR EXERCICE, repris de TRAINING_PARAMS (le primaire vise le
+  // MRV, donc on prend la borne haute de cette phase). Évite d'empiler 8 séries sur
+  // un même mouvement : au-delà, la fatigue monte plus que le stimulus.
+  const maxSetsPerExercise =
+    TRAINING_PARAMS[objectiveType]?.MRV?.sets?.[1] || TRAINING_PARAMS.hypertrophy.MRV.sets[1];
   const { primary, secondary } = focus;
   const isFocus = (m) => primary.has(m) || secondary.has(m);
   const blockRank = { A: 0, B: 1, C: 2 };
@@ -397,38 +424,104 @@ function specializeProgram(program, focus, user) {
       if (!isFocus(x.muscle_group)) continue;
       const cur = current[x.muscle_group] || (x.sets || 0);
       const ratio = cur > 0 ? targetFor(x.muscle_group) / cur : 1;
-      const sets = Math.max(1, Math.min(6, Math.round((x.sets || 0) * ratio)));
+      const sets = Math.max(1, Math.min(maxSetsPerExercise, Math.round((x.sets || 0) * ratio)));
       exercises.push({ ...x, sets });
     }
     return { ...s, exercises };
   });
 
-  // ── PASS 2 : compléter les muscles focus PRIMAIRES plafonnés (trop peu d'exos
-  //    dans la base pour atteindre le MRV — ex. biceps/fessiers = 2 exos). On
-  //    pioche dans la base d'exos les mouvements où le muscle est PRIMAIRE
-  //    (chin-up pour biceps, DC prise serrée pour triceps…), niveau + matériel
-  //    OK, COMPOUNDS d'abord (tension mécanique), et on les ajoute aux séances
-  //    qui travaillent déjà ce muscle jusqu'à approcher la cible.
+  // ── PASS 2 : compléter les muscles focus PRIMAIRES qui n'atteignent pas leur
+  //    cible. Deux leviers, dans cet ordre :
+  //      1. MONTER LES SÉRIES des exercices déjà présents (pas de mouvement en
+  //         plus, pas de temps en plus), jusqu'au plafond par exercice du type
+  //         d'objectif (TRAINING_PARAMS de coaching-engine, pas un chiffre à moi).
+  //      2. AJOUTER un exercice depuis la base (matériel + niveau OK), composés
+  //         d'abord pour la tension — MAIS en refusant celui qui solliciterait un
+  //         muscle déjà travaillé dans sa fenêtre de récupération (SRA_WINDOWS :
+  //         72 h force / 48 h hypertrophie / 24 h endurance). Comme les composés
+  //         sont testés en premier, un composé en conflit est écarté et on
+  //         retombe naturellement sur du mono-articulaire, qui ne touche presque
+  //         rien d'autre. Si rien ne passe, on n'ajoute RIEN (mieux vaut un peu
+  //         moins de volume qu'une semaine irrécupérable).
+
+  // Jours réellement attribués aux séances conservées → écarts en heures.
+  const keptIdx = built.map((_, i) => i).filter((i) => built[i].exercises.length);
+  const plannedDays = pickDays(user, keptIdx.length || 1);
+  const dayOfSession = {};
+  keptIdx.forEach((sessionIdx, k) => {
+    dayOfSession[sessionIdx] = DAY_ORDER.indexOf(plannedDays[k % plannedDays.length]);
+  });
+  const hoursBetween = (i, j) => {
+    const a = dayOfSession[i];
+    const b = dayOfSession[j];
+    if (a == null || b == null) return 999;
+    const d = Math.abs(a - b);
+    return Math.min(d, 7 - d) * 24;
+  };
+  // Muscles qu'un exercice sollicite « assez directement » : ses primaires
+  // toujours ; ses secondaires seulement s'il est polyarticulaire (sur une
+  // isolation, la charge secondaire est négligeable).
+  const loadedBy = (e) => {
+    const list = (e.muscles?.primary || []).map(appMuscle);
+    if (e.type === 'compound') list.push(...(e.muscles?.secondary || []).map(appMuscle));
+    return new Set(list);
+  };
+  const sessionLoads = (idx) => {
+    const set = new Set();
+    for (const x of built[idx].exercises) {
+      set.add(x.muscle_group);
+      for (const sm of x.muscles_secondary || []) set.add(sm);
+    }
+    return set;
+  };
+
   for (const M of primary) {
     const weeklyOf = (mg) =>
       built.reduce((n, s) => n + s.exercises.filter((x) => x.muscle_group === mg).reduce((a, x) => a + (x.sets || 0), 0), 0);
-    let gap = bands.mrv - weeklyOf(M);
+    let gap = targetFor(M) - weeklyOf(M);
     if (gap <= 2) continue;
     const focusIdx = built.map((_, i) => i).filter((i) => built[i].exercises.some((x) => x.muscle_group === M));
     if (!focusIdx.length) continue;
+
+    // 1) Monter les séries des exercices déjà là.
+    for (const i of focusIdx) {
+      for (const x of built[i].exercises) {
+        if (gap <= 2) break;
+        if (x.muscle_group !== M) continue;
+        const room = maxSetsPerExercise - (x.sets || 0);
+        if (room <= 0) continue;
+        const add = Math.min(room, gap);
+        x.sets += add;
+        gap -= add;
+      }
+    }
+    if (gap <= 2) continue;
+
+    // 2) Ajouter des exercices, en respectant les fenêtres de récupération.
     const used = new Set(built.flatMap((s) => s.exercises.map((x) => String(x.name).toLowerCase())));
     const dbM = DB_MUSCLE[M] || M;
     const pool = EXERCISES
       .filter((e) => e.muscles?.primary?.includes(dbM) && e.level?.includes(level) && canDo(e) && !used.has(e.name.toLowerCase()))
-      .sort((a, b) => (a.type === 'compound' ? 0 : 1) - (b.type === 'compound' ? 0 : 1)); // compounds d'abord
+      .sort((a, b) => (a.type === 'compound' ? 0 : 1) - (b.type === 'compound' ? 0 : 1)); // composés d'abord
     let added = 0;
     for (const e of pool) {
-      if (gap <= 2 || added >= 2) break; // au plus 2 nouveaux exos par muscle
+      if (gap <= 2 || added >= 2) break; // au plus 2 nouveaux exercices par muscle
+      const loads = loadedBy(e);
       const perAdd = e.type === 'compound' ? 4 : 3;
       let placed = false;
       for (const i of focusIdx) {
         if (gap <= 2) break;
-        const sets = Math.max(2, Math.min(perAdd, gap));
+        // Conflit de récupération ? On regarde les séances proches dans le temps.
+        const win = SRA_WINDOWS[built[i].type] || SRA_WINDOWS.mixed;
+        const conflict = keptIdx.some((j) => {
+          if (j === i) return false;
+          if (hoursBetween(i, j) >= win) return false; // assez loin → aucun souci
+          const near = sessionLoads(j);
+          // Le muscle ciblé est déjà prévu ce jour-là : c'est voulu, on l'ignore.
+          return [...loads].some((m) => m !== M && near.has(m));
+        });
+        if (conflict) continue; // trop proche d'une autre sollicitation → exercice suivant
+        const sets = Math.max(2, Math.min(perAdd, maxSetsPerExercise, gap));
         built[i] = { ...built[i], exercises: [...built[i].exercises, makeExercise(e, M, sets)] };
         gap -= sets;
         placed = true;
@@ -671,8 +764,10 @@ function shapeSessions(program, user, objectives, days) {
 // pilotée par l'autorégulation (phase, deloads, double progression).
 const INFINITE_WEEKS = 52;
 
-export function buildActivationResult(user, objectives) {
-  let match = findMatchingProgram(user, objectives);
+// ASYNCHRONE : le catalogue est chargé à la demande (voir loadCatalog en tête de
+// fichier). L'appelant doit donc `await`.
+export async function buildActivationResult(user, objectives) {
+  let match = await findMatchingProgram(user, objectives);
   let specialized = false;
 
   // Pas de correspondance exacte MAIS objectif "muscles précis" → on DÉRIVE un
@@ -682,9 +777,10 @@ export function buildActivationResult(user, objectives) {
     const focus = focusMusclesFromObjectives(objectives);
     if (focus.primary.size) {
       const allFocus = new Set([...focus.primary, ...focus.secondary]);
-      const base = pickBaseProgram(user, primarySpecificType(objectives), coverZoneForMuscles(focus.primary), allFocus);
+      const catalog = await loadCatalog();
+      const base = pickBaseProgram(catalog, user, primarySpecificType(objectives), coverZoneForMuscles(focus.primary), allFocus);
       if (base) {
-        match = { ...base, program: specializeProgram(base.program, focus, user) };
+        match = { ...base, program: specializeProgram(base.program, focus, user, primarySpecificType(objectives)) };
         specialized = true;
       }
     }

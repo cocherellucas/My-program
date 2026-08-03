@@ -26,8 +26,8 @@ function direct(sessions) {
   return d;
 }
 
-function show(name, user, objectives, full = false) {
-  const r = buildActivationResult(user, objectives);
+async function show(name, user, objectives, full = false) {
+  const r = await buildActivationResult(user, objectives);
   console.log('\n════ ' + name + ' ════');
   if (!r) { console.log('  ✗ NULL'); return; }
   console.log('  → ' + r.matched_program_name);
@@ -45,18 +45,18 @@ function show(name, user, objectives, full = false) {
 
 const inter4 = { level: 'intermediate', training_context: 'full_gym', availability_optimal: false, frequency_max: 4, available_days: ['monday', 'tuesday', 'thursday', 'friday'], equipment: GYM };
 
-show('CAS 2 · Biceps SEUL (inter, 4j) — chin-up ajouté + comptage dos', inter4, [
+await show('CAS 2 · Biceps SEUL (inter, 4j) — chin-up ajouté + comptage dos', inter4, [
   { type: 'hypertrophy', zone: 'specific_group', priority: 'primary', focus_group: ['Biceps'] },
 ], true);
 
-show('CAS 1 · Fessiers seul (inter, 4j)', inter4, [
+await show('CAS 1 · Fessiers seul (inter, 4j)', inter4, [
   { type: 'hypertrophy', zone: 'specific_group', priority: 'primary', focus_group: ['Fessiers'] },
 ]);
 
-show('CAS 4 · Triceps seul (inter, 4j) — DC prise serrée attendu', inter4, [
+await show('CAS 4 · Triceps seul (inter, 4j) — DC prise serrée attendu', inter4, [
   { type: 'hypertrophy', zone: 'specific_group', priority: 'primary', focus_group: ['Triceps'] },
 ], true);
 
-show('RÉGRESSION · Haut du corps large (doit rester intact)', inter4, [
+await show('RÉGRESSION · Haut du corps large (doit rester intact)', inter4, [
   { type: 'hypertrophy', zone: 'upper_body', priority: 'primary' },
 ]);
