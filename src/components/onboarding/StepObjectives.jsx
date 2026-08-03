@@ -4,9 +4,8 @@ import { useTutorial } from '@/lib/TutorialContext';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { Plus, Trash2, HelpCircle, ChevronDown, Zap } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
@@ -67,7 +66,7 @@ export default function StepObjectives({ data, onChange }) {
       ]);
     }, 700);
     return () => clearTimeout(timer);
-  }, [startTutorial]); // eslint-disable-line
+  }, [startTutorial]);  
 
   // Tuto focus : le badge « Focus principal/secondaire » n'apparaît qu'à partir de 2 objectifs.
   // On l'explique une seule fois, une fois le 2e objectif ajouté ET aucun tuto en cours (on
@@ -85,7 +84,7 @@ export default function StepObjectives({ data, onChange }) {
       ]);
     }, 450); // laisse le badge se rendre + le scroll
     return () => clearTimeout(timer);
-  }, [objectives.length, activeTutorial, startTutorial]); // eslint-disable-line
+  }, [objectives.length, activeTutorial, startTutorial]);  
   const dismissedPairs = React.useRef(new Set());
 
   // Auto-détection : 2 objectifs du même type + MÊME priorité + zones complémentaires → propose fusion
@@ -119,7 +118,7 @@ export default function StepObjectives({ data, onChange }) {
         objectives: [{ type: '', zone: '', priority: 'primary', focus_group: '', focus_movement: '' }]
       });
     }
-  }, []); // eslint-disable-line
+  }, []);  
 
 
   const addObjective = () => {

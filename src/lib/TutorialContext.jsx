@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const TutorialContext = createContext(null);
 const STORAGE_KEY = 'tutorial_state';
@@ -101,10 +101,19 @@ export function TutorialProvider({ children }) {
     const step = activeTutorial.steps[activeTutorial.currentStep];
     if (!step?.target) { setTargetRect(null); return; }
 
+    // getBoundingClientRect() renvoie un NOUVEL objet à chaque appel : le poser
+    // tel quel re-rendrait à chaque notification. Or le MutationObserver ci-dessous
+    // écoute les attributs de tout le body, et les animations framer-motion (anneau
+    // qui pulse, robot qui flotte) réécrivent `style` à chaque frame → boucle de
+    // rendu à 60 fps sur toute l'app (interface qui rame, clics avalés).
+    // On ne pousse donc un nouvel état QUE si la position a réellement changé.
+    const sameRect = (a, b) =>
+      (!a && !b) ||
+      (!!a && !!b && a.top === b.top && a.left === b.left && a.width === b.width && a.height === b.height);
     const update = () => {
       const el = document.querySelector(`[data-tutorial="${step.target}"]`);
-      if (el) setTargetRect(el.getBoundingClientRect());
-      else setTargetRect(null);
+      const next = el ? el.getBoundingClientRect() : null;
+      setTargetRect((prev) => (sameRect(prev, next) ? prev : next));
     };
     // Scroll : place l'élément à ~260px du haut pour qu'une bulle (~220px) tienne au-dessus.
     // On utilise el.scrollIntoView (gère les conteneurs scrollables imbriqués comme les dialogs)

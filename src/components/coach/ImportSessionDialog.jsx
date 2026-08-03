@@ -243,7 +243,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
 
   useEffect(() => {
     try { localStorage.setItem('_import_form', JSON.stringify({ sessions, weeks, verified, collapsed, sessionCount: _expLen })); } catch {}
-  }, [sessions, weeks, verified, collapsed]); // eslint-disable-line
+  }, [sessions, weeks, verified, collapsed]);  
 
   // Cache la nav et bloque le swipe de page pendant que le dialog est ouvert
   useEffect(() => {
@@ -263,7 +263,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
       window.dispatchEvent(new CustomEvent('swipe-lock', { detail: false }));
       document.removeEventListener('touchstart', blockEdgeTouch, { capture: true });
     };
-  }, []); // eslint-disable-line
+  }, []);  
 
   useEffect(() => {
     startTutorial?.('import-dialog', IMPORT_TUTORIAL_STEPS);
@@ -272,7 +272,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
     return () => {
       if (activeTutorialRef.current?.id === 'import-dialog') endTutorial?.('import-dialog');
     };
-  }, []); // eslint-disable-line
+  }, []);  
 
   const listRef = useRef(null);
   const sessionRefs = useRef([]);
@@ -310,7 +310,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
       setTimeout(() => setHighlightId(null), 1200);
     }
     setScrollToId(null);
-  }, [sessions, scrollToId]); // eslint-disable-line
+  }, [sessions, scrollToId]);  
 
   return (
     <div data-no-swipe className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm px-3 pb-3" style={{ paddingTop: 'max(env(safe-area-inset-top), 56px)' }} onTouchMove={e => e.stopPropagation()}>

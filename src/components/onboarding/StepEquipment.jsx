@@ -188,7 +188,7 @@ export default function StepEquipment({ data, onChange }) {
   const setSelectedChain = (chain) => onChange({ gym_chain: chain });
   const lastValidatedRef = useRef(context ? equipment : null);
 
-  useEffect(() => { lastValidatedRef.current = context ? equipment : null; }, [context]); // eslint-disable-line
+  useEffect(() => { lastValidatedRef.current = context ? equipment : null; }, [context]);  
 
   const hasChanged = lastValidatedRef.current === null ||
     JSON.stringify(equipment) !== JSON.stringify(lastValidatedRef.current);

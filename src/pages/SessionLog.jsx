@@ -18,9 +18,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import SetRow from '@/components/session/SetRow';
 import ExerciseGif from '@/components/session/ExerciseGif';
 import { RestTimerControl } from '@/components/session/RestTimer';
-import { computeTargetRIR, ririLabel, computeAdaptedRestTime } from '@/lib/rir-optimizer';
+import { computeTargetRIR } from '@/lib/rir-optimizer';
 import { findExerciseInChains, isAtChainBottom, ELASTIC_PROGRESSION_CHAINS } from '@/lib/progression-chains';
-import { FRAGILE_ZONE_MUSCLES, computeVolumeProposal } from '@/lib/coaching-engine';
+import { computeVolumeProposal } from '@/lib/coaching-engine';
 import { applyVolumeProposal, markVolumeHandled, isVolumeSuppressed } from '@/lib/volume-adjust';
 import VolumeProposalCard from '@/components/coaching/VolumeProposalCard';
 import PainCheckCard from '@/components/coaching/PainCheckCard';
@@ -295,7 +295,7 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
     setAckedPainSeries(painSeries);
     setAckedBadSeries(badSeries);
     setAckedGoodSeries(goodAboveSeries);
-  }, [exIdx, exercise.name]); // eslint-disable-line — on capture l'état constaté à l'arrivée
+  }, [exIdx, exercise.name]); // eslint-disable-line -- on capture l'état constaté à l'arrivée
 
   // Priorité : 'pain' (sécurité) > 'under' (objectifs non atteints) > 'over'
   const coachTip = coachTipsOff ? null : (painActive ? 'pain' : (underActive ? 'under' : (showObjectifBanner ? 'over' : null)));
@@ -860,7 +860,10 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
 // Un exercice de la vue d'ensemble, réordonnable par sa poignée (⋮⋮).
 // Le drag ne démarre QUE depuis la poignée (dragListener={false}) ; Starter →
 // la poignée est visible mais déclenche l'upsell au lieu du drag.
-function OverviewItem({ origIdx, exercise, sets, filledSets, isOpen, onToggle, canReorder, onUpsell, onCommit, showGrip, isFirst, children }) {
+// isTutorialAnchor : porte les repères du tuto. Ancré sur l'EXERCICE (pas sur la
+// position) → le projecteur suit la carte quand on la déplace, au lieu de sauter
+// sur celle qui vient de passer en tête.
+function OverviewItem({ origIdx, exercise, sets, filledSets, isOpen, onToggle, canReorder, onUpsell, onCommit, showGrip, isTutorialAnchor, children }) {
   const controls = useDragControls();
   return (
     <Reorder.Item value={origIdx} dragListener={false} dragControls={controls} onDragEnd={onCommit} className="list-none">
@@ -868,7 +871,7 @@ function OverviewItem({ origIdx, exercise, sets, filledSets, isOpen, onToggle, c
         <div className="w-full flex items-center gap-1 p-4">
           {showGrip && (
             <button type="button" aria-label="Changer l'ordre"
-              {...(isFirst ? { 'data-tutorial': 'reorder-handle' } : {})}
+              {...(isTutorialAnchor ? { 'data-tutorial': 'reorder-handle' } : {})}
               onPointerDown={(e) => { if (canReorder) { e.preventDefault(); controls.start(e); } else { onUpsell?.(); } }}
               className="flex-shrink-0 -ml-2 p-1.5 rounded-md text-white/40 hover:text-white/70 touch-none cursor-grab active:cursor-grabbing">
               <GripVertical className="w-4 h-4" />
@@ -883,7 +886,7 @@ function OverviewItem({ origIdx, exercise, sets, filledSets, isOpen, onToggle, c
                 {filledSets > 0 && <span className="text-xs text-green-400">{filledSets}/{sets} séries</span>}
               </div>
             </div>
-            <ChevronDown {...(isFirst ? { 'data-tutorial': 'expand-chevron' } : {})} className={`w-4 h-4 text-white/50 transition-transform flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown {...(isTutorialAnchor ? { 'data-tutorial': 'expand-chevron' } : {})} className={`w-4 h-4 text-white/50 transition-transform flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
           </button>
         </div>
         {isOpen && children}
@@ -897,6 +900,13 @@ function OverviewPanel({ exercises, logs, updateLog, onClose, fragileZones = [],
   const getLogKey = (exIdx, setIdx) => `${exIdx}-${setIdx}`;
   const [openIdx, setOpenIdx] = useState(null);
 
+  // Ancre du tuto : capturée UNE fois, par NOM d'exercice. Les index changent au
+  // relâchement (la liste est réellement réordonnée) — s'ancrer sur un index
+  // ferait retomber le projecteur sur l'exercice qui occupe alors la 1re place.
+  const anchorRef = useRef(null);
+  if (anchorRef.current == null && exercises?.length) anchorRef.current = exercises[0]?.name ?? null;
+  const anchorName = anchorRef.current;
+
   // Tuto au 1er affichage de la Vue d'ensemble (déclenché une seule fois par
   // montage, dès que le panneau apparaît) : poignée ⋮⋮ puis flèche ⌄.
   const { startTutorial } = useTutorial() || {};
@@ -904,26 +914,30 @@ function OverviewPanel({ exercises, logs, updateLog, onClose, fragileZones = [],
   useEffect(() => {
     if (tutoFiredRef.current || !startTutorial) return;
     tutoFiredRef.current = true;
-    const t = setTimeout(() => {
+    // NB : ne PAS nommer ce minuteur `t` — il masquerait la fonction de
+    // traduction `t` du composant (les appels t('…') ci-dessous planteraient).
+    const timer = setTimeout(() => {
       const steps = [];
       if (onReorder) steps.push({
         target: 'reorder-handle',
         title: t('se_tuto_reorder_t'),
         description: t('se_tuto_reorder_d'),
-        nonInteractive: true,
+        // Interactive : la poignée reste attrapable pendant le tuto pour que
+        // l'utilisateur essaie le glisser-déposer pour de vrai.
       });
       steps.push({
         target: 'expand-chevron',
         title: t('se_tuto_expand_t'),
         description: t('se_tuto_expand_d'),
-        nonInteractive: true,
+        // Interactive : on laisse l'utilisateur toucher la flèche pour essayer
+        // pour de vrai (pas de bloqueur de clics au-dessus de la cible).
       });
       // ignoreSkipAll : tuto de découverte d'une nouvelle fonctionnalité → visible
       // même si l'utilisateur avait "passé tous les tutos" pendant l'onboarding.
       startTutorial('overview-intro', steps, { ignoreSkipAll: true });
     }, 350);
-    return () => clearTimeout(t);
-  }, [startTutorial]); // eslint-disable-line — une seule fois au montage du panneau
+    return () => clearTimeout(timer);
+  }, [startTutorial]); // eslint-disable-line -- une seule fois au montage du panneau
 
   // Ordre d'AFFICHAGE = liste d'indices originaux (les saisies restent indexées
   // par l'index original pendant le drag → aucune donnée ne bouge avant commit).
@@ -932,7 +946,7 @@ function OverviewPanel({ exercises, logs, updateLog, onClose, fragileZones = [],
   const orderRef = useRef(order);
   orderRef.current = order;
   const sig = exercises.map(e => e?.name).join('|');
-  useEffect(() => { setOrder(exercises.map((_, i) => i).filter(i => exercises[i]?.name)); setOpenIdx(null); }, [sig]); // eslint-disable-line
+  useEffect(() => { setOrder(exercises.map((_, i) => i).filter(i => exercises[i]?.name)); setOpenIdx(null); }, [sig]);  
 
   // Fin de drag → on applique la permutation au parent (remap logs/repos/position)
   const commit = () => {
@@ -971,7 +985,7 @@ function OverviewPanel({ exercises, logs, updateLog, onClose, fragileZones = [],
               onUpsell={onUpsellReorder}
               onCommit={commit}
               showGrip={!!onReorder}
-              isFirst={displayPos === 0}
+              isTutorialAnchor={!!anchorName && exercise.name === anchorName}
             >
               <div className="px-4 pb-4 space-y-1.5">
                 {Array.from({ length: sets }).map((_, setIdx) =>
@@ -1257,7 +1271,7 @@ export default function SessionLog() {
       }], { ignoreSkipAll: true });
     }, 800);
     return () => clearTimeout(timer);
-  }, [editView, showEnd, startTutorial]); // eslint-disable-line
+  }, [editView, showEnd, startTutorial]);  
 
   // Conteneur scrollable propre (Séance est rendue HORS du carrousel, comme CoachIA,
   // pour pouvoir se pinner au viewport visible quand le clavier s'ouvre).
@@ -1374,7 +1388,7 @@ export default function SessionLog() {
         }
       }
     } catch {}
-  }, []); // eslint-disable-line
+  }, []);  
 
   const [restTimeForEx, setRestTimeForEx] = useState(() => _draft.restTimeForEx || {});
   const [exSuggestion, setExSuggestion] = useState(null); // { exIdx, name, notes }
@@ -1423,7 +1437,7 @@ export default function SessionLog() {
       } catch (e) { /* silent — auto-save is best-effort */ }
     }, 2000);
     return () => clearTimeout(timer);
-  }, [logs]); // eslint-disable-line
+  }, [logs]);  
   const [sessionsHistory, setSessionsHistory] = useState(''); // résumé textuel pour l'IA
   const [proposal, setProposal] = useState(null);
   const [coachPainQuery, setCoachPainQuery] = useState(null); // {zone, message} notification coach après douleur
@@ -1532,7 +1546,7 @@ export default function SessionLog() {
     if (session?.exercises && !plannedOrderRef.current) {
       plannedOrderRef.current = session.exercises.filter(e => e && e.name).map(e => e.name);
     }
-  }, [session?.id]); // eslint-disable-line
+  }, [session?.id]);  
 
   // Rappel de l'ordre pratiqué la dernière fois sur ce créneau (si différent du
   // planifié et que les exercices sont les mêmes) — informatif, fermable.
@@ -1548,7 +1562,7 @@ export default function SessionLog() {
         && names.slice().sort().join('|') === current.slice().sort().join('|');
       setOrderHint(sameSet && names.join('|') !== current.join('|') ? names : null);
     } catch { setOrderHint(null); }
-  }, [session?.id]); // eslint-disable-line
+  }, [session?.id]);  
 
   // Suivi douleur : si un épisode actif concerne cette séance et n'a pas été
   // checké aujourd'hui (ni sur l'Accueil), on pose la question au démarrage.
@@ -1566,7 +1580,7 @@ export default function SessionLog() {
       } catch {}
     })();
     return () => { cancelled = true; };
-  }, [session?.id, user?.id]); // eslint-disable-line
+  }, [session?.id, user?.id]);  
 
   // Cycle : rappel échauffement/technique en tête de séance UNIQUEMENT pendant
   // la fenêtre d'ovulation (laxité ligamentaire ↑ → protection genou/LCA).
@@ -1578,7 +1592,7 @@ export default function SessionLog() {
     try { if (localStorage.getItem(`cycle_tip_${session.id}`)) return; } catch {}
     const c = computeCycle(user);
     if (c?.phase === 'ovulation') setCycleTip(c);
-  }, [session?.id, user?.id]); // eslint-disable-line
+  }, [session?.id, user?.id]);  
   const dismissCycleTip = () => {
     try { localStorage.setItem(`cycle_tip_${session?.id}`, '1'); } catch {}
     setCycleTip(null);
@@ -1636,7 +1650,7 @@ export default function SessionLog() {
       try { localStorage.removeItem(`session_draft_${sessionId}`); localStorage.removeItem('active_session_id'); } catch {}
       navigate('/program');
     }
-  }, [session?.status, coachPainQuery]); // eslint-disable-line
+  }, [session?.status, coachPainQuery]);  
 
   // Fetch previous session logs for the same program — UNE SEULE FOIS au mount.
   // (sinon le refetch de TanStack Query au focus de fenêtre re-déclenche tout le pipeline
@@ -1759,7 +1773,7 @@ export default function SessionLog() {
         setEditLogsLoaded(true);
       }
     })();
-  }, [editMode, session?.id, user?.id, exercises.length]); // eslint-disable-line
+  }, [editMode, session?.id, user?.id, exercises.length]);  
 
   // ── Réordonner les exercices PENDANT la séance (machine prise, etc.) ──
   // Effet séance uniquement : on permute sessionExercises (brouillon local),

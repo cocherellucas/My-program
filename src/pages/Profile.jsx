@@ -2,13 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { NumInput } from '@/components/ui/num-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Save, Loader2, User, Ruler, Dumbbell, Calendar, Target, SlidersHorizontal, CheckCircle2, RefreshCw, HelpCircle, Settings, ChevronDown } from 'lucide-react';
+import { Loader2, User, Ruler, Dumbbell, Calendar, Target, SlidersHorizontal, CheckCircle2, RefreshCw, HelpCircle, Settings, ChevronDown } from 'lucide-react';
 import { normalizeUser } from '@/lib/utils';
 import { useAuth } from '@/lib/AuthContext';
 import { useI18n } from '@/lib/i18n';
@@ -158,7 +157,7 @@ export default function Profile() {
       setUser(n);
       if (!isDirty) setForm(n);
     }).catch(() => {});
-  }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [location.pathname]);  
 
   if (!user) {
     return (

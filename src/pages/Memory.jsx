@@ -6,8 +6,6 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Brain, ThumbsUp, ThumbsDown, AlertTriangle, TrendingUp, Trash2, FileText } from 'lucide-react';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import ReactMarkdown from 'react-markdown';
 import { ZONE_LABELS } from '@/lib/pain-engine';
 import { ensureOnline } from '@/lib/net';

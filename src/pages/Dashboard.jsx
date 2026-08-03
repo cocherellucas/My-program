@@ -121,11 +121,6 @@ export default function Dashboard() {
     if (activeProgram) markVolumeHandled(activeProgram.id);
     setVolumeTick(t => t + 1);
   };
-  // Pas de proposition d'AUGMENTATION de volume pendant un épisode de douleur
-  // (contradictoire avec les réductions du suivi) — les baisses restent permises.
-  const showVolumeCard = !!volumeProposal && !!activeProgram && !isVolumeSuppressed(activeProgram.id)
-    && !(volumeProposal.direction === 'increase' && hasActivePain);
-
   const handleCheckin = (sessionId, data) => {
     const updated = saveCheckin(sessionId, data);
     setCheckins(updated);
@@ -138,6 +133,15 @@ export default function Dashboard() {
   const [painProposal, setPainProposal] = useState(null);
   const [painBusy, setPainBusy] = useState(false);
   const [hasActivePain, setHasActivePain] = useState(false);
+
+  // Pas de proposition d'AUGMENTATION de volume pendant un épisode de douleur
+  // (contradictoire avec les réductions du suivi) — les baisses restent permises.
+  // ⚠ DOIT rester APRÈS la déclaration de `hasActivePain` : plus haut, la lecture
+  // d'un `const` non encore initialisé plantait tout le rendu de l'Accueil
+  // (« Cannot access … before initialization »).
+  const showVolumeCard = !!volumeProposal && !!activeProgram && !isVolumeSuppressed(activeProgram.id)
+    && !(volumeProposal.direction === 'increase' && hasActivePain);
+
   useEffect(() => {
     if (!user?.id) return;
     loadEpisodes(user.id).then(eps => {

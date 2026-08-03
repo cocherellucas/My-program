@@ -115,7 +115,7 @@ export default function AppLayout() {
     pageRefs.current.forEach((ref, i) => {
       if (ref && i !== currentIdx) ref.scrollTop = 0;
     });
-  }, [currentIdx]); // eslint-disable-line
+  }, [currentIdx]);  
 
   // Recalcule baseX si fenêtre redimensionnée (debounce pour laisser le layout se stabiliser)
   useEffect(() => {
@@ -131,7 +131,7 @@ export default function AppLayout() {
       window.removeEventListener('orientationchange', recalc);
       clearTimeout(timer);
     };
-  }, []); // eslint-disable-line
+  }, []);  
 
   // Listener non-passif pour bloquer le scroll vertical pendant le swipe horizontal
   useEffect(() => {
@@ -161,7 +161,7 @@ export default function AppLayout() {
     if (animating.current || isSwipeLocked()) return;
     touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     isHorizontal.current = false;
-  }, []); // eslint-disable-line
+  }, []);  
 
   const handleTouchMove = useCallback((e) => {
     if (!touchStart.current || animating.current || isSwipeLocked()) return;

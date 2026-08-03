@@ -2489,7 +2489,7 @@ export const PRE_GENERATED_PROGRAMS = [
         {
           "day_label": "Bas du corps A",
           "type": "hypertrophy",
-          "estimated_duration": 55,
+          "estimated_duration": 45,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
@@ -2502,9 +2502,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -2578,25 +2575,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 4,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Crunch câble",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Câble poulie haute"
-              ],
-              "sets": 4,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Bas du corps B",
           "type": "hypertrophy",
-          "estimated_duration": 55,
+          "estimated_duration": 45,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
@@ -2609,9 +2594,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -2679,18 +2661,6 @@ export const PRE_GENERATED_PROGRAMS = [
               "block": "C",
               "equipment": [
                 "Mollets assis machine"
-              ],
-              "sets": 4,
-              "target_reps": "12-15",
-              "rest_seconds": 60
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Chaise romaine"
               ],
               "sets": 4,
               "target_reps": "12-15",
@@ -2719,16 +2689,13 @@ export const PRE_GENERATED_PROGRAMS = [
         {
           "day_label": "Jambes (quadriceps)",
           "type": "hypertrophy",
-          "estimated_duration": 35,
+          "estimated_duration": 26,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -2771,25 +2738,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 3,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Crunch câble",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Câble poulie haute"
-              ],
-              "sets": 3,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure)",
           "type": "hypertrophy",
-          "estimated_duration": 40,
+          "estimated_duration": 31,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -2799,9 +2754,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -2847,25 +2799,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 3,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Chaise romaine"
-              ],
-              "sets": 3,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Bas du corps",
           "type": "hypertrophy",
-          "estimated_duration": 50,
+          "estimated_duration": 42,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
@@ -2878,9 +2818,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -2948,18 +2885,6 @@ export const PRE_GENERATED_PROGRAMS = [
               "block": "C",
               "equipment": [
                 "Leg press"
-              ],
-              "sets": 3,
-              "target_reps": "12-15",
-              "rest_seconds": 60
-            },
-            {
-              "name": "Crunch machine",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Crunch abdos machine"
               ],
               "sets": 3,
               "target_reps": "12-15",
@@ -2988,16 +2913,13 @@ export const PRE_GENERATED_PROGRAMS = [
         {
           "day_label": "Jambes (quadriceps) A",
           "type": "hypertrophy",
-          "estimated_duration": 30,
+          "estimated_duration": 24,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -3040,25 +2962,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Crunch câble",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Câble poulie haute"
-              ],
-              "sets": 2,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) A",
           "type": "hypertrophy",
-          "estimated_duration": 35,
+          "estimated_duration": 29,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -3068,9 +2978,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -3116,34 +3023,19 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Chaise romaine"
-              ],
-              "sets": 2,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (quadriceps) B",
           "type": "hypertrophy",
-          "estimated_duration": 30,
+          "estimated_duration": 24,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -3185,25 +3077,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Crunch machine",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Crunch abdos machine"
-              ],
-              "sets": 2,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) B",
           "type": "hypertrophy",
-          "estimated_duration": 35,
+          "estimated_duration": 29,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -3213,9 +3093,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -3256,18 +3133,6 @@ export const PRE_GENERATED_PROGRAMS = [
               "block": "C",
               "equipment": [
                 "Mollets debout machine"
-              ],
-              "sets": 2,
-              "target_reps": "12-15",
-              "rest_seconds": 60
-            },
-            {
-              "name": "Roulette abdominale",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Roulette abdominale"
               ],
               "sets": 2,
               "target_reps": "12-15",
@@ -14671,7 +14536,7 @@ export const PRE_GENERATED_PROGRAMS = [
         {
           "day_label": "Bas du corps A",
           "type": "hypertrophy",
-          "estimated_duration": 45,
+          "estimated_duration": 36,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
@@ -14684,9 +14549,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -14750,25 +14612,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 4,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barre de traction haute"
-              ],
-              "sets": 4,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Bas du corps B",
           "type": "hypertrophy",
-          "estimated_duration": 45,
+          "estimated_duration": 36,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
@@ -14781,9 +14631,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -14845,18 +14692,6 @@ export const PRE_GENERATED_PROGRAMS = [
               "block": "C",
               "equipment": [
                 "Gilet lesté"
-              ],
-              "sets": 4,
-              "target_reps": "15-20",
-              "rest_seconds": 45
-            },
-            {
-              "name": "L-sit",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barres parallèles"
               ],
               "sets": 4,
               "target_reps": "15-20",
@@ -14885,16 +14720,13 @@ export const PRE_GENERATED_PROGRAMS = [
         {
           "day_label": "Jambes (quadriceps)",
           "type": "hypertrophy",
-          "estimated_duration": 30,
+          "estimated_duration": 23,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -14933,25 +14765,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 3,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barre de traction haute"
-              ],
-              "sets": 3,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure)",
           "type": "hypertrophy",
-          "estimated_duration": 35,
+          "estimated_duration": 27,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -14961,9 +14781,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -15003,25 +14820,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 3,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "L-sit",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barres parallèles"
-              ],
-              "sets": 3,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Bas du corps",
           "type": "hypertrophy",
-          "estimated_duration": 45,
+          "estimated_duration": 38,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
@@ -15034,9 +14839,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -15094,16 +14896,6 @@ export const PRE_GENERATED_PROGRAMS = [
             {
               "name": "Mollets unilatéraux poids du corps",
               "muscle_group": "Mollets",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [],
-              "sets": 3,
-              "target_reps": "15-20",
-              "rest_seconds": 45
-            },
-            {
-              "name": "Planche",
-              "muscle_group": "Abdominaux",
               "muscles_secondary": [],
               "block": "C",
               "equipment": [],
@@ -15134,16 +14926,13 @@ export const PRE_GENERATED_PROGRAMS = [
         {
           "day_label": "Jambes (quadriceps) A",
           "type": "hypertrophy",
-          "estimated_duration": 25,
+          "estimated_duration": 20,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -15182,25 +14971,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barre de traction haute"
-              ],
-              "sets": 2,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) A",
           "type": "hypertrophy",
-          "estimated_duration": 30,
+          "estimated_duration": 25,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -15210,9 +14987,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -15252,34 +15026,19 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "L-sit",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barres parallèles"
-              ],
-              "sets": 2,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (quadriceps) B",
           "type": "hypertrophy",
-          "estimated_duration": 25,
+          "estimated_duration": 20,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -15316,23 +15075,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "Planche",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [],
-              "sets": 2,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) B",
           "type": "hypertrophy",
-          "estimated_duration": 30,
+          "estimated_duration": 25,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -15342,9 +15091,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -15383,16 +15129,6 @@ export const PRE_GENERATED_PROGRAMS = [
               "equipment": [
                 "Gilet lesté"
               ],
-              "sets": 2,
-              "target_reps": "15-20",
-              "rest_seconds": 45
-            },
-            {
-              "name": "Crunch au sol",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [],
               "sets": 2,
               "target_reps": "15-20",
               "rest_seconds": 45
@@ -23432,16 +23168,13 @@ export const PRE_GENERATED_PROGRAMS = [
         {
           "day_label": "Jambes (quadriceps)",
           "type": "hypertrophy",
-          "estimated_duration": 40,
+          "estimated_duration": 30,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -23484,25 +23217,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 4,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Crunch câble",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Câble poulie haute"
-              ],
-              "sets": 4,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure)",
           "type": "hypertrophy",
-          "estimated_duration": 45,
+          "estimated_duration": 35,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -23512,9 +23233,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -23573,25 +23291,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 4,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Chaise romaine"
-              ],
-              "sets": 4,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Bas du corps",
           "type": "hypertrophy",
-          "estimated_duration": 65,
+          "estimated_duration": 55,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
@@ -23604,9 +23310,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -23687,18 +23390,6 @@ export const PRE_GENERATED_PROGRAMS = [
               "block": "C",
               "equipment": [
                 "Leg press"
-              ],
-              "sets": 4,
-              "target_reps": "12-15",
-              "rest_seconds": 60
-            },
-            {
-              "name": "Crunch machine",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Crunch abdos machine"
               ],
               "sets": 4,
               "target_reps": "12-15",
@@ -23727,16 +23418,13 @@ export const PRE_GENERATED_PROGRAMS = [
         {
           "day_label": "Jambes (quadriceps) A",
           "type": "hypertrophy",
-          "estimated_duration": 40,
+          "estimated_duration": 31,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -23779,25 +23467,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 3,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Crunch câble",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Câble poulie haute"
-              ],
-              "sets": 3,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) A",
           "type": "hypertrophy",
-          "estimated_duration": 40,
+          "estimated_duration": 33,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -23807,9 +23483,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -23868,34 +23541,19 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 3,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Chaise romaine"
-              ],
-              "sets": 3,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (quadriceps) B",
           "type": "hypertrophy",
-          "estimated_duration": 40,
+          "estimated_duration": 31,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -23937,25 +23595,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 3,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Crunch machine",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Crunch abdos machine"
-              ],
-              "sets": 3,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) B",
           "type": "hypertrophy",
-          "estimated_duration": 40,
+          "estimated_duration": 33,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -23965,9 +23611,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -24021,18 +23664,6 @@ export const PRE_GENERATED_PROGRAMS = [
               "block": "C",
               "equipment": [
                 "Mollets debout machine"
-              ],
-              "sets": 3,
-              "target_reps": "12-15",
-              "rest_seconds": 60
-            },
-            {
-              "name": "Roulette abdominale",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Roulette abdominale"
               ],
               "sets": 3,
               "target_reps": "12-15",
@@ -24061,16 +23692,13 @@ export const PRE_GENERATED_PROGRAMS = [
         {
           "day_label": "Jambes (quadriceps) A",
           "type": "hypertrophy",
-          "estimated_duration": 30,
+          "estimated_duration": 23,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -24113,25 +23741,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Crunch câble",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Câble poulie haute"
-              ],
-              "sets": 2,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) A",
           "type": "hypertrophy",
-          "estimated_duration": 40,
+          "estimated_duration": 34,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -24141,9 +23757,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -24202,34 +23815,19 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Chaise romaine"
-              ],
-              "sets": 2,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (quadriceps) B",
           "type": "hypertrophy",
-          "estimated_duration": 30,
+          "estimated_duration": 23,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -24271,25 +23869,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Crunch machine",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Crunch abdos machine"
-              ],
-              "sets": 2,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) B",
           "type": "hypertrophy",
-          "estimated_duration": 40,
+          "estimated_duration": 34,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -24299,9 +23885,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -24359,34 +23942,19 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Roulette abdominale",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Roulette abdominale"
-              ],
-              "sets": 2,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (quadriceps) C",
           "type": "hypertrophy",
-          "estimated_duration": 30,
+          "estimated_duration": 23,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -24425,18 +23993,6 @@ export const PRE_GENERATED_PROGRAMS = [
               "block": "C",
               "equipment": [
                 "Mollets assis machine"
-              ],
-              "sets": 2,
-              "target_reps": "12-15",
-              "rest_seconds": 60
-            },
-            {
-              "name": "Crunch câble",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Câble poulie haute"
               ],
               "sets": 2,
               "target_reps": "12-15",
@@ -38142,16 +37698,13 @@ export const PRE_GENERATED_PROGRAMS = [
         {
           "day_label": "Jambes (quadriceps)",
           "type": "hypertrophy",
-          "estimated_duration": 35,
+          "estimated_duration": 26,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -38190,25 +37743,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 4,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barre de traction haute"
-              ],
-              "sets": 4,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure)",
           "type": "hypertrophy",
-          "estimated_duration": 40,
+          "estimated_duration": 31,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -38218,9 +37759,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -38275,25 +37813,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 4,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "L-sit",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barres parallèles"
-              ],
-              "sets": 4,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Bas du corps",
           "type": "hypertrophy",
-          "estimated_duration": 55,
+          "estimated_duration": 47,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
@@ -38306,9 +37832,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -38381,16 +37904,6 @@ export const PRE_GENERATED_PROGRAMS = [
             {
               "name": "Mollets unilatéraux poids du corps",
               "muscle_group": "Mollets",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [],
-              "sets": 4,
-              "target_reps": "15-20",
-              "rest_seconds": 45
-            },
-            {
-              "name": "Planche",
-              "muscle_group": "Abdominaux",
               "muscles_secondary": [],
               "block": "C",
               "equipment": [],
@@ -38421,16 +37934,13 @@ export const PRE_GENERATED_PROGRAMS = [
         {
           "day_label": "Jambes (quadriceps) A",
           "type": "hypertrophy",
-          "estimated_duration": 35,
+          "estimated_duration": 28,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -38469,25 +37979,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 3,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barre de traction haute"
-              ],
-              "sets": 3,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) A",
           "type": "hypertrophy",
-          "estimated_duration": 35,
+          "estimated_duration": 28,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -38497,9 +37995,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -38554,34 +38049,19 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 3,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "L-sit",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barres parallèles"
-              ],
-              "sets": 3,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (quadriceps) B",
           "type": "hypertrophy",
-          "estimated_duration": 35,
+          "estimated_duration": 28,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -38618,23 +38098,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 3,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "Planche",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [],
-              "sets": 3,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) B",
           "type": "hypertrophy",
-          "estimated_duration": 35,
+          "estimated_duration": 28,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -38644,9 +38114,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -38700,16 +38167,6 @@ export const PRE_GENERATED_PROGRAMS = [
               "equipment": [
                 "Gilet lesté"
               ],
-              "sets": 3,
-              "target_reps": "15-20",
-              "rest_seconds": 45
-            },
-            {
-              "name": "Crunch au sol",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [],
               "sets": 3,
               "target_reps": "15-20",
               "rest_seconds": 45
@@ -38737,16 +38194,13 @@ export const PRE_GENERATED_PROGRAMS = [
         {
           "day_label": "Jambes (quadriceps) A",
           "type": "hypertrophy",
-          "estimated_duration": 25,
+          "estimated_duration": 20,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -38785,25 +38239,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barre de traction haute"
-              ],
-              "sets": 2,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) A",
           "type": "hypertrophy",
-          "estimated_duration": 35,
+          "estimated_duration": 30,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -38813,9 +38255,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -38870,34 +38309,19 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "L-sit",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barres parallèles"
-              ],
-              "sets": 2,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (quadriceps) B",
           "type": "hypertrophy",
-          "estimated_duration": 25,
+          "estimated_duration": 20,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -38934,23 +38358,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "Planche",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [],
-              "sets": 2,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) B",
           "type": "hypertrophy",
-          "estimated_duration": 35,
+          "estimated_duration": 30,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -38960,9 +38374,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -39019,32 +38430,19 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "Crunch au sol",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [],
-              "sets": 2,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (quadriceps) C",
           "type": "hypertrophy",
-          "estimated_duration": 25,
+          "estimated_duration": 20,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -39080,18 +38478,6 @@ export const PRE_GENERATED_PROGRAMS = [
               "muscles_secondary": [],
               "block": "C",
               "equipment": [],
-              "sets": 2,
-              "target_reps": "15-20",
-              "rest_seconds": 45
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barre de traction haute"
-              ],
               "sets": 2,
               "target_reps": "15-20",
               "rest_seconds": 45
@@ -50344,16 +49730,13 @@ export const PRE_GENERATED_PROGRAMS = [
         {
           "day_label": "Jambes (quadriceps)",
           "type": "hypertrophy",
-          "estimated_duration": 50,
+          "estimated_duration": 39,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -50423,25 +49806,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Crunch câble",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Câble poulie haute"
-              ],
-              "sets": 4,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure)",
           "type": "hypertrophy",
-          "estimated_duration": 50,
+          "estimated_duration": 40,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -50451,9 +49822,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -50536,25 +49904,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Chaise romaine"
-              ],
-              "sets": 4,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Bas du corps",
           "type": "hypertrophy",
-          "estimated_duration": 70,
+          "estimated_duration": 61,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
@@ -50567,9 +49923,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -50690,18 +50043,6 @@ export const PRE_GENERATED_PROGRAMS = [
                 "Leg press"
               ],
               "sets": 2,
-              "target_reps": "12-15",
-              "rest_seconds": 60
-            },
-            {
-              "name": "Crunch machine",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Crunch abdos machine"
-              ],
-              "sets": 4,
               "target_reps": "12-15",
               "rest_seconds": 60
             }
@@ -50728,16 +50069,13 @@ export const PRE_GENERATED_PROGRAMS = [
         {
           "day_label": "Jambes (quadriceps) A",
           "type": "hypertrophy",
-          "estimated_duration": 45,
+          "estimated_duration": 37,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -50795,25 +50133,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 4,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Crunch câble",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Câble poulie haute"
-              ],
-              "sets": 3,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) A",
           "type": "hypertrophy",
-          "estimated_duration": 45,
+          "estimated_duration": 38,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -50823,9 +50149,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -50896,34 +50219,19 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 4,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Chaise romaine"
-              ],
-              "sets": 3,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (quadriceps) B",
           "type": "hypertrophy",
-          "estimated_duration": 45,
+          "estimated_duration": 37,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -50979,25 +50287,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 4,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Crunch machine",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Crunch abdos machine"
-              ],
-              "sets": 3,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) B",
           "type": "hypertrophy",
-          "estimated_duration": 45,
+          "estimated_duration": 38,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -51007,9 +50303,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -51079,18 +50372,6 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 4,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Roulette abdominale",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Roulette abdominale"
-              ],
-              "sets": 3,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         }
@@ -51115,16 +50396,13 @@ export const PRE_GENERATED_PROGRAMS = [
         {
           "day_label": "Jambes (quadriceps) A",
           "type": "hypertrophy",
-          "estimated_duration": 35,
+          "estimated_duration": 26,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -51167,25 +50445,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 3,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Crunch câble",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Câble poulie haute"
-              ],
-              "sets": 3,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) A",
           "type": "hypertrophy",
-          "estimated_duration": 45,
+          "estimated_duration": 37,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -51195,9 +50461,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -51268,34 +50531,19 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 3,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Chaise romaine"
-              ],
-              "sets": 3,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (quadriceps) B",
           "type": "hypertrophy",
-          "estimated_duration": 35,
+          "estimated_duration": 26,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -51337,25 +50585,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 3,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Crunch machine",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Crunch abdos machine"
-              ],
-              "sets": 3,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) B",
           "type": "hypertrophy",
-          "estimated_duration": 45,
+          "estimated_duration": 37,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -51365,9 +50601,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -51437,34 +50670,19 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 3,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Roulette abdominale",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Roulette abdominale"
-              ],
-              "sets": 3,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (quadriceps) C",
           "type": "hypertrophy",
-          "estimated_duration": 35,
+          "estimated_duration": 26,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -51503,18 +50721,6 @@ export const PRE_GENERATED_PROGRAMS = [
               "block": "C",
               "equipment": [
                 "Mollets assis machine"
-              ],
-              "sets": 3,
-              "target_reps": "12-15",
-              "rest_seconds": 60
-            },
-            {
-              "name": "Crunch câble",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Câble poulie haute"
               ],
               "sets": 3,
               "target_reps": "12-15",
@@ -51543,16 +50749,13 @@ export const PRE_GENERATED_PROGRAMS = [
         {
           "day_label": "Jambes (quadriceps) A",
           "type": "hypertrophy",
-          "estimated_duration": 30,
+          "estimated_duration": 24,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -51595,25 +50798,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Crunch câble",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Câble poulie haute"
-              ],
-              "sets": 2,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) A",
           "type": "hypertrophy",
-          "estimated_duration": 35,
+          "estimated_duration": 29,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -51623,9 +50814,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -51671,34 +50859,19 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Chaise romaine"
-              ],
-              "sets": 2,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (quadriceps) B",
           "type": "hypertrophy",
-          "estimated_duration": 30,
+          "estimated_duration": 24,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -51740,25 +50913,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Crunch machine",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Crunch abdos machine"
-              ],
-              "sets": 2,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) B",
           "type": "hypertrophy",
-          "estimated_duration": 35,
+          "estimated_duration": 29,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -51768,9 +50929,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -51815,34 +50973,19 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Roulette abdominale",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Roulette abdominale"
-              ],
-              "sets": 2,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (quadriceps) C",
           "type": "hypertrophy",
-          "estimated_duration": 30,
+          "estimated_duration": 24,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -51885,25 +51028,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "12-15",
               "rest_seconds": 60
-            },
-            {
-              "name": "Crunch câble",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Câble poulie haute"
-              ],
-              "sets": 2,
-              "target_reps": "12-15",
-              "rest_seconds": 60
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) C",
           "type": "hypertrophy",
-          "estimated_duration": 35,
+          "estimated_duration": 29,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -51913,9 +51044,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -51957,18 +51085,6 @@ export const PRE_GENERATED_PROGRAMS = [
               "block": "C",
               "equipment": [
                 "Leg press"
-              ],
-              "sets": 2,
-              "target_reps": "12-15",
-              "rest_seconds": 60
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Chaise romaine"
               ],
               "sets": 2,
               "target_reps": "12-15",
@@ -74393,16 +73509,13 @@ export const PRE_GENERATED_PROGRAMS = [
         {
           "day_label": "Jambes (quadriceps)",
           "type": "hypertrophy",
-          "estimated_duration": 40,
+          "estimated_duration": 32,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -74468,25 +73581,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barre de traction haute"
-              ],
-              "sets": 4,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure)",
           "type": "hypertrophy",
-          "estimated_duration": 45,
+          "estimated_duration": 36,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -74496,9 +73597,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -74575,25 +73673,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "L-sit",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barres parallèles"
-              ],
-              "sets": 4,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Bas du corps",
           "type": "hypertrophy",
-          "estimated_duration": 60,
+          "estimated_duration": 52,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
@@ -74606,9 +73692,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -74721,16 +73804,6 @@ export const PRE_GENERATED_PROGRAMS = [
                 "Gilet lesté"
               ],
               "sets": 2,
-              "target_reps": "15-20",
-              "rest_seconds": 45
-            },
-            {
-              "name": "Planche",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [],
-              "sets": 4,
               "target_reps": "15-20",
               "rest_seconds": 45
             }
@@ -74757,16 +73830,13 @@ export const PRE_GENERATED_PROGRAMS = [
         {
           "day_label": "Jambes (quadriceps) A",
           "type": "hypertrophy",
-          "estimated_duration": 40,
+          "estimated_duration": 33,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -74820,25 +73890,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 4,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barre de traction haute"
-              ],
-              "sets": 3,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) A",
           "type": "hypertrophy",
-          "estimated_duration": 40,
+          "estimated_duration": 33,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -74848,9 +73906,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -74917,34 +73972,19 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 4,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "L-sit",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barres parallèles"
-              ],
-              "sets": 3,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (quadriceps) B",
           "type": "hypertrophy",
-          "estimated_duration": 40,
+          "estimated_duration": 33,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -74993,23 +74033,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 4,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "Planche",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [],
-              "sets": 3,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) B",
           "type": "hypertrophy",
-          "estimated_duration": 40,
+          "estimated_duration": 33,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -75019,9 +74049,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -75090,16 +74117,6 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 4,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "Crunch au sol",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [],
-              "sets": 3,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         }
@@ -75124,16 +74141,13 @@ export const PRE_GENERATED_PROGRAMS = [
         {
           "day_label": "Jambes (quadriceps) A",
           "type": "hypertrophy",
-          "estimated_duration": 30,
+          "estimated_duration": 23,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -75172,25 +74186,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 3,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barre de traction haute"
-              ],
-              "sets": 3,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) A",
           "type": "hypertrophy",
-          "estimated_duration": 40,
+          "estimated_duration": 33,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -75200,9 +74202,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -75269,34 +74268,19 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 3,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "L-sit",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barres parallèles"
-              ],
-              "sets": 3,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (quadriceps) B",
           "type": "hypertrophy",
-          "estimated_duration": 30,
+          "estimated_duration": 23,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -75333,23 +74317,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 3,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "Planche",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [],
-              "sets": 3,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) B",
           "type": "hypertrophy",
-          "estimated_duration": 40,
+          "estimated_duration": 33,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -75359,9 +74333,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -75430,32 +74401,19 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 3,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "Crunch au sol",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [],
-              "sets": 3,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (quadriceps) C",
           "type": "hypertrophy",
-          "estimated_duration": 30,
+          "estimated_duration": 23,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -75491,18 +74449,6 @@ export const PRE_GENERATED_PROGRAMS = [
               "muscles_secondary": [],
               "block": "C",
               "equipment": [],
-              "sets": 3,
-              "target_reps": "15-20",
-              "rest_seconds": 45
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barre de traction haute"
-              ],
               "sets": 3,
               "target_reps": "15-20",
               "rest_seconds": 45
@@ -75530,16 +74476,13 @@ export const PRE_GENERATED_PROGRAMS = [
         {
           "day_label": "Jambes (quadriceps) A",
           "type": "hypertrophy",
-          "estimated_duration": 25,
+          "estimated_duration": 20,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -75578,25 +74521,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barre de traction haute"
-              ],
-              "sets": 2,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) A",
           "type": "hypertrophy",
-          "estimated_duration": 30,
+          "estimated_duration": 25,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -75606,9 +74537,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -75648,34 +74576,19 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "L-sit",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barres parallèles"
-              ],
-              "sets": 2,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (quadriceps) B",
           "type": "hypertrophy",
-          "estimated_duration": 25,
+          "estimated_duration": 20,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -75712,23 +74625,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "Planche",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [],
-              "sets": 2,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) B",
           "type": "hypertrophy",
-          "estimated_duration": 30,
+          "estimated_duration": 25,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -75738,9 +74641,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -75782,32 +74682,19 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "Crunch au sol",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [],
-              "sets": 2,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (quadriceps) C",
           "type": "hypertrophy",
-          "estimated_duration": 25,
+          "estimated_duration": 20,
           "active_zones": [
             {
               "muscle_group": "Quadriceps"
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -75846,25 +74733,13 @@ export const PRE_GENERATED_PROGRAMS = [
               "sets": 2,
               "target_reps": "15-20",
               "rest_seconds": 45
-            },
-            {
-              "name": "Relevés de jambes suspendu",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barre de traction haute"
-              ],
-              "sets": 2,
-              "target_reps": "15-20",
-              "rest_seconds": 45
             }
           ]
         },
         {
           "day_label": "Jambes (chaîne postérieure) C",
           "type": "hypertrophy",
-          "estimated_duration": 30,
+          "estimated_duration": 25,
           "active_zones": [
             {
               "muscle_group": "Ischio-jambiers"
@@ -75874,9 +74749,6 @@ export const PRE_GENERATED_PROGRAMS = [
             },
             {
               "muscle_group": "Mollets"
-            },
-            {
-              "muscle_group": "Abdominaux"
             }
           ],
           "exercises": [
@@ -75912,18 +74784,6 @@ export const PRE_GENERATED_PROGRAMS = [
               "block": "C",
               "equipment": [
                 "Gilet lesté"
-              ],
-              "sets": 2,
-              "target_reps": "15-20",
-              "rest_seconds": 45
-            },
-            {
-              "name": "L-sit",
-              "muscle_group": "Abdominaux",
-              "muscles_secondary": [],
-              "block": "C",
-              "equipment": [
-                "Barres parallèles"
               ],
               "sets": 2,
               "target_reps": "15-20",

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { ChevronUp, ChevronDown, HelpCircle } from 'lucide-react';
+import { HelpCircle } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/lib/i18n';
@@ -29,6 +28,11 @@ export default function StepAvailability({ data, onChange }) {
       ? selectedDays.filter(d => d !== day)
       : [...selectedDays, day];
     const next = { available_days: newDays };
+    // Fusion jours = fréquence : la fréquence EST le nombre de jours cochés (plus
+    // de champ « fréquence souhaitée » séparé). On garde frequency_min/max alignés
+    // car l'activation (findMatchingProgram) et le snapshot les lisent encore.
+    next.frequency_max = newDays.length;
+    next.frequency_min = newDays.length;
     // Si on ajoute un nouveau jour sans durée, mettre 60 par défaut
     if (!wasSelected && !durations[day]) {
       next.duration_per_day = { ...durations, [day]: 60 };
@@ -231,7 +235,19 @@ export default function StepAvailability({ data, onChange }) {
             if (sameDurationAll && selectedDays.length > 1) {
               return (
                 <div className="space-y-2">
-                  <Label className="text-white">{t('av_duration')}</Label>
+                  <div className="flex items-center gap-1.5">
+                    <Label className="text-white">{t('av_duration')}</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button type="button" className="text-white/40 hover:text-white/70 transition-colors flex-shrink-0">
+                          <HelpCircle className="w-3.5 h-3.5" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent avoidCollisions collisionPadding={16} className="w-64 text-xs bg-violet-900/95 backdrop-blur-sm border border-white/20 text-white shadow-xl z-[200]">
+                        <p className="text-white/80">{t('av_duration_help')}</p>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                   {renderPresets(selectedDays[0])}
                   {durationErrors[selectedDays[0]] && (
                     <p className="text-xs text-red-300 px-1">{durationErrors[selectedDays[0]]}</p>
@@ -241,7 +257,19 @@ export default function StepAvailability({ data, onChange }) {
             }
             return (
               <div className="space-y-2">
-                <Label className="text-white">{t('av_duration_day')}</Label>
+                <div className="flex items-center gap-1.5">
+                  <Label className="text-white">{t('av_duration_day')}</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button type="button" className="text-white/40 hover:text-white/70 transition-colors flex-shrink-0">
+                        <HelpCircle className="w-3.5 h-3.5" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent avoidCollisions collisionPadding={16} className="w-64 text-xs bg-violet-900/95 backdrop-blur-sm border border-white/20 text-white shadow-xl z-[200]">
+                      <p className="text-white/80">{t('av_duration_help')}</p>
+                    </PopoverContent>
+                  </Popover>
+                </div>
                 <div className="p-3 rounded-xl bg-white/5 border border-white/15 space-y-3">
                   {DAYS.filter(d => selectedDays.includes(d.key)).map(({ key, label }, idx) => (
                     <div key={key} className={`space-y-1.5 ${idx > 0 ? 'pt-3 border-t border-white/10' : ''}`}>
@@ -260,85 +288,8 @@ export default function StepAvailability({ data, onChange }) {
       )}
 
 
-      {data.availability_optimal === false && <div className="space-y-4">
-        {[
-          { field: 'frequency_max', label: t('av_freq'), placeholder: '4', default: 4 },
-        ].map(({ field, label, placeholder, default: def }) => (
-          <div key={field} className="space-y-1">
-            <div className="flex items-center gap-1.5">
-              <Label className="text-white">{label}</Label>
-              <span className="text-red-400">*</span>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button type="button" className="text-white/40 hover:text-white/70 transition-colors flex-shrink-0">
-                    <HelpCircle className="w-3.5 h-3.5" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent avoidCollisions collisionPadding={16} className="w-64 text-xs space-y-1.5 bg-violet-900/95 backdrop-blur-sm border border-white/20 text-white shadow-xl z-[200]">
-                  <p className="font-semibold text-violet-300">{t('av_freq_title')}</p>
-                  <p className="text-white/70">{t('av_freq_d')}</p>
-                </PopoverContent>
-              </Popover>
-            </div>
-            <p className="text-[11px] text-white/50 pb-1">parmi tes {selectedDays.length} jour{selectedDays.length > 1 ? 's' : ''} libre{selectedDays.length > 1 ? 's' : ''} sélectionné{selectedDays.length > 1 ? 's' : ''}</p>
-            <div className="relative max-w-[120px]">
-              <Input
-                type="text"
-                inputMode="numeric"
-                placeholder={placeholder}
-                value={data[field] || ''}
-                onChange={(e) => {
-                  const raw = e.target.value.replace(/[^0-9]/g, '');
-                  const val = parseInt(raw);
-                  if (raw === '') { onChange({ [field]: '' }); return; }
-                  const clamped = Math.min(Math.max(val, 1), 6);
-                  // frequency_min calé sur frequency_max pour cohérence
-                  onChange({ [field]: clamped, frequency_min: clamped });
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') { e.target.blur(); return; }
-                  if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    const cur = parseInt(data[field]) || def;
-                    const next = cur + (e.key === 'ArrowUp' ? 1 : -1);
-                    const clamped = Math.min(6, Math.max(1, next));
-                    onChange({ [field]: clamped, frequency_min: clamped });
-                  }
-                }}
-                className="pr-6 bg-white/10 border-white/20 text-white placeholder:text-white/30"
-              />
-              <div className="absolute right-1 top-0 h-full flex flex-col justify-center">
-                <button type="button" tabIndex={-1}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    const clamped = Math.min(6, (parseInt(data[field]) || def) + 1);
-                    onChange({ [field]: clamped, frequency_min: clamped });
-                  }}
-                  className="text-white/50 hover:text-white leading-none">
-                  <ChevronUp className="w-3 h-3" />
-                </button>
-                <button type="button" tabIndex={-1}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    const cur = parseInt(data[field]) || def;
-                    const clamped = Math.max(1, cur - 1);
-                    onChange({ [field]: clamped, frequency_min: clamped });
-                  }}
-                  className="text-white/50 hover:text-white leading-none">
-                  <ChevronDown className="w-3 h-3" />
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>}
-
-      {/* Avertissement fréquence vs jours sélectionnés */}
-      {data.availability_optimal === false && data.frequency_max && selectedDays.length < data.frequency_max && (
-        <p className="text-xs text-orange-300 bg-orange-400/10 border border-orange-400/30 rounded-lg px-3 py-2">
-          ⚠️ Tu veux {data.frequency_max}× par semaine mais tu n'as sélectionné que {selectedDays.length} jour{selectedDays.length > 1 ? 's' : ''}. Ajoute des jours ou réduis la fréquence.
-        </p>
-      )}
+      {/* Fusion jours = fréquence : plus de champ « Fréquence souhaitée » séparé.
+          Le nombre de jours cochés EST la fréquence (dérivée dans toggleDay). */}
 
     </div>
   );

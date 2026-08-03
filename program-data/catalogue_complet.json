@@ -2111,7 +2111,7 @@
           {
             "day_label": "Bas du corps A",
             "type": "hypertrophy",
-            "estimated_duration": 55,
+            "estimated_duration": 45,
             "exercises": [
               {
                 "name": "Squat barre",
@@ -2183,25 +2183,13 @@
                 "sets": 4,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Crunch à la poulie",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Câble poulie haute"
-                ],
-                "sets": 4,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Bas du corps B",
             "type": "hypertrophy",
-            "estimated_duration": 55,
+            "estimated_duration": 45,
             "exercises": [
               {
                 "name": "Squat avant",
@@ -2267,18 +2255,6 @@
                 "block": "C",
                 "equipment": [
                   "Mollets assis machine"
-                ],
-                "sets": 4,
-                "target_reps": "12-15",
-                "rest_seconds": 60
-              },
-              {
-                "name": "Relevé de jambes suspendu",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Chaise romaine"
                 ],
                 "sets": 4,
                 "target_reps": "12-15",
@@ -2307,7 +2283,7 @@
           {
             "day_label": "Jambes (quadriceps)",
             "type": "hypertrophy",
-            "estimated_duration": 35,
+            "estimated_duration": 26,
             "exercises": [
               {
                 "name": "Squat barre",
@@ -2348,25 +2324,13 @@
                 "sets": 3,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Crunch à la poulie",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Câble poulie haute"
-                ],
-                "sets": 3,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure)",
             "type": "hypertrophy",
-            "estimated_duration": 40,
+            "estimated_duration": 31,
             "exercises": [
               {
                 "name": "Soulevé de terre",
@@ -2410,25 +2374,13 @@
                 "sets": 3,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Relevé de jambes suspendu",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Chaise romaine"
-                ],
-                "sets": 3,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Bas du corps",
             "type": "hypertrophy",
-            "estimated_duration": 50,
+            "estimated_duration": 42,
             "exercises": [
               {
                 "name": "Squat avant",
@@ -2494,18 +2446,6 @@
                 "block": "C",
                 "equipment": [
                   "Leg press"
-                ],
-                "sets": 3,
-                "target_reps": "12-15",
-                "rest_seconds": 60
-              },
-              {
-                "name": "Crunch machine",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Crunch abdos machine"
                 ],
                 "sets": 3,
                 "target_reps": "12-15",
@@ -2534,7 +2474,7 @@
           {
             "day_label": "Jambes (quadriceps) A",
             "type": "hypertrophy",
-            "estimated_duration": 30,
+            "estimated_duration": 24,
             "exercises": [
               {
                 "name": "Squat barre",
@@ -2575,25 +2515,13 @@
                 "sets": 2,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Crunch à la poulie",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Câble poulie haute"
-                ],
-                "sets": 2,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) A",
             "type": "hypertrophy",
-            "estimated_duration": 35,
+            "estimated_duration": 29,
             "exercises": [
               {
                 "name": "Soulevé de terre",
@@ -2637,25 +2565,13 @@
                 "sets": 2,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Relevé de jambes suspendu",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Chaise romaine"
-                ],
-                "sets": 2,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (quadriceps) B",
             "type": "hypertrophy",
-            "estimated_duration": 30,
+            "estimated_duration": 24,
             "exercises": [
               {
                 "name": "Squat avant",
@@ -2695,25 +2611,13 @@
                 "sets": 2,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Crunch machine",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Crunch abdos machine"
-                ],
-                "sets": 2,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) B",
             "type": "hypertrophy",
-            "estimated_duration": 35,
+            "estimated_duration": 29,
             "exercises": [
               {
                 "name": "Soulevé de terre roumain",
@@ -2752,18 +2656,6 @@
                 "block": "C",
                 "equipment": [
                   "Mollets debout machine"
-                ],
-                "sets": 2,
-                "target_reps": "12-15",
-                "rest_seconds": 60
-              },
-              {
-                "name": "Roulette abdominale",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Roulette abdominale"
                 ],
                 "sets": 2,
                 "target_reps": "12-15",
@@ -12469,7 +12361,7 @@
           {
             "day_label": "Bas du corps A",
             "type": "hypertrophy",
-            "estimated_duration": 45,
+            "estimated_duration": 36,
             "exercises": [
               {
                 "name": "Squat bulgare lesté",
@@ -12531,25 +12423,13 @@
                 "sets": 4,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "Relevé de jambes à la barre",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barre de traction haute"
-                ],
-                "sets": 4,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Bas du corps B",
             "type": "hypertrophy",
-            "estimated_duration": 45,
+            "estimated_duration": 36,
             "exercises": [
               {
                 "name": "Pistol squat",
@@ -12609,18 +12489,6 @@
                 "block": "C",
                 "equipment": [
                   "Gilet lesté"
-                ],
-                "sets": 4,
-                "target_reps": "15-20",
-                "rest_seconds": 45
-              },
-              {
-                "name": "L-sit aux barres parallèles",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barres parallèles"
                 ],
                 "sets": 4,
                 "target_reps": "15-20",
@@ -12649,7 +12517,7 @@
           {
             "day_label": "Jambes (quadriceps)",
             "type": "hypertrophy",
-            "estimated_duration": 30,
+            "estimated_duration": 23,
             "exercises": [
               {
                 "name": "Squat bulgare lesté",
@@ -12686,25 +12554,13 @@
                 "sets": 3,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "Relevé de jambes à la barre",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barre de traction haute"
-                ],
-                "sets": 3,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure)",
             "type": "hypertrophy",
-            "estimated_duration": 35,
+            "estimated_duration": 27,
             "exercises": [
               {
                 "name": "Leg curl nordique",
@@ -12742,25 +12598,13 @@
                 "sets": 3,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "L-sit aux barres parallèles",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barres parallèles"
-                ],
-                "sets": 3,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Bas du corps",
             "type": "hypertrophy",
-            "estimated_duration": 45,
+            "estimated_duration": 38,
             "exercises": [
               {
                 "name": "Pistol squat",
@@ -12816,16 +12660,6 @@
               {
                 "name": "Mollets debout une jambe",
                 "muscle_group": "Mollets",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [],
-                "sets": 3,
-                "target_reps": "15-20",
-                "rest_seconds": 45
-              },
-              {
-                "name": "Gainage planche",
-                "muscle_group": "Abdominaux",
                 "muscles_secondary": [],
                 "block": "C",
                 "equipment": [],
@@ -12856,7 +12690,7 @@
           {
             "day_label": "Jambes (quadriceps) A",
             "type": "hypertrophy",
-            "estimated_duration": 25,
+            "estimated_duration": 20,
             "exercises": [
               {
                 "name": "Squat bulgare lesté",
@@ -12893,25 +12727,13 @@
                 "sets": 2,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "Relevé de jambes à la barre",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barre de traction haute"
-                ],
-                "sets": 2,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) A",
             "type": "hypertrophy",
-            "estimated_duration": 30,
+            "estimated_duration": 25,
             "exercises": [
               {
                 "name": "Leg curl nordique",
@@ -12949,25 +12771,13 @@
                 "sets": 2,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "L-sit aux barres parallèles",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barres parallèles"
-                ],
-                "sets": 2,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (quadriceps) B",
             "type": "hypertrophy",
-            "estimated_duration": 25,
+            "estimated_duration": 20,
             "exercises": [
               {
                 "name": "Pistol squat",
@@ -13002,23 +12812,13 @@
                 "sets": 2,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "Gainage planche",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [],
-                "sets": 2,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) B",
             "type": "hypertrophy",
-            "estimated_duration": 30,
+            "estimated_duration": 25,
             "exercises": [
               {
                 "name": "Leg curl nordique",
@@ -13055,16 +12855,6 @@
                 "equipment": [
                   "Gilet lesté"
                 ],
-                "sets": 2,
-                "target_reps": "15-20",
-                "rest_seconds": 45
-              },
-              {
-                "name": "Relevé de jambes au sol",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [],
                 "sets": 2,
                 "target_reps": "15-20",
                 "rest_seconds": 45
@@ -19895,7 +19685,7 @@
           {
             "day_label": "Jambes (quadriceps)",
             "type": "hypertrophy",
-            "estimated_duration": 40,
+            "estimated_duration": 30,
             "exercises": [
               {
                 "name": "Squat barre",
@@ -19936,25 +19726,13 @@
                 "sets": 4,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Crunch à la poulie",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Câble poulie haute"
-                ],
-                "sets": 4,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure)",
             "type": "hypertrophy",
-            "estimated_duration": 45,
+            "estimated_duration": 35,
             "exercises": [
               {
                 "name": "Soulevé de terre",
@@ -20011,25 +19789,13 @@
                 "sets": 4,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Relevé de jambes suspendu",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Chaise romaine"
-                ],
-                "sets": 4,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Bas du corps",
             "type": "hypertrophy",
-            "estimated_duration": 65,
+            "estimated_duration": 55,
             "exercises": [
               {
                 "name": "Squat avant",
@@ -20108,18 +19874,6 @@
                 "block": "C",
                 "equipment": [
                   "Leg press"
-                ],
-                "sets": 4,
-                "target_reps": "12-15",
-                "rest_seconds": 60
-              },
-              {
-                "name": "Crunch machine",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Crunch abdos machine"
                 ],
                 "sets": 4,
                 "target_reps": "12-15",
@@ -20148,7 +19902,7 @@
           {
             "day_label": "Jambes (quadriceps) A",
             "type": "hypertrophy",
-            "estimated_duration": 40,
+            "estimated_duration": 31,
             "exercises": [
               {
                 "name": "Squat barre",
@@ -20189,25 +19943,13 @@
                 "sets": 3,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Crunch à la poulie",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Câble poulie haute"
-                ],
-                "sets": 3,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) A",
             "type": "hypertrophy",
-            "estimated_duration": 40,
+            "estimated_duration": 33,
             "exercises": [
               {
                 "name": "Soulevé de terre",
@@ -20264,25 +20006,13 @@
                 "sets": 3,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Relevé de jambes suspendu",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Chaise romaine"
-                ],
-                "sets": 3,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (quadriceps) B",
             "type": "hypertrophy",
-            "estimated_duration": 40,
+            "estimated_duration": 31,
             "exercises": [
               {
                 "name": "Squat avant",
@@ -20322,25 +20052,13 @@
                 "sets": 3,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Crunch machine",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Crunch abdos machine"
-                ],
-                "sets": 3,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) B",
             "type": "hypertrophy",
-            "estimated_duration": 40,
+            "estimated_duration": 33,
             "exercises": [
               {
                 "name": "Soulevé de terre roumain",
@@ -20392,18 +20110,6 @@
                 "block": "C",
                 "equipment": [
                   "Mollets debout machine"
-                ],
-                "sets": 3,
-                "target_reps": "12-15",
-                "rest_seconds": 60
-              },
-              {
-                "name": "Roulette abdominale",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Roulette abdominale"
                 ],
                 "sets": 3,
                 "target_reps": "12-15",
@@ -20432,7 +20138,7 @@
           {
             "day_label": "Jambes (quadriceps) A",
             "type": "hypertrophy",
-            "estimated_duration": 30,
+            "estimated_duration": 23,
             "exercises": [
               {
                 "name": "Squat barre",
@@ -20473,25 +20179,13 @@
                 "sets": 2,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Crunch à la poulie",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Câble poulie haute"
-                ],
-                "sets": 2,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) A",
             "type": "hypertrophy",
-            "estimated_duration": 40,
+            "estimated_duration": 34,
             "exercises": [
               {
                 "name": "Soulevé de terre",
@@ -20548,25 +20242,13 @@
                 "sets": 2,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Relevé de jambes suspendu",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Chaise romaine"
-                ],
-                "sets": 2,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (quadriceps) B",
             "type": "hypertrophy",
-            "estimated_duration": 30,
+            "estimated_duration": 23,
             "exercises": [
               {
                 "name": "Squat avant",
@@ -20606,25 +20288,13 @@
                 "sets": 2,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Crunch machine",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Crunch abdos machine"
-                ],
-                "sets": 2,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) B",
             "type": "hypertrophy",
-            "estimated_duration": 40,
+            "estimated_duration": 34,
             "exercises": [
               {
                 "name": "Soulevé de terre roumain",
@@ -20680,25 +20350,13 @@
                 "sets": 2,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Roulette abdominale",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Roulette abdominale"
-                ],
-                "sets": 2,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (quadriceps) C",
             "type": "hypertrophy",
-            "estimated_duration": 30,
+            "estimated_duration": 23,
             "exercises": [
               {
                 "name": "Squat barre",
@@ -20735,18 +20393,6 @@
                 "block": "C",
                 "equipment": [
                   "Mollets assis machine"
-                ],
-                "sets": 2,
-                "target_reps": "12-15",
-                "rest_seconds": 60
-              },
-              {
-                "name": "Crunch à la poulie",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Câble poulie haute"
                 ],
                 "sets": 2,
                 "target_reps": "12-15",
@@ -32505,7 +32151,7 @@
           {
             "day_label": "Jambes (quadriceps)",
             "type": "hypertrophy",
-            "estimated_duration": 35,
+            "estimated_duration": 26,
             "exercises": [
               {
                 "name": "Squat bulgare lesté",
@@ -32542,25 +32188,13 @@
                 "sets": 4,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "Relevé de jambes à la barre",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barre de traction haute"
-                ],
-                "sets": 4,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure)",
             "type": "hypertrophy",
-            "estimated_duration": 40,
+            "estimated_duration": 31,
             "exercises": [
               {
                 "name": "Leg curl nordique",
@@ -32613,25 +32247,13 @@
                 "sets": 4,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "L-sit aux barres parallèles",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barres parallèles"
-                ],
-                "sets": 4,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Bas du corps",
             "type": "hypertrophy",
-            "estimated_duration": 55,
+            "estimated_duration": 47,
             "exercises": [
               {
                 "name": "Pistol squat",
@@ -32702,16 +32324,6 @@
               {
                 "name": "Mollets debout une jambe",
                 "muscle_group": "Mollets",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [],
-                "sets": 4,
-                "target_reps": "15-20",
-                "rest_seconds": 45
-              },
-              {
-                "name": "Gainage planche",
-                "muscle_group": "Abdominaux",
                 "muscles_secondary": [],
                 "block": "C",
                 "equipment": [],
@@ -32742,7 +32354,7 @@
           {
             "day_label": "Jambes (quadriceps) A",
             "type": "hypertrophy",
-            "estimated_duration": 35,
+            "estimated_duration": 28,
             "exercises": [
               {
                 "name": "Squat bulgare lesté",
@@ -32779,25 +32391,13 @@
                 "sets": 3,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "Relevé de jambes à la barre",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barre de traction haute"
-                ],
-                "sets": 3,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) A",
             "type": "hypertrophy",
-            "estimated_duration": 35,
+            "estimated_duration": 28,
             "exercises": [
               {
                 "name": "Leg curl nordique",
@@ -32850,25 +32450,13 @@
                 "sets": 3,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "L-sit aux barres parallèles",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barres parallèles"
-                ],
-                "sets": 3,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (quadriceps) B",
             "type": "hypertrophy",
-            "estimated_duration": 35,
+            "estimated_duration": 28,
             "exercises": [
               {
                 "name": "Pistol squat",
@@ -32903,23 +32491,13 @@
                 "sets": 3,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "Gainage planche",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [],
-                "sets": 3,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) B",
             "type": "hypertrophy",
-            "estimated_duration": 35,
+            "estimated_duration": 28,
             "exercises": [
               {
                 "name": "Leg curl nordique",
@@ -32971,16 +32549,6 @@
                 "equipment": [
                   "Gilet lesté"
                 ],
-                "sets": 3,
-                "target_reps": "15-20",
-                "rest_seconds": 45
-              },
-              {
-                "name": "Relevé de jambes au sol",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [],
                 "sets": 3,
                 "target_reps": "15-20",
                 "rest_seconds": 45
@@ -33008,7 +32576,7 @@
           {
             "day_label": "Jambes (quadriceps) A",
             "type": "hypertrophy",
-            "estimated_duration": 25,
+            "estimated_duration": 20,
             "exercises": [
               {
                 "name": "Squat bulgare lesté",
@@ -33045,25 +32613,13 @@
                 "sets": 2,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "Relevé de jambes à la barre",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barre de traction haute"
-                ],
-                "sets": 2,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) A",
             "type": "hypertrophy",
-            "estimated_duration": 35,
+            "estimated_duration": 30,
             "exercises": [
               {
                 "name": "Leg curl nordique",
@@ -33116,25 +32672,13 @@
                 "sets": 2,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "L-sit aux barres parallèles",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barres parallèles"
-                ],
-                "sets": 2,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (quadriceps) B",
             "type": "hypertrophy",
-            "estimated_duration": 25,
+            "estimated_duration": 20,
             "exercises": [
               {
                 "name": "Pistol squat",
@@ -33169,23 +32713,13 @@
                 "sets": 2,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "Gainage planche",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [],
-                "sets": 2,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) B",
             "type": "hypertrophy",
-            "estimated_duration": 35,
+            "estimated_duration": 30,
             "exercises": [
               {
                 "name": "Leg curl nordique",
@@ -33240,23 +32774,13 @@
                 "sets": 2,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "Relevé de jambes au sol",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [],
-                "sets": 2,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (quadriceps) C",
             "type": "hypertrophy",
-            "estimated_duration": 25,
+            "estimated_duration": 20,
             "exercises": [
               {
                 "name": "Squat bulgare lesté",
@@ -33290,18 +32814,6 @@
                 "muscles_secondary": [],
                 "block": "C",
                 "equipment": [],
-                "sets": 2,
-                "target_reps": "15-20",
-                "rest_seconds": 45
-              },
-              {
-                "name": "Relevé de jambes à la barre",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barre de traction haute"
-                ],
                 "sets": 2,
                 "target_reps": "15-20",
                 "rest_seconds": 45
@@ -43045,7 +42557,7 @@
           {
             "day_label": "Jambes (quadriceps)",
             "type": "hypertrophy",
-            "estimated_duration": 50,
+            "estimated_duration": 39,
             "exercises": [
               {
                 "name": "Squat barre",
@@ -43113,25 +42625,13 @@
                 "sets": 2,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Crunch à la poulie",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Câble poulie haute"
-                ],
-                "sets": 4,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure)",
             "type": "hypertrophy",
-            "estimated_duration": 50,
+            "estimated_duration": 40,
             "exercises": [
               {
                 "name": "Soulevé de terre",
@@ -43212,25 +42712,13 @@
                 "sets": 2,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Relevé de jambes suspendu",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Chaise romaine"
-                ],
-                "sets": 4,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Bas du corps",
             "type": "hypertrophy",
-            "estimated_duration": 70,
+            "estimated_duration": 61,
             "exercises": [
               {
                 "name": "Squat avant",
@@ -43349,18 +42837,6 @@
                   "Leg press"
                 ],
                 "sets": 2,
-                "target_reps": "12-15",
-                "rest_seconds": 60
-              },
-              {
-                "name": "Crunch machine",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Crunch abdos machine"
-                ],
-                "sets": 4,
                 "target_reps": "12-15",
                 "rest_seconds": 60
               }
@@ -43387,7 +42863,7 @@
           {
             "day_label": "Jambes (quadriceps) A",
             "type": "hypertrophy",
-            "estimated_duration": 45,
+            "estimated_duration": 37,
             "exercises": [
               {
                 "name": "Squat barre",
@@ -43443,25 +42919,13 @@
                 "sets": 4,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Crunch à la poulie",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Câble poulie haute"
-                ],
-                "sets": 3,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) A",
             "type": "hypertrophy",
-            "estimated_duration": 45,
+            "estimated_duration": 38,
             "exercises": [
               {
                 "name": "Soulevé de terre",
@@ -43530,25 +42994,13 @@
                 "sets": 4,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Relevé de jambes suspendu",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Chaise romaine"
-                ],
-                "sets": 3,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (quadriceps) B",
             "type": "hypertrophy",
-            "estimated_duration": 45,
+            "estimated_duration": 37,
             "exercises": [
               {
                 "name": "Squat avant",
@@ -43602,25 +43054,13 @@
                 "sets": 4,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Crunch machine",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Crunch abdos machine"
-                ],
-                "sets": 3,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) B",
             "type": "hypertrophy",
-            "estimated_duration": 45,
+            "estimated_duration": 38,
             "exercises": [
               {
                 "name": "Soulevé de terre roumain",
@@ -43688,18 +43128,6 @@
                 "sets": 4,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Roulette abdominale",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Roulette abdominale"
-                ],
-                "sets": 3,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           }
@@ -43724,7 +43152,7 @@
           {
             "day_label": "Jambes (quadriceps) A",
             "type": "hypertrophy",
-            "estimated_duration": 35,
+            "estimated_duration": 26,
             "exercises": [
               {
                 "name": "Squat barre",
@@ -43765,25 +43193,13 @@
                 "sets": 3,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Crunch à la poulie",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Câble poulie haute"
-                ],
-                "sets": 3,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) A",
             "type": "hypertrophy",
-            "estimated_duration": 45,
+            "estimated_duration": 37,
             "exercises": [
               {
                 "name": "Soulevé de terre",
@@ -43852,25 +43268,13 @@
                 "sets": 3,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Relevé de jambes suspendu",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Chaise romaine"
-                ],
-                "sets": 3,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (quadriceps) B",
             "type": "hypertrophy",
-            "estimated_duration": 35,
+            "estimated_duration": 26,
             "exercises": [
               {
                 "name": "Squat avant",
@@ -43910,25 +43314,13 @@
                 "sets": 3,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Crunch machine",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Crunch abdos machine"
-                ],
-                "sets": 3,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) B",
             "type": "hypertrophy",
-            "estimated_duration": 45,
+            "estimated_duration": 37,
             "exercises": [
               {
                 "name": "Soulevé de terre roumain",
@@ -43996,25 +43388,13 @@
                 "sets": 3,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Roulette abdominale",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Roulette abdominale"
-                ],
-                "sets": 3,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (quadriceps) C",
             "type": "hypertrophy",
-            "estimated_duration": 35,
+            "estimated_duration": 26,
             "exercises": [
               {
                 "name": "Squat barre",
@@ -44051,18 +43431,6 @@
                 "block": "C",
                 "equipment": [
                   "Mollets assis machine"
-                ],
-                "sets": 3,
-                "target_reps": "12-15",
-                "rest_seconds": 60
-              },
-              {
-                "name": "Crunch à la poulie",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Câble poulie haute"
                 ],
                 "sets": 3,
                 "target_reps": "12-15",
@@ -44091,7 +43459,7 @@
           {
             "day_label": "Jambes (quadriceps) A",
             "type": "hypertrophy",
-            "estimated_duration": 30,
+            "estimated_duration": 24,
             "exercises": [
               {
                 "name": "Squat barre",
@@ -44132,25 +43500,13 @@
                 "sets": 2,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Crunch à la poulie",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Câble poulie haute"
-                ],
-                "sets": 2,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) A",
             "type": "hypertrophy",
-            "estimated_duration": 35,
+            "estimated_duration": 29,
             "exercises": [
               {
                 "name": "Soulevé de terre",
@@ -44194,25 +43550,13 @@
                 "sets": 2,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Relevé de jambes suspendu",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Chaise romaine"
-                ],
-                "sets": 2,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (quadriceps) B",
             "type": "hypertrophy",
-            "estimated_duration": 30,
+            "estimated_duration": 24,
             "exercises": [
               {
                 "name": "Squat avant",
@@ -44252,25 +43596,13 @@
                 "sets": 2,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Crunch machine",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Crunch abdos machine"
-                ],
-                "sets": 2,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) B",
             "type": "hypertrophy",
-            "estimated_duration": 35,
+            "estimated_duration": 29,
             "exercises": [
               {
                 "name": "Soulevé de terre roumain",
@@ -44313,25 +43645,13 @@
                 "sets": 2,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Roulette abdominale",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Roulette abdominale"
-                ],
-                "sets": 2,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (quadriceps) C",
             "type": "hypertrophy",
-            "estimated_duration": 30,
+            "estimated_duration": 24,
             "exercises": [
               {
                 "name": "Squat barre",
@@ -44372,25 +43692,13 @@
                 "sets": 2,
                 "target_reps": "12-15",
                 "rest_seconds": 60
-              },
-              {
-                "name": "Crunch à la poulie",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Câble poulie haute"
-                ],
-                "sets": 2,
-                "target_reps": "12-15",
-                "rest_seconds": 60
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) C",
             "type": "hypertrophy",
-            "estimated_duration": 35,
+            "estimated_duration": 29,
             "exercises": [
               {
                 "name": "Soulevé de terre",
@@ -44430,18 +43738,6 @@
                 "block": "C",
                 "equipment": [
                   "Leg press"
-                ],
-                "sets": 2,
-                "target_reps": "12-15",
-                "rest_seconds": 60
-              },
-              {
-                "name": "Relevé de jambes suspendu",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Chaise romaine"
                 ],
                 "sets": 2,
                 "target_reps": "12-15",
@@ -64136,7 +63432,7 @@
           {
             "day_label": "Jambes (quadriceps)",
             "type": "hypertrophy",
-            "estimated_duration": 40,
+            "estimated_duration": 32,
             "exercises": [
               {
                 "name": "Squat bulgare lesté",
@@ -64200,25 +63496,13 @@
                 "sets": 2,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "Relevé de jambes à la barre",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barre de traction haute"
-                ],
-                "sets": 4,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure)",
             "type": "hypertrophy",
-            "estimated_duration": 45,
+            "estimated_duration": 36,
             "exercises": [
               {
                 "name": "Leg curl nordique",
@@ -64293,25 +63577,13 @@
                 "sets": 2,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "L-sit aux barres parallèles",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barres parallèles"
-                ],
-                "sets": 4,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Bas du corps",
             "type": "hypertrophy",
-            "estimated_duration": 60,
+            "estimated_duration": 52,
             "exercises": [
               {
                 "name": "Pistol squat",
@@ -64422,16 +63694,6 @@
                   "Gilet lesté"
                 ],
                 "sets": 2,
-                "target_reps": "15-20",
-                "rest_seconds": 45
-              },
-              {
-                "name": "Gainage planche",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [],
-                "sets": 4,
                 "target_reps": "15-20",
                 "rest_seconds": 45
               }
@@ -64458,7 +63720,7 @@
           {
             "day_label": "Jambes (quadriceps) A",
             "type": "hypertrophy",
-            "estimated_duration": 40,
+            "estimated_duration": 33,
             "exercises": [
               {
                 "name": "Squat bulgare lesté",
@@ -64510,25 +63772,13 @@
                 "sets": 4,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "Relevé de jambes à la barre",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barre de traction haute"
-                ],
-                "sets": 3,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) A",
             "type": "hypertrophy",
-            "estimated_duration": 40,
+            "estimated_duration": 33,
             "exercises": [
               {
                 "name": "Leg curl nordique",
@@ -64593,25 +63843,13 @@
                 "sets": 4,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "L-sit aux barres parallèles",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barres parallèles"
-                ],
-                "sets": 3,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (quadriceps) B",
             "type": "hypertrophy",
-            "estimated_duration": 40,
+            "estimated_duration": 33,
             "exercises": [
               {
                 "name": "Pistol squat",
@@ -64658,23 +63896,13 @@
                 "sets": 4,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "Gainage planche",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [],
-                "sets": 3,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) B",
             "type": "hypertrophy",
-            "estimated_duration": 40,
+            "estimated_duration": 33,
             "exercises": [
               {
                 "name": "Leg curl nordique",
@@ -64741,16 +63969,6 @@
                 "sets": 4,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "Relevé de jambes au sol",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [],
-                "sets": 3,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           }
@@ -64775,7 +63993,7 @@
           {
             "day_label": "Jambes (quadriceps) A",
             "type": "hypertrophy",
-            "estimated_duration": 30,
+            "estimated_duration": 23,
             "exercises": [
               {
                 "name": "Squat bulgare lesté",
@@ -64812,25 +64030,13 @@
                 "sets": 3,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "Relevé de jambes à la barre",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barre de traction haute"
-                ],
-                "sets": 3,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) A",
             "type": "hypertrophy",
-            "estimated_duration": 40,
+            "estimated_duration": 33,
             "exercises": [
               {
                 "name": "Leg curl nordique",
@@ -64895,25 +64101,13 @@
                 "sets": 3,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "L-sit aux barres parallèles",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barres parallèles"
-                ],
-                "sets": 3,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (quadriceps) B",
             "type": "hypertrophy",
-            "estimated_duration": 30,
+            "estimated_duration": 23,
             "exercises": [
               {
                 "name": "Pistol squat",
@@ -64948,23 +64142,13 @@
                 "sets": 3,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "Gainage planche",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [],
-                "sets": 3,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) B",
             "type": "hypertrophy",
-            "estimated_duration": 40,
+            "estimated_duration": 33,
             "exercises": [
               {
                 "name": "Leg curl nordique",
@@ -65031,23 +64215,13 @@
                 "sets": 3,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "Relevé de jambes au sol",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [],
-                "sets": 3,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (quadriceps) C",
             "type": "hypertrophy",
-            "estimated_duration": 30,
+            "estimated_duration": 23,
             "exercises": [
               {
                 "name": "Squat bulgare lesté",
@@ -65081,18 +64255,6 @@
                 "muscles_secondary": [],
                 "block": "C",
                 "equipment": [],
-                "sets": 3,
-                "target_reps": "15-20",
-                "rest_seconds": 45
-              },
-              {
-                "name": "Relevé de jambes à la barre",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barre de traction haute"
-                ],
                 "sets": 3,
                 "target_reps": "15-20",
                 "rest_seconds": 45
@@ -65120,7 +64282,7 @@
           {
             "day_label": "Jambes (quadriceps) A",
             "type": "hypertrophy",
-            "estimated_duration": 25,
+            "estimated_duration": 20,
             "exercises": [
               {
                 "name": "Squat bulgare lesté",
@@ -65157,25 +64319,13 @@
                 "sets": 2,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "Relevé de jambes à la barre",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barre de traction haute"
-                ],
-                "sets": 2,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) A",
             "type": "hypertrophy",
-            "estimated_duration": 30,
+            "estimated_duration": 25,
             "exercises": [
               {
                 "name": "Leg curl nordique",
@@ -65213,25 +64363,13 @@
                 "sets": 2,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "L-sit aux barres parallèles",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barres parallèles"
-                ],
-                "sets": 2,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (quadriceps) B",
             "type": "hypertrophy",
-            "estimated_duration": 25,
+            "estimated_duration": 20,
             "exercises": [
               {
                 "name": "Pistol squat",
@@ -65266,23 +64404,13 @@
                 "sets": 2,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "Gainage planche",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [],
-                "sets": 2,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) B",
             "type": "hypertrophy",
-            "estimated_duration": 30,
+            "estimated_duration": 25,
             "exercises": [
               {
                 "name": "Leg curl nordique",
@@ -65322,23 +64450,13 @@
                 "sets": 2,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "Relevé de jambes au sol",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [],
-                "sets": 2,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (quadriceps) C",
             "type": "hypertrophy",
-            "estimated_duration": 25,
+            "estimated_duration": 20,
             "exercises": [
               {
                 "name": "Squat bulgare lesté",
@@ -65375,25 +64493,13 @@
                 "sets": 2,
                 "target_reps": "15-20",
                 "rest_seconds": 45
-              },
-              {
-                "name": "Relevé de jambes à la barre",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barre de traction haute"
-                ],
-                "sets": 2,
-                "target_reps": "15-20",
-                "rest_seconds": 45
               }
             ]
           },
           {
             "day_label": "Jambes (chaîne postérieure) C",
             "type": "hypertrophy",
-            "estimated_duration": 30,
+            "estimated_duration": 25,
             "exercises": [
               {
                 "name": "Leg curl nordique",
@@ -65427,18 +64533,6 @@
                 "block": "C",
                 "equipment": [
                   "Gilet lesté"
-                ],
-                "sets": 2,
-                "target_reps": "15-20",
-                "rest_seconds": 45
-              },
-              {
-                "name": "L-sit aux barres parallèles",
-                "muscle_group": "Abdominaux",
-                "muscles_secondary": [],
-                "block": "C",
-                "equipment": [
-                  "Barres parallèles"
                 ],
                 "sets": 2,
                 "target_reps": "15-20",

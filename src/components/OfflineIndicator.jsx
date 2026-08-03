@@ -33,7 +33,7 @@ export default function OfflineIndicator() {
     let cancelled = false;
     flushQueue().then((n) => { if (!cancelled && n > 0) toast.success(t('sync_done')); });
     return () => { cancelled = true; };
-  }, [online]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [online]);  
 
   const wrap = 'fixed left-1/2 -translate-x-1/2 z-[9998] flex items-center gap-2 py-2.5 rounded-2xl text-xs shadow-xl max-w-[calc(100vw-1.5rem)]';
   const pos = { bottom: 'calc(5.5rem + env(safe-area-inset-bottom))' };

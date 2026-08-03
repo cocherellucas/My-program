@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Dumbbell } from 'lucide-react';
 import EXERCISE_IMAGES from '@/lib/exercise-images.json';
 
 const KEYS = Object.keys(EXERCISE_IMAGES);

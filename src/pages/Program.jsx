@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Sparkles, Loader2, Calendar, Dumbbell, Clock, ChevronRight, ChevronLeft, Bookmark, BookmarkCheck, Trash2, RefreshCw, Pencil, Download } from 'lucide-react';
+import { Sparkles, Loader2, Dumbbell, Clock, ChevronRight, ChevronLeft, Bookmark, BookmarkCheck, Trash2, RefreshCw, Pencil, Download } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { format, addDays, startOfWeek } from 'date-fns';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
@@ -458,7 +458,7 @@ export default function Program() {
     if (infiniteToppedRef.current === activeProgram.id) return;
     infiniteToppedRef.current = activeProgram.id;
     ensureInfiniteSessions(activeProgram);
-  }, [activeProgram?.id]); // eslint-disable-line
+  }, [activeProgram?.id]);  
 
   // Nettoyer le staleBanner pour les programmes importés (faux positif)
   useEffect(() => {
@@ -466,7 +466,7 @@ export default function Program() {
       localStorage.removeItem('pending_program_regen');
       setStaleBanner(false);
     }
-  }, [activeProgram?.id]); // eslint-disable-line
+  }, [activeProgram?.id]);  
   const alreadySaved = activeProgram ? localStorage.getItem(`saved_program_${activeProgram.id}`) === 'true' : false;
 
   const { data: sessions = [], isLoading: sessionsLoading } = useQuery({
@@ -488,7 +488,7 @@ export default function Program() {
       autoImported.current = true;
       setPendingImportSessions({ sessions: [], isEditing: false, initialWeeks: 'infinite' });
     }
-  }, []); // eslint-disable-line
+  }, []);  
 
   // ?edit=true (ex: "Le faire moi-même" depuis une proposition de volume) → ouvre Modifier
   const editOpenedRef = useRef(false);
@@ -497,7 +497,7 @@ export default function Program() {
       editOpenedRef.current = true;
       openEditDialog();
     }
-  }, [activeProgram]); // eslint-disable-line
+  }, [activeProgram]);  
 
   // Fin d'onboarding → ouvre le dialog de configuration (l'utilisateur choisit ou laisse "Auto")
   const configOpenedRef = useRef(false);
@@ -509,7 +509,7 @@ export default function Program() {
       configOpenedRef.current = true;
       generateProgram({});
     }
-  }, [user, objectives, activeProgram, generating]); // eslint-disable-line
+  }, [user, objectives, activeProgram, generating]);  
 
   // Fin d'onboarding avec programme déjà présent → modale "sauvegarder / supprimer puis générer"
   const regenGateOpenedRef = useRef(false);
@@ -518,7 +518,7 @@ export default function Program() {
       regenGateOpenedRef.current = true;
       setShowRegenGate(true);
     }
-  }, [activeProgram]); // eslint-disable-line
+  }, [activeProgram]);  
 
   // Auto-génération après onboarding
   useEffect(() => {

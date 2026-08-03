@@ -48,7 +48,7 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
     requestNotifPermission();
     postToSW({ type: 'SCHEDULE_REST_END', endTime: endTimeRef.current });
     return () => postToSW({ type: 'CANCEL_REST_TIMER' });
-  }, [initialEndTime]); // eslint-disable-line
+  }, [initialEndTime]);  
 
   useEffect(() => {
     if (!running) { clearInterval(intervalRef.current); return; }

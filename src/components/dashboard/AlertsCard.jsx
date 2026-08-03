@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
-import { AlertTriangle, TrendingDown, Zap, CalendarX, Calendar, Check, Bell } from 'lucide-react';
+import { AlertTriangle, TrendingDown, Zap, CalendarX, Calendar, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/lib/i18n';
 

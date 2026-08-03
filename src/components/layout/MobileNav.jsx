@@ -78,7 +78,7 @@ export default function MobileNav({ swipeX, swipeCurrentIdx = 0 }) {
     if (currentNavIdx >= 0) {
       animate(smoothPos, currentNavIdx, { type: 'spring', stiffness: 500, damping: 38 });
     }
-  }, [currentNavIdx]); // eslint-disable-line
+  }, [currentNavIdx]);  
 
   // Swipe temps réel → suit swipeX directement
   useEffect(() => {
@@ -89,7 +89,7 @@ export default function MobileNav({ swipeX, swipeCurrentIdx = 0 }) {
       const next = base - v / window.innerWidth;
       smoothPos.set(Math.max(0, Math.min(numTabs - 1, next)));
     });
-  }, [swipeX]); // eslint-disable-line — refs keep values current
+  }, [swipeX]); // eslint-disable-line -- refs keep values current
 
   // Position pixel de l'indicateur (1/numTabs de la largeur du container)
   const getTabW = () => containerRef.current ? containerRef.current.offsetWidth / numTabs : window.innerWidth / numTabs;

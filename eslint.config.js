@@ -9,9 +9,13 @@ export default [
     files: [
       "src/components/**/*.{js,mjs,cjs,jsx}",
       "src/pages/**/*.{js,mjs,cjs,jsx}",
+      // src/lib = les moteurs (activation des programmes, coaching, douleur,
+      // traductions…). Ils n'étaient PAS vérifiés du tout jusqu'ici.
+      "src/lib/**/*.{js,mjs,cjs,jsx}",
       "src/Layout.jsx",
     ],
-    ignores: ["src/lib/**/*", "src/components/ui/**/*"],
+    // src/components/ui = composants générés (shadcn), on ne les corrige pas.
+    ignores: ["src/components/ui/**/*"],
     ...pluginJs.configs.recommended,
     ...pluginReact.configs.flat.recommended,
     languageOptions: {
@@ -55,6 +59,15 @@ export default [
         { ignore: ["cmdk-input-wrapper", "toast-close"] },
       ],
       "react-hooks/rules-of-hooks": "error",
+      // Détecte la lecture d'une variable avant sa déclaration. C'est ce qui a
+      // planté toute la page Accueil (« Cannot access 'X' before initialization »)
+      // sans qu'aucun outil ne le signale. En avertissement : la majorité des cas
+      // existants sont inoffensifs (variable lue dans une fonction appelée plus
+      // tard) — ce qui compte, c'est de VOIR les nouveaux.
+      "no-use-before-define": [
+        "warn",
+        { variables: true, functions: false, classes: false },
+      ],
     },
   },
 ];

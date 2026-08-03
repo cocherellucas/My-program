@@ -70,7 +70,7 @@ export async function flushQueue() {
   flushing = true;
   let synced = 0;
   try {
-    // eslint-disable-next-line no-constant-condition
+     
     while (true) {
       const queue = read();
       if (!queue.length) break;

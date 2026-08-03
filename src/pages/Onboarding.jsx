@@ -19,6 +19,22 @@ import { useI18n } from '@/lib/i18n';
 const TOTAL_STEPS = 6;
 const STORAGE_KEY = 'onboarding_draft';
 
+// updateMe tolérant (même repli que App.jsx) : si une colonne n'existe pas encore
+// dans `profiles`, PostgREST renvoie PGRST204 « Could not find the 'X' column » et
+// rejette TOUTE la requête. On retire la colonne fautive et on réessaie, pour que
+// l'onboarding ne soit JAMAIS bloqué par une migration en retard.
+async function updateMeTolerant(fields) {
+  const payload = { ...fields };
+  for (let i = 0; i < 30 && Object.keys(payload).length; i++) {
+    try { await base44.auth.updateMe(payload); return; }
+    catch (e) {
+      const col = (e?.message || '').match(/Could not find the '([^']+)' column/)?.[1];
+      if (col && col in payload) { delete payload[col]; continue; }
+      throw e; // autre erreur → on remonte
+    }
+  }
+}
+
 export default function Onboarding() {
   const navigate = useNavigate();
   const { t } = useI18n();
@@ -66,7 +82,7 @@ export default function Onboarding() {
         queryClient.setQueryData(['programs'], progs || []);
       })
       .catch(() => {});
-  }, []); // eslint-disable-line
+  }, []);  
   const [showWelcome, setShowWelcome] = useState(() => {
     // ?end (DEV) ou ?skipIntro → on saute la présentation
     // (?skipIntro : "Compléter mon profil" depuis le Profil après un import)
@@ -158,14 +174,9 @@ export default function Onboarding() {
         setStepError('Renseigne la durée (min. 10 min) pour chaque jour sélectionné.');
         return false;
       }
-      if (!data.frequency_min || !data.frequency_max) {
-        setStepError('Renseigne la fréquence minimum et maximum par semaine.');
-        return false;
-      }
-      if (data.frequency_min && data.available_days.length < data.frequency_min) {
-        setStepError(`Tu veux minimum ${data.frequency_min} séances/sem mais tu n'as sélectionné que ${data.available_days.length} jour${data.available_days.length > 1 ? 's' : ''}. Ajoute des jours ou réduis la fréquence minimum.`);
-        return false;
-      }
+      // Fusion jours = fréquence : la fréquence est dérivée du nombre de jours
+      // cochés (frequency_min/max posés dans StepAvailability) → plus de champ ni
+      // de validation de fréquence séparés.
     }
     setStepError('');
     return true;
@@ -179,9 +190,14 @@ export default function Onboarding() {
   const saveAndNavigate = async (destination, extraState = {}) => {
     setSaving(true);
     try {
-      const { objectives, equipment_validated, gym_chain, shoulders, waist, hips, right_arm, left_arm, right_thigh, left_thigh, peaking_enabled, no_volume_muscles, volume_mode, volume_overrides, availability_optimal, ...userData } = data;
+      // `same_duration_all` est un champ D'INTERFACE (il dit seulement si on pose
+      // la question de durée une fois ou jour par jour) — pas une colonne de
+      // `profiles`. L'envoyer faisait rejeter TOUTE la requête (PGRST204) et
+      // bloquait la fin de l'onboarding.
+      const { objectives, equipment_validated, gym_chain, shoulders, waist, hips, right_arm, left_arm, right_thigh, left_thigh, peaking_enabled, no_volume_muscles, volume_mode, volume_overrides, availability_optimal, same_duration_all, ...userData } = data;
+      void same_duration_all;
 
-      await base44.auth.updateMe({
+      await updateMeTolerant({
         ...userData,
         onboarding_completed: true,
         onboarding_step: TOTAL_STEPS,

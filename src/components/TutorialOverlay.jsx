@@ -1,14 +1,12 @@
-import React, { useRef, useState, useLayoutEffect } from 'react';
+import React, { useRef, useState, useLayoutEffect, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HelpCircle } from 'lucide-react';
 import { useTutorial } from '@/lib/TutorialContext';
 
 export default function TutorialOverlay() {
   const { activeTutorial, targetRect, nextStep, skipStep, skipAll } = useTutorial() || {};
   const bubbleRef = useRef(null);
   const [bubbleH, setBubbleH] = useState(0);
-  const [bubbleBelow, setBubbleBelow] = useState(false);
   const [confirmSkipAll, setConfirmSkipAll] = useState(false);
 
   // Mesure la vraie hauteur de la bulle pour la positionner pile au-dessus
@@ -21,6 +19,19 @@ export default function TutorialOverlay() {
     return () => ro.disconnect();
   }, [activeTutorial?.currentStep]);
 
+  // Position FIGÉE de l'étape. La bulle se place à l'arrivée sur l'étape (le
+  // temps que le défilement d'entrée se termine), puis ne bouge PLUS : sans ça,
+  // déplier/replier un exercice change la mise en page et la bulle saute sous la
+  // cible avant de remonter.
+  const [placed, setPlaced] = useState(null); // { step, style, below }
+  useEffect(() => {
+    setPlaced(null);
+    if (!activeTutorial || activeTutorial.dormant) return;
+    const id = setTimeout(() => setPlaced({ step: activeTutorial.currentStep, freeze: true }), 550);
+    return () => clearTimeout(id);
+  }, [activeTutorial?.id, activeTutorial?.currentStep, activeTutorial?.dormant]);
+
+  const frozenRef = useRef(null);
   if (!activeTutorial || activeTutorial.dormant) return null;
 
   const step = activeTutorial.steps[activeTutorial.currentStep];
@@ -31,6 +42,59 @@ export default function TutorialOverlay() {
   const hideNext = !!step?.hideNext;
   const forceBelow = !!step?.forceBelow;
 
+  // Position de la bulle + côté du robot, calculés en UNE fois.
+  // ⚠ Ne JAMAIS appeler un setState ici : ce calcul tourne pendant le rendu, et
+  // une mise à jour d'état à cet endroit relance le rendu en boucle avec la
+  // mesure de hauteur (ResizeObserver → setBubbleH) — l'app sature et n'a plus
+  // le temps de traiter les clics (le bouton « Suivant » ne répondait plus).
+  // La bulle SUIT toujours la cible (utile quand on glisse un exercice), mais son
+  // CÔTÉ (au-dessus / en dessous) est figé une fois l'étape en place : sans ça,
+  // le moindre changement de mise en page (déplier/replier) la faisait basculer
+  // sous la cible puis remonter aussitôt.
+  const computePos = (mode) => {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const bubbleW = Math.min(320, vw - 24);
+    const ROBOT = 32; // le robot dépasse de ~28px au-dessus de la bulle
+    const centered = { style: { top: ROBOT + 8, left: (vw - bubbleW) / 2 }, below: false, mode: 'centered' };
+    if (!hasTarget || !bubbleH) return centered;
+    const gap = 16;
+    const idealLeft = targetRect.left + targetRect.width / 2 - bubbleW / 2;
+    const left = Math.max(12, Math.min(vw - bubbleW - 12, idealLeft));
+    const abovePos = { style: { top: Math.max(ROBOT, targetRect.top - padding - gap - bubbleH), left }, below: false, mode: 'above' };
+    const belowPos = { style: { top: targetRect.bottom + padding + gap, left }, below: true, mode: 'below' };
+    const BOTTOM_SAFE = 76; // barre de navigation du bas
+    const spaceAbove = targetRect.top - padding;
+    const spaceBelow = vh - targetRect.bottom - padding;
+    const fitsAbove = spaceAbove >= bubbleH + gap + ROBOT;
+    const fitsBelow = spaceBelow >= bubbleH + gap + BOTTOM_SAFE;
+    // Côté figé : on le conserve UNIQUEMENT s'il tient encore à l'écran. Après un
+    // déplacement en bas de liste, « en dessous » ne tient plus → on repasse
+    // au-dessus au lieu de laisser la bulle sortir sous la barre de navigation.
+    if (mode === 'above' && fitsAbove) return abovePos;
+    if (mode === 'below' && fitsBelow) return belowPos;
+    // Choix automatique
+    if (forceBelow && fitsBelow) return belowPos;
+    if (!forceBelow && fitsAbove) return abovePos;
+    if (fitsBelow) return belowPos;
+    if (fitsAbove) return abovePos;
+    return centered;
+  };
+
+  const auto = computePos(null);
+  const stepKey = `${activeTutorial.id}#${activeTutorial.currentStep}`;
+  if (frozenRef.current?.key !== stepKey) {
+    frozenRef.current = placed?.step === activeTutorial.currentStep && bubbleH
+      ? { key: stepKey, mode: auto.mode }
+      : null;
+  }
+  const resolved = frozenRef.current ? computePos(frozenRef.current.mode) : auto;
+  // Le côté figé n'a pas tenu (cible descendue trop bas) → on adopte le nouveau,
+  // qui devient à son tour le côté stable de l'étape.
+  if (frozenRef.current && resolved.mode !== frozenRef.current.mode) {
+    frozenRef.current.mode = resolved.mode;
+  }
+  const { style: bubbleStyle, below: bubbleBelow } = resolved;
 
   return createPortal(
     <AnimatePresence>
@@ -110,39 +174,7 @@ export default function TutorialOverlay() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ type: 'spring', stiffness: 320, damping: 26 }}
           className="fixed w-[320px] max-w-[calc(100vw-24px)] pointer-events-auto"
-          style={(() => {
-            const vw = window.innerWidth;
-            const vh = window.innerHeight;
-            const bubbleW = Math.min(320, vw - 24);
-            const ROBOT = 32; // le robot dépasse de ~28px au-dessus de la bulle → marge pour ne pas le couper
-            if (!hasTarget || !bubbleH) {
-              return { top: ROBOT + 8, left: (vw - bubbleW) / 2 };
-            }
-            const gap = 16;
-            const spaceAbove = targetRect.top - padding;
-            const spaceBelow = vh - targetRect.bottom - padding;
-            const idealLeft = targetRect.left + targetRect.width / 2 - bubbleW / 2;
-            const left = Math.max(12, Math.min(vw - bubbleW - 12, idealLeft));
-            // Forcé en dessous (ex: textarea avec indications)
-            if (forceBelow && spaceBelow >= bubbleH + gap) {
-              if (!bubbleBelow) setBubbleBelow(true);
-              return { top: targetRect.bottom + padding + gap, left };
-            }
-            // Assez de place au-dessus (en comptant le dépassement du robot)
-            if (!forceBelow && spaceAbove >= bubbleH + gap + ROBOT) {
-              if (bubbleBelow) setBubbleBelow(false);
-              const top = targetRect.top - padding - gap - bubbleH;
-              return { top: Math.max(ROBOT, top), left };
-            }
-            // Assez de place en dessous
-            if (spaceBelow >= bubbleH + gap) {
-              if (!bubbleBelow) setBubbleBelow(true);
-              return { top: targetRect.bottom + padding + gap, left };
-            }
-            // Fallback haut d'écran (sous le robot)
-            if (bubbleBelow) setBubbleBelow(false);
-            return { top: ROBOT + 8, left: (vw - bubbleW) / 2 };
-          })()}>
+          style={bubbleStyle}>
 
           {/* Coach IA — au-dessus si bulle au-dessus, en-dessous si bulle en-dessous */}
           <div className={`absolute ${bubbleBelow ? '-bottom-4' : '-top-6'} left-3 z-10`}>
