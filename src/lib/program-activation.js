@@ -211,6 +211,12 @@ const normalizedAvailableDays = (user) =>
 function pickDays(user, frequency) {
   const provided = normalizedAvailableDays(user);
   if (provided.length >= frequency) return spreadPick(provided, frequency).map((i) => DAY_ORDER[i]);
+  // MOINS de jours disponibles que de séances (ex. le catalogue intermédiaire
+  // démarre à 3 j alors que l'utilisateur n'en a que 2). On rend quand même SES
+  // jours : le nombre de séances sera réduit d'autant côté appelant. Retomber sur
+  // une répartition théorique placerait les séances des jours où il ne peut PAS
+  // s'entraîner (un utilisateur dispo le week-end recevait du lundi/mercredi/vendredi).
+  if (provided.length) return provided;
   return DAY_SPREAD[frequency] || DAY_SPREAD[Math.min(7, Math.max(1, frequency))] || DAY_SPREAD[3];
 }
 
@@ -798,7 +804,11 @@ export async function buildActivationResult(user, objectives) {
   const initialWeeks = Math.max(1, p.planned_weeks || 4);
   // Rotation de priorité + adaptation au temps disponible de chaque jour.
   // Les séances qui rentrent déjà et ne tournent pas sont rendues INCHANGÉES.
-  const shaped = shapeSessions(p, user, objectives, days);
+  const shapedAll = shapeSessions(p, user, objectives, days);
+  // Jamais plus de séances que de jours disponibles : sinon `days[i % days.length]`
+  // en reposait deux le MÊME jour. On garde les premières (les plus structurantes
+  // du programme) et on assume une séance de moins.
+  const shaped = shapedAll.slice(0, days.length);
   const sessions = [];
   for (let w = 1; w <= initialWeeks; w++) {
     shaped.forEach((s, i) => {

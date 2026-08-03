@@ -15,9 +15,20 @@ import StepPreferences from '@/components/onboarding/StepPreferences';
 import StepMeasurements from '@/components/onboarding/StepMeasurements';
 import WelcomeIntro from '@/components/onboarding/WelcomeIntro';
 import { useI18n } from '@/lib/i18n';
+import { EXERCISES } from '@/lib/exercise-database';
 
 const TOTAL_STEPS = 6;
 const STORAGE_KEY = 'onboarding_draft';
+
+// Les mouvements proposés en objectif de force portent un libellé plus court que
+// l'exercice correspondant dans la base (« Développé couché » vs « Développé couché
+// barre »). Ce pont sert à retrouver le matériel réellement exigé.
+const MOVEMENT_EXERCISE = {
+  'Squat barre': 'Squat barre',
+  'Développé couché': 'Développé couché barre',
+  'Soulevé de terre': 'Soulevé de terre',
+  'Traction lestée': 'Traction pronation',
+};
 
 // updateMe tolérant (même repli que App.jsx) : si une colonne n'existe pas encore
 // dans `profiles`, PostgREST renvoie PGRST204 « Could not find the 'X' column » et
@@ -177,6 +188,35 @@ export default function Onboarding() {
       // Fusion jours = fréquence : la fréquence est dérivée du nombre de jours
       // cochés (frequency_min/max posés dans StepAvailability) → plus de champ ni
       // de validation de fréquence séparés.
+    }
+    // Étape 3 : Équipement — un objectif de FORCE sur un mouvement précis exige le
+    // matériel de ce mouvement. Sans lui AUCUN programme n'existe (ex. squat/développé/
+    // soulevé au poids du corps) : on bloque ici, où l'utilisateur peut encore cocher
+    // le matériel, plutôt que de le laisser découvrir l'impasse à la génération.
+    if (step === 3) {
+      const equip = Array.isArray(data.equipment) ? data.equipment : [];
+      const manquants = [];
+      for (const o of data.objectives || []) {
+        const movs = Array.isArray(o.focus_movement) ? o.focus_movement : (o.focus_movement ? [o.focus_movement] : []);
+        for (const mv of movs) {
+          const ex = EXERCISES.find((e) => e.name === (MOVEMENT_EXERCISE[mv] || mv));
+          if (!ex?.equipmentOptions?.length) continue;
+          const faisable = ex.equipmentOptions.some((opt) => opt.every((item) => equip.includes(item)));
+          if (faisable || manquants.some((m) => m.mv === mv)) continue;
+          // On propose l'option la MOINS coûteuse (le moins d'items à ajouter).
+          const best = ex.equipmentOptions
+            .map((opt) => opt.filter((item) => !equip.includes(item)))
+            .sort((a, b) => a.length - b.length)[0];
+          manquants.push({ mv, need: best });
+        }
+      }
+      if (manquants.length) {
+        setStepError(
+          `${manquants.map((m) => `${m.mv} → ${m.need.join(', ')}`).join(' · ')}. `
+          + `Ajoute ce matériel, ou reviens à l'étape Objectifs pour en choisir un autre.`
+        );
+        return false;
+      }
     }
     setStepError('');
     return true;
