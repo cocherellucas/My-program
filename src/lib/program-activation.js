@@ -223,9 +223,13 @@ const MUSCLE_ZONE = {
 
 // Séries hebdo DIRECTES par muscle, par niveau (repères MEV < MAV < MRV).
 const VOLUME_BANDS = {
-  beginner: { mev: 6, mav: 12, mrv: 16 },
-  intermediate: { mev: 8, mav: 16, mrv: 20 },
-  advanced: { mev: 10, mav: 20, mrv: 24 },
+  // mav = l'optimum (conforme aux fourchettes du brief §4) ; mrv = le plafond,
+  // atteint uniquement par un muscle en objectif PRIMAIRE lors d'une
+  // spécialisation. Pas de MEV ici : il ne sert plus (le secondaire vise le MAV,
+  // et les muscles non ciblés sont retirés — brief §4bis).
+  beginner: { mav: 12, mrv: 16 },
+  intermediate: { mav: 16, mrv: 20 },
+  advanced: { mav: 20, mrv: 24 },
 };
 
 const hasSpecificGroup = (objectives) =>
