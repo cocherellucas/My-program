@@ -263,14 +263,32 @@ const VOLUME_BANDS = {
 const hasSpecificGroup = (objectives) =>
   (objectives || []).some((o) => o.zone === 'specific_group' && toList(o.focus_group).length);
 
-// Muscles ciblés extraits des objectifs specific_group (primaire l'emporte).
+// Muscles ciblés par UN objectif, quelle que soit sa forme : zone large, groupe
+// précis, ou mouvements. Sert à dériver un programme pour toutes les combinaisons
+// que l'interface autorise mais que le catalogue ne contient pas (il n'a que 10
+// signatures ; l'interface en laisse construire des dizaines).
+function musclesOfObjective(o) {
+  const movs = toList(o?.focus_movement);
+  if (movs.length) {
+    const set = new Set();
+    for (const mv of movs) {
+      const e = EXERCISES.find((x) => x.name === (MOVEMENT_TO_EXERCISE[mv] || mv));
+      if (!e) continue;
+      [...(e.muscles?.primary || []), ...(e.muscles?.secondary || [])].forEach((m) => set.add(appMuscle(m)));
+    }
+    return set;
+  }
+  if (o?.zone === 'specific_group') return new Set(toList(o.focus_group));
+  return new Set(ZONE_MUSCLES[o?.zone] || []);
+}
+
+// Muscles ciblés extraits de TOUS les objectifs (le primaire l'emporte).
 function focusMusclesFromObjectives(objectives) {
   const primary = new Set();
   const secondary = new Set();
   for (const o of objectives || []) {
-    if (o.zone !== 'specific_group') continue;
     const bucket = o.priority === 'secondary' ? secondary : primary;
-    toList(o.focus_group).forEach((m) => bucket.add(m));
+    musclesOfObjective(o).forEach((m) => bucket.add(m));
   }
   secondary.forEach((m) => { if (primary.has(m)) secondary.delete(m); });
   return { primary, secondary };
@@ -537,8 +555,34 @@ const REST_BY_BLOCK = { A: 150, B: 105, C: 75 };
 // Fabrique un exercice de programme à partir d'une entrée de la base d'exos,
 // étiqueté sur le muscle FOCUS (les autres muscles → secondaires). Sert à
 // compléter un muscle focus plafonné (ex. chin-up pour biceps, DC serré triceps).
-function makeExercise(e, focusMuscle, sets) {
+function makeExercise(e, focusMuscle, sets, objectiveType = 'hypertrophy') {
   const block = e.block || 'C';
+  // Reps et repos DOIVENT suivre le type d'objectif : ajouter des séries de 6-8
+  // dans un programme d'endurance (15-25) le rendait incohérent. En hypertrophie
+  // on garde le découpage par bloc du catalogue, plus fin que la moyenne du type.
+  // La force ne s'applique qu'aux POLYARTICULAIRES : des mollets ou un curl en
+  // 2-4 reps avec 4 min de repos n'a aucun sens. Les isolations gardent les
+  // plages d'hypertrophie, comme dans le programme SBD du catalogue.
+  const suitLeType = objectiveType === 'endurance'
+    || (objectiveType === 'strength' && e.type === 'compound');
+  if (suitLeType) {
+    const p = TRAINING_PARAMS[objectiveType]?.MAV;
+    if (p) {
+      const others = [
+        ...(e.muscles?.primary || []).map(appMuscle).filter((m) => m !== focusMuscle),
+        ...(e.muscles?.secondary || []).map(appMuscle),
+      ];
+      return {
+        name: e.name,
+        muscle_group: focusMuscle,
+        muscles_secondary: [...new Set(others)],
+        block,
+        sets,
+        target_reps: `${p.reps[0]}-${p.reps[1]}`,
+        rest_seconds: p.rest,
+      };
+    }
+  }
   const others = [
     ...(e.muscles?.primary || []).map(appMuscle).filter((p) => p !== focusMuscle),
     ...(e.muscles?.secondary || []).map(appMuscle),
@@ -558,7 +602,11 @@ function makeExercise(e, focusMuscle, sets) {
 // (1) réallocation du volume par muscle, (2) complément des muscles focus
 // plafonnés via la base d'exos (matériel+niveau OK, compounds à haute tension
 // d'abord), (3) réordonnancement muscles focus en tête de chaque séance.
-function specializeProgram(program, focus, user, objectiveType = 'hypertrophy') {
+function specializeProgram(program, focus, user, objectiveType = 'hypertrophy', typeByMuscle = {}) {
+  // Chaque muscle suit le type de SON objectif : sur « hypertrophie haut + force
+  // bas », les jambes doivent être programmées en force (lourd, 3-5) et non en
+  // plages d'hypertrophie. Sans ça, seul le type du primaire était honoré.
+  const typeOf = (m) => typeByMuscle[m] || objectiveType;
   const level = user?.level || 'intermediate';
   const bands = VOLUME_BANDS[level] || VOLUME_BANDS.intermediate;
   // Plafond de séries PAR EXERCICE, repris de TRAINING_PARAMS (le primaire vise le
@@ -593,9 +641,19 @@ function specializeProgram(program, focus, user, objectiveType = 'hypertrophy') 
   // d'hypertrophie doublerait le volume et casserait la programmation. Sur un
   // objectif de force on garde donc le volume tel quel : on se contente de
   // retirer les mouvements non choisis, le budget libéré profite à la récup.
+  // Le MRV ne se justifie que sur une cible ÉTROITE (spécialisation) : le budget
+  // de récup y est loin d'être épuisé. Sur une zone entière, le catalogue lui-même
+  // vise le MAV pour le primaire et ~la moitié pour le secondaire — on fait pareil.
+  const cibleEtroite = primary.size <= 3;
   const targetFor = (m) => {
-    if (objectiveType === 'strength') return current[m] || 0;
-    return primary.has(m) ? bands.mrv : bands.mav;
+    if (typeOf(m) === 'strength') {
+      // Volume de force déjà calibré → on n'y touche pas. S'il est nul (muscle
+      // absent de la base, ex. « force bas » greffé sur un programme haut), on
+      // l'introduit à dose de secondaire plutôt que de l'ignorer.
+      return current[m] > 0 ? current[m] : Math.round(bands.mav * 0.5);
+    }
+    if (primary.has(m)) return cibleEtroite ? bands.mrv : bands.mav;
+    return cibleEtroite ? bands.mav : Math.round(bands.mav * 0.5);
   };
 
   // Volume hebdo direct actuel par muscle (somme des séries sur toutes les séances).
@@ -620,6 +678,16 @@ function specializeProgram(program, focus, user, objectiveType = 'hypertrophy') 
       const cur = current[x.muscle_group] || (x.sets || 0);
       const ratio = cur > 0 ? targetFor(x.muscle_group) / cur : 1;
       const sets = Math.max(1, Math.min(maxSetsPerExercise, Math.round((x.sets || 0) * ratio)));
+      // Muscle visé par un objectif de FORCE : ses gros exercices passent au
+      // schéma lourd (3-5, repos long). Les isolations restent en 8-12 — on ne
+      // fait pas des leg curls à 3 reps ; c'est exactement ce que fait le
+      // programme SBD du catalogue (lifts lourds + accessoires en hypertrophie).
+      if (typeOf(x.muscle_group) === 'strength' && isCompoundEx(x)) {
+        const p = TRAINING_PARAMS.strength?.MAV;
+        if (p) exercises.push({ ...x, sets, target_reps: `${p.reps[0]}-${p.reps[1]}`, rest_seconds: p.rest });
+        else exercises.push({ ...x, sets });
+        continue;
+      }
       exercises.push({ ...x, sets });
     }
     return { ...s, exercises };
@@ -670,13 +738,23 @@ function specializeProgram(program, focus, user, objectiveType = 'hypertrophy') 
     return set;
   };
 
-  for (const M of primary) {
+  for (const M of [...primary, ...secondary]) {
     const weeklyOf = (mg) =>
       built.reduce((n, s) => n + s.exercises.filter((x) => x.muscle_group === mg).reduce((a, x) => a + (x.sets || 0), 0), 0);
     let gap = targetFor(M) - weeklyOf(M);
     if (gap <= 2) continue;
-    const focusIdx = built.map((_, i) => i).filter((i) => built[i].exercises.some((x) => x.muscle_group === M));
+    let focusIdx = built.map((_, i) => i).filter((i) => built[i].exercises.some((x) => x.muscle_group === M));
+    // Muscle totalement absent du programme de base — cas d'un objectif secondaire
+    // greffé sur une autre zone (« hypertrophie haut + force bas » part d'un
+    // programme haut du corps, qui n'a aucune séance de jambes). Sans ça,
+    // l'objectif secondaire disparaissait sans laisser de trace.
+    if (!focusIdx.length) focusIdx = built.map((_, i) => i);
     if (!focusIdx.length) continue;
+    // Des séances les moins chargées vers les plus chargées : sinon tous les
+    // ajouts s'empilaient sur la première, qui devenait interminable.
+    focusIdx.sort((a, b) =>
+      built[a].exercises.reduce((n, x) => n + (x.sets || 0), 0)
+      - built[b].exercises.reduce((n, x) => n + (x.sets || 0), 0));
 
     // 1) Monter les séries des exercices déjà là.
     for (const i of focusIdx) {
@@ -720,7 +798,7 @@ function specializeProgram(program, focus, user, objectiveType = 'hypertrophy') 
         });
         if (conflict) continue; // trop proche d'une autre sollicitation → exercice suivant
         const sets = Math.max(2, Math.min(perAdd, maxSetsPerExercise, gap));
-        built[i] = { ...built[i], exercises: [...built[i].exercises, makeExercise(e, M, sets)] };
+        built[i] = { ...built[i], exercises: [...built[i].exercises, makeExercise(e, M, sets, typeOf(M))] };
         gap -= sets;
         placed = true;
       }
@@ -971,19 +1049,6 @@ export async function buildActivationResult(user, objectives) {
   // Pas de correspondance exacte MAIS objectif "muscles précis" → on DÉRIVE un
   // programme spécialisé depuis la cible large la plus proche (voir plus haut).
   // Repli only : n'affecte JAMAIS les objectifs à cible large (match trouvé).
-  if (!match && user && hasSpecificGroup(objectives)) {
-    const focus = focusMusclesFromObjectives(objectives);
-    if (focus.primary.size) {
-      const allFocus = new Set([...focus.primary, ...focus.secondary]);
-      const catalog = await loadCatalog();
-      const base = pickBaseProgram(catalog, user, primarySpecificType(objectives), coverZoneForMuscles(focus.primary), allFocus);
-      if (base) {
-        match = { ...base, program: specializeProgram(base.program, focus, user, primarySpecificType(objectives)) };
-        specialized = true;
-      }
-    }
-  }
-
   // Objectif de FORCE sur une combinaison de mouvements absente du catalogue
   // (14 des 15 combinaisons possibles) → on part du programme des 3 lifts et on
   // retire ce qui ne sert pas les mouvements choisis. Le volume n'est PAS gonflé :
@@ -995,6 +1060,36 @@ export async function buildActivationResult(user, objectives) {
       const base = pickStrengthBase(catalog, user, movements);
       if (base) {
         match = { ...base, program: specializeMovements(base.program, movements, user) };
+        specialized = true;
+      }
+    }
+  }
+
+  // Toute AUTRE combinaison absente du catalogue (force ou endurance sur une zone,
+  // paires d'objectifs, muscles précis…) : on part du programme le plus proche et
+  // on réalloue le volume vers les muscles ciblés. Le catalogue ne contient que 10
+  // signatures alors que l'interface en laisse construire des dizaines — sans ce
+  // repli, l'utilisateur recevait « aucun programme ne correspond ».
+  if (!match && user) {
+    const focus = focusMusclesFromObjectives(objectives);
+    if (focus.primary.size) {
+      const objPrimaire = (objectives || []).find((o) => o.priority !== 'secondary') || objectives?.[0];
+      const type = objPrimaire?.type || 'hypertrophy';
+      const catalog = await loadCatalog();
+      const allFocus = new Set([...focus.primary, ...focus.secondary]);
+      // La force n'existe au catalogue que sous forme de programme SBD : c'est lui
+      // la meilleure base, on n'en gardera que les muscles visés.
+      const base = type === 'strength'
+        ? (pickStrengthBase(catalog, user, new Set()) || pickBaseProgram(catalog, user, type, coverZoneForMuscles(focus.primary), allFocus))
+        : pickBaseProgram(catalog, user, type, coverZoneForMuscles(focus.primary), allFocus);
+      if (base) {
+        // Type d'objectif PAR MUSCLE : « hypertrophie haut + force bas » doit
+        // programmer les jambes en force, pas en hypertrophie.
+        const typeByMuscle = {};
+        for (const o of objectives || []) {
+          for (const m of musclesOfObjective(o)) if (!typeByMuscle[m]) typeByMuscle[m] = o.type || type;
+        }
+        match = { ...base, program: specializeProgram(base.program, focus, user, type, typeByMuscle) };
         specialized = true;
       }
     }
