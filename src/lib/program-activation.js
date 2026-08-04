@@ -996,6 +996,123 @@ function rotateLeadIfSafe(exercises) {
   ];
 }
 
+// Deux séances à moins de 48 h qui travaillent les MÊMES muscles violent la règle
+// SRA du brief. Cas typique : jours collés (samedi + dimanche) sur un programme
+// corps entier — les 10 muscles étaient répétés d'un jour sur l'autre. On bascule
+// alors en HAUT/BAS en alternance : chaque journée prend une moitié du corps, ce
+// qui rend 48 h de récupération à chaque muscle SANS toucher au volume
+// hebdomadaire (on redistribue, on n'enlève rien).
+function splitConsecutiveSessions(sessions, days) {
+  if (sessions.length < 2 || !days?.length) return sessions;
+  const dayIdx = sessions.map((_, i) => DAY_ORDER.indexOf(days[i % days.length]));
+  const gapEntre = (i, j) => {
+    const d = Math.abs(dayIdx[i] - dayIdx[j]);
+    return Math.min(d, 7 - d);
+  };
+  let conflit = false;
+  for (let i = 0; i < sessions.length && !conflit; i++) {
+    for (let j = i + 1; j < sessions.length && !conflit; j++) {
+      if (gapEntre(i, j) >= 2) continue;
+      const mi = new Set(sessions[i].exercises.map((x) => x.muscle_group));
+      if (sessions[j].exercises.some((x) => mi.has(x.muscle_group))) conflit = true;
+    }
+  }
+  if (!conflit) return sessions;
+
+  // 1) D'ABORD essayer de simplement RÉORDONNER les séances : si le programme est
+  //    déjà en haut/bas, il suffit d'alterner pour que deux jours collés ne
+  //    retombent pas sur les mêmes muscles. On ne touche alors à rien d'autre.
+  const creneaux = sessions.map((_, i) => i).sort((a, b) => dayIdx[a] - dayIdx[b]);
+  const musclesDe = (s) => new Set(s.exercises.map((x) => x.muscle_group));
+  const restants = sessions.map((_, i) => i);
+  const place = [];
+  while (restants.length) {
+    const precedent = place.length ? sessions[place[place.length - 1]] : null;
+    const colle = place.length
+      && gapEntre(creneaux[place.length - 1], creneaux[place.length]) < 2;
+    let choix = 0;
+    if (precedent && colle) {
+      const mp = musclesDe(precedent);
+      let min = Infinity;
+      restants.forEach((idx, k) => {
+        const n = [...musclesDe(sessions[idx])].filter((m) => mp.has(m)).length;
+        if (n < min) { min = n; choix = k; }
+      });
+    }
+    place.push(restants.splice(choix, 1)[0]);
+  }
+  const reordonne = creneaux.map((_, k) => sessions[place[k]]);
+  let resteConflit = false;
+  for (let k = 0; k < reordonne.length - 1 && !resteConflit; k++) {
+    if (gapEntre(creneaux[k], creneaux[k + 1]) >= 2) continue;
+    const ma = musclesDe(reordonne[k]);
+    if (reordonne[k + 1].exercises.some((x) => ma.has(x.muscle_group))) resteConflit = true;
+  }
+  if (!resteConflit) return reordonne;
+
+  // 2) Sinon seulement (vrai corps entier : toutes les séances partagent les mêmes
+  //    muscles), on redistribue en haut/bas.
+  const ordre = sessions.map((_, i) => i).sort((a, b) => dayIdx[a] - dayIdx[b]);
+  const zoneDe = {};
+  ordre.forEach((i, rang) => { zoneDe[i] = rang % 2 === 0 ? 'upper' : 'lower'; });
+
+  // Regroupe le volume de la semaine par exercice (les séances corps entier
+  // répètent les mêmes mouvements : on les fusionne au lieu de les dupliquer).
+  const pool = { upper: new Map(), lower: new Map() };
+  for (const s of sessions) {
+    for (const x of s.exercises) {
+      const z = MUSCLE_ZONE[x.muscle_group] === 'lower' ? 'lower' : 'upper';
+      const prev = pool[z].get(x.name);
+      // Somme SANS plafond ici : le volume sera réparti sur les séances de la zone
+      // à la distribution. Plafonner dès la fusion faisait perdre des séries alors
+      // qu'il restait de la place ailleurs dans la semaine.
+      if (prev) prev.sets = (prev.sets || 0) + (x.sets || 0);
+      else pool[z].set(x.name, { ...x });
+    }
+  }
+
+  // Le découpage haut/bas suppose que le programme couvre les DEUX moitiés. Sur un
+  // objectif « haut du corps » il n'y a aucun exercice de jambes : découper y
+  // créait des séances vides. Dans ce cas on garde l'ordre réordonné — le conflit
+  // vient alors des disponibilités (jours collés sur une seule zone), pas du
+  // programme, et le message d'honnêteté sur le budget le couvre déjà.
+  if (!pool.upper.size || !pool.lower.size) return reordonne;
+
+  const cibles = {
+    upper: ordre.filter((i) => zoneDe[i] === 'upper'),
+    lower: ordre.filter((i) => zoneDe[i] === 'lower'),
+  };
+  const out = sessions.map((s) => ({ ...s, exercises: [] }));
+  for (const z of ['upper', 'lower']) {
+    const dest = cibles[z].length ? cibles[z] : ordre;
+    let tour = 0;
+    for (const x of pool[z].values()) {
+      // Un exercice dont le volume hebdo dépasse ce qu'on met en une séance est
+      // ÉTALÉ sur plusieurs séances de la zone, au lieu d'être tronqué.
+      let reste = x.sets || 0;
+      do {
+        const part = Math.min(6, reste) || 1;
+        out[dest[tour % dest.length]].exercises.push({ ...x, sets: part });
+        reste -= part;
+        tour++;
+      } while (reste > 0 && dest.length > 1);
+    }
+  }
+
+  const rang = { A: 0, B: 1, C: 2 };
+  const compte = {};
+  return out.map((s, i) => {
+    s.exercises.sort((a, b) => (rang[a.block] ?? 3) - (rang[b.block] ?? 3));
+    const titre = zoneDe[i] === 'lower' ? 'Bas du corps' : 'Haut du corps';
+    compte[titre] = (compte[titre] || 0) + 1;
+    const total = out.filter((_, j) => zoneDe[j] === zoneDe[i]).length;
+    return {
+      ...s,
+      day_label: total > 1 ? `${titre} ${String.fromCharCode(64 + compte[titre])}` : titre,
+    };
+  });
+}
+
 // Applique rotation + rognage aux séances d'un programme, une fois les jours
 // attribués (le temps dispo dépend du jour). Retourne de NOUVELLES séances.
 function shapeSessions(program, user, objectives, days) {
@@ -1005,7 +1122,10 @@ function shapeSessions(program, user, objectives, days) {
   // Compte les variantes d'une même séance (mêmes muscles) pour alterner le lead.
   const variantSeen = {};
 
-  return program.sessions.map((s, i) => {
+  // Jours qui se suivent + mêmes muscles → bascule en haut/bas (voir plus haut).
+  const base = splitConsecutiveSessions(program.sessions, days);
+
+  return base.map((s, i) => {
     let exercises = s.exercises;
 
     const sig = [...new Set(exercises.map((x) => x.muscle_group))].sort().join('|');
@@ -1018,7 +1138,7 @@ function shapeSessions(program, user, objectives, days) {
       exercises = fitSessionToDuration(exercises, available, objRank);
     }
 
-    if (exercises === s.exercises) return s; // rien changé → séance d'origine
+    if (exercises === s.exercises && base === program.sessions) return s; // rien changé
 
     const seen = new Set();
     const active_zones = [];
@@ -1104,11 +1224,14 @@ export async function buildActivationResult(user, objectives) {
   const initialWeeks = Math.max(1, p.planned_weeks || 4);
   // Rotation de priorité + adaptation au temps disponible de chaque jour.
   // Les séances qui rentrent déjà et ne tournent pas sont rendues INCHANGÉES.
-  const shapedAll = shapeSessions(p, user, objectives, days);
   // Jamais plus de séances que de jours disponibles : sinon `days[i % days.length]`
-  // en reposait deux le MÊME jour. On garde les premières (les plus structurantes
-  // du programme) et on assume une séance de moins.
-  const shaped = shapedAll.slice(0, days.length);
+  // en reposait deux le MÊME jour. La troncature se fait AVANT la mise en forme —
+  // sinon la bascule haut/bas décidait sur des séances qui allaient disparaître,
+  // et la journée « bas du corps » pouvait être coupée (jambes perdues).
+  const programLimite = p.sessions.length > days.length
+    ? { ...p, sessions: p.sessions.slice(0, days.length) }
+    : p;
+  const shaped = shapeSessions(programLimite, user, objectives, days);
   const sessions = [];
   for (let w = 1; w <= initialWeeks; w++) {
     shaped.forEach((s, i) => {

@@ -28,7 +28,10 @@ for (const p of PRE_GENERATED_PROGRAMS) {
     training_context: p.match.training_context === 'bodyweight' ? 'bodyweight' : 'full_gym',
     availability_optimal: false,
     frequency_max: p.match.weekly_frequency,
-    available_days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].slice(0, p.match.weekly_frequency),
+    // Jours ESPACÉS volontairement : avec des jours collés, l'activation bascule
+    // (à juste titre) un corps entier en haut/bas, ce que ce test n'a pas vocation
+    // à mesurer — il ne s'intéresse qu'à la rotation de priorité.
+    available_days: ['monday', 'wednesday', 'friday', 'sunday', 'tuesday', 'thursday'].slice(0, p.match.weekly_frequency),
     // Pas de duration_per_day → aucune contrainte de temps → seule la rotation peut agir
   };
   const r = await buildActivationResult(user, objectives);
