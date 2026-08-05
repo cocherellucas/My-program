@@ -386,16 +386,27 @@ export default function Program() {
       const weeksAhead = Math.floor((lastDate - today) / (7 * 86400000));
       if (weeksAhead >= INFINITE_BUFFER_WEEKS) return; // encore assez de marge
 
-      // Template = les séances de la dernière semaine (reprend les éventuelles éditions)
-      const template = all.filter(s => (s.week_number || 1) === maxWeek);
+      // Modèle = les séances des DEUX dernières semaines, rejouées en cycle.
+      // Le programme peut alterner d'une semaine sur l'autre (haut/bas inversés
+      // quand les jours d'entraînement se suivent) : ne reprendre qu'UNE semaine
+      // figerait cette alternance, et une moitié du corps serait travaillée deux
+      // fois par semaine et l'autre une seule, indéfiniment.
+      const semaineDe = (n) => all.filter(s => (s.week_number || 1) === n);
+      const derniere = semaineDe(maxWeek);
+      const avantDerniere = semaineDe(maxWeek - 1);
+      // La semaine qui suit `maxWeek` reprend le motif de `maxWeek - 1`.
+      const cycle = avantDerniere.length ? [avantDerniere, derniere] : [derniere];
       // On vise TARGET semaines APRÈS aujourd'hui (et non après la dernière séance,
       // qui peut être dans le passé si l'utilisateur a été absent longtemps).
       const weeksToAdd = INFINITE_TARGET_WEEKS - weeksAhead;
       const creates = [];
       for (let w = 1; w <= weeksToAdd; w++) {
+        const template = cycle[(w - 1) % cycle.length];
+        // Décalage en semaines entre le modèle utilisé et la semaine à créer.
+        const decalage = (maxWeek + w) - (template[0]?.week_number || maxWeek);
         for (const t of template) {
           const nd = new Date(t.planned_date + 'T12:00:00');
-          nd.setDate(nd.getDate() + w * 7);
+          nd.setDate(nd.getDate() + decalage * 7);
           if (nd < today) continue; // jamais de séance créée dans le passé
           creates.push(base44.entities.Session.create({
             user_id: t.user_id,
