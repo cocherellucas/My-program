@@ -90,8 +90,36 @@ function createEntityAPI(tableName) {
   };
 }
 
+// `supabase.auth.getUser()` prend un VERROU partagé (Web Locks API) pour
+// sérialiser le rafraîchissement du jeton. L'app appelle `me()` depuis une
+// dizaine d'écrans, dont plusieurs au même instant au chargement : ces appels se
+// disputent le verrou et l'un d'eux échoue avec NavigatorLockAcquireTimeoutError
+// (« another request stole it »), en rejet de promesse non capturé.
+// On mutualise donc les appels SIMULTANÉS — un seul aller-retour à la fois —
+// et on réessaie une fois si le verrou a quand même été volé (cas de plusieurs
+// onglets ouverts, où la concurrence est entre fenêtres et non dans notre code).
+let meEnVol = null;
+const estVerrouVole = (e) =>
+  /NavigatorLockAcquireTimeout|another request stole it/i.test(e?.name + ' ' + e?.message);
+
 const auth = {
-  async me() {
+  me() {
+    if (meEnVol) return meEnVol;
+    meEnVol = (async () => {
+      try {
+        return await auth._fetchMe();
+      } catch (e) {
+        if (!estVerrouVole(e)) throw e;
+        await new Promise((r) => setTimeout(r, 150));
+        return auth._fetchMe();
+      } finally {
+        meEnVol = null;
+      }
+    })();
+    return meEnVol;
+  },
+
+  async _fetchMe() {
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error || !user) throw new Error('Not authenticated');
 
