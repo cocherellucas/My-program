@@ -833,7 +833,19 @@ function specializeProgram(program, focus, user, objectiveType = 'hypertrophy', 
       ? Math.max(20, Math.round((orig.estimated_duration || 60) * (newSets / oldSets)))
       : orig.estimated_duration;
 
-    return { ...s, exercises: ordered, active_zones, estimated_duration };
+    // Le badge affiché sur la séance vient de son `type`. Après réallocation, une
+    // journée peut suivre un autre type que le programme de base : un « bas du
+    // corps » programmé en ENDURANCE gardait le badge « Hypertrophie » du
+    // programme dont il est dérivé. On recalcule donc le type depuis les muscles
+    // réellement travaillés (celui qui pèse le plus de séries l'emporte).
+    const poids = {};
+    for (const x of ordered) {
+      const ty = typeOf(x.muscle_group);
+      poids[ty] = (poids[ty] || 0) + (x.sets || 0);
+    }
+    const dominant = Object.entries(poids).sort((a, b) => b[1] - a[1])[0]?.[0];
+
+    return { ...s, type: dominant || s.type, exercises: ordered, active_zones, estimated_duration };
   });
 
   // Les séances qui ne contenaient que des muscles non ciblés sont désormais
@@ -1092,14 +1104,19 @@ function splitConsecutiveSessions(sessions, days, parite = 0) {
     let tour = 0;
     for (const x of pool[z].values()) {
       // Un exercice dont le volume hebdo dépasse ce qu'on met en une séance est
-      // ÉTALÉ sur plusieurs séances de la zone, au lieu d'être tronqué.
-      let reste = x.sets || 0;
-      do {
-        const part = Math.min(6, reste) || 1;
-        out[dest[tour % dest.length]].exercises.push({ ...x, sets: part });
-        reste -= part;
-        tour++;
-      } while (reste > 0 && dest.length > 1);
+      // ÉTALÉ sur plusieurs séances de la zone. On le découpe en AU PLUS autant de
+      // tranches qu'il y a de séances disponibles : sinon la rotation revenait sur
+      // une séance déjà servie et le même exercice y apparaissait deux fois.
+      const total = x.sets || 0;
+      const tranches = Math.min(dest.length, Math.max(1, Math.ceil(total / 6)));
+      const base = Math.floor(total / tranches);
+      let bonus = total - base * tranches;
+      for (let k = 0; k < tranches; k++) {
+        const part = Math.min(6, base + (bonus > 0 ? 1 : 0)) || 1;
+        if (bonus > 0) bonus--;
+        out[dest[(tour + k) % dest.length]].exercises.push({ ...x, sets: part });
+      }
+      tour++;
     }
   }
 
@@ -1121,6 +1138,23 @@ function splitConsecutiveSessions(sessions, days, parite = 0) {
 // attribués (le temps dispo dépend du jour). Retourne de NOUVELLES séances.
 function shapeSessions(program, user, objectives, days, parite = 0) {
   const objRank = muscleObjectiveRank(objectives);
+  // Type d'objectif par muscle → sert à étiqueter chaque séance. Le badge affiché
+  // vient de `session.type` ; après réallocation ET bascule haut/bas, une journée
+  // peut suivre un autre type que le programme d'origine (un « bas du corps »
+  // programmé en endurance affichait encore « Hypertrophie »). On l'étiquette donc
+  // ICI, en toute fin de chaîne, une fois les séances définitivement composées.
+  const typeParMuscle = {};
+  for (const o of objectives || []) {
+    for (const m of musclesOfObjective(o)) if (!typeParMuscle[m]) typeParMuscle[m] = o.type;
+  }
+  const typeDeSeance = (exs, defaut) => {
+    const poids = {};
+    for (const x of exs) {
+      const ty = typeParMuscle[x.muscle_group];
+      if (ty) poids[ty] = (poids[ty] || 0) + (x.sets || 0);
+    }
+    return Object.entries(poids).sort((a, b) => b[1] - a[1])[0]?.[0] || defaut;
+  };
   const durations = user?.duration_per_day || {};
   const noTimeLimit = user?.availability_optimal === true;
   // Compte les variantes d'une même séance (mêmes muscles) pour alterner le lead.
@@ -1142,14 +1176,15 @@ function shapeSessions(program, user, objectives, days, parite = 0) {
       exercises = fitSessionToDuration(exercises, available, objRank);
     }
 
-    if (exercises === s.exercises && base === program.sessions) return s; // rien changé
+    const type = typeDeSeance(exercises, s.type);
+    if (exercises === s.exercises && base === program.sessions && type === s.type) return s; // rien changé
 
     const seen = new Set();
     const active_zones = [];
     for (const x of exercises) {
       if (!seen.has(x.muscle_group)) { seen.add(x.muscle_group); active_zones.push({ muscle_group: x.muscle_group }); }
     }
-    return { ...s, exercises, active_zones, estimated_duration: Math.round(sessionMinutes(exercises)) };
+    return { ...s, type, exercises, active_zones, estimated_duration: Math.round(sessionMinutes(exercises)) };
   });
 }
 
