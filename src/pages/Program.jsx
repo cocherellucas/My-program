@@ -588,10 +588,13 @@ export default function Program() {
       program_data: result,
     });
 
-    // Create sessions — start from this Monday if today IS Monday, else next Monday
-    const todayD = devNow(); todayD.setHours(0, 0, 0, 0);
-    const thisMon = startOfWeek(devNow(), { weekStartsOn: 1 });
-    const monday = thisMon >= todayD ? thisMon : addDays(thisMon, 7);
+    // Le programme démarre sur la semaine EN COURS, pas la suivante. L'ancienne
+    // règle ne gardait la semaine courante que si on générait un lundi : créé un
+    // mardi, le programme ne commençait que 6 jours plus tard. Les jours déjà
+    // passés de la semaine sont créés puis affichés grisés (même comportement que
+    // la réparation de semaine dans ensureInfiniteSessions), et l'utilisateur peut
+    // s'entraîner dès aujourd'hui si c'est un de ses jours.
+    const monday = startOfWeek(devNow(), { weekStartsOn: 1 });
     const dayMap = {
       monday: 0, lundi: 0,
       tuesday: 1, mardi: 1,
