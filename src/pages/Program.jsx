@@ -460,8 +460,16 @@ export default function Program() {
   });
 
   const activeProgram = programs[0] || null;
+  // Un programme est IMPORTÉ s'il n'a pas été construit par l'activation.
+  // ⚠ Ne PAS se fier à `weekly_structure === 'custom'` : la génération produit
+  // aussi 'custom' pour 56 des 170 programmes du catalogue (mouvements, haut
+  // seul, bas seul…). Ces programmes générés passaient donc pour des imports —
+  // d'où le badge « IMPORTÉ » à tort, et surtout la suppression de l'instantané
+  // de génération, qui faisait disparaître l'alerte « plus optimisé pour ton
+  // profil ». Seule la génération renseigne `program_data.matched_program_name` ;
+  // un import crée le programme sans `program_data`.
   const isImported = (session) =>
-    importedProgramIds.includes(session.program_id) || activeProgram?.weekly_structure === 'custom';
+    importedProgramIds.includes(session.program_id) || !activeProgram?.program_data?.matched_program_name;
 
   // Recharge des séances pour les programmes infinis (une fois par programme à l'ouverture)
   useEffect(() => {
@@ -471,9 +479,11 @@ export default function Program() {
     ensureInfiniteSessions(activeProgram);
   }, [activeProgram?.id]);  
 
-  // Nettoyer le staleBanner pour les programmes importés (faux positif)
+  // Nettoyer le staleBanner pour les programmes importés (faux positif) — même
+  // règle de détection que `isImported` ci-dessus.
   useEffect(() => {
-    if (activeProgram?.weekly_structure === 'custom' || importedProgramIds.includes(activeProgram?.id)) {
+    if (!activeProgram) return;
+    if (isImported({ program_id: activeProgram.id })) {
       localStorage.removeItem('pending_program_regen');
       setStaleBanner(false);
     }

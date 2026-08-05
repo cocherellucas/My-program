@@ -77,7 +77,13 @@ export default function Profile() {
     base44.entities.Program.filter({ status: 'active' }, '-created_date', 1).then(progs => {
       const p = progs[0];
       const importedIds = (() => { try { return JSON.parse(localStorage.getItem('imported_program_ids') || '[]'); } catch { return []; } })();
-      if (p && (p.weekly_structure === 'custom' || importedIds.includes(p.id))) {
+      // Détection d'un import : PAS via `weekly_structure === 'custom'` (la
+      // génération produit aussi 'custom' pour un tiers du catalogue — mouvements,
+      // haut seul, bas seul). On effaçait donc l'instantané de programmes bel et
+      // bien générés, ce qui rendait l'alerte « plus optimisé » impossible.
+      // Seule la génération renseigne `program_data.matched_program_name`.
+      const estImporte = p && !p.program_data?.matched_program_name;
+      if (p && (estImporte || importedIds.includes(p.id))) {
         localStorage.removeItem('pending_program_regen');
         localStorage.removeItem('program_generated_snapshot');
         setShowRegenBanner(false);
