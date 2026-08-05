@@ -572,9 +572,21 @@ export default function Program() {
     // selon le profil (niveau, contexte d'entraînement, disponibilités,
     // objectifs), puis dépliés en séances. Voir program-activation.js.
     setGenPhase('Sélection du programme adapté à ton profil…');
+    // Le profil et les objectifs sont RELUS ici, juste avant de générer. Les pages
+    // de l'app restent montées (carrousel) : `user` n'était chargé qu'une fois au
+    // démarrage et les objectifs venaient d'un cache que rien n'invalidait. Une
+    // modification faite dans le Profil n'était donc pas prise en compte — on
+    // régénérait avec les données d'avant.
+    const [freshUser, freshObjectives] = await Promise.all([
+      base44.auth.me().then(normalizeUser).catch(() => user),
+      base44.entities.Objective.filter({ status: 'active' }).catch(() => objectives),
+    ]);
+    setUser(freshUser);
+    queryClient.setQueryData(['objectives'], freshObjectives);
+
     // await : le catalogue des programmes est chargé à la demande (il n'est plus
     // embarqué au démarrage de l'app).
-    const result = await buildActivationResult(user, objectives);
+    const result = await buildActivationResult(freshUser, freshObjectives);
     if (!result) {
       throw new Error("Aucun programme pré-généré ne correspond encore à ce profil (niveau, équipement, objectifs ou disponibilités). Ajuste un critère et réessaie.");
     }
@@ -582,15 +594,15 @@ export default function Program() {
     // Create program
     setGenPhase('Enregistrement du programme…');
     const program = await base44.entities.Program.create({
-      user_id: user.id,
+      user_id: freshUser.id,
       version: 1,
-      objective_ids: objectives.map(o => o.id),
+      objective_ids: freshObjectives.map(o => o.id),
       weekly_structure: (() => {
         const allowed = ['full_body', 'upper_lower', 'ppl', 'arnold_split', 'phul', 'ul_ppl', 'custom'];
         const raw = structure || result.weekly_structure || 'full_body';
         return allowed.includes(raw) ? raw : 'full_body';
       })(),
-      active_days: (user.available_days || []).map(d => ({ day: d, duration_minutes: (user.duration_per_day || {})[d] || 60 })),
+      active_days: (freshUser.available_days || []).map(d => ({ day: d, duration_minutes: (freshUser.duration_per_day || {})[d] || 60 })),
       planned_weeks: weeksIsAuto ? (result.planned_weeks || 4) : weeks,
       active_phase: phase || 'MEV',
       status: 'active',
@@ -627,7 +639,7 @@ export default function Program() {
 
       await base44.entities.Session.create({
         program_id: program.id,
-        user_id: user.id,
+        user_id: freshUser.id,
         planned_date: format(date, 'yyyy-MM-dd'),
         estimated_duration: s.estimated_duration || 60,
         type: ['strength','hypertrophy','endurance','mixed','cardio','mobility'].includes(s.type) ? s.type : 'mixed',
@@ -645,7 +657,7 @@ export default function Program() {
     // Snapshot des conditions de génération — permet de détecter l'obsolescence et les reverts
     const SNAPSHOT_FIELDS = ['available_days','duration_per_day','frequency_min','frequency_max','equipment','level','fragile_zones','preferred_exercises','disliked_exercises','no_volume_muscles','peaking_enabled'];
     const snapshot = {};
-    SNAPSHOT_FIELDS.forEach(f => { snapshot[f] = user[f]; });
+    SNAPSHOT_FIELDS.forEach(f => { snapshot[f] = freshUser[f]; });
     localStorage.setItem('program_generated_snapshot', JSON.stringify(snapshot));
     localStorage.removeItem('pending_program_regen');
     setStaleBanner(false);
