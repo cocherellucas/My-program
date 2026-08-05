@@ -492,8 +492,8 @@ export default function Profile() {
       {showRegenBanner && (
         <div className="p-4 rounded-xl bg-violet-500/20 border border-violet-400/30 space-y-3">
           <div>
-            <p className="text-sm font-semibold text-white">Ton programme ne correspond plus à ton profil</p>
-            <p className="text-xs text-white/60 mt-0.5">Veux-tu apporter d'autres modifications avant de régénérer, ou lancer la génération maintenant ?</p>
+            <p className="text-sm font-semibold text-white">Ton programme n'est plus optimisé pour ton profil</p>
+            <p className="text-xs text-white/60 mt-0.5">Tu viens de modifier un élément qui sert à le construire. Régénère-le pour qu'il en tienne compte — ou continue tes modifications et régénère après.</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <button
