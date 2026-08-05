@@ -678,17 +678,20 @@ function specializeProgram(program, focus, user, objectiveType = 'hypertrophy', 
       const cur = current[x.muscle_group] || (x.sets || 0);
       const ratio = cur > 0 ? targetFor(x.muscle_group) / cur : 1;
       const sets = Math.max(1, Math.min(maxSetsPerExercise, Math.round((x.sets || 0) * ratio)));
-      // Muscle visé par un objectif de FORCE : ses gros exercices passent au
-      // schéma lourd (3-5, repos long). Les isolations restent en 8-12 — on ne
-      // fait pas des leg curls à 3 reps ; c'est exactement ce que fait le
-      // programme SBD du catalogue (lifts lourds + accessoires en hypertrophie).
-      if (typeOf(x.muscle_group) === 'strength' && isCompoundEx(x)) {
-        const p = TRAINING_PARAMS.strength?.MAV;
-        if (p) exercises.push({ ...x, sets, target_reps: `${p.reps[0]}-${p.reps[1]}`, rest_seconds: p.rest });
-        else exercises.push({ ...x, sets });
-        continue;
-      }
-      exercises.push({ ...x, sets });
+      // Les répétitions doivent suivre le type d'objectif DU MUSCLE, y compris sur
+      // les exercices hérités du programme de base : un objectif « endurance »
+      // dérivé d'un programme d'hypertrophie gardait sinon des séries de 6-8.
+      //   • endurance → toutes les séries passent en 12-20 ;
+      //   • force → seulement les POLYARTICULAIRES en 3-5 (on ne fait pas des leg
+      //     curls à 3 reps ; les accessoires restent en 8-12, comme dans le
+      //     programme SBD du catalogue) ;
+      //   • hypertrophie → on garde le découpage par bloc du catalogue, plus fin.
+      const ty = typeOf(x.muscle_group);
+      const applique = ty === 'endurance' || (ty === 'strength' && isCompoundEx(x));
+      const p = applique ? TRAINING_PARAMS[ty]?.MAV : null;
+      exercises.push(p
+        ? { ...x, sets, target_reps: `${p.reps[0]}-${p.reps[1]}`, rest_seconds: p.rest }
+        : { ...x, sets });
     }
     return { ...s, exercises };
   });

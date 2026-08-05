@@ -501,17 +501,20 @@ export default function Profile() {
             <p className="text-sm font-semibold text-white">Ton programme n'est plus optimisé pour ton profil</p>
             <p className="text-xs text-white/60 mt-0.5">Tu viens de modifier un élément qui sert à le construire. Régénère-le pour qu'il en tienne compte — ou continue tes modifications et régénère après.</p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          {/* Une seule ligne, même sur mobile : le bouton principal prend la place
+              restante et le secondaire garde sa largeur (libellés courts — la
+              phrase au-dessus explique déjà les deux options). */}
+          <div className="flex items-center gap-2">
             <button
               onClick={() => navigate('/program?autoGenerate=true')}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-white text-violet-700 hover:bg-white/90 transition-colors">
-              <RefreshCw className="w-3.5 h-3.5" />
-              Régénérer maintenant
+              className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-white text-violet-700 hover:bg-white/90 transition-colors">
+              <RefreshCw className="w-3.5 h-3.5 flex-shrink-0" />
+              Régénérer
             </button>
             <button
               onClick={() => setShowRegenBanner(false)}
-              className="text-xs px-3 py-2 rounded-lg bg-white/10 text-white/70 border border-white/20 hover:bg-white/20 transition-colors">
-              Continuer à modifier d'abord
+              className="text-xs px-3 py-2 rounded-lg bg-white/10 text-white/70 border border-white/20 hover:bg-white/20 transition-colors whitespace-nowrap flex-shrink-0">
+              Plus tard
             </button>
           </div>
         </div>
