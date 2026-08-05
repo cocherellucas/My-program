@@ -457,15 +457,15 @@ export default function Profile() {
         </TabsContent>
 
         <TabsContent value="measurements">
-          <StepMeasurements data={form} onChange={(fields) => setForm(prev => ({ ...prev, ...fields }))} />
+          <StepMeasurements hideHeader data={form} onChange={(fields) => setForm(prev => ({ ...prev, ...fields }))} />
         </TabsContent>
 
         <TabsContent value="equipment">
-          <StepEquipment data={form} onChange={(fields) => setForm(prev => ({ ...prev, ...fields }))} />
+          <StepEquipment hideHeader data={form} onChange={(fields) => setForm(prev => ({ ...prev, ...fields }))} />
         </TabsContent>
 
         <TabsContent value="availability">
-          <StepAvailability data={form} onChange={(fields) => setForm(prev => ({ ...prev, ...fields }))} />
+          <StepAvailability hideHeader data={form} onChange={(fields) => setForm(prev => ({ ...prev, ...fields }))} />
         </TabsContent>
 
         <TabsContent value="objectives">
@@ -473,7 +473,7 @@ export default function Profile() {
         </TabsContent>
 
         <TabsContent value="preferences">
-          <StepPreferences data={form} onChange={(fields) => setForm(prev => ({ ...prev, ...fields }))} />
+          <StepPreferences hideHeader data={form} onChange={(fields) => setForm(prev => ({ ...prev, ...fields }))} />
         </TabsContent>
       </Tabs>
       )}

@@ -8,14 +8,24 @@ import { useI18n } from '@/lib/i18n';
 const DAY_KEYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const DAY_TKEYS = { monday: 'av_mon', tuesday: 'av_tue', wednesday: 'av_wed', thursday: 'av_thu', friday: 'av_fri', saturday: 'av_sat', sunday: 'av_sun' };
 
-export default function StepAvailability({ data, onChange }) {
+export default function StepAvailability({ data, onChange, hideHeader = false }) {
   const { t } = useI18n();
   const DAYS = DAY_KEYS.map(key => ({ key, label: t(DAY_TKEYS[key]) }));
   const selectedDays = (() => { const r = data.available_days; if (!r) return []; if (Array.isArray(r)) return r; try { return JSON.parse(r) || []; } catch { return []; } })();
   const durations = data.duration_per_day || {};
 
   const [durationErrors, setDurationErrors] = React.useState({});
-  const sameDurationAll = data.same_duration_all ?? null;
+  // `same_duration_all` ne sert qu'à l'affichage et n'est PAS stocké en base (ce
+  // n'est pas une colonne de `profiles` — l'envoyer faisait échouer toute la
+  // sauvegarde du profil). En revenant sur cet écran, la question repartait donc
+  // sans réponse et les durées restaient masquées. On la DÉDUIT des durées déjà
+  // enregistrées : toutes identiques → « Oui », sinon « Non ».
+  const sameDurationAll = data.same_duration_all ?? (() => {
+    if (selectedDays.length < 2) return null;
+    const valeurs = selectedDays.map((d) => durations[d]);
+    if (valeurs.some((v) => v === undefined || v === null || v === '')) return null;
+    return valeurs.every((v) => String(v) === String(valeurs[0]));
+  })();
   const setSameDurationAll = (v) => onChange({ same_duration_all: v });
   const lastKeyRef = React.useRef(null);
   const holdRef = React.useRef(null);
@@ -97,11 +107,15 @@ export default function StepAvailability({ data, onChange }) {
 
   return (
     <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-heading font-bold text-white">{t('av_title')}</h2>
-        <p className="text-white/70 mt-2">{t('av_sub')}</p>
-        <p className="text-white/40 text-xs mt-3"><span className="text-red-400 font-bold">*</span> {t('av_required')}</p>
-      </div>
+      {/* Titre masqué quand l'écran est intégré au Profil : l'onglet a déjà son
+          contexte, ce libellé n'a de sens que dans le parcours d'onboarding. */}
+      {!hideHeader && (
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-heading font-bold text-white">{t('av_title')}</h2>
+          <p className="text-white/70 mt-2">{t('av_sub')}</p>
+          <p className="text-white/40 text-xs mt-3"><span className="text-red-400 font-bold">*</span> {t('av_required')}</p>
+        </div>
+      )}
 
       <div className="space-y-4">
         <div className="p-4 rounded-xl border border-white/20 bg-white/5 space-y-2">

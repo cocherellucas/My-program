@@ -20,16 +20,20 @@ const DEFAULTS = {
 };
 
 
-export default function StepMeasurements({ data, onChange }) {
+export default function StepMeasurements({ data, onChange, hideHeader = false }) {
   const { t } = useI18n();
   const defaults = DEFAULTS[data.gender] || DEFAULTS.neutral;
 
   return (
     <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-heading font-bold text-white">{t('ms_title')}</h2>
-        <p className="text-white/70 mt-2">{t('ms_sub')}</p>
-      </div>
+      {/* Titre masqué quand l'écran est intégré au Profil (l'onglet a déjà son
+          contexte) — il n'a de sens que dans le parcours d'onboarding. */}
+      {!hideHeader && (
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-heading font-bold text-white">{t('ms_title')}</h2>
+          <p className="text-white/70 mt-2">{t('ms_sub')}</p>
+        </div>
+      )}
 
       <div className="p-4 bg-white/10 rounded-xl border border-white/20">
         <p className="text-sm text-white/80">

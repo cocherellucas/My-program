@@ -164,7 +164,7 @@ function LetterSection({ letter, items, equipment, onToggle, forceOpen }) {
   );
 }
 
-export default function StepEquipment({ data, onChange }) {
+export default function StepEquipment({ data, onChange, hideHeader = false }) {
   const { t } = useI18n();
   const context = data.training_context || '';
   const equipment = (() => {
@@ -248,10 +248,14 @@ export default function StepEquipment({ data, onChange }) {
 
   return (
     <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-heading font-bold text-white">{t('eq_title')}</h2>
-        <p className="text-white/70 mt-2">{t('eq_sub')}</p>
-      </div>
+      {/* Titre masqué quand l'écran est intégré au Profil : l'onglet a déjà son
+          contexte, ce libellé n'a de sens que dans le parcours d'onboarding. */}
+      {!hideHeader && (
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-heading font-bold text-white">{t('eq_title')}</h2>
+          <p className="text-white/70 mt-2">{t('eq_sub')}</p>
+        </div>
+      )}
 
       {context && !showGymPicker && !showContextPicker ? (
         /* Mode compact — ligne unique récapitulative avec bouton Changer */

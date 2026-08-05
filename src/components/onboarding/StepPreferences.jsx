@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import { Shield, X } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 
-export default function StepPreferences({ data, onChange }) {
+export default function StepPreferences({ data, onChange, hideHeader = false }) {
   const { t } = useI18n();
   // Ordre anatomique haut → bas (cervicales → genoux) pour un affichage bien rangé.
   const FRAGILE_ZONES = [
@@ -30,10 +30,14 @@ export default function StepPreferences({ data, onChange }) {
 
   return (
     <div className="space-y-6">
-      <div className="text-center mb-2">
-        <h2 className="text-2xl font-heading font-bold text-white">{t('pf_title')}</h2>
-        <p className="text-white/70 mt-2">{t('pf_sub')}</p>
-      </div>
+      {/* Titre masqué quand l'écran est intégré au Profil (l'onglet a déjà son
+          contexte) — il n'a de sens que dans le parcours d'onboarding. */}
+      {!hideHeader && (
+        <div className="text-center mb-2">
+          <h2 className="text-2xl font-heading font-bold text-white">{t('pf_title')}</h2>
+          <p className="text-white/70 mt-2">{t('pf_sub')}</p>
+        </div>
+      )}
 
       <div className="space-y-3">
         <p className="text-xs text-white/50">{t('pf_select')}</p>
