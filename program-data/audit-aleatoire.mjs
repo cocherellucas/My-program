@@ -36,9 +36,34 @@ const musclesCibles = (objs) => {
   for (const o of objs) musclesDUnObjectif(o).forEach((m) => s.add(m));
   return s;
 };
+// Attribution d'un muscle à un objectif : le PREMIER (donc le prioritaire) gagne.
+// Un objectif de MOUVEMENT possède les muscles PRINCIPAUX de ses lifts — les
+// quadriceps appartiennent à « force sur le squat », même si l'utilisateur a aussi
+// demandé de l'endurance sur le bas du corps. Ignorer ce cas faisait signaler des
+// programmes corrects.
+const MOUVEMENT_EXO = {
+  'Squat barre': 'Squat barre',
+  'Développé couché': 'Développé couché barre',
+  'Soulevé de terre': 'Soulevé de terre',
+  'Traction lestée': 'Traction pronation',
+};
+const APP_MUSCLE = { Poitrine: 'Pectoraux', Abdos: 'Abdominaux' };
 const typeParMuscle = (objs) => {
   const m = {};
-  for (const o of objs) musclesDUnObjectif(o).forEach((x) => { if (!m[x]) m[x] = o.type; });
+  for (const o of objs) {
+    const movs = o.focus_movement || [];
+    if (movs.length) {
+      for (const mv of movs) {
+        const e = EXERCISES.find((x) => x.name === (MOUVEMENT_EXO[mv] || mv));
+        (e?.muscles?.primary || []).forEach((mu) => {
+          const nom = APP_MUSCLE[mu] || mu;
+          if (!m[nom]) m[nom] = o.type;
+        });
+      }
+      continue;
+    }
+    musclesDUnObjectif(o).forEach((x) => { if (!m[x]) m[x] = o.type; });
+  }
   return m;
 };
 

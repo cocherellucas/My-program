@@ -360,7 +360,124 @@ const MOVEMENT_FAMILY = {
 // le MOUVEMENT. On garde donc un exercice s'il appartient à un mouvement choisi,
 // ou s'il n'appartient à aucune famille (accessoire) ; on ne retire que ce qui
 // relève exclusivement d'un mouvement NON choisi.
-function specializeMovements(program, selected, user) {
+const objetsZoneMuscles = (objs) => {
+  const set = new Set();
+  for (const o of objs || []) musclesOfObjective(o).forEach((m) => set.add(m));
+  return set;
+};
+
+// Complète un programme dérivé des MOUVEMENTS avec les objectifs de ZONE ou de
+// GROUPE qui l'accompagnent. Sans ça, « force sur le squat + hypertrophie haut du
+// corps » ne produisait QUE du squat : le second objectif était purement ignoré.
+// On ne touche pas à la partie force (jours lourd/volume des lifts) ; on ajoute le
+// volume manquant, avec les répétitions du type demandé, en répartissant sur les
+// séances les moins chargées et en respectant les fenêtres de récupération.
+function completerAvecObjectifs(program, objectifs, user, days) {
+  const level = user?.level || 'intermediate';
+  const bands = VOLUME_BANDS[level] || VOLUME_BANDS.intermediate;
+  const userEquipment = Array.isArray(user?.equipment)
+    ? user.equipment
+    : (() => { try { return JSON.parse(user?.equipment || '[]'); } catch { return []; } })();
+  const canDo = (e) => !!e.equipmentOptions?.some((opt) => opt.every((i) => userEquipment.includes(i)));
+
+  const sessions = program.sessions.map((s) => ({ ...s, exercises: [...s.exercises] }));
+  const jourDe = {};
+  sessions.forEach((_, i) => { jourDe[i] = DAY_ORDER.indexOf(days[i % days.length]); });
+  const heuresEntre = (i, j) => {
+    const a = jourDe[i]; const b = jourDe[j];
+    if (a == null || b == null) return 999;
+    const d = Math.abs(a - b);
+    return Math.min(d, 7 - d) * 24;
+  };
+  const musclesDe = (idx) => {
+    const set = new Set();
+    for (const x of sessions[idx].exercises) {
+      set.add(x.muscle_group);
+      for (const sm of x.muscles_secondary || []) set.add(sm);
+    }
+    return set;
+  };
+
+  // Les exercices DÉJÀ présents qui servent un objectif de zone doivent en suivre
+  // la programmation : un développé militaire hérité du programme de force restait
+  // en 6-8 alors que les épaules étaient demandées en endurance. Même règle que
+  // partout : l'endurance s'applique à tout, la force aux polyarticulaires seuls.
+  // Un muscle peut apparaître dans PLUSIEURS objectifs : c'est le premier (donc le
+  // prioritaire) qui décide de sa programmation. Appliquer les objectifs l'un après
+  // l'autre laissait le dernier écraser le premier — des quadriceps demandés en
+  // endurance prioritaire finissaient en 2-4 répétitions à cause d'un objectif de
+  // force secondaire.
+  const typePourMuscle = {};
+  for (const o of objectifs) {
+    for (const m of musclesOfObjective(o)) if (!typePourMuscle[m]) typePourMuscle[m] = o.type;
+  }
+  for (const s of sessions) {
+    s.exercises = s.exercises.map((x) => {
+      const ty = typePourMuscle[x.muscle_group];
+      if (!ty) return x;
+      const applique = ty === 'endurance' || (ty === 'strength' && isCompoundEx(x));
+      const p = applique ? TRAINING_PARAMS[ty]?.MAV : null;
+      return p ? { ...x, target_reps: `${p.reps[0]}-${p.reps[1]}`, rest_seconds: p.rest } : x;
+    });
+  }
+
+  for (const o of objectifs) {
+    const cible = o.priority === 'secondary' ? Math.round(bands.mav * 0.5) : bands.mav;
+    const maxParExo = TRAINING_PARAMS[o.type]?.MAV?.sets?.[1] || TRAINING_PARAMS.hypertrophy.MAV.sets[1];
+    for (const M of musclesOfObjective(o)) {
+      const volume = () => sessions.reduce((n, s) =>
+        n + s.exercises.filter((x) => x.muscle_group === M).reduce((a, x) => a + (x.sets || 0), 0), 0);
+      let manque = cible - volume();
+      if (manque <= 2) continue;
+
+      const dejaLa = new Set(sessions.flatMap((s) => s.exercises.map((x) => String(x.name).toLowerCase())));
+      const dbM = DB_MUSCLE[M] || M;
+      const pool = EXERCISES
+        .filter((e) => e.muscles?.primary?.includes(dbM) && e.level?.includes(level) && canDo(e) && !dejaLa.has(e.name.toLowerCase()))
+        .sort((a, b) => (a.type === 'compound' ? 0 : 1) - (b.type === 'compound' ? 0 : 1));
+
+      let ajoutes = 0;
+      for (const e of pool) {
+        if (manque <= 2 || ajoutes >= 2) break;
+        const charge = (i) => sessions[i].exercises.reduce((n, x) => n + (x.sets || 0), 0);
+        const ordre = sessions.map((_, i) => i).sort((a, b) => charge(a) - charge(b));
+        const touche = new Set([
+          ...(e.muscles?.primary || []).map(appMuscle),
+          ...(e.type === 'compound' ? (e.muscles?.secondary || []).map(appMuscle) : []),
+        ]);
+        for (const i of ordre) {
+          if (manque <= 2) break;
+          if (sessions[i].exercises.some((x) => x.name === e.name)) continue;
+          const fenetre = SRA_WINDOWS[sessions[i].type] || SRA_WINDOWS.mixed;
+          const conflit = sessions.some((_, j) => j !== i && heuresEntre(i, j) < fenetre
+            && [...touche].some((m) => m !== M && musclesDe(j).has(m)));
+          if (conflit) continue;
+          const sets = Math.max(2, Math.min(3, maxParExo, manque));
+          sessions[i].exercises.push(makeExercise(e, M, sets, o.type));
+          manque -= sets;
+          ajoutes++;
+          break;
+        }
+      }
+    }
+  }
+
+  const rang = { A: 0, B: 1, C: 2 };
+  return {
+    ...program,
+    sessions: sessions.map((s) => {
+      const exercises = s.exercises.slice().sort((a, b) => (rang[a.block] ?? 3) - (rang[b.block] ?? 3));
+      const vus = new Set();
+      const active_zones = [];
+      for (const x of exercises) {
+        if (!vus.has(x.muscle_group)) { vus.add(x.muscle_group); active_zones.push({ muscle_group: x.muscle_group }); }
+      }
+      return { ...s, exercises, active_zones };
+    }),
+  };
+}
+
+function specializeMovements(program, selected, user, objectifsZone = []) {
   const dropped = Object.keys(MOVEMENT_FAMILY).filter((mv) => !selected.has(mv));
   const belongsToDropped = (name) =>
     dropped.some((mv) => MOVEMENT_FAMILY[mv].test(name))
@@ -379,6 +496,9 @@ function specializeMovements(program, selected, user) {
     if (!e) continue;
     [...(e.muscles?.primary || []), ...(e.muscles?.secondary || [])].forEach((m) => musclesCibles.add(appMuscle(m)));
   }
+  // Les muscles des objectifs de ZONE qui accompagnent le mouvement comptent aussi :
+  // sinon on jetterait des accessoires qui les servent, avant même de compléter.
+  for (const o of objetsZoneMuscles(objectifsZone)) musclesCibles.add(o);
   const estFamille = (name) => Object.values(MOVEMENT_FAMILY).some((re) => re.test(name));
 
   let sessions = program.sessions.map((s) => ({
@@ -419,7 +539,13 @@ function specializeMovements(program, selected, user) {
   }
 
   // Une séance sans aucun mouvement choisi ne sert plus l'objectif → on la retire.
-  sessions = sessions.filter((s) => s.exercises.some((x) => isFamily(x.name)));
+  // SAUF s'il existe d'autres objectifs (zone/groupe) : ces journées vont
+  // justement les accueillir, et les supprimer priverait le complément de place.
+  if (!objectifsZone.length) {
+    sessions = sessions.filter((s) => s.exercises.some((x) => isFamily(x.name)));
+  } else {
+    sessions = sessions.filter((s) => s.exercises.length > 0 || true);
+  }
 
   // Réordonnancement : deux séances du MÊME lift ne doivent pas se suivre (les
   // jours sont attribués dans l'ordre des séances). On alterne les mouvements, et
@@ -449,7 +575,7 @@ function specializeMovements(program, selected, user) {
   // Développé couché » sans aucun développé couché).
   sessions = sessions.map((s) => {
     const lead = s.exercises.find((x) => x.block === 'A' && isFamily(x.name)) || s.exercises.find((x) => isFamily(x.name));
-    if (!lead) return s;
+    if (!lead) return s; // séance sans lift choisi : elle accueillera les autres objectifs
     // On conserve la mention (lourd)/(volume) : elle dit à l'utilisateur quelle
     // séance il attaque, ce qui est le cœur d'un programme de force.
     return { ...s, day_label: `Jour ${lead.name} (${estLourd(lead) ? 'lourd' : 'volume'})` };
@@ -1221,7 +1347,16 @@ export async function buildActivationResult(user, objectives) {
       const catalog = await loadCatalog();
       const base = pickStrengthBase(catalog, user, movements);
       if (base) {
-        match = { ...base, program: specializeMovements(base.program, movements, user) };
+        // Objectifs qui NE sont pas des mouvements : ils doivent être servis eux
+        // aussi, sinon « force squat + hypertrophie haut du corps » ne donnait que
+        // du squat.
+        const objectifsZone = (objectives || []).filter((o) => !toList(o.focus_movement).length);
+        let prog = specializeMovements(base.program, movements, user, objectifsZone);
+        if (objectifsZone.length) {
+          const jours = pickDays(user, prog.sessions.length);
+          prog = completerAvecObjectifs(prog, objectifsZone, user, jours);
+        }
+        match = { ...base, program: prog };
         specialized = true;
       }
     }
@@ -1247,9 +1382,24 @@ export async function buildActivationResult(user, objectives) {
       if (base) {
         // Type d'objectif PAR MUSCLE : « hypertrophie haut + force bas » doit
         // programmer les jambes en force, pas en hypertrophie.
+        // Pour un objectif de MOUVEMENT, seuls les muscles PRINCIPAUX du lift
+        // héritent de sa programmation. Ses synergistes (triceps sur un développé,
+        // quadriceps sur un soulevé) ne doivent pas passer en force : c'est le lift
+        // qui est l'exercice de force, pas eux — sinon un objectif « endurance haut
+        // du corps » posé à côté se retrouvait avec des dips en 2-4 répétitions.
+        const musclesPourType = (o) => {
+          const movs = toList(o.focus_movement);
+          if (!movs.length) return musclesOfObjective(o);
+          const set = new Set();
+          for (const mv of movs) {
+            const e = EXERCISES.find((x) => x.name === (MOVEMENT_TO_EXERCISE[mv] || mv));
+            (e?.muscles?.primary || []).forEach((m) => set.add(appMuscle(m)));
+          }
+          return set;
+        };
         const typeByMuscle = {};
         for (const o of objectives || []) {
-          for (const m of musclesOfObjective(o)) if (!typeByMuscle[m]) typeByMuscle[m] = o.type || type;
+          for (const m of musclesPourType(o)) if (!typeByMuscle[m]) typeByMuscle[m] = o.type || type;
         }
         match = { ...base, program: specializeProgram(base.program, focus, user, type, typeByMuscle) };
         specialized = true;
