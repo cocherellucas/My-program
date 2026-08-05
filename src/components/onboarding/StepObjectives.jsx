@@ -31,7 +31,7 @@ const GROUPS = [
 const selectClass = 'h-9 bg-white/20 border-white/40 text-white [&>span]:text-white [&>span[data-placeholder]]:text-white/50 [&>svg]:opacity-100 [&>svg]:text-white';
 
 
-export default function StepObjectives({ data, onChange }) {
+export default function StepObjectives({ data, onChange, hideHeader = false }) {
   const { t } = useI18n();
   // Affichage d'un nom de muscle (valeur stockée en FR) dans la langue active
   const mDisp = (name) => { const r = t('m_' + name); return r === 'm_' + name ? name : r; };
@@ -192,13 +192,16 @@ export default function StepObjectives({ data, onChange }) {
 
   return (
     <div className="space-y-6">
-      <div className="mb-2">
-        <h2 className="text-2xl font-heading font-bold text-white">{t('oj_title')}</h2>
-        <p className="text-white/70 mt-1 text-sm">{t('oj_sub')}</p>
-        <p className="text-white/40 text-xs mt-3"><span className="text-red-400 font-bold">*</span> {t('sp_required')}</p>
-      </div>
-      <div className="text-center mb-8 hidden">
-      </div>
+      {/* Titre masqué quand l'écran est intégré ailleurs (onglet Objectifs du
+          Profil) : il y a déjà un contexte, et « Tes objectifs / Qu'est-ce que tu
+          veux accomplir ? » n'a de sens que dans le parcours d'onboarding. */}
+      {!hideHeader && (
+        <div className="mb-2">
+          <h2 className="text-2xl font-heading font-bold text-white">{t('oj_title')}</h2>
+          <p className="text-white/70 mt-1 text-sm">{t('oj_sub')}</p>
+          <p className="text-white/40 text-xs mt-3"><span className="text-red-400 font-bold">*</span> {t('sp_required')}</p>
+        </div>
+      )}
 
       <div className="space-y-4">
         {objectives.map((obj, idx) => (

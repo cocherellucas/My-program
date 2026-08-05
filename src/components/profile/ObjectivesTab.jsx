@@ -1,34 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { cn } from '@/lib/utils';
-import { Plus, Trash2, Loader2, ChevronDown, HelpCircle } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ensureOnline } from '@/lib/net';
+// L'onglet Objectifs du Profil réutilise l'ÉCRAN DE L'ONBOARDING au lieu d'en
+// maintenir une deuxième version (qui avait dérivé : champ texte libre pour les
+// mouvements, zone vide sans explication…). Ici on ne garde que la persistance.
+import StepObjectives from '@/components/onboarding/StepObjectives';
 
-const TYPES = [
-  { value: 'hypertrophy', label: '💪 Prendre du muscle' },
-  { value: 'strength', label: '🏋️ Devenir plus fort' },
-  { value: 'endurance', label: '🏃 Améliorer l\'endurance' },
-];
-
-const ZONES = [
-  { value: 'upper_body', label: 'Haut du corps' },
-  { value: 'lower_body', label: 'Bas du corps' },
-  { value: 'full_body', label: 'Tout le corps' },
-  { value: 'specific_group', label: 'Groupe spécifique' },
-];
-
-const GROUPS = [
-  'Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps',
-  'Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Abdominaux'
-];
-
-export default function ObjectivesTab({ userId }) {
+export default function ObjectivesTab({ userId, level }) {
   const [objectives, setObjectives] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -43,7 +23,19 @@ export default function ObjectivesTab({ userId }) {
   useEffect(() => {
     if (!userId) return;
     base44.entities.Objective.filter({ user_id: userId }).then(data => {
-      const loaded = data.map(o => ({ ...o, _local: false }));
+      // En base, focus_group / focus_movement sont stockés en TEXTE séparé par des
+      // virgules (voir `save`). L'écran de saisie, lui, travaille avec des LISTES :
+      // sans cette conversion il recevait une seule chaîne, qui ne correspondait à
+      // aucun bouton — les mouvements déjà choisis apparaissaient tous désactivés.
+      const enListe = (v) => (Array.isArray(v)
+        ? v
+        : String(v || '').split(',').map((x) => x.trim()).filter(Boolean));
+      const loaded = data.map(o => ({
+        ...o,
+        _local: false,
+        focus_group: enListe(o.focus_group),
+        focus_movement: enListe(o.focus_movement),
+      }));
       setObjectives(loaded);
       setSavedSnapshot(snapshotOf(loaded));
       setOriginalIds(data.map(o => o.id));
@@ -51,45 +43,22 @@ export default function ObjectivesTab({ userId }) {
     });
   }, [userId]);
 
-  const addObjective = () => {
-    setObjectives(prev => [...prev, {
-      _local: true,
-      type: 'hypertrophy',
-      zone: 'full_body',
-      priority: prev.length === 0 ? 'primary' : 'secondary',
-      status: 'active',
-      focus_group: '',
-      focus_movement: '',
-    }]);
-  };
-
-  const updateObj = (idx, field, value) => {
-    setObjectives(prev => prev.map((o, i) => i === idx ? { ...o, [field]: value } : o));
-  };
-
-  const removeObj = async (idx) => {
-    const obj = objectives[idx];
-    if (obj.id) {
-      if (!ensureOnline()) return;
-      await base44.entities.Objective.delete(obj.id);
-    }
-    let remaining = objectives.filter((_, i) => i !== idx);
-    // S'il ne reste qu'un seul objectif, le forcer en "primary"
-    let priorityForced = false;
-    if (remaining.length === 1 && remaining[0].priority !== 'primary') {
-      remaining = [{ ...remaining[0], priority: 'primary' }];
-      priorityForced = true;
-    }
-    setObjectives(remaining);
-    // La suppression est déjà persistée → si aucun changement de priorité à enregistrer,
-    // on recale l'instantané pour que "Sauvegarder" reste désactivé.
-    if (!priorityForced) setSavedSnapshot(snapshotOf(remaining));
-  };
-
+  // L'ajout, la modification et le retrait d'un objectif sont désormais gérés par
+  // StepObjectives (le même écran que l'onboarding) ; il nous renvoie la liste
+  // complète. Le retrait n'est répercuté en base qu'à l'enregistrement, ce qui
+  // permet d'annuler en quittant l'onglet sans sauvegarder.
   const save = async () => {
     if (!ensureOnline()) return;
     setSaving(true);
     try {
+      // Suppressions : StepObjectives retire l'objectif de la LISTE (il ne connaît
+      // pas la base). On répercute donc ici ce qui a disparu depuis le chargement.
+      const idsRestants = new Set(objectives.map((o) => o.id).filter(Boolean));
+      for (const id of originalIds) {
+        if (!idsRestants.has(id)) await base44.entities.Objective.delete(id);
+      }
+      setOriginalIds([...idsRestants]);
+
       for (const obj of objectives) {
         const { _local, id, created_date, updated_date, created_by, ...fields } = obj;
         if (Array.isArray(fields.focus_group)) fields.focus_group = fields.focus_group.join(', ');
@@ -117,140 +86,14 @@ export default function ObjectivesTab({ userId }) {
 
   return (
     <div className="space-y-4 mt-4">
-      {objectives.map((obj, idx) => (
-        <div key={idx} className="p-4 bg-white/10 rounded-xl border border-white/20 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              {objectives.length > 1 ? (
-                <button type="button"
-                  onClick={() => updateObj(idx, 'priority', obj.priority === 'primary' ? 'secondary' : 'primary')}
-                  className={cn(
-                    'flex items-center gap-1 text-xs font-bold uppercase px-2.5 py-1 rounded-full transition-colors',
-                    obj.priority === 'primary' ? 'bg-white/30 text-white hover:bg-white/40' : 'bg-white/10 text-white/60 hover:bg-white/20'
-                  )}>
-                  {obj.priority === 'primary' ? '🎯 Focus principal' : '📌 Focus secondaire'}
-                  <ChevronDown className="w-3 h-3 opacity-60" />
-                </button>
-              ) : (
-                <span className="text-xs font-bold uppercase px-2.5 py-1 rounded-full bg-white/30 text-white">
-                  Objectif
-                </span>
-              )}
-              {objectives.length > 1 && (
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button type="button" className="text-white/40 hover:text-white/70 transition-colors">
-                      <HelpCircle className="w-3.5 h-3.5" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-72 text-xs space-y-2">
-                    <p className="text-white/60 text-[10px] uppercase tracking-wider font-semibold">Clique sur le badge pour basculer</p>
-                    <div>
-                      <p className="font-semibold">🎯 Focus principal</p>
-                      <p className="text-white/70 mt-0.5">Objectif central, progression plus rapide. Tu peux en avoir plusieurs s'ils ont la même importance pour toi.</p>
-                    </div>
-                    <div>
-                      <p className="font-semibold">📌 Focus secondaire</p>
-                      <p className="text-white/70 mt-0.5">Objectif d'appoint, en complément. Un focus principal aura toujours plus de volume qu'un secondaire.</p>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              )}
-            </div>
-            <Button variant="ghost" size="icon" onClick={() => removeObj(idx)} className="h-8 w-8 hover:bg-red-500/20">
-              <Trash2 className="w-4 h-4 text-red-300" />
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs text-white">Type</Label>
-              <Select value={obj.type} onValueChange={(v) => updateObj(idx, 'type', v)}>
-                <SelectTrigger className="h-9 bg-white/10 border-white/20 text-white"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs text-white">Zone</Label>
-              <Select value={obj.zone} onValueChange={(v) => updateObj(idx, 'zone', v)}>
-                <SelectTrigger className="h-9 bg-white/10 border-white/20 text-white"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {ZONES.map(z => <SelectItem key={z.value} value={z.value}>{z.label}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-
-
-            <div className="space-y-1.5">
-              <Label className="text-xs text-white">Statut</Label>
-              <Select value={obj.status || 'active'} onValueChange={(v) => updateObj(idx, 'status', v)}>
-                <SelectTrigger className="h-9 bg-white/10 border-white/20 text-white"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="active">Actif</SelectItem>
-                  <SelectItem value="completed">Complété</SelectItem>
-                  <SelectItem value="abandoned">Abandonné</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {obj.zone === 'specific_group' && (
-              <div className="col-span-2 space-y-2">
-                <Label className="text-xs text-white">Groupes musculaires</Label>
-                <div className="flex flex-wrap gap-2">
-                  {GROUPS.map(g => {
-                    const base = Array.isArray(obj.focus_group) ? obj.focus_group : GROUPS;
-                    const isChecked = base.includes(g);
-                    return (
-                      <button
-                        key={g}
-                        type="button"
-                        onClick={() => {
-                          const next = isChecked ? base.filter(x => x !== g) : [...base, g];
-                          updateObj(idx, 'focus_group', next);
-                        }}
-                        className={cn(
-                          'px-3 py-1.5 rounded-lg text-xs font-medium border transition-all',
-                          isChecked ? 'bg-white/30 text-white border-white/40' : 'bg-white/10 text-white/40 border-white/20 line-through'
-                        )}
-                      >
-                        {g}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {obj.type === 'strength' && (
-            <div className="space-y-1.5">
-              <Label className="text-xs text-white">Mouvement focus (optionnel)</Label>
-              <Input
-                placeholder="Ex : squat, bench press..."
-                value={obj.focus_movement || ''}
-                onChange={(e) => updateObj(idx, 'focus_movement', e.target.value)}
-                className="h-9 bg-white/10 border-white/20 text-white placeholder:text-white/30"
-              />
-            </div>
-          )}
-        </div>
-      ))}
-
-      {objectives.length < 3 ? (
-        <Button variant="outline" onClick={addObjective} className="w-full border-white/30 text-white hover:bg-white/10 hover:text-white">
-          <Plus className="w-4 h-4 mr-2" />
-          Ajouter un objectif {objectives.length > 0 && <span className="ml-1 opacity-60">({objectives.length}/3)</span>}
-        </Button>
-      ) : (
-        <div className="text-center py-3 px-4 rounded-xl bg-white/5 border border-white/10">
-          <p className="text-xs text-white/60">
-            <span className="font-semibold text-white">3 objectifs maximum</span> — au-delà, le programme manquerait de focus et chaque objectif progresserait moins.
-          </p>
-        </div>
-      )}
+      {/* MÊME interface que l'onboarding : le Profil n'a plus sa propre version
+          (champ texte libre pour les mouvements, zone sans explication…). Ici on
+          ne garde que la persistance ; la saisie est celle de StepObjectives. */}
+      <StepObjectives
+        hideHeader
+        data={{ objectives, level }}
+        onChange={(fields) => { if (fields.objectives) setObjectives(fields.objectives); }}
+      />
 
       {isDirty && (
         <button onClick={save} disabled={saving} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm bg-white text-violet-700 hover:bg-white/90 shadow transition-all disabled:opacity-50">

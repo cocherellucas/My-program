@@ -469,7 +469,7 @@ export default function Profile() {
         </TabsContent>
 
         <TabsContent value="objectives">
-          <ObjectivesTab userId={user?.id} />
+          <ObjectivesTab userId={user?.id} level={user?.level} />
         </TabsContent>
 
         <TabsContent value="preferences">
