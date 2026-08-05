@@ -1002,7 +1002,11 @@ function rotateLeadIfSafe(exercises) {
 // alors en HAUT/BAS en alternance : chaque journée prend une moitié du corps, ce
 // qui rend 48 h de récupération à chaque muscle SANS toucher au volume
 // hebdomadaire (on redistribue, on n'enlève rien).
-function splitConsecutiveSessions(sessions, days) {
+// `parite` inverse l'attribution haut/bas d'une semaine sur l'autre. Sur un
+// nombre IMPAIR de séances (haut/bas/haut), sans ça le haut serait travaillé 2×
+// par semaine et le bas 1× — indéfiniment. En alternant, chaque moitié tourne à
+// 1,5 séance par semaine en moyenne.
+function splitConsecutiveSessions(sessions, days, parite = 0) {
   if (sessions.length < 2 || !days?.length) return sessions;
   const dayIdx = sessions.map((_, i) => DAY_ORDER.indexOf(days[i % days.length]));
   const gapEntre = (i, j) => {
@@ -1054,7 +1058,7 @@ function splitConsecutiveSessions(sessions, days) {
   //    muscles), on redistribue en haut/bas.
   const ordre = sessions.map((_, i) => i).sort((a, b) => dayIdx[a] - dayIdx[b]);
   const zoneDe = {};
-  ordre.forEach((i, rang) => { zoneDe[i] = rang % 2 === 0 ? 'upper' : 'lower'; });
+  ordre.forEach((i, rang) => { zoneDe[i] = (rang + parite) % 2 === 0 ? 'upper' : 'lower'; });
 
   // Regroupe le volume de la semaine par exercice (les séances corps entier
   // répètent les mêmes mouvements : on les fusionne au lieu de les dupliquer).
@@ -1115,7 +1119,7 @@ function splitConsecutiveSessions(sessions, days) {
 
 // Applique rotation + rognage aux séances d'un programme, une fois les jours
 // attribués (le temps dispo dépend du jour). Retourne de NOUVELLES séances.
-function shapeSessions(program, user, objectives, days) {
+function shapeSessions(program, user, objectives, days, parite = 0) {
   const objRank = muscleObjectiveRank(objectives);
   const durations = user?.duration_per_day || {};
   const noTimeLimit = user?.availability_optimal === true;
@@ -1123,7 +1127,7 @@ function shapeSessions(program, user, objectives, days) {
   const variantSeen = {};
 
   // Jours qui se suivent + mêmes muscles → bascule en haut/bas (voir plus haut).
-  const base = splitConsecutiveSessions(program.sessions, days);
+  const base = splitConsecutiveSessions(program.sessions, days, parite);
 
   return base.map((s, i) => {
     let exercises = s.exercises;
@@ -1231,9 +1235,17 @@ export async function buildActivationResult(user, objectives) {
   const programLimite = p.sessions.length > days.length
     ? { ...p, sessions: p.sessions.slice(0, days.length) }
     : p;
-  const shaped = shapeSessions(programLimite, user, objectives, days);
+  // Deux variantes : une semaine sur deux, l'attribution haut/bas s'inverse. Sur
+  // un nombre impair de séances, cela évite qu'une moitié du corps soit toujours
+  // travaillée deux fois et l'autre une seule. Quand aucune bascule n'a eu lieu,
+  // les deux variantes sont identiques et rien ne change.
+  const shapedParite = [
+    shapeSessions(programLimite, user, objectives, days, 0),
+    shapeSessions(programLimite, user, objectives, days, 1),
+  ];
   const sessions = [];
   for (let w = 1; w <= initialWeeks; w++) {
+    const shaped = shapedParite[(w - 1) % 2];
     shaped.forEach((s, i) => {
       sessions.push({
         week: w,
