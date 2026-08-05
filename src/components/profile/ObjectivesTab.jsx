@@ -8,7 +8,7 @@ import { ensureOnline } from '@/lib/net';
 // mouvements, zone vide sans explication…). Ici on ne garde que la persistance.
 import StepObjectives from '@/components/onboarding/StepObjectives';
 
-export default function ObjectivesTab({ userId, level }) {
+export default function ObjectivesTab({ userId, level, onProgramImpact }) {
   const [objectives, setObjectives] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -72,6 +72,15 @@ export default function ObjectivesTab({ userId, level }) {
           await base44.entities.Objective.create(fields);
         }
       }
+      // Les objectifs sont LE premier facteur de génération, mais ils vivent dans
+      // une autre table que le profil : le contrôle d'obsolescence de Profile.jsx
+      // ne les voyait pas. On signale donc nous-mêmes que le programme ne
+      // correspond plus — uniquement si quelque chose a réellement changé.
+      if (isDirty && localStorage.getItem('program_generated_snapshot')) {
+        try { localStorage.setItem('pending_program_regen', JSON.stringify({ timestamp: Date.now() })); } catch {}
+        onProgramImpact?.();
+      }
+
       setSavedSnapshot(snapshotOf(objectives));
       toast.success('Objectifs mis à jour');
     } catch (e) {

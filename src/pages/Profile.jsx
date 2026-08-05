@@ -17,11 +17,22 @@ import { Calendar as CalendarPicker } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { fr as frLocale } from 'date-fns/locale';
 
-// Champs dont le changement nécessite une régénération du programme
+// Champs dont le changement rend le programme obsolète. Liste alignée sur ce que
+// `program-activation.js` lit RÉELLEMENT — ni plus, ni moins :
+//   • trop large → l'app réclamait une régénération pour des réglages sans effet
+//     (zones fragiles, exercices préférés/évités, peaking… qui ne sont pas lus) ;
+//   • trop étroite → elle ratait `training_context` (salle ↔ poids du corps, qui
+//     change de catalogue !) et `availability_optimal`.
+// Les OBJECTIFS comptent aussi, mais ils vivent dans une autre table : c'est
+// ObjectivesTab qui signale leur modification.
 const PROGRAM_IMPACTING_FIELDS = [
-  'available_days', 'duration_per_day', 'frequency_min', 'frequency_max',
-  'equipment', 'level', 'fragile_zones', 'preferred_exercises', 'disliked_exercises',
-  'no_volume_muscles', 'peaking_enabled',
+  'level',
+  'training_context',
+  'equipment',
+  'availability_optimal',
+  'available_days',
+  'duration_per_day',
+  'frequency_max',
 ];
 import StepPreferences from '@/components/onboarding/StepPreferences';
 import { toast } from 'sonner';
@@ -469,7 +480,7 @@ export default function Profile() {
         </TabsContent>
 
         <TabsContent value="objectives">
-          <ObjectivesTab userId={user?.id} level={user?.level} />
+          <ObjectivesTab userId={user?.id} level={user?.level} onProgramImpact={() => setShowRegenBanner(true)} />
         </TabsContent>
 
         <TabsContent value="preferences">
