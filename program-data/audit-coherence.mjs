@@ -7,6 +7,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { buildActivationResult, verifierBudgetTemps } from '../src/lib/program-activation.js';
 import { EXERCISES } from '../src/lib/exercise-database.js';
+import { equipementPossede, exerciceFaisable } from '../src/lib/equipment.js';
 
 const canon = new Set(EXERCISES.map((e) => e.name.toLowerCase()));
 const UPPER = ['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Abdominaux'];
@@ -118,13 +119,13 @@ for (let iter = 0; iter < N; iter++) {
     }
 
     // Matériel : chaque exercice doit être faisable avec ce qui est déclaré.
+    // On passe par le MÊME helper que l'app (équivalences de vocabulaire
+    // comprises), sinon l'audit mesurerait une autre règle que la génération.
+    const possede = equipementPossede(salle ? GYM : BW);
     for (const x of s.exercises) {
       const e = EXERCISES.find((y) => y.name.toLowerCase() === String(x.name).toLowerCase());
       if (!e) continue;
-      const dispo = salle ? GYM : BW;
-      const ok = !e.equipmentOptions?.length
-        || e.equipmentOptions.some((opt) => opt.every((i) => dispo.includes(i)));
-      if (!ok) flag('exercice infaisable avec le matériel', `${ou} — ${x.name}`);
+      if (!exerciceFaisable(e, possede)) flag('exercice infaisable avec le matériel', `${ou} — ${x.name}`);
     }
 
     // Un jour ne doit jamais porter deux séances.

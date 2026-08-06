@@ -30,6 +30,7 @@ import { devNow } from '@/lib/dev-time';
 import { useI18n } from '@/lib/i18n';
 import { applyPainLevel } from '@/lib/pain-adjust';
 import { EXERCISES } from '@/lib/exercise-database';
+import { equipementPossede, exerciceFaisable } from '@/lib/equipment';
 
 const isBodyweightExercise = (name) => {
   const ex = EXERCISES.find(e => e.name?.toLowerCase() === name?.toLowerCase());
@@ -2168,15 +2169,16 @@ export default function SessionLog() {
       ? `\nDouleurs déjà signalées cette séance :\n${sessionPainsSoFar.map(e => `• ${e}`).join('\n')}\n`
       : '';
 
-    const userEquipment = Array.isArray(user?.equipment)
-      ? user.equipment
-      : (() => { try { return JSON.parse(user?.equipment || '[]'); } catch { return []; } })();
+    // Même vocabulaire matériel que la génération de programme (src/lib/equipment.js) :
+    // sinon les alternatives proposées ici et les exercices du programme ne
+    // reposent pas sur la même définition de « je possède ce matériel ».
+    const possede = equipementPossede(user?.equipment);
     const userLevel = user?.level || 'intermediate';
     const alternatives = EXERCISES.filter(e =>
       e.name !== exercise.name &&
       e.muscles?.primary?.includes(exercise.muscle_group) &&
       e.level?.includes(userLevel) &&
-      e.equipmentOptions?.some(opt => opt.every(item => userEquipment.includes(item)))
+      exerciceFaisable(e, possede)
     ).map(e => e.name);
     const altCtx = alternatives.length > 0
       ? `\nAlternatives disponibles (même muscle, équipement compatible) : ${alternatives.join(', ')}`

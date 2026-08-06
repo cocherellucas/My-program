@@ -32,6 +32,7 @@ import { EXERCISES } from './exercise-database';
 // TRAINING_PARAMS = séries/reps/repos par type d'objectif et par phase ;
 // SRA_WINDOWS = heures de récupération mini entre deux stimuli d'un même muscle.
 import { TRAINING_PARAMS, SRA_WINDOWS } from './coaching-engine';
+import { equipementPossede, exerciceFaisable } from './equipment';
 
 // Normalise en liste : tableau, OU chaîne "a, b, c" (format stocké en base pour
 // focus_group / focus_movement), OU vide. Le split gère les deux formes.
@@ -375,10 +376,8 @@ const objetsZoneMuscles = (objs) => {
 function completerAvecObjectifs(program, objectifs, user, days) {
   const level = user?.level || 'intermediate';
   const bands = VOLUME_BANDS[level] || VOLUME_BANDS.intermediate;
-  const userEquipment = Array.isArray(user?.equipment)
-    ? user.equipment
-    : (() => { try { return JSON.parse(user?.equipment || '[]'); } catch { return []; } })();
-  const canDo = (e) => !!e.equipmentOptions?.some((opt) => opt.every((i) => userEquipment.includes(i)));
+  const possede = equipementPossede(user?.equipment);
+  const canDo = (e) => exerciceFaisable(e, possede);
 
   const sessions = program.sessions.map((s) => ({ ...s, exercises: [...s.exercises] }));
   const jourDe = {};
@@ -755,10 +754,8 @@ function specializeProgram(program, focus, user, objectiveType = 'hypertrophy', 
   // Équipement de l'utilisateur (même parsing/filtre que SessionLog : un exo est
   // faisable si au moins une option de matériel est entièrement possédée ; les
   // exos au poids du corps ont une option vide → toujours faisables).
-  const userEquipment = Array.isArray(user?.equipment)
-    ? user.equipment
-    : (() => { try { return JSON.parse(user?.equipment || '[]'); } catch { return []; } })();
-  const canDo = (e) => !!e.equipmentOptions?.some((opt) => opt.every((item) => userEquipment.includes(item)));
+  const possede = equipementPossede(user?.equipment);
+  const canDo = (e) => exerciceFaisable(e, possede);
 
   // Cible de séries hebdo directes par muscle. N'est appelée QUE pour les muscles
   // ciblés : les autres sont retirés (brief §4bis, aucun travail dédié).
@@ -1371,10 +1368,8 @@ function splitConsecutiveSessions(sessions, days, parite = 0, prioritaire = null
   //     développé militaire — et bien mieux que 3 séries jetées.
   //  3. En dernier recours seulement (aucune isolation faisable avec le matériel
   //     déclaré), dépasser le plafond : garder le volume prime.
-  const userEquip = Array.isArray(user?.equipment)
-    ? user.equipment
-    : (() => { try { return JSON.parse(user?.equipment || '[]'); } catch { return []; } })();
-  const faisable = (e) => !!e.equipmentOptions?.some((opt) => opt.every((i) => userEquip.includes(i)));
+  const possede = equipementPossede(user?.equipment);
+  const faisable = (e) => exerciceFaisable(e, possede);
 
   for (const [idx, parMuscle] of Object.entries(reste)) {
     for (const [muscle, surplus] of Object.entries(parMuscle)) {
