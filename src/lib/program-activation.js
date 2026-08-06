@@ -431,9 +431,8 @@ function completerAvecObjectifs(program, objectifs, user, days) {
       if (manque <= 2) continue;
 
       const dejaLa = new Set(sessions.flatMap((s) => s.exercises.map((x) => String(x.name).toLowerCase())));
-      const dbM = DB_MUSCLE[M] || M;
       const pool = EXERCISES
-        .filter((e) => e.muscles?.primary?.includes(dbM) && e.level?.includes(level) && canDo(e) && !dejaLa.has(e.name.toLowerCase()))
+        .filter((e) => cibleMuscle(e, M) && e.level?.includes(level) && canDo(e) && !dejaLa.has(e.name.toLowerCase()))
         .sort((a, b) => (a.type === 'compound' ? 0 : 1) - (b.type === 'compound' ? 0 : 1));
 
       let ajoutes = 0;
@@ -670,9 +669,18 @@ function pickBaseProgram(catalog, user, type, zone, focusMuscles) {
   return null;
 }
 
-// Le muscle_group du catalogue/objectifs ('Pectoraux', 'Abdominaux') diffère du
-// nom dans la base d'exos ('Poitrine', 'Abdos'). Tables de conversion.
-const DB_MUSCLE = { Pectoraux: 'Poitrine', Abdominaux: 'Abdos' };
+// Le muscle_group du catalogue/objectifs ('Pectoraux', 'Abdominaux') ne porte pas
+// toujours le même nom dans la base d'exos. Tables de conversion.
+// ATTENTION : la base n'est pas homogène — elle contient 18 exercices 'Poitrine'
+// ET 2 'Pectoraux', 19 'Abdominaux' et AUCUN 'Abdos'. Traduire vers un seul nom
+// ne trouvait donc rien pour les abdos (0 exercice sur 19) et ratait 2 pectoraux.
+// On cherche désormais sur TOUS les noms possibles.
+const DB_MUSCLE_NAMES = {
+  Pectoraux: ['Pectoraux', 'Poitrine'],
+  Abdominaux: ['Abdominaux', 'Abdos'],
+};
+const dbMuscleNames = (m) => DB_MUSCLE_NAMES[m] || [m];
+const cibleMuscle = (e, m) => dbMuscleNames(m).some((n) => e.muscles?.primary?.includes(n));
 const APP_MUSCLE = { Poitrine: 'Pectoraux', Abdos: 'Abdominaux' };
 const appMuscle = (m) => APP_MUSCLE[m] || m;
 const REPS_BY_BLOCK = { A: '6-8', B: '8-12', C: '10-15' };
@@ -901,9 +909,8 @@ function specializeProgram(program, focus, user, objectiveType = 'hypertrophy', 
 
     // 2) Ajouter des exercices, en respectant les fenêtres de récupération.
     const used = new Set(built.flatMap((s) => s.exercises.map((x) => String(x.name).toLowerCase())));
-    const dbM = DB_MUSCLE[M] || M;
     const pool = EXERCISES
-      .filter((e) => e.muscles?.primary?.includes(dbM) && e.level?.includes(level) && canDo(e) && !used.has(e.name.toLowerCase()))
+      .filter((e) => cibleMuscle(e, M) && e.level?.includes(level) && canDo(e) && !used.has(e.name.toLowerCase()))
       .sort((a, b) => (a.type === 'compound' ? 0 : 1) - (b.type === 'compound' ? 0 : 1)); // composés d'abord
     let added = 0;
     for (const e of pool) {
@@ -1295,6 +1302,21 @@ function splitConsecutiveSessions(sessions, days, parite = 0, prioritaire = null
   const zoneDe = {};
   ordre.forEach((i, rang) => { zoneDe[i] = (rang + decalage) % 2 === 0 ? premiere : autre; });
 
+  // Une moitié ne peut pas remplir plus de séances qu'elle n'a de matière. Sur
+  // « force Épaules (primaire) + endurance bas du corps », le haut ne contient
+  // qu'un seul mouvement : la priorité lui donnait deux créneaux et la deuxième
+  // séance sortait VIDE. On mesure la matière en TRANCHES (un exercice de 12
+  // séries peut en remplir deux, un de 4 une seule) et on rend les créneaux en
+  // trop à l'autre moitié.
+  const capaciteDe = (z) => [...pool[z].values()]
+    .reduce((n, x) => n + Math.max(1, Math.ceil((x.sets || 0) / 6)), 0);
+  for (const z of ['upper', 'lower']) {
+    const autreZ = z === 'upper' ? 'lower' : 'upper';
+    const creneaux = ordre.filter((i) => zoneDe[i] === z);
+    const capacite = capaciteDe(z);
+    while (creneaux.length > capacite) zoneDe[creneaux.pop()] = autreZ;
+  }
+
   const cibles = {
     upper: ordre.filter((i) => zoneDe[i] === 'upper'),
     lower: ordre.filter((i) => zoneDe[i] === 'lower'),
@@ -1373,9 +1395,8 @@ function splitConsecutiveSessions(sessions, days, parite = 0, prioritaire = null
 
       // 2) Ajouter de l'isolation pour ce muscle.
       const dejaLa = new Set(seance.exercises.map((e) => String(e.name).toLowerCase()));
-      const dbM = DB_MUSCLE[muscle] || muscle;
       const isolations = EXERCISES.filter((e) => e.type !== 'compound'
-        && e.muscles?.primary?.includes(dbM)
+        && cibleMuscle(e, muscle)
         && (!user?.level || e.level?.includes(user.level))
         && faisable(e)
         && !dejaLa.has(e.name.toLowerCase()));
@@ -1398,16 +1419,27 @@ function splitConsecutiveSessions(sessions, days, parite = 0, prioritaire = null
     }
   }
 
+  // Filet de sécurité : une séance sans aucun exercice ne doit JAMAIS sortir
+  // d'ici, quelle qu'en soit la cause. Mieux vaut rendre une semaine plus courte
+  // qu'une journée vide dans le programme. Les libellés (A, B…) sont numérotés
+  // APRÈS ce filtrage, sinon il pouvait rester un « Haut du corps B » sans
+  // « Haut du corps A » visible.
+  const gardees = out.map((s, i) => ({ s, zone: zoneDe[i] })).filter(({ s }) => s.exercises.length);
+  if (!gardees.length) return reordonne;
+
   const rang = { A: 0, B: 1, C: 2 };
   const compte = {};
-  return out.map((s, i) => {
+  const totalParZone = gardees.reduce((acc, { zone }) => {
+    acc[zone] = (acc[zone] || 0) + 1;
+    return acc;
+  }, {});
+  return gardees.map(({ s, zone }) => {
     s.exercises.sort((a, b) => (rang[a.block] ?? 3) - (rang[b.block] ?? 3));
-    const titre = zoneDe[i] === 'lower' ? 'Bas du corps' : 'Haut du corps';
+    const titre = zone === 'lower' ? 'Bas du corps' : 'Haut du corps';
     compte[titre] = (compte[titre] || 0) + 1;
-    const total = out.filter((_, j) => zoneDe[j] === zoneDe[i]).length;
     return {
       ...s,
-      day_label: total > 1 ? `${titre} ${String.fromCharCode(64 + compte[titre])}` : titre,
+      day_label: totalParZone[zone] > 1 ? `${titre} ${String.fromCharCode(64 + compte[titre])}` : titre,
     };
   });
 }
