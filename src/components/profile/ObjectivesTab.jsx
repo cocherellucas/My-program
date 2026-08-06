@@ -3,12 +3,15 @@ import { base44 } from '@/api/base44Client';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ensureOnline } from '@/lib/net';
+import { useI18n } from '@/lib/i18n';
+import { messageBudgetTemps } from '@/lib/budget-temps';
 // L'onglet Objectifs du Profil réutilise l'ÉCRAN DE L'ONBOARDING au lieu d'en
 // maintenir une deuxième version (qui avait dérivé : champ texte libre pour les
 // mouvements, zone vide sans explication…). Ici on ne garde que la persistance.
 import StepObjectives from '@/components/onboarding/StepObjectives';
 
 export default function ObjectivesTab({ userId, level, onProgramImpact }) {
+  const { t } = useI18n();
   const [objectives, setObjectives] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -51,6 +54,18 @@ export default function ObjectivesTab({ userId, level, onProgramImpact }) {
     if (!ensureOnline()) return;
     setSaving(true);
     try {
+      // Même garde-fou qu'à l'onboarding, dans l'autre sens : ici ce sont les
+      // OBJECTIFS qui changent, pas la durée. Alourdir ses objectifs sans
+      // rallonger ses séances produirait un programme impossible à tenir dans le
+      // temps annoncé — on le dit avant d'enregistrer. (`toList` côté activation
+      // accepte aussi bien les listes que le texte séparé par des virgules.)
+      const moi = await base44.auth.me().catch(() => null);
+      const message = await messageBudgetTemps(moi, objectives, t);
+      if (message) {
+        toast.error(message, { duration: 8000 });
+        return;
+      }
+
       // Suppressions : StepObjectives retire l'objectif de la LISTE (il ne connaît
       // pas la base). On répercute donc ici ce qui a disparu depuis le chargement.
       const idsRestants = new Set(objectives.map((o) => o.id).filter(Boolean));

@@ -1057,12 +1057,14 @@ const exerciseMinutes = (x) => ((x.sets || 0) * ((x.rest_seconds || 90) + EXEC_S
 const sessionMinutes = (exercises) =>
   WARMUP_MINUTES + exercises.reduce((n, x) => n + exerciseMinutes(x), 0);
 
-// Fait rentrer une séance dans le temps disponible. On coupe l'ISOLATION d'abord
-// (bloc C avant B), en commençant par l'objectif le MOINS prioritaire ; les gros
-// polyarticulaires gardent leurs séries pleines (meilleur rapport résultat/temps,
-// et ils couvrent déjà tous les muscles). Jamais de blocage ni d'objectif
-// abandonné : on rend toujours une séance cohérente pour le temps donné.
-function fitSessionToDuration(exercises, availableMin, objRank) {
+// Fait rentrer une séance dans le temps disponible, dans cet ordre : (1) couper
+// l'ISOLATION (bloc C avant B), en commençant par l'objectif le MOINS
+// prioritaire ; (2) en dernier recours seulement, raccourcir le repos jusqu'au
+// minimum prévu par le projet ; (3) sinon alléger les polyarticulaires. Ils
+// gardent leurs séries pleines le plus longtemps possible (meilleur rapport
+// résultat/temps, et ils couvrent déjà tous les muscles). Jamais de blocage ni
+// d'objectif abandonné : on rend toujours une séance cohérente.
+function fitSessionToDuration(exercises, availableMin, objRank, typeParMuscle, typeDefaut) {
   if (!availableMin || availableMin <= 0) return exercises;
   let ex = exercises.map((x) => ({ ...x }));
   if (sessionMinutes(ex) <= availableMin) return exercises; // rentre déjà → intact
@@ -1086,8 +1088,26 @@ function fitSessionToDuration(exercises, availableMin, objRank) {
   }
   ex = ex.filter((x) => (x.sets || 0) > 0);
 
-  // 2) Dernier recours (temps très court) : alléger les polyarticulaires, en
-  //    gardant un plancher de 2 séries et au moins un exercice dans la séance.
+  // 2) DERNIER RECOURS uniquement (toute l'isolation y est déjà passée) :
+  //    raccourcir le repos, sans jamais descendre sous le minimum prévu par le
+  //    projet pour ce type d'effort (plus petit `rest` des phases dans
+  //    TRAINING_PARAMS : 120 s hypertrophie, 240 s force, 30 s endurance). On ne
+  //    fait que RÉDUIRE : un exercice déjà plus court garde son repos.
+  //    En hypertrophie ça sauve la séance (150 → 120 s : 34 min repassent à 30).
+  //    En force le gain est volontairement faible (270 → 240 s) : sur un lift
+  //    lourd le repos complet EST ce qui permet la charge, donc on préfère
+  //    perdre une série (étape 3) plutôt que bâcler la récupération.
+  if (sessionMinutes(ex) > availableMin) {
+    ex = ex.map((x) => {
+      const params = TRAINING_PARAMS[typeParMuscle?.[x.muscle_group] || typeDefaut];
+      if (!params) return x;
+      const mini = Math.min(...Object.values(params).map((ph) => ph.rest).filter(Boolean));
+      return (x.rest_seconds || 90) > mini ? { ...x, rest_seconds: mini } : x;
+    });
+  }
+
+  // 3) Vraiment trop court : alléger les polyarticulaires, en gardant un
+  //    plancher de 2 séries et au moins un exercice dans la séance.
   guard = 200;
   while (sessionMinutes(ex) > availableMin && guard-- > 0) {
     const cand = worst(ex.filter((x) => (x.sets || 0) > 2));
@@ -1147,19 +1167,48 @@ function rotateLeadIfSafe(exercises) {
 // nombre IMPAIR de séances (haut/bas/haut), sans ça le haut serait travaillé 2×
 // par semaine et le bas 1× — indéfiniment. En alternant, chaque moitié tourne à
 // 1,5 séance par semaine en moyenne.
-function splitConsecutiveSessions(sessions, days, parite = 0) {
+// Quelle moitié du corps est PRIORITAIRE ? Retourne 'upper', 'lower', ou null
+// si les deux sont à égalité (deux primaires, deux secondaires, ou un objectif
+// corps entier). Sert à décider si l'attribution haut/bas doit alterner d'une
+// semaine à l'autre — voir splitConsecutiveSessions.
+function zonePrioritaire(objectives) {
+  const rang = { upper: 9, lower: 9 }; // 0 = primaire, 1 = secondaire, 9 = absent
+  for (const o of objectives || []) {
+    const poids = o?.priority === 'secondary' ? 1 : 0;
+    for (const m of musclesOfObjective(o)) {
+      const z = MUSCLE_ZONE[m];
+      if (z) rang[z] = Math.min(rang[z], poids);
+    }
+  }
+  if (rang.upper === rang.lower) return null;
+  return rang.upper < rang.lower ? 'upper' : 'lower';
+}
+
+function splitConsecutiveSessions(sessions, days, parite = 0, prioritaire = null, user = null) {
   if (sessions.length < 2 || !days?.length) return sessions;
   const dayIdx = sessions.map((_, i) => DAY_ORDER.indexOf(days[i % days.length]));
   const gapEntre = (i, j) => {
     const d = Math.abs(dayIdx[i] - dayIdx[j]);
     return Math.min(d, 7 - d);
   };
+  // Les ABDOMINAUX sont exclus de la détection de conflit. Les programmes du
+  // catalogue en mettent volontairement dans CHAQUE séance (ils récupèrent vite,
+  // c'est la pratique courante). Les compter comme un chevauchement faisait
+  // conclure au conflit entre toutes les séances consécutives, y compris quand
+  // rien d'autre ne se répétait : un PPL (Poussée · Tirage · Jambes · Haut · Bas)
+  // était alors démonté en haut/bas, ce qui ramenait les pectoraux le lundi, le
+  // mercredi ET le vendredi — exactement ce que la bascule cherche à éviter.
+  // Le découpage sert à protéger la récupération des GROS groupes musculaires.
+  const musclesUtiles = (s) => new Set(
+    s.exercises.map((x) => x.muscle_group).filter((m) => m !== 'Abdominaux')
+  );
+
   let conflit = false;
   for (let i = 0; i < sessions.length && !conflit; i++) {
     for (let j = i + 1; j < sessions.length && !conflit; j++) {
       if (gapEntre(i, j) >= 2) continue;
-      const mi = new Set(sessions[i].exercises.map((x) => x.muscle_group));
-      if (sessions[j].exercises.some((x) => mi.has(x.muscle_group))) conflit = true;
+      const mi = musclesUtiles(sessions[i]);
+      if ([...musclesUtiles(sessions[j])].some((m) => mi.has(m))) conflit = true;
     }
   }
   if (!conflit) return sessions;
@@ -1168,7 +1217,7 @@ function splitConsecutiveSessions(sessions, days, parite = 0) {
   //    déjà en haut/bas, il suffit d'alterner pour que deux jours collés ne
   //    retombent pas sur les mêmes muscles. On ne touche alors à rien d'autre.
   const creneaux = sessions.map((_, i) => i).sort((a, b) => dayIdx[a] - dayIdx[b]);
-  const musclesDe = (s) => new Set(s.exercises.map((x) => x.muscle_group));
+  const musclesDe = musclesUtiles; // même règle : les abdos ne comptent pas
   const restants = sessions.map((_, i) => i);
   const place = [];
   while (restants.length) {
@@ -1191,15 +1240,13 @@ function splitConsecutiveSessions(sessions, days, parite = 0) {
   for (let k = 0; k < reordonne.length - 1 && !resteConflit; k++) {
     if (gapEntre(creneaux[k], creneaux[k + 1]) >= 2) continue;
     const ma = musclesDe(reordonne[k]);
-    if (reordonne[k + 1].exercises.some((x) => ma.has(x.muscle_group))) resteConflit = true;
+    if ([...musclesDe(reordonne[k + 1])].some((m) => ma.has(m))) resteConflit = true;
   }
   if (!resteConflit) return reordonne;
 
   // 2) Sinon seulement (vrai corps entier : toutes les séances partagent les mêmes
   //    muscles), on redistribue en haut/bas.
   const ordre = sessions.map((_, i) => i).sort((a, b) => dayIdx[a] - dayIdx[b]);
-  const zoneDe = {};
-  ordre.forEach((i, rang) => { zoneDe[i] = (rang + parite) % 2 === 0 ? 'upper' : 'lower'; });
 
   // Regroupe le volume de la semaine par exercice (les séances corps entier
   // répètent les mêmes mouvements : on les fusionne au lieu de les dupliquer).
@@ -1223,11 +1270,37 @@ function splitConsecutiveSessions(sessions, days, parite = 0) {
   // programme, et le message d'honnêteté sur le budget le couvre déjà.
   if (!pool.upper.size || !pool.lower.size) return reordonne;
 
+  // Attribution des créneaux aux deux moitiés du corps.
+  //
+  // Sur un nombre IMPAIR de séances, une moitié en reçoit une de plus — et sur
+  // 3 jours, celle qui n'en a qu'une doit absorber tout son volume hebdo dans la
+  // journée. La décision dépend donc de ce que l'utilisateur a demandé :
+  //
+  //  • OBJECTIFS À ÉGALITÉ (deux primaires, deux secondaires, ou un objectif
+  //    corps entier) : rien ne justifie de servir toujours la même moitié deux
+  //    fois. On ALTERNE d'une semaine à l'autre (`parite`) — haut/bas/haut puis
+  //    bas/haut/bas. La semaine 1 donne le créneau en plus à la moitié la plus
+  //    chargée, pour que la semaine la plus lourde soit aussi la mieux étalée.
+  //
+  //  • UNE MOITIÉ PRIORITAIRE : surtout pas d'alternance. Le volume, lui, ne
+  //    bascule pas — il suit l'objectif. Alterner revenait à entasser tout le
+  //    volume du primaire dans une seule séance une semaine sur deux (mesuré :
+  //    16 exercices et 60 séries le même jour, pendant que le secondaire
+  //    s'étalait sur deux séances de 20 séries). La moitié prioritaire garde donc
+  //    sa séance supplémentaire toutes les semaines.
+  const seriesDe = (z) => [...pool[z].values()].reduce((n, x) => n + (x.sets || 0), 0);
+  const premiere = prioritaire || (seriesDe('lower') > seriesDe('upper') ? 'lower' : 'upper');
+  const autre = premiere === 'upper' ? 'lower' : 'upper';
+  const decalage = prioritaire ? 0 : parite;
+  const zoneDe = {};
+  ordre.forEach((i, rang) => { zoneDe[i] = (rang + decalage) % 2 === 0 ? premiere : autre; });
+
   const cibles = {
     upper: ordre.filter((i) => zoneDe[i] === 'upper'),
     lower: ordre.filter((i) => zoneDe[i] === 'lower'),
   };
   const out = sessions.map((s) => ({ ...s, exercises: [] }));
+  const reste = {}; // séance → muscle → séries en attente de report (voir plus bas)
   for (const z of ['upper', 'lower']) {
     const dest = cibles[z].length ? cibles[z] : ordre;
     let tour = 0;
@@ -1240,12 +1313,88 @@ function splitConsecutiveSessions(sessions, days, parite = 0) {
       const tranches = Math.min(dest.length, Math.max(1, Math.ceil(total / 6)));
       const base = Math.floor(total / tranches);
       let bonus = total - base * tranches;
+      // Le plafond de 6 séries par exercice et par séance est volontaire (au-delà,
+      // les séries suivantes n'apportent plus grand-chose sur le MÊME mouvement).
+      // Mais quand une moitié du corps a moins de créneaux qu'il n'en faudrait,
+      // tout son volume hebdo doit tenir dans ce qui reste : le surplus était
+      // alors purement SUPPRIMÉ (mesuré : soulevé de terre 8 séries/sem → 6,
+      // développé militaire 9 → 6). On le met en attente pour le reporter sur un
+      // AUTRE exercice du même muscle, ou sur une isolation ajoutée (voir plus
+      // bas) — ce que ferait n'importe quel coach : 6 séries de soulevé + 2 de
+      // leg curl, plutôt que 8 de soulevé ou 6 tout court.
+      // Le report est comptabilisé TRANCHE PAR TRANCHE : quand plusieurs séances
+      // sont plafonnées, chacune récupère sa part, au lieu de tout empiler sur la
+      // première.
       for (let k = 0; k < tranches; k++) {
-        const part = Math.min(6, base + (bonus > 0 ? 1 : 0)) || 1;
+        const voulu = base + (bonus > 0 ? 1 : 0);
         if (bonus > 0) bonus--;
-        out[dest[(tour + k) % dest.length]].exercises.push({ ...x, sets: part });
+        const part = Math.min(6, voulu) || 1;
+        const cible = dest[(tour + k) % dest.length];
+        out[cible].exercises.push({ ...x, sets: part });
+        if (voulu > part) {
+          reste[cible] = reste[cible] || {};
+          reste[cible][x.muscle_group] = (reste[cible][x.muscle_group] || 0) + (voulu - part);
+        }
       }
       tour++;
+    }
+  }
+
+  // Report du surplus, en trois temps — jamais en empilant sur un seul geste :
+  //  1. Compléter les AUTRES exercices du même muscle déjà dans la séance, sans
+  //     dépasser le plafond de 6.
+  //  2. Sinon AJOUTER une isolation pour ce muscle (certains n'ont qu'un seul
+  //     mouvement dans le programme : épaules, biceps…). 6 séries de développé
+  //     militaire + 3 d'élévations latérales valent mieux que 9 séries de
+  //     développé militaire — et bien mieux que 3 séries jetées.
+  //  3. En dernier recours seulement (aucune isolation faisable avec le matériel
+  //     déclaré), dépasser le plafond : garder le volume prime.
+  const userEquip = Array.isArray(user?.equipment)
+    ? user.equipment
+    : (() => { try { return JSON.parse(user?.equipment || '[]'); } catch { return []; } })();
+  const faisable = (e) => !!e.equipmentOptions?.some((opt) => opt.every((i) => userEquip.includes(i)));
+
+  for (const [idx, parMuscle] of Object.entries(reste)) {
+    for (const [muscle, surplus] of Object.entries(parMuscle)) {
+      let restant = surplus;
+      const seance = out[idx];
+      const memeMuscle = () => seance.exercises.filter((e) => e.muscle_group === muscle);
+      if (!memeMuscle().length) continue;
+
+      // 1) Répartir sur l'existant, les moins chargés d'abord.
+      while (restant > 0) {
+        const e = memeMuscle().filter((c) => (c.sets || 0) < 6)
+          .sort((a, b) => (a.sets || 0) - (b.sets || 0))[0];
+        if (!e) break;
+        e.sets = (e.sets || 0) + 1;
+        restant--;
+      }
+      if (restant <= 0) continue;
+
+      // 2) Ajouter de l'isolation pour ce muscle.
+      const dejaLa = new Set(seance.exercises.map((e) => String(e.name).toLowerCase()));
+      const dbM = DB_MUSCLE[muscle] || muscle;
+      const isolations = EXERCISES.filter((e) => e.type !== 'compound'
+        && e.muscles?.primary?.includes(dbM)
+        && (!user?.level || e.level?.includes(user.level))
+        && faisable(e)
+        && !dejaLa.has(e.name.toLowerCase()));
+      const typeSeance = seance.type || 'hypertrophy';
+      for (const e of isolations) {
+        if (restant <= 0) break;
+        const sets = Math.min(6, restant);
+        seance.exercises.push(makeExercise(e, muscle, sets, typeSeance));
+        restant -= sets;
+      }
+      if (restant <= 0) continue;
+
+      // 3) Rien de faisable : on empile plutôt que de perdre le volume.
+      while (restant > 0) {
+        const e = memeMuscle().sort((a, b) => (a.sets || 0) - (b.sets || 0))[0];
+        if (!e) break;
+        e.sets = (e.sets || 0) + 1;
+        restant--;
+      }
     }
   }
 
@@ -1290,7 +1439,7 @@ function shapeSessions(program, user, objectives, days, parite = 0) {
   const variantSeen = {};
 
   // Jours qui se suivent + mêmes muscles → bascule en haut/bas (voir plus haut).
-  const base = splitConsecutiveSessions(program.sessions, days, parite);
+  const base = splitConsecutiveSessions(program.sessions, days, parite, zonePrioritaire(objectives), user);
 
   return base.map((s, i) => {
     let exercises = s.exercises;
@@ -1302,7 +1451,7 @@ function shapeSessions(program, user, objectives, days, parite = 0) {
     if (!noTimeLimit) {
       const day = days[i % days.length];
       const available = Number(durations[day]) || 0;
-      exercises = fitSessionToDuration(exercises, available, objRank);
+      exercises = fitSessionToDuration(exercises, available, objRank, typeParMuscle, s.type);
     }
 
     const type = typeDeSeance(exercises, s.type);
@@ -1456,4 +1605,51 @@ export async function buildActivationResult(user, objectives) {
     matched_program_name: p.name,
     specialized: specialized || undefined,
   };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GARDE-FOU TEMPS
+// Certains couples (objectif × temps annoncé) sont matériellement impossibles :
+// un objectif de FORCE demande 240 s de repos par série (TRAINING_PARAMS), donc
+// même réduite au strict minimum une séance ne rentre pas en 30 min. Le rognage
+// (fitSessionToDuration) a déjà tout donné à ce stade : ce qui dépasse encore ne
+// peut être supprimé qu'en descendant sous le volume minimum efficace — la
+// séance rentrerait dans le créneau mais ne ferait plus progresser.
+// On prévient donc l'utilisateur AVANT, là où il peut encore changer sa durée ou
+// ajouter un jour, plutôt que de lui livrer un programme qui ne tient pas ses
+// promesses.
+// On rejoue la vraie activation : aucune estimation, aucun chiffre en double.
+export async function verifierBudgetTemps(user, objectives) {
+  if (!user || user.availability_optimal === true) return { ok: true, problemes: [] };
+  const durations = user.duration_per_day || {};
+  if (!Object.keys(durations).length) return { ok: true, problemes: [] };
+
+  let result = null;
+  try {
+    result = await buildActivationResult(user, objectives);
+  } catch {
+    return { ok: true, problemes: [] }; // jamais bloquer sur une erreur technique
+  }
+  if (!result) return { ok: true, problemes: [] }; // pas de programme → autre sujet
+
+  const problemes = [];
+  for (const s of result.sessions) {
+    if (s.week !== 1) continue;
+    const annonce = Number(durations[s.day]) || 0;
+    if (!annonce || !s.exercises?.length) continue;
+    const requis = sessionMinutes(s.exercises);
+    // TOLÉRANCE = la durée d'UNE série de cette séance. En dessous, l'écart est
+    // dans le bruit du modèle (échauffement forfaitaire, 40 s d'exécution par
+    // série en moyenne) : il n'y a rien à corriger, et bloquer 45 min pour 46 min
+    // demandées obligerait à passer au palier suivant (60 min) pour une minute.
+    // Au-delà d'une série, l'écart est réel : il faudrait retirer du volume que
+    // le rognage a déjà refusé d'enlever (on serait sous le minimum efficace).
+    const uneSerie = Math.min(
+      ...s.exercises.map((x) => ((x.rest_seconds || 90) + EXEC_SECONDS_PER_SET) / 60)
+    );
+    if (requis > annonce + uneSerie) {
+      problemes.push({ jour: s.day, requis: Math.round(requis), annonce });
+    }
+  }
+  return { ok: problemes.length === 0, problemes };
 }

@@ -40,6 +40,7 @@ import StepMeasurements from '@/components/onboarding/StepMeasurements';
 import StepEquipment from '@/components/onboarding/StepEquipment';
 import StepAvailability from '@/components/onboarding/StepAvailability';
 import ObjectivesTab from '@/components/profile/ObjectivesTab';
+import { messageBudgetTemps } from '@/lib/budget-temps';
 import SubscriptionBadge from '@/components/profile/SubscriptionBadge';
 
 export default function Profile() {
@@ -103,6 +104,26 @@ export default function Profile() {
   }, [user, authUser]);
 
   const save = async () => {
+    // Temps annoncé incompatible avec les objectifs → on bloque, comme à
+    // l'onboarding. Sans ce contrôle, raccourcir ses séances depuis le profil
+    // produisait un programme qui ne tient pas dans le créneau, découvert
+    // seulement à la régénération. Voir `verifierBudgetTemps`.
+    // UNIQUEMENT si l'utilisateur touche à ces champs-là : sinon quelqu'un déjà
+    // en situation limite ne pourrait plus rien enregistrer d'autre (son poids,
+    // ses mensurations…), ce qui n'a rien à voir.
+    const toucheAuTemps = ['available_days', 'duration_per_day', 'availability_optimal']
+      .some((f) => JSON.stringify(form[f]) !== JSON.stringify(user?.[f]));
+    if (toucheAuTemps) {
+      const objectifs = await base44.entities.Objective
+        .filter({ status: 'active' })
+        .catch(() => null);
+      const message = await messageBudgetTemps(form, objectifs, t);
+      if (message) {
+        toast.error(message, { duration: 8000 });
+        setActiveTab('availability');
+        return;
+      }
+    }
     // Suivi de cycle activé sans date → on bloque LA SAUVEGARDE (uniquement ce cas) :
     // sinon le suivi serait enregistré inerte, sans que les conseils puissent démarrer.
     // Exception : sous contraception hormonale la date ne sert pas (pas de conseils de phase).

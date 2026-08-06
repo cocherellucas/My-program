@@ -276,6 +276,16 @@ const DICT = {
     mo_anterior: 'Penché en avant', mo_neutral: 'Neutre', mo_posterior: 'Penché en arrière',
     // StepAvailability
     av_mon: 'Lun', av_tue: 'Mar', av_wed: 'Mer', av_thu: 'Jeu', av_fri: 'Ven', av_sat: 'Sam', av_sun: 'Dim',
+    // Noms complets : les abrégés ci-dessus vont dans les boutons, ceux-ci dans
+    // les phrases (« ta séance du mercredi »).
+    dayfull_monday: 'lundi', dayfull_tuesday: 'mardi', dayfull_wednesday: 'mercredi',
+    dayfull_thursday: 'jeudi', dayfull_friday: 'vendredi', dayfull_saturday: 'samedi',
+    dayfull_sunday: 'dimanche',
+    list_and: 'et',
+    // Garde-fou temps (onboarding + profil) : objectif matériellement impossible
+    // à tenir dans la durée annoncée.
+    err_time_one: 'Ta séance du {jours} demande au moins {requis} min, tu as annoncé {annonce} min. En dessous, il ne resterait plus assez de séries pour progresser. Allonge-la, ajoute un jour, ou allège tes objectifs.',
+    err_time_many: 'Tes séances du {jours} demandent au moins {requis} min, tu as annoncé {annonce} min. En dessous, il ne resterait plus assez de séries pour progresser. Allonge-les, ajoute un jour, ou allège tes objectifs.',
     av_title: 'Tes disponibilités', av_sub: "Quand peux-tu t'entraîner ?", av_required: 'sont obligatoires',
     av_optimal: 'Disponibilités optimales',
     av_optimal_yes: "tu n'as pas de contrainte particulière. Le programme sera construit pour maximiser ta progression, quel que soit ton objectif.",
@@ -628,6 +638,12 @@ const DICT = {
     mo_anterior: 'Leaning forward', mo_neutral: 'Neutral', mo_posterior: 'Leaning back',
     // StepAvailability
     av_mon: 'Mon', av_tue: 'Tue', av_wed: 'Wed', av_thu: 'Thu', av_fri: 'Fri', av_sat: 'Sat', av_sun: 'Sun',
+    dayfull_monday: 'Monday', dayfull_tuesday: 'Tuesday', dayfull_wednesday: 'Wednesday',
+    dayfull_thursday: 'Thursday', dayfull_friday: 'Friday', dayfull_saturday: 'Saturday',
+    dayfull_sunday: 'Sunday',
+    list_and: 'and',
+    err_time_one: 'Your {jours} session needs at least {requis} min, but you set {annonce} min. Any shorter and there would not be enough sets left to make progress. Make it longer, add a day, or ease off your goals.',
+    err_time_many: 'Your {jours} sessions need at least {requis} min, but you set {annonce} min. Any shorter and there would not be enough sets left to make progress. Make them longer, add a day, or ease off your goals.',
     av_title: 'Your availability', av_sub: 'When can you train?', av_required: 'are required',
     av_optimal: 'Optimal availability',
     av_optimal_yes: 'you have no particular constraint. The program will be built to maximize your progress, whatever your goal.',

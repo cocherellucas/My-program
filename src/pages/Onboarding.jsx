@@ -9,12 +9,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import OnboardingProgress from '@/components/onboarding/OnboardingProgress';
 import StepProfile from '@/components/onboarding/StepProfile';
 import StepAvailability from '@/components/onboarding/StepAvailability';
-import StepEquipment from '@/components/onboarding/StepEquipment';
+import StepEquipment, { PRESETS as EQUIPMENT_PRESETS } from '@/components/onboarding/StepEquipment';
 import StepObjectives from '@/components/onboarding/StepObjectives';
 import StepPreferences from '@/components/onboarding/StepPreferences';
 import StepMeasurements from '@/components/onboarding/StepMeasurements';
 import WelcomeIntro from '@/components/onboarding/WelcomeIntro';
 import { useI18n } from '@/lib/i18n';
+import { messageBudgetTemps } from '@/lib/budget-temps';
 
 const TOTAL_STEPS = 6;
 const STORAGE_KEY = 'onboarding_draft';
@@ -29,6 +30,25 @@ const BARBELL_MOVEMENTS = {
   'Développé couché': 'Développé couché',
   'Soulevé de terre': 'Soulevé de terre',
 };
+
+// Garde-fou TEMPS : certains couples objectif × durée sont matériellement
+// impossibles (la force demande 240 s de repos par série — une séance ne rentre
+// pas en 30 min, même réduite au minimum). On rejoue la vraie activation ; ce
+// qui dépasse encore ne peut être supprimé qu'en passant sous le volume minimum
+// efficace, c'est-à-dire en livrant un programme qui ne fait plus progresser.
+// Mieux vaut le dire ici, où l'utilisateur peut encore allonger ses séances ou
+// ajouter un jour.
+function erreurBudgetTemps(data, equipementConnu, t) {
+  // Le matériel n'est demandé qu'à l'étape suivante : tant qu'il est inconnu on
+  // suppose le cas le PLUS FAVORABLE (salle complète), pour ne bloquer que sur
+  // une impossibilité certaine. L'étape Équipement revérifie avec le vrai choix.
+  const user = {
+    ...data,
+    training_context: equipementConnu ? data.training_context : 'full_gym',
+    equipment: equipementConnu ? data.equipment : EQUIPMENT_PRESETS.full_gym,
+  };
+  return messageBudgetTemps(user, data.objectives, t);
+}
 
 // updateMe tolérant (même repli que App.jsx) : si une colonne n'existe pas encore
 // dans `profiles`, PostgREST renvoie PGRST204 « Could not find the 'X' column » et
@@ -79,6 +99,7 @@ export default function Onboarding() {
     ...savedDraft.data,
   });
   const [saving, setSaving] = useState(false);
+  const [checking, setChecking] = useState(false);
   const [stepError, setStepError] = useState('');
   const [showFinalChoice, setShowFinalChoice] = useState(jumpEnd);
   // Un programme actif existe déjà (ex: import préalable) → on ne propose plus d'importer
@@ -117,7 +138,7 @@ export default function Onboarding() {
     };
   }, []);
 
-  const validateStep = () => {
+  const validateStep = async () => {
     // Étape 0 : Profil — niveau obligatoire
     if (step === 0) {
       if (!data.level) {
@@ -185,6 +206,11 @@ export default function Onboarding() {
         setStepError('Renseigne la durée (min. 10 min) pour chaque jour sélectionné.');
         return false;
       }
+      const tropCourt = await erreurBudgetTemps(data, false, t);
+      if (tropCourt) {
+        setStepError(tropCourt);
+        return false;
+      }
       // Fusion jours = fréquence : la fréquence est dérivée du nombre de jours
       // cochés (frequency_min/max posés dans StepAvailability) → plus de champ ni
       // de validation de fréquence séparés.
@@ -212,6 +238,14 @@ export default function Onboarding() {
           `${liste} ${manquants.length > 1 ? 'demandent' : 'demande'} une barre — impossible avec ton matériel actuel. `
           + `Ajoute une barre, ou choisis un autre objectif.`
         );
+        return false;
+      }
+      // Le matériel est enfin connu : on revérifie le temps. À l'étape 2 on avait
+      // supposé une salle complète ; au poids du corps il faut souvent PLUS de
+      // séries pour le même effet, donc une séance qui rentrait peut déborder ici.
+      const tropCourt = await erreurBudgetTemps(data, true, t);
+      if (tropCourt) {
+        setStepError(tropCourt);
         return false;
       }
     }
@@ -394,12 +428,23 @@ export default function Onboarding() {
             const hasEquipment = eqArr.length > 0;
             const isEmptyEquipStep = step === 3 && !hasEquipment;
             return (
-              <Button data-tutorial="next-button" onClick={() => {
+              <Button data-tutorial="next-button" disabled={checking} onClick={async () => {
                 if (step === 3 && !data.equipment_validated && hasEquipment) {
                   update({ equipment_validated: true });
                 }
-                if (validateStep()) setStep(s => s + 1);
+                // Le contrôle de temps rejoue la vraie activation (chargement du
+                // catalogue) → peut prendre un instant : on verrouille le bouton
+                // pour éviter les doubles clics et les passages d'étape en double.
+                setChecking(true);
+                try {
+                  if (await validateStep()) setStep(s => s + 1);
+                } finally {
+                  setChecking(false);
+                }
               }}>
+                {checking
+                  ? <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  : null}
                 {isEmptyEquipStep ? t('ob_no_equipment') : t('ob_next')}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>

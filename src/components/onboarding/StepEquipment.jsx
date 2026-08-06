@@ -64,7 +64,7 @@ const ALL_EQUIPMENT = [...new Set(EQUIPMENT_BY_TYPE.flatMap(g => g.items))];
 const STREET_EQUIPMENT = ['Barre de traction haute','Barres parallèles','Barre basse','Anneaux de gymnaste','Sangles de suspension (TRX)','Élastiques de résistance','Gilet lesté','Ceinture de lest','Sac à dos lesté'];
 const STREET_DEFAULT  = ['Barre de traction haute','Barres parallèles','Barre basse'];
 
-const PRESETS = {
+export const PRESETS = {
   full_gym:     ALL_EQUIPMENT,
   home_barbell: ['Barre olympique','Rack squat','Banc réglable','Haltères','Barre de traction','Élastiques de résistance'],
   bodyweight:   STREET_DEFAULT,
