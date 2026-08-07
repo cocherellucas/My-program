@@ -1,5 +1,13 @@
 import { buildActivationResult } from '../src/lib/program-activation.js';
 import { PRE_GENERATED_PROGRAMS } from '../src/lib/pre-generated-programs.js';
+import { EXERCISES } from '../src/lib/exercise-database.js';
+
+// Le matériel DOIT être renseigné : depuis les replis sans matériel, un profil
+// sans équipement déclaré signifie « je n'ai rien » et voit tous ses exercices
+// remplacés — ce qui est le comportement voulu, mais fausse une comparaison avec
+// le catalogue. L'onboarding pose toujours un préréglage, on fait pareil ici.
+const TOUT_LE_MATERIEL = [...new Set(EXERCISES.flatMap((e) => (e.equipmentOptions || []).flat()))];
+const STREET = ['Barre de traction haute', 'Barres parallèles', 'Barre basse'];
 
 // Objectifs reconstruits depuis la signature du catalogue → on rejoue EXACTEMENT
 // le programme d'origine et on compare séance par séance.
@@ -18,16 +26,25 @@ function objectivesFromSignature(sig) {
 
 let checked = 0, rotated = 0, redistributed = 0, lostContent = 0, otherDiff = 0;
 const samples = [];
-const key = (ex) => ex.map((x) => `${x.name}#${x.sets}`).sort().join('||'); // multiset ordre-insensible
+// Multiset ordre-insensible, par MUSCLE et non par nom : un exercice remplacé par
+// son repli sans matériel (même muscle, mêmes séries) ne doit pas compter comme
+// une séance redistribuée — rien n'a bougé de place.
+const key = (ex) => ex.map((x) => `${x.muscle_group}#${x.sets}`).sort().join('||');
 
-// Volume hebdo par exercice, TOUTES séances confondues. C'est la seule mesure de
-// contenu qui ait un sens : à partir de 5 séances/semaine, deux jours finissent
-// forcément collés et l'activation bascule (à juste titre) en haut/bas, ce qui
-// redistribue les exercices ENTRE les séances. Comparer la séance n° i à la
-// séance n° i signalerait alors une « perte » qui n'en est pas une.
+// Volume hebdo par MUSCLE, toutes séances confondues. Deux raisons de ne pas
+// mesurer par exercice :
+//  • à partir de 5 séances/semaine, deux jours finissent forcément collés et
+//    l'activation bascule (à juste titre) en haut/bas, ce qui redistribue les
+//    exercices ENTRE les séances ;
+//  • les replis sans matériel remplacent un mouvement par un autre, à volume
+//    égal (curl aux anneaux 8 séries → curl avec sac 8 séries). Comparer les
+//    noms signalerait une « perte » là où rien n'a bougé.
+// Ce qui doit être conservé, c'est le travail reçu par chaque muscle.
 const weekVolume = (sessions) => {
   const m = {};
-  for (const s of sessions) for (const x of s.exercises) m[x.name] = (m[x.name] || 0) + (x.sets || 0);
+  for (const s of sessions) for (const x of s.exercises) {
+    m[x.muscle_group] = (m[x.muscle_group] || 0) + (x.sets || 0);
+  }
   return m;
 };
 
@@ -37,6 +54,7 @@ for (const p of PRE_GENERATED_PROGRAMS) {
   const user = {
     level: p.match.level,
     training_context: p.match.training_context === 'bodyweight' ? 'bodyweight' : 'full_gym',
+    equipment: p.match.training_context === 'bodyweight' ? STREET : TOUT_LE_MATERIEL,
     availability_optimal: false,
     frequency_max: p.match.weekly_frequency,
     // Jours ESPACÉS volontairement : avec des jours collés, l'activation bascule

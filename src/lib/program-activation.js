@@ -33,6 +33,7 @@ import { EXERCISES } from './exercise-database';
 // SRA_WINDOWS = heures de récupération mini entre deux stimuli d'un même muscle.
 import { TRAINING_PARAMS, SRA_WINDOWS } from './coaching-engine';
 import { equipementPossede, exerciceFaisable } from './equipment';
+import { SUBSTITUTIONS } from './exercise-substitutions';
 
 // Normalise en liste : tableau, OU chaîne "a, b, c" (format stocké en base pour
 // focus_group / focus_movement), OU vide. Le split gère les deux formes.
@@ -432,7 +433,12 @@ function completerAvecObjectifs(program, objectifs, user, days) {
       const dejaLa = new Set(sessions.flatMap((s) => s.exercises.map((x) => String(x.name).toLowerCase())));
       const pool = EXERCISES
         .filter((e) => cibleMuscle(e, M) && e.level?.includes(level) && canDo(e) && !dejaLa.has(e.name.toLowerCase()))
-        .sort((a, b) => (a.type === 'compound' ? 0 : 1) - (b.type === 'compound' ? 0 : 1));
+        // Les exercices de REPLI (fallback) passent en dernier : ils n'exigent
+        // aucun matériel, ils seraient donc toujours éligibles, y compris pour
+        // quelqu'un qui a une salle complète et n'a rien à faire d'un « curl
+        // avec sac ». Ils ne sortent que si plus rien d'autre n'est faisable.
+        .sort((a, b) => (a.fallback ? 1 : 0) - (b.fallback ? 1 : 0)
+          || (a.type === 'compound' ? 0 : 1) - (b.type === 'compound' ? 0 : 1));
 
       let ajoutes = 0;
       for (const e of pool) {
@@ -908,7 +914,9 @@ function specializeProgram(program, focus, user, objectiveType = 'hypertrophy', 
     const used = new Set(built.flatMap((s) => s.exercises.map((x) => String(x.name).toLowerCase())));
     const pool = EXERCISES
       .filter((e) => cibleMuscle(e, M) && e.level?.includes(level) && canDo(e) && !used.has(e.name.toLowerCase()))
-      .sort((a, b) => (a.type === 'compound' ? 0 : 1) - (b.type === 'compound' ? 0 : 1)); // composés d'abord
+      // Replis en dernier (voir specializeProgram), puis composés d'abord.
+      .sort((a, b) => (a.fallback ? 1 : 0) - (b.fallback ? 1 : 0)
+        || (a.type === 'compound' ? 0 : 1) - (b.type === 'compound' ? 0 : 1));
     let added = 0;
     for (const e of pool) {
       if (gap <= 2 || added >= 2) break; // au plus 2 nouveaux exercices par muscle
@@ -1388,15 +1396,22 @@ function splitConsecutiveSessions(sessions, days, parite = 0, prioritaire = null
       }
       if (restant <= 0) continue;
 
-      // 2) Ajouter de l'isolation pour ce muscle.
+      // 2) Ajouter un exercice pour ce muscle : l'ISOLATION d'abord (c'est ce
+      //    qu'on veut sur un surplus), puis à défaut un polyarticulaire. Certains
+      //    muscles n'ont aucune isolation faisable sans matériel — les pectoraux
+      //    par exemple, on ne peut pas écarter contre résistance à mains nues.
+      //    Un mouvement composé différent reste bien meilleur que 15 séries
+      //    empilées sur le même geste.
       const dejaLa = new Set(seance.exercises.map((e) => String(e.name).toLowerCase()));
-      const isolations = EXERCISES.filter((e) => e.type !== 'compound'
-        && cibleMuscle(e, muscle)
+      const dispo = EXERCISES.filter((e) => cibleMuscle(e, muscle)
         && (!user?.level || e.level?.includes(user.level))
         && faisable(e)
-        && !dejaLa.has(e.name.toLowerCase()));
+        && !dejaLa.has(e.name.toLowerCase()))
+        // Replis en dernier, puis isolations avant composés (c'est un surplus).
+        .sort((a, b) => (a.fallback ? 1 : 0) - (b.fallback ? 1 : 0)
+          || (a.type === 'compound' ? 1 : 0) - (b.type === 'compound' ? 1 : 0));
       const typeSeance = seance.type || 'hypertrophy';
-      for (const e of isolations) {
+      for (const e of dispo) {
         if (restant <= 0) break;
         const sets = Math.min(6, restant);
         seance.exercises.push(makeExercise(e, muscle, sets, typeSeance));
@@ -1437,6 +1452,77 @@ function splitConsecutiveSessions(sessions, days, parite = 0, prioritaire = null
       day_label: totalParZone[zone] > 1 ? `${titre} ${String.fromCharCode(64 + compte[titre])}` : titre,
     };
   });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// REPLI SANS MATÉRIEL
+// Le catalogue est écrit pour deux contextes seulement (salle complète et poids
+// du corps) ; tout le reste — home gym, haltères seuls, matériel personnalisé —
+// retombe sur la version salle et se retrouvait donc avec des exercices de
+// machines impossibles à faire. On remplace ici chaque mouvement infaisable par
+// un équivalent qui n'exige AUCUN matériel (table SUBSTITUTIONS).
+//
+// Ce qui est CONSERVÉ du créneau d'origine : le muscle, les séries, les
+// répétitions, le repos et le bloc. Seul le mouvement change — le programme
+// garde donc exactement le même dosage.
+//
+// Les candidats sont essayés dans l'ordre : le premier qui convient au niveau de
+// l'utilisateur gagne (un débutant reçoit les pompes piquées là où un avancé
+// reçoit le handstand push-up).
+function remplacerInfaisables(program, user) {
+  const possede = equipementPossede(user?.equipment);
+  const niveau = user?.level || 'intermediate';
+  const parNom = new Map(EXERCISES.map((e) => [e.name, e]));
+
+  let touche = false;
+  const sessions = program.sessions.map((s) => {
+    // Deux exercices infaisables peuvent viser le MÊME remplaçant (écarté poulie
+    // et pec deck mènent tous deux à la pompe large). On tient donc à jour ce qui
+    // est déjà dans la séance pour éviter d'y mettre deux fois le même mouvement.
+    const pris = new Set(s.exercises.map((x) => x.name));
+    const libre = (c) => c && exerciceFaisable(c, possede) && !pris.has(c.name);
+    const bonNiveau = (c) => (c?.level || []).includes(niveau);
+
+    const exercises = [];
+    const fusions = [];
+    for (const x of s.exercises) {
+      const e = parNom.get(x.name);
+      if (!e || exerciceFaisable(e, possede)) { exercises.push(x); continue; }
+
+      const candidats = (SUBSTITUTIONS[x.name] || []).map((n) => parNom.get(n));
+      // 1) un candidat désigné, du bon niveau et pas déjà là ;
+      // 2) sinon un candidat désigné, pas déjà là ;
+      // 3) sinon n'importe quel exercice sans matériel du même muscle — mieux
+      //    vaut varier le mouvement que répéter deux fois le même dans la séance ;
+      // 4) sinon on fusionne avec l'occurrence déjà présente (le volume est
+      //    conservé, seul le nombre d'exercices baisse).
+      const choisi = candidats.find((c) => libre(c) && bonNiveau(c))
+        || candidats.find(libre)
+        || EXERCISES.find((c) => cibleMuscle(c, x.muscle_group) && bonNiveau(c) && libre(c))
+        || candidats.find((c) => c && exerciceFaisable(c, possede));
+      if (!choisi) { exercises.push(x); continue; } // rien de mieux : on ne dégrade pas
+
+      touche = true;
+      const remplacant = {
+        ...x,
+        name: choisi.name,
+        muscles_secondary: [...new Set((choisi.muscles?.secondary || []).map(appMuscle))]
+          .filter((m) => m !== x.muscle_group),
+      };
+      if (pris.has(choisi.name)) fusions.push(remplacant);
+      else { pris.add(choisi.name); exercises.push(remplacant); }
+    }
+
+    for (const f of fusions) {
+      const cible = exercises.find((x) => x.name === f.name);
+      if (cible) cible.sets = (cible.sets || 0) + (f.sets || 0);
+      else exercises.push(f);
+    }
+
+    return touche ? { ...s, exercises } : s;
+  });
+
+  return touche ? { ...program, sessions } : program;
 }
 
 // Applique rotation + rognage aux séances d'un programme, une fois les jours
@@ -1599,13 +1685,16 @@ export async function buildActivationResult(user, objectives) {
   const programLimite = p.sessions.length > days.length
     ? { ...p, sessions: p.sessions.slice(0, days.length) }
     : p;
+  // Dernier filet AVANT la mise en forme : tout exercice que le matériel déclaré
+  // ne permet pas est remplacé par un mouvement qui n'exige rien.
+  const programFaisable = remplacerInfaisables(programLimite, user);
   // Deux variantes : une semaine sur deux, l'attribution haut/bas s'inverse. Sur
   // un nombre impair de séances, cela évite qu'une moitié du corps soit toujours
   // travaillée deux fois et l'autre une seule. Quand aucune bascule n'a eu lieu,
   // les deux variantes sont identiques et rien ne change.
   const shapedParite = [
-    shapeSessions(programLimite, user, objectives, days, 0),
-    shapeSessions(programLimite, user, objectives, days, 1),
+    shapeSessions(programFaisable, user, objectives, days, 0),
+    shapeSessions(programFaisable, user, objectives, days, 1),
   ];
   const sessions = [];
   for (let w = 1; w <= initialWeeks; w++) {
