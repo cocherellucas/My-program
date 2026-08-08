@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { Dumbbell, Home, PersonStanding, Settings2, Search, ChevronDown, ChevronUp, ArrowRight, ArrowLeft, CheckCheck } from 'lucide-react';
+import { Dumbbell, Home, PersonStanding, Settings2, Search, ChevronDown, ChevronUp, ArrowRight, ArrowLeft, CheckCheck, Ban } from 'lucide-react';
 import { GYM_CHAINS_UI, getGymPreset } from '@/lib/gym-presets';
 import { useI18n } from '@/lib/i18n';
 
@@ -12,6 +12,14 @@ const CONTEXTS = [
   { key: 'home_barbell',lk: 'eq_home',     dk: 'eq_home_d',     icon: Home },
   { key: 'bodyweight',  lk: 'eq_bw',       dk: 'eq_bw_d',       icon: PersonStanding },
   { key: 'custom',      lk: 'eq_custom',   dk: 'eq_custom_d',   icon: Settings2 },
+  // « Aucun matériel » n'est PAS un contexte stocké à part : c'est le poids du
+  // corps avec une liste vide. Le « parc de street workout » suppose au moins une
+  // barre de traction et des barres parallèles — quelqu'un qui s'entraîne dans
+  // son salon n'a rien de tout ça, et n'avait aucune façon de le dire ici.
+  // On ne crée pas de nouvelle valeur de training_context pour autant : ça
+  // impliquerait une migration, et le moteur sait déjà traiter une liste vide
+  // (tous les exercices passent par la substitution sans matériel).
+  { key: 'none',        lk: 'eq_none',     dk: 'eq_none_d',     icon: Ban, pleineLargeur: true },
 ];
 // Noms de groupes (affichage seulement — les items restent des données FR)
 const GROUP_TKEYS = {
@@ -206,6 +214,15 @@ export default function StepEquipment({ data, onChange, hideHeader = false }) {
 
   const selectContext = (ctx) => {
     setVerifyingPreset(false);
+    if (ctx === 'none') {
+      // Rien à cocher, donc rien à valider : on marque l'équipement comme validé
+      // pour ne pas bloquer la suite de l'onboarding sur une liste vide.
+      setShowGymPicker(false);
+      setSelectedChain(null);
+      onChange({ training_context: 'bodyweight', equipment: [], equipment_validated: true });
+      setSearch('');
+      return;
+    }
     if (ctx === 'full_gym') {
       setShowGymPicker(true);
       setSelectedChain(null);
@@ -278,22 +295,31 @@ export default function StepEquipment({ data, onChange, hideHeader = false }) {
             </button>
           )}
           <div className="grid grid-cols-2 gap-3">
-            {CONTEXTS.map(({ key, lk, dk, icon: Icon }) => (
-              <button key={key} type="button" onClick={() => { selectContext(key); setShowContextPicker(false); }}
-                className={cn('flex flex-col items-center gap-2 p-3 rounded-xl border-2 text-center transition-all',
-                  context === key
-                    ? 'border-white bg-violet-500'
-                    : 'border-violet-300/60 bg-[#8b45f8]/70 opacity-75 hover:opacity-100 hover:border-white')}>
-                <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center',
-                  context === key ? 'bg-white text-violet-600' : 'bg-violet-500 text-white')}>
-                  <Icon className="w-5 h-5" />
-                </div>
-                <div>
-                  <span className="font-semibold text-sm text-white block">{t(lk)}</span>
-                  <p className="text-xs text-white/70">{t(dk)}</p>
-                </div>
-              </button>
-            ))}
+            {CONTEXTS.map(({ key, lk, dk, icon: Icon, pleineLargeur }) => {
+              // « Aucun matériel » = poids du corps avec une liste vide. Les deux
+              // partagent donc le même training_context : c'est le contenu de la
+              // liste qui les distingue.
+              const actif = key === 'none'
+                ? context === 'bodyweight' && equipment.length === 0
+                : context === key && !(key === 'bodyweight' && equipment.length === 0);
+              return (
+                <button key={key} type="button" onClick={() => { selectContext(key); setShowContextPicker(false); }}
+                  className={cn('flex flex-col items-center gap-2 p-3 rounded-xl border-2 text-center transition-all',
+                    pleineLargeur && 'col-span-2',
+                    actif
+                      ? 'border-white bg-violet-500'
+                      : 'border-violet-300/60 bg-[#8b45f8]/70 opacity-75 hover:opacity-100 hover:border-white')}>
+                  <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center',
+                    actif ? 'bg-white text-violet-600' : 'bg-violet-500 text-white')}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <span className="font-semibold text-sm text-white block">{t(lk)}</span>
+                    <p className="text-xs text-white/70">{t(dk)}</p>
+                  </div>
+                </button>
+              );
+            })}
           </div>
 
         </div>
