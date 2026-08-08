@@ -8,6 +8,7 @@
 import { buildActivationResult, verifierBudgetTemps } from '../src/lib/program-activation.js';
 import { EXERCISES } from '../src/lib/exercise-database.js';
 import { equipementPossede, exerciceFaisable } from '../src/lib/equipment.js';
+import { GYM_CHAINS_UI, getGymPreset } from '../src/lib/gym-presets.js';
 
 const canon = new Set(EXERCISES.map((e) => e.name.toLowerCase()));
 const UPPER = ['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Abdominaux'];
@@ -18,12 +19,35 @@ const TYPES = ['hypertrophy', 'strength', 'endurance'];
 const ZONES = ['full_body', 'upper_body', 'lower_body', 'specific_group'];
 const JOURS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const NIVEAUX = ['beginner', 'intermediate', 'advanced'];
-// « Salle complète » = TOUT le matériel que la base d'exercices connaît. Écrire
-// cette liste à la main donnait des faux positifs (des noms qui ne collaient pas
-// à ceux de la base), et surtout ce n'est pas ce que l'app envoie : le preset
-// full_gym de StepEquipment coche l'intégralité du matériel.
+// TOUTES les configurations de matériel que l'interface permet de déclarer.
+// Écrire ces listes à la main donnait des faux positifs (des noms qui ne
+// collaient pas à ceux de la base) : on reprend donc les préréglages réels.
 const GYM = [...new Set(EXERCISES.flatMap((e) => (e.equipmentOptions || []).flat()))];
 const BW = ['Barre de traction haute', 'Barres parallèles', 'Barre basse'];
+const STREET_COMPLET = [...BW, 'Anneaux de gymnaste', 'Sangles de suspension (TRX)',
+  'Élastiques de résistance', 'Gilet lesté', 'Ceinture de lest', 'Sac à dos lesté'];
+const HOME = ['Barre olympique', 'Rack squat', 'Banc réglable', 'Haltères',
+  'Barre de traction', 'Élastiques de résistance'];
+
+const CONFIGS = [
+  { nom: 'salle complète', ctx: 'full_gym', eq: GYM },
+  ...GYM_CHAINS_UI.map((c) => {
+    const p = getGymPreset(c.key);
+    return { nom: `enseigne ${c.key}`, ctx: p?.training_context || 'full_gym', eq: p?.equipment || [] };
+  }),
+  { nom: 'home gym (barre)', ctx: 'full_gym', eq: HOME },
+  { nom: 'maison halteres seuls', ctx: 'full_gym', eq: ['Haltères', 'Banc réglable', 'Élastiques de résistance'] },
+  { nom: 'parc street (défaut)', ctx: 'bodyweight', eq: BW },
+  { nom: 'parc street (complet)', ctx: 'bodyweight', eq: STREET_COMPLET },
+  { nom: 'AUCUN matériel', ctx: 'bodyweight', eq: [] },
+  { nom: 'AUCUN matériel (salle déclarée)', ctx: 'full_gym', eq: [] },
+];
+// + des configurations personnalisées tirées au hasard dans le matériel réel.
+const configAleatoire = () => ({
+  nom: 'personnalisé',
+  ctx: Math.random() < 0.5 ? 'full_gym' : 'bodyweight',
+  eq: [...GYM].sort(() => Math.random() - 0.5).slice(0, Math.floor(Math.random() * 12)),
+});
 
 const EXEC = 40, WARM = 8;
 const minutes = (ex) => WARM + ex.reduce((n, x) => n + ((x.sets || 0) * ((x.rest_seconds || 90) + EXEC)) / 60, 0);
@@ -38,10 +62,12 @@ const flag = (cle, detail) => {
 };
 
 let testes = 0, sansProgramme = 0;
+const parConfig = {}; // configuration de matériel → { ok, sans }
 
 for (let iter = 0; iter < N; iter++) {
   const level = pick(NIVEAUX);
-  const salle = Math.random() < 0.7;
+  // Une configuration de matériel tirée parmi TOUTES celles que l'app autorise.
+  const cfg = Math.random() < 0.25 ? configAleatoire() : CONFIGS[Math.floor(Math.random() * CONFIGS.length)];
   const nbJours = 2 + Math.floor(Math.random() * 6);
   const jours = [...JOURS].sort(() => Math.random() - 0.5).slice(0, nbJours);
   const libre = Math.random() < 0.2;
@@ -68,8 +94,8 @@ for (let iter = 0; iter < N; iter++) {
 
   const user = {
     level,
-    training_context: salle ? 'full_gym' : 'bodyweight',
-    equipment: salle ? GYM : BW,
+    training_context: cfg.ctx,
+    equipment: cfg.eq,
     availability_optimal: libre,
     frequency_max: nbJours,
     available_days: jours,
@@ -83,8 +109,10 @@ for (let iter = 0; iter < N; iter++) {
     flag('CRASH de la génération', `${e.message} | ${JSON.stringify(objectives)}`);
     continue;
   }
-  if (!r) { sansProgramme++; continue; }
+  parConfig[cfg.nom] = parConfig[cfg.nom] || { ok: 0, sans: 0 };
+  if (!r) { sansProgramme++; parConfig[cfg.nom].sans++; continue; }
   testes++;
+  parConfig[cfg.nom].ok++;
 
   const id = `${level}/${user.training_context} ${nbJours}j`
     + `${libre ? ' (libre)' : ''} | ${objectives.map((o) => `${o.type}:${o.zone || 'mvt'}:${o.priority}`).join(' + ')}`;
@@ -114,14 +142,18 @@ for (let iter = 0; iter < N; iter++) {
       if (!(x.rest_seconds > 0)) flag('repos manquant', `${ou} — ${x.name}`);
       if (!x.target_reps) flag('plage de reps manquante', `${ou} — ${x.name}`);
       if (!x.muscle_group) flag('muscle manquant', `${ou} — ${x.name}`);
-      if (salle && (x.sets || 0) > 6) flag('empilement > 6 séries en salle', `${ou} — ${x.name} ${x.sets}s`);
-      if ((x.sets || 0) > 12) flag('plus de 12 séries sur un exercice', `${ou} — ${x.name} ${x.sets}s`);
+      // L'empilement de séries n'est un défaut que si le matériel permettait de
+      // varier : avec trois barres dans un parc, il n'y a rien d'autre à proposer.
+      if (cfg.eq.length >= 20 && (x.sets || 0) > 6) {
+        flag('empilement > 6 séries alors que le matériel permet de varier', `${cfg.nom} — ${x.name} ${x.sets}s`);
+      }
+      if ((x.sets || 0) > 12) flag(`plus de 12 séries sur un exercice${libre ? ' (sans durée déclarée)' : ' AVEC durée déclarée'}`, `${ou} — ${x.name} ${x.sets}s`);
     }
 
     // Matériel : chaque exercice doit être faisable avec ce qui est déclaré.
     // On passe par le MÊME helper que l'app (équivalences de vocabulaire
     // comprises), sinon l'audit mesurerait une autre règle que la génération.
-    const possede = equipementPossede(salle ? GYM : BW);
+    const possede = equipementPossede(cfg.eq);
     for (const x of s.exercises) {
       const e = EXERCISES.find((y) => y.name.toLowerCase() === String(x.name).toLowerCase());
       if (!e) continue;
@@ -158,6 +190,12 @@ for (let iter = 0; iter < N; iter++) {
 console.log(`\n██ AUDIT DE COHÉRENCE — ${N} tirages ██\n`);
 console.log(`  programmes générés : ${testes}`);
 console.log(`  aucun programme    : ${sansProgramme}`);
+console.log('\n  Par configuration de matériel :');
+for (const nom of Object.keys(parConfig).sort()) {
+  const c = parConfig[nom];
+  console.log(`    ${nom.padEnd(34)} ${String(c.ok).padStart(4)} programme(s)`
+    + (c.sans ? `  ✗ ${c.sans} sans programme` : '  ✓'));
+}
 const cles = Object.keys(pb);
 if (!cles.length) {
   console.log('\n  ✓ AUCUNE incohérence détectée');
