@@ -25,6 +25,22 @@ import { fr as frLocale } from 'date-fns/locale';
 //     change de catalogue !) et `availability_optimal`.
 // Les OBJECTIFS comptent aussi, mais ils vivent dans une autre table : c'est
 // ObjectivesTab qui signale leur modification.
+// Champs qui ne partent JAMAIS au serveur — et qui ne comptent donc pas non plus
+// comme une modification à enregistrer. Deux familles :
+//   • identité et métadonnées, gérées ailleurs ;
+//   • état d'INTERFACE qui n'est pas une colonne de `profiles` :
+//       - same_duration_all : sert seulement à poser la question de durée une
+//         fois ou jour par jour (cf. StepAvailability) ;
+//       - equipment_validated, gym_chain : état de l'écran Équipement.
+//     Les envoyer faisait rejeter TOUTE la requête (PGRST204) : plus rien ne
+//     s'enregistrait, ni le matériel ni les disponibilités.
+// UNE seule liste pour les deux usages : quand elles divergeaient, ces champs
+// restaient éternellement « modifiés » et le bouton Enregistrer ne partait plus.
+const IGNORED = new Set([
+  'id', 'email', 'full_name', 'created_date', 'role',
+  'same_duration_all', 'equipment_validated', 'gym_chain',
+]);
+
 const PROGRAM_IMPACTING_FIELDS = [
   'level',
   'training_context',
@@ -140,18 +156,9 @@ export default function Profile() {
     if (!ensureOnline()) return;
     setSaving(true);
     try {
-    // Champs d'INTERFACE, pas des colonnes de `profiles` — les envoyer faisait
-    // rejeter TOUTE la requête (PGRST204) :
-    //   • same_duration_all  : sert seulement à poser la question de durée une
-    //     fois ou jour par jour (cf. StepAvailability) ;
-    //   • equipment_validated, gym_chain : état de l'écran Équipement.
-    // L'onboarding les retire déjà de la même façon.
-    const {
-      id, email, full_name, created_date, role,
-      same_duration_all, equipment_validated, gym_chain,
-      ...editableFields
-    } = form;
-    void same_duration_all; void equipment_validated; void gym_chain;
+    const editableFields = Object.fromEntries(
+      Object.entries(form).filter(([k]) => !IGNORED.has(k))
+    );
     // Les champs vides ('') doivent partir en null — sinon les colonnes numériques
     // (âge, taille, poids, mensurations…) rejettent la chaîne vide.
     const sanitized = Object.fromEntries(
@@ -198,7 +205,6 @@ export default function Profile() {
 
   const update = (field, value) => { setForm(prev => ({ ...prev, [field]: value })); };
 
-  const IGNORED = new Set(['id', 'email', 'full_name', 'created_date', 'role']);
   // Normalise les valeurs "vides" : undefined / null / '' sont équivalents → un champ
   // vidé puis re-vidé ne compte pas comme un changement.
   const normVal = (v) => (v === undefined || v === null || v === '') ? null : v;
