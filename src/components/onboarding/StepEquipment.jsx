@@ -188,6 +188,13 @@ export default function StepEquipment({ data, onChange, hideHeader = false }) {
   const [fading, setFading] = useState(false);
   const [showContextPicker, setShowContextPicker] = useState(false);
   const [verifyingPreset, setVerifyingPreset] = useState(false);
+  // « Aucun matériel » se distingue du poids du corps par une liste VIDE. On le
+  // garde en état local plutôt que de le déduire en permanence : sinon, un
+  // utilisateur street qui décoche ses trois items un par un basculerait
+  // brutalement sur l'écran « aucun matériel » et perdrait sa liste.
+  const [sansMateriel, setSansMateriel] = useState(
+    () => data.training_context === 'bodyweight' && !(data.equipment?.length)
+  );
   const [showGymPicker, setShowGymPicker] = useState(() => {
     // Si full_gym sans équipement (retour de step), réafficher le picker d'enseignes
     return data.training_context === 'full_gym' && (!data.equipment || data.equipment.length === 0);
@@ -214,6 +221,7 @@ export default function StepEquipment({ data, onChange, hideHeader = false }) {
 
   const selectContext = (ctx) => {
     setVerifyingPreset(false);
+    setSansMateriel(ctx === 'none');
     if (ctx === 'none') {
       // Rien à cocher, donc rien à valider : on marque l'équipement comme validé
       // pour ne pas bloquer la suite de l'onboarding sur une liste vide.
@@ -278,7 +286,13 @@ export default function StepEquipment({ data, onChange, hideHeader = false }) {
         /* Mode compact — ligne unique récapitulative avec bouton Changer */
         <div className="flex items-center justify-between gap-2 px-4 py-3 rounded-xl bg-white/10 border border-white/20">
           <p className="text-sm text-white/90 truncate">
-            {t('eq_train_in')} <span className="font-bold text-white">{(() => { const c = CONTEXTS.find(c => c.key === context); return c ? t(c.lk) : ''; })()}</span>
+            {t('eq_train_in')} <span className="font-bold text-white">{(() => {
+              // « Aucun matériel » partage le contexte « bodyweight » : sans ce
+              // cas, le récapitulatif annonçait « Poids du corps » à quelqu'un
+              // qui venait de déclarer n'avoir rien.
+              const c = CONTEXTS.find((x) => x.key === (sansMateriel ? 'none' : context));
+              return c ? t(c.lk) : '';
+            })()}</span>
           </p>
           <button type="button" onClick={() => setShowContextPicker(true)}
             className="flex items-center gap-1 text-xs text-white/70 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-all flex-shrink-0">
@@ -412,7 +426,22 @@ export default function StepEquipment({ data, onChange, hideHeader = false }) {
         </div>
       )}
 
-      {context === 'bodyweight' && !showContextPicker && (
+      {/* « Je n'ai aucun matériel » : surtout PAS de liste à cocher — on vient de
+          dire qu'on n'a rien. Juste une confirmation, et de quoi revenir en
+          arrière si on se souvient d'avoir une barre quelque part. */}
+      {sansMateriel && !showContextPicker && (
+        <div className="space-y-3">
+          <div className="px-4 py-3 rounded-xl bg-white/10 border border-white/20">
+            <p className="text-sm text-white/90">{t('eq_none_ok')}</p>
+          </div>
+          <button type="button" onClick={() => { setSansMateriel(false); selectContext('bodyweight'); }}
+            className="w-full text-xs font-semibold text-white/70 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-2.5 rounded-lg transition-all">
+            {t('eq_none_have')}
+          </button>
+        </div>
+      )}
+
+      {context === 'bodyweight' && !sansMateriel && !showContextPicker && (
         <div className="space-y-3">
           <Label className="text-white">{t('eq_park_equip')}</Label>
           <p className="text-xs text-white/50">{t('eq_park_hint')}</p>

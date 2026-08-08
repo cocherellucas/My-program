@@ -41,6 +41,7 @@ import StepEquipment from '@/components/onboarding/StepEquipment';
 import StepAvailability from '@/components/onboarding/StepAvailability';
 import ObjectivesTab from '@/components/profile/ObjectivesTab';
 import { messageBudgetTemps } from '@/lib/budget-temps';
+import { updateMeTolerant } from '@/lib/profile-save';
 import SubscriptionBadge from '@/components/profile/SubscriptionBadge';
 
 export default function Profile() {
@@ -56,7 +57,11 @@ export default function Profile() {
   const [showMaintenance, setShowMaintenance] = useState(false); // valeur kcal cachée derrière « Voir »
   const [showRegenBanner, setShowRegenBanner] = useState(false);
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'basics');
-  const NO_SAVE_TABS = ['equipment', 'objectives'];
+  // Onglets qui gèrent eux-mêmes leur enregistrement : seul « Objectifs » a son
+  // propre bouton (les objectifs vivent dans une autre table). « Équipement » y
+  // figurait à tort — il n'a aucun bouton à lui, la barre de sauvegarde était
+  // donc masquée et un changement de matériel n'était JAMAIS enregistré.
+  const NO_SAVE_TABS = ['objectives'];
   // Cycle menstruel : l'activation du toggle (off par défaut, dédié, texte de
   // consentement adjacent) vaut acte positif de consentement — rien ne part
   // au serveur avant « Sauvegarder ».
@@ -141,7 +146,11 @@ export default function Profile() {
     const sanitized = Object.fromEntries(
       Object.entries(editableFields).map(([k, v]) => [k, v === '' ? null : v])
     );
-    await base44.auth.updateMe(sanitized);
+    // Tolérant : le formulaire porte des champs d'INTERFACE qui ne sont pas des
+    // colonnes (`equipment_validated`, `gym_chain`…). Sans ce repli, PostgREST
+    // rejetait TOUTE la sauvegarde dès que l'utilisateur avait ouvert l'onglet
+    // Équipement, qui les introduit dans le formulaire.
+    await updateMeTolerant(sanitized);
 
     // Comparer vs snapshot de génération — uniquement pour programmes générés par IA
     const snapshotRaw = localStorage.getItem('program_generated_snapshot');
