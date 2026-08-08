@@ -997,7 +997,18 @@ function specializeProgram(program, focus, user, objectiveType = 'hypertrophy', 
   // muscles non ciblés retirés (« Haut du corps » pour une séance pecs/triceps).
   // On les regénère depuis les muscles réellement présents, avec un suffixe A/B/…
   // si plusieurs séances portent le même nom.
-  const labelOf = (s) => [...new Set(s.exercises.map((x) => x.muscle_group))].join(' · ');
+  // Au-delà de trois muscles, énumérer devient illisible : une séance corps
+  // entier s'affichait « Pectoraux · Dos · Épaules · Ischio-jambiers · Biceps ·
+  // Triceps · Quadriceps · Fessiers · Abdominaux · Mollets ». On retombe alors
+  // sur le nom de la zone couverte.
+  const labelOf = (s) => {
+    const muscles = [...new Set(s.exercises.map((x) => x.muscle_group))];
+    if (muscles.length <= 3) return muscles.join(' · ');
+    const haut = muscles.some((m) => MUSCLE_ZONE[m] !== 'lower');
+    const bas = muscles.some((m) => MUSCLE_ZONE[m] === 'lower');
+    if (haut && bas) return 'Corps entier';
+    return bas ? 'Bas du corps' : 'Haut du corps';
+  };
   const totals = {};
   for (const s of kept) { const l = labelOf(s); totals[l] = (totals[l] || 0) + 1; }
   const seenLabel = {};

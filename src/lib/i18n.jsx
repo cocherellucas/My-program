@@ -318,7 +318,7 @@ const DICT = {
     eq_bw: 'Poids du corps', eq_bw_d: 'Parc de street workout',
     eq_custom: 'Personnalisé', eq_custom_d: 'Je choisis mon matériel',
     eq_none: "Je n'ai aucun matériel", eq_none_d: 'Chez moi, sans rien — le programme s’adapte',
-    eq_none_ok: "Aucun matériel : il n'y a donc rien à cocher. Chaque exercice de ton programme sera réalisable sans équipement — au poids du corps, avec une chaise ou un sac chargé selon les cas.",
+    eq_none_ok: "Rien à cocher. Ton programme s'adaptera : poids du corps, chaise, sac chargé.",
     eq_none_have: "Finalement j'ai du matériel",
     eq_train_in: "Tu t'entraînes en", eq_change: 'Changer', eq_back: 'Retour',
     eq_which_gym: 'Quelle est ta salle ?', eq_selected: 'Sélectionnée', eq_my_gym: 'Ma salle',

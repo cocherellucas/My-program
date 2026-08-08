@@ -140,7 +140,18 @@ export default function Profile() {
     if (!ensureOnline()) return;
     setSaving(true);
     try {
-    const { id, email, full_name, created_date, role, ...editableFields } = form;
+    // Champs d'INTERFACE, pas des colonnes de `profiles` — les envoyer faisait
+    // rejeter TOUTE la requête (PGRST204) :
+    //   • same_duration_all  : sert seulement à poser la question de durée une
+    //     fois ou jour par jour (cf. StepAvailability) ;
+    //   • equipment_validated, gym_chain : état de l'écran Équipement.
+    // L'onboarding les retire déjà de la même façon.
+    const {
+      id, email, full_name, created_date, role,
+      same_duration_all, equipment_validated, gym_chain,
+      ...editableFields
+    } = form;
+    void same_duration_all; void equipment_validated; void gym_chain;
     // Les champs vides ('') doivent partir en null — sinon les colonnes numériques
     // (âge, taille, poids, mensurations…) rejettent la chaîne vide.
     const sanitized = Object.fromEntries(
@@ -177,7 +188,9 @@ export default function Profile() {
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
     } catch (e) {
-      toast.error('Erreur lors de la sauvegarde');
+      // Le message du serveur est affiché : un « Erreur lors de la sauvegarde »
+      // muet rendait impossible de comprendre pourquoi rien ne s'enregistrait.
+      toast.error(`Erreur lors de la sauvegarde${e?.message ? ` : ${e.message}` : ''}`, { duration: 10000 });
     } finally {
       setSaving(false);
     }
