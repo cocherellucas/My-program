@@ -18,7 +18,11 @@ const ICI = path.join(process.cwd(), 'program-data');
 const FR = { beginner: 'déb.', intermediate: 'inter.', advanced: 'avancé' };
 const nivFr = (l) => (l || []).map((x) => FR[x] || x).join(' ');
 const norm = (s) => String(s).trim().toLowerCase().replace(/\s+/g, ' ');
-const byName = new Map(EXERCISES.map((e) => [e.name.toLowerCase(), e]));
+// On IGNORE les entrées déjà générées (drapeau fallback) : sinon, au deuxième
+// passage, elles seraient prises pour des exercices préexistants, ne seraient
+// plus proposées à la création, et le bloc généré les perdrait. La chaîne doit
+// rester ré-exécutable à l'identique.
+const byName = new Map(EXERCISES.filter((e) => !e.fallback).map((e) => [e.name.toLowerCase(), e]));
 
 function parseCsv(txt, sep) {
   const rows = []; let row = [], champ = '', q = false;
@@ -174,6 +178,7 @@ const CONSIGNE_PROPRE = {
   'Good morning avec sac': 'Un sac chargé sur le haut du dos, dos plat, genoux légèrement fléchis. Pousse les hanches vers l\'arrière jusqu\'à sentir l\'étirement des ischios, puis reviens.',
   'Soulevé de terre roumain avec sac': 'Un sac chargé dans chaque main. Jambes quasi tendues, pousse les hanches vers l\'arrière en gardant le dos plat. Descends jusqu\'à l\'étirement des ischios, pas plus bas.',
   'Mollets unilatéraux avec sac': 'Sur une jambe, avant-pied sur une marche, monte le plus haut possible et contrôle la descente. Sac à dos chargé pour durcir.',
+  'Mollets assis avec sac': "Assis sur une chaise, genoux fléchis à 90°, un sac chargé posé sur les cuisses juste au-dessus des genoux. Monte les talons le plus haut possible, descends en étirement complet. Genou fléchi = c'est le soléaire qui travaille, pas les jumeaux.",
   'Dips entre deux chaises (buste penché)': 'Mains sur deux chaises stables, buste penché en avant pour cibler les pectoraux. Pieds éloignés ou surélevés pour durcir, sac à dos chargé ensuite. Vérifie que les chaises ne peuvent pas glisser.',
   'Dips entre deux chaises (buste droit)': 'Mains sur deux chaises stables, buste droit et coudes serrés pour cibler les triceps. Pieds éloignés ou surélevés pour durcir, sac à dos chargé ensuite. Vérifie que les chaises ne peuvent pas glisser.',
   'Pompe large': 'Pompe mains nettement plus larges que les épaules : l\'amplitude se fait davantage sur les pectoraux. Sac à dos chargé si c\'est trop simple.',
@@ -216,6 +221,19 @@ const VARIANTES = [
     pourquoi: 'entrée en matière du tirage pour un débutant' },
 ];
 
+// Redirections : le remplaçant retenu n'est pas celui déduit des tableaux.
+// L'exercice se crée alors tout seul, en héritant du mouvement remplacé — pas
+// besoin de le décrire dans VARIANTES, ce serait un doublon.
+const REDIRECTION = {
+  // Sans matériel il n'existait qu'UN schéma moteur pour les mollets (debout,
+  // genou tendu), décliné en deux entrées quasi identiques. Quand un objectif
+  // demandait beaucoup de volume mollets, le moteur remplissait les deux puis
+  // empilait le reste — jusqu'à 21 séries sur le même geste. La version assise
+  // apporte un vrai second mouvement : genou fléchi, c'est le soléaire qui
+  // travaille et non les jumeaux, exactement comme la machine mollets assis.
+  'Mollets assis machine': 'Mollets assis avec sac',
+};
+
 // Entrées EXISTANTES dont il suffit d'élargir les niveaux : inutile de créer un
 // « X lesté » quand le sac suffit à couvrir le haut de la plage.
 const A_ELARGIR = [
@@ -253,6 +271,7 @@ for (const f of ['substitutions-poids-du-corps.csv', 'substitutions-materiel.csv
       const m = byName.get(norm(exo))?.muscles?.primary?.[0];
       if (split[m]) propre = split[m];
     }
+    if (REDIRECTION[exo]) propre = REDIRECTION[exo];
     // Canonisation : une saisie « pompe » doit pointer sur l'entrée exacte
     // « Pompe » de la base, sinon la substitution vise un exercice inexistant.
     const existant = byName.get(norm(propre));

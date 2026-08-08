@@ -51,7 +51,7 @@ export const SUBSTITUTIONS = {
   "Leg curl assis": ["Leg curl au sol avec sac"],
   "Leg extension": ["Leg extension assis avec sac"],
   "Leg press": ["Fente bulgare (chaise)"],
-  "Mollets assis machine": ["Mollets unilatéraux avec sac"],
+  "Mollets assis machine": ["Mollets assis avec sac"],
   "Mollets debout machine": ["Mollets unilatéraux avec sac"],
   "Mollets leg press": ["Mollets unilatéraux avec sac"],
   "Mollets lestés une jambe": ["Mollets unilatéraux avec sac"],

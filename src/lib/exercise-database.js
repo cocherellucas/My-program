@@ -1421,6 +1421,15 @@ export const EXERCISES = [
     cue: 'Un sac chargé dans chaque main. Jambes quasi tendues, pousse les hanches vers l\'arrière en gardant le dos plat. Descends jusqu\'à l\'étirement des ischios, pas plus bas.',
   },
   {
+    id: 'mollets_assis_avec_sac', name: 'Mollets assis avec sac',
+    equipmentOptions: [[]],
+    muscles: { primary: ['Mollets'], secondary: [] },
+    type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
+    level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    fallback: true,
+    cue: 'Assis sur une chaise, genoux fléchis à 90°, un sac chargé posé sur les cuisses juste au-dessus des genoux. Monte les talons le plus haut possible, descends en étirement complet. Genou fléchi = c\'est le soléaire qui travaille, pas les jumeaux.',
+  },
+  {
     id: 'mollets_unilateraux_avec_sac', name: 'Mollets unilatéraux avec sac',
     equipmentOptions: [[]],
     muscles: { primary: ['Mollets'], secondary: [] },
