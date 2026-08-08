@@ -888,6 +888,18 @@ export default function Program() {
     ? '1'
     : (upcomingKey || weekKeys[0] || '1');
 
+  // Depuis combien de temps le programme tourne. Sert de repère sur un programme
+  // en boucle, où il n'y a ni semaine 1/8 ni date de fin pour se situer.
+  const ancienneteProgramme = (() => {
+    const debut = activeProgram?.created_date ? new Date(activeProgram.created_date) : null;
+    if (!debut || Number.isNaN(debut.getTime())) return t('pg_loop');
+    const jours = Math.max(0, Math.floor((devNow() - debut) / 86400000));
+    if (jours === 0) return t('pg_started_today');
+    if (jours < 14) return `${t('pg_active_since')} ${jours} ${jours > 1 ? t('pg_days') : t('pg_day')}`;
+    const semaines = Math.floor(jours / 7);
+    return `${t('pg_active_since')} ${semaines} ${t('pg_weeks')}`;
+  })();
+
   const handleRegen = () => {
     localStorage.removeItem('pending_program_regen');
     setStaleBanner(false);
@@ -1064,7 +1076,12 @@ export default function Program() {
             onScroll={(e) => { const el = e.currentTarget; setTabsAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 4); setTabsAtStart(el.scrollLeft <= 4); }}
             className={`bg-white/10 text-white w-full overflow-x-auto flex justify-start gap-1 [&::-webkit-scrollbar]:hidden ${manyWeeks ? 'pr-3' : ''}`} style={{ scrollbarWidth: 'none' }}>
             {isInfinite ? (
-              <TabsTrigger value={currentWeekTab} className="flex-1 text-sm">∞</TabsTrigger>
+              // Programme en boucle : un seul onglet, sur lequel il n'y a rien à
+              // cliquer. Le « ∞ » qui s'y affichait n'apprenait rien. On donne à
+              // la place un repère utile : depuis combien de temps il tourne.
+              <TabsTrigger value={currentWeekTab} className="flex-1 text-sm pointer-events-none">
+                {ancienneteProgramme}
+              </TabsTrigger>
             ) : (
               Object.keys(weeks).map(w => (
                 <TabsTrigger key={w} value={w}
