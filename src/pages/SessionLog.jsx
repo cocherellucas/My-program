@@ -31,6 +31,7 @@ import { useI18n } from '@/lib/i18n';
 import { applyPainLevel } from '@/lib/pain-adjust';
 import { EXERCISES } from '@/lib/exercise-database';
 import { equipementPossede, exerciceFaisable } from '@/lib/equipment';
+import ExerciseCueButton from '@/components/session/ExerciseCueButton';
 
 const isBodyweightExercise = (name) => {
   const ex = EXERCISES.find(e => e.name?.toLowerCase() === name?.toLowerCase());
@@ -387,7 +388,10 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
       <Card className="overflow-hidden bg-white/15 backdrop-blur-sm border-white/20">
         <ExerciseGif exerciseName={exercise.name} className="h-52 w-full" />
         <div className="p-4">
-          <h2 className="font-heading font-bold text-xl text-white">{exercise.name}</h2>
+          <div className="flex items-start gap-2">
+            <h2 className="font-heading font-bold text-xl text-white">{exercise.name}</h2>
+            <ExerciseCueButton name={exercise.name} className="mt-1.5" />
+          </div>
           {exercise.notes && (
             <p className="text-xs text-amber-200/90 mt-1 leading-snug">💡 {exercise.notes}</p>
           )}

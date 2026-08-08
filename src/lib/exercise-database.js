@@ -17,6 +17,7 @@ export const EXERCISES = [
     muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'A', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: false,
+    cue: 'Omoplates serrées et fixées sur le banc, pieds au sol. Descends la barre au niveau des tétons, coudes à environ 45° du corps.',
   },
   {
     id: 'bench_press_dumbbell', name: 'Développé couché haltères',
@@ -24,6 +25,7 @@ export const EXERCISES = [
     muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'A', objectives: ['hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Omoplates serrées, descends jusqu\'à l\'étirement des pectoraux. L\'amplitude est plus grande qu\'à la barre, profites-en.',
   },
   {
     id: 'incline_press_barbell', name: 'Développé incliné barre',
@@ -31,6 +33,7 @@ export const EXERCISES = [
     muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'A', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: false,
+    cue: 'Banc à 30°, pas plus : au-delà, ce sont les épaules qui prennent le travail. Descends la barre haut sur la poitrine.',
   },
   {
     id: 'incline_press_dumbbell', name: 'Développé incliné haltères',
@@ -38,6 +41,7 @@ export const EXERCISES = [
     muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'B', objectives: ['hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Banc à 30°, descends jusqu\'à l\'étirement. Ne cogne pas les haltères en haut, garde la tension.',
   },
   {
     id: 'decline_press_dumbbell', name: 'Développé décliné haltères',
@@ -66,6 +70,7 @@ export const EXERCISES = [
     muscles: { primary: ['Poitrine'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Dos calé, coudes à hauteur d\'épaules. Referme lentement et marque un temps d\'arrêt au centre.',
   },
   {
     id: 'cable_crossover', name: 'Écarté poulie',
@@ -73,6 +78,7 @@ export const EXERCISES = [
     muscles: { primary: ['Poitrine'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Bras quasi tendus, angle des coudes fixe. Rapproche les mains devant toi et marque un temps au centre.',
   },
   {
     id: 'cable_fly_low', name: 'Écarté poulie basse',
@@ -101,6 +107,7 @@ export const EXERCISES = [
     muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'B', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Corps gainé et aligné, mains largeur d\'épaules. Descends la poitrine près du sol. Avancé : sac à dos chargé sur le haut du dos pour rester dans la plage de répétitions.',
   },
   {
     id: 'pushup_elevated', name: 'Pompe pieds surélevés',
@@ -108,6 +115,7 @@ export const EXERCISES = [
     muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'B', objectives: ['hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: true,
+    cue: 'Pieds sur un banc ou une chaise — plus ils sont hauts, plus le haut des pectoraux travaille.',
   },
   {
     id: 'dips_chest', name: 'Dips (poitrine)',
@@ -115,6 +123,7 @@ export const EXERCISES = [
     muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'B', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: true,
+    cue: 'Buste penché en avant, coudes légèrement écartés. Descends jusqu\'à l\'étirement des pectoraux sans forcer sur l\'épaule.',
   },
   {
     id: 'bench_smith', name: 'Développé couché Smith',
@@ -133,6 +142,7 @@ export const EXERCISES = [
     muscles: { primary: ['Dos'], secondary: ['Biceps','Épaules'] },
     type: 'compound', block: 'A', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: true,
+    cue: 'Paumes vers l\'avant. Monte jusqu\'à passer le menton au-dessus de la barre, redescends bras complètement tendus.',
   },
   {
     id: 'chinup', name: 'Traction supination (chin-up)',
@@ -140,6 +150,7 @@ export const EXERCISES = [
     muscles: { primary: ['Dos','Biceps'], secondary: ['Épaules'] },
     type: 'compound', block: 'A', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: true,
+    cue: 'Paumes vers toi, mains largeur d\'épaules. Les biceps participent davantage qu\'en pronation.',
   },
   {
     id: 'trx_row', name: 'Rowing TRX',
@@ -147,6 +158,7 @@ export const EXERCISES = [
     muscles: { primary: ['Dos'], secondary: ['Biceps'] },
     type: 'compound', block: 'B', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate'], failureAllowed: true,
+    cue: 'Corps gainé et incliné, bras tendus. Tire la poitrine vers les mains ; plus les pieds sont avancés, plus c\'est dur.',
   },
   {
     id: 'lat_pulldown_wide', name: 'Tirage vertical pronation',
@@ -154,6 +166,7 @@ export const EXERCISES = [
     muscles: { primary: ['Dos'], secondary: ['Biceps'] },
     type: 'compound', block: 'A', objectives: ['strength','hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Prise large, sors la poitrine et tire la barre vers le haut du torse. Remonte sans lâcher la tension.',
   },
   {
     id: 'barbell_row', name: 'Rowing barre',
@@ -161,6 +174,7 @@ export const EXERCISES = [
     muscles: { primary: ['Dos'], secondary: ['Biceps','Épaules'] },
     type: 'compound', block: 'A', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: false,
+    cue: 'Buste penché à environ 45°, dos plat. Tire la barre vers le nombril, coudes le long du corps, sans à-coup des lombaires.',
   },
   {
     id: 'dumbbell_row', name: 'Rowing haltère unilatéral',
@@ -168,6 +182,7 @@ export const EXERCISES = [
     muscles: { primary: ['Dos'], secondary: ['Biceps'] },
     type: 'compound', block: 'B', objectives: ['hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Un genou et une main sur le banc, dos plat. Tire l\'haltère vers la hanche sans tourner le buste.',
   },
   {
     id: 'cable_row', name: 'Rowing assis câble',
@@ -203,6 +218,7 @@ export const EXERCISES = [
     muscles: { primary: ['Épaules','Dos'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Corde à hauteur du visage. Tire vers le front en écartant les mains, coudes hauts et épaules basses.',
   },
   {
     id: 'straight_arm_pulldown', name: 'Tirage poulie bras tendus',
@@ -210,6 +226,7 @@ export const EXERCISES = [
     muscles: { primary: ['Dos'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Bras quasi tendus, angle des coudes fixe du début à la fin. Ramène la barre vers les cuisses par les dorsaux, pas par les triceps.',
   },
   {
     id: 'deadlift', name: 'Soulevé de terre',
@@ -217,6 +234,7 @@ export const EXERCISES = [
     muscles: { primary: ['Dos','Ischio-jambiers','Fessiers'], secondary: ['Quadriceps','Mollets'] },
     type: 'compound', block: 'A', objectives: ['strength'],
     level: ['intermediate','advanced'], failureAllowed: false,
+    cue: 'Barre contre les tibias, dos plat, épaules au-dessus de la barre. Pousse dans le sol avec les jambes et termine hanches tendues, sans partir en arrière.',
   },
   {
     id: 'hyperextension', name: 'Hyperextension',
@@ -231,6 +249,7 @@ export const EXERCISES = [
     muscles: { primary: ['Ischio-jambiers','Dos'], secondary: ['Fessiers'] },
     type: 'compound', block: 'B', objectives: ['strength'],
     level: ['advanced'], failureAllowed: false,
+    cue: 'Barre sur le haut du dos, genoux légèrement fléchis, dos plat. Pousse les hanches vers l\'arrière jusqu\'à l\'étirement des ischios. Charge modérée, c\'est un exercice technique.',
   },
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -242,6 +261,7 @@ export const EXERCISES = [
     muscles: { primary: ['Épaules'], secondary: ['Triceps'] },
     type: 'compound', block: 'A', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: false,
+    cue: 'Debout, gainage serré, fessiers contractés. Pousse la barre à la verticale au-dessus de la tête en rentrant légèrement la tête au passage. Ne cambre pas le bas du dos.',
   },
   {
     id: 'ohp_dumbbell', name: 'Développé militaire haltères',
@@ -249,6 +269,7 @@ export const EXERCISES = [
     muscles: { primary: ['Épaules'], secondary: ['Triceps'] },
     type: 'compound', block: 'A', objectives: ['hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Haltères au niveau des oreilles, pousse à la verticale. Gainage serré, pas de cambrure lombaire.',
   },
   {
     id: 'ohp_machine', name: 'Développé épaules machine',
@@ -263,6 +284,7 @@ export const EXERCISES = [
     muscles: { primary: ['Épaules'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Monte les bras sur les côtés jusqu\'à l\'horizontale, coudes légèrement fléchis. Charge légère — c\'est un petit muscle, l\'élan ne sert à rien.',
   },
   {
     id: 'lateral_raise_cable', name: 'Élévations latérales câble',
@@ -270,6 +292,7 @@ export const EXERCISES = [
     muscles: { primary: ['Épaules'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Poulie basse, monte le bras sur le côté jusqu\'à l\'horizontale. Coude légèrement fléchi, sans hausser l\'épaule.',
   },
   {
     id: 'front_raise_dumbbell', name: 'Élévations frontales haltères',
@@ -284,6 +307,7 @@ export const EXERCISES = [
     muscles: { primary: ['Épaules','Dos'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Buste penché, bras tendus vers le sol. Ouvre les bras sur les côtés sans hausser les épaules.',
   },
   {
     id: 'shrug_barbell', name: 'Shrugs barre',
@@ -323,6 +347,7 @@ export const EXERCISES = [
     muscles: { primary: ['Biceps'], secondary: ['Avant-bras'] },
     type: 'isolation', block: 'B', objectives: ['hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Coudes fixes le long du corps, monte la barre sans balancer le buste. La prise coudée de l\'EZ ménage les poignets.',
   },
   {
     id: 'curl_dumbbell', name: 'Curl haltères alternés',
@@ -330,6 +355,7 @@ export const EXERCISES = [
     muscles: { primary: ['Biceps'], secondary: ['Avant-bras'] },
     type: 'isolation', block: 'B', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Un bras après l\'autre, coudes fixes le long du corps. Tourne progressivement la paume vers le haut en montant.',
   },
   {
     id: 'hammer_curl', name: 'Curl marteau',
@@ -337,6 +363,7 @@ export const EXERCISES = [
     muscles: { primary: ['Biceps','Avant-bras'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Prise neutre, pouces vers le haut, coudes fixes. Travaille aussi le brachial et l\'avant-bras.',
   },
   {
     id: 'concentration_curl', name: 'Curl concentré',
@@ -351,6 +378,7 @@ export const EXERCISES = [
     muscles: { primary: ['Biceps'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: true,
+    cue: 'Assis sur un banc incliné, bras qui pendent en arrière du buste. C\'est cet étirement de départ qui fait l\'exercice — n\'avance pas les coudes pour tricher.',
   },
   {
     id: 'curl_machine', name: 'Curl biceps machine',
@@ -397,6 +425,7 @@ export const EXERCISES = [
     muscles: { primary: ['Triceps'], secondary: [] },
     type: 'isolation', block: 'B', objectives: ['hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: true,
+    cue: 'Allongé, coudes fixes pointés vers le plafond. Descends la barre vers le front : seuls les avant-bras bougent.',
   },
   {
     id: 'skull_crusher_dumbbell', name: 'Skull crusher haltères',
@@ -411,6 +440,7 @@ export const EXERCISES = [
     muscles: { primary: ['Triceps'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Coudes fixes le long du corps. Tends les bras vers le bas et écarte la corde en fin de mouvement.',
   },
   {
     id: 'triceps_pushdown_bar', name: 'Triceps câble barre',
@@ -460,6 +490,7 @@ export const EXERCISES = [
     muscles: { primary: ['Triceps'], secondary: ['Épaules'] },
     type: 'compound', block: 'B', objectives: ['hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Dos calé, coudes serrés le long du corps. Tends les bras sans verrouiller brutalement.',
   },
   {
     id: 'diamond_pushup', name: 'Pompe diamant',
@@ -467,6 +498,7 @@ export const EXERCISES = [
     muscles: { primary: ['Triceps'], secondary: ['Poitrine'] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate'], failureAllowed: true,
+    cue: 'Mains jointes en losange sous la poitrine, coudes serrés le long du corps. Ce sont les triceps qui travaillent, pas les pectoraux.',
   },
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -478,6 +510,7 @@ export const EXERCISES = [
     muscles: { primary: ['Quadriceps','Fessiers'], secondary: ['Ischio-jambiers','Mollets','Dos'] },
     type: 'compound', block: 'A', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: false,
+    cue: 'Barre sur le haut du dos, descends au moins jusqu\'aux cuisses parallèles. Genoux dans l\'axe des pieds, dos plat, regard neutre.',
   },
   {
     id: 'squat_dumbbell', name: 'Squat haltères',
@@ -499,6 +532,7 @@ export const EXERCISES = [
     muscles: { primary: ['Quadriceps','Fessiers'], secondary: ['Ischio-jambiers'] },
     type: 'compound', block: 'B', objectives: ['endurance'],
     level: ['beginner'], failureAllowed: true,
+    cue: 'Pieds largeur d\'épaules, descends au moins jusqu\'aux cuisses parallèles. Dos plat, genoux dans l\'axe des pieds.',
   },
   {
     id: 'leg_press', name: 'Leg press',
@@ -506,6 +540,7 @@ export const EXERCISES = [
     muscles: { primary: ['Quadriceps','Fessiers'], secondary: ['Ischio-jambiers'] },
     type: 'compound', block: 'B', objectives: ['strength','hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Pieds au milieu du plateau, descends jusqu\'à environ 90° sans décoller le bassin. Ne verrouille pas les genoux en haut.',
   },
   {
     id: 'hack_squat', name: 'Hack squat machine',
@@ -513,6 +548,7 @@ export const EXERCISES = [
     muscles: { primary: ['Quadriceps'], secondary: ['Fessiers'] },
     type: 'compound', block: 'B', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: true,
+    cue: 'Dos calé, pieds au milieu du plateau. Descends au moins jusqu\'aux cuisses parallèles.',
   },
   {
     id: 'leg_extension', name: 'Leg extension',
@@ -520,6 +556,7 @@ export const EXERCISES = [
     muscles: { primary: ['Quadriceps'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Dos calé, axe de rotation de la machine aligné sur le genou. Tends complètement et contrôle la descente.',
   },
   {
     id: 'sissy_squat', name: 'Sissy squat',
@@ -527,6 +564,7 @@ export const EXERCISES = [
     muscles: { primary: ['Quadriceps'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Genoux vers l\'avant, buste et cuisses alignés, descends en arrière. Amplitude progressive : c\'est exigeant pour les genoux.',
   },
   {
     id: 'dips_weighted_parallel', name: 'Dips lestés aux barres parallèles',
@@ -534,6 +572,7 @@ export const EXERCISES = [
     muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'A', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: false,
+    cue: 'Ceinture de lest, buste penché en avant. Contrôle la descente, pas de rebond en bas.',
   },
   {
     id: 'curl_rings', name: 'Curl aux anneaux',
@@ -541,6 +580,7 @@ export const EXERCISES = [
     muscles: { primary: ['Biceps'], secondary: [] },
     type: 'isolation', block: 'B', objectives: ['hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Anneaux réglés bas, corps incliné en arrière, paumes vers toi. Fléchis les coudes pour amener les mains vers le front, coudes hauts et fixes.',
   },
   {
     id: 'curl_band', name: 'Curl élastique',
@@ -548,6 +588,7 @@ export const EXERCISES = [
     muscles: { primary: ['Biceps'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Pieds sur l\'élastique, coudes fixes le long du corps. La résistance augmente en fin de montée : ralentis la descente.',
   },
   {
     id: 'calf_single_weighted', name: 'Mollets lestés une jambe',
@@ -555,6 +596,7 @@ export const EXERCISES = [
     muscles: { primary: ['Mollets'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Sur une jambe, avant-pied sur une marche, gilet ou ceinture de lest. Amplitude complète, contrôle la descente.',
   },
   {
     id: 'lunge_barbell', name: 'Fente avant barre',
@@ -576,6 +618,7 @@ export const EXERCISES = [
     muscles: { primary: ['Quadriceps','Fessiers'], secondary: ['Ischio-jambiers'] },
     type: 'compound', block: 'B', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: true,
+    cue: 'Pied arrière sur un banc, descends sur la jambe avant. Buste légèrement penché pour plus de fessiers, droit pour plus de quadriceps.',
   },
   {
     id: 'squat_smith', name: 'Squat Smith',
@@ -590,6 +633,7 @@ export const EXERCISES = [
     muscles: { primary: ['Quadriceps','Fessiers'], secondary: ['Ischio-jambiers'] },
     type: 'compound', block: 'B', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Avance en fentes en alternant les jambes, genou arrière proche du sol. Grand pas = fessiers, petit pas = quadriceps.',
   },
   {
     id: 'belt_squat', name: 'Belt squat',
@@ -615,6 +659,7 @@ export const EXERCISES = [
     muscles: { primary: ['Ischio-jambiers','Fessiers'], secondary: ['Dos'] },
     type: 'compound', block: 'B', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: false,
+    cue: 'Jambes quasi tendues, pousse les hanches vers l\'arrière en gardant la barre proche des jambes. Descends jusqu\'à l\'étirement des ischios, pas plus bas.',
   },
   {
     id: 'rdl_dumbbell', name: 'Soulevé de terre roumain haltères',
@@ -629,6 +674,7 @@ export const EXERCISES = [
     muscles: { primary: ['Ischio-jambiers'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'À plat ventre, ramène les talons vers les fessiers sans décoller les hanches du support.',
   },
   {
     id: 'leg_curl_seated', name: 'Leg curl assis',
@@ -636,6 +682,7 @@ export const EXERCISES = [
     muscles: { primary: ['Ischio-jambiers'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Dos calé, ramène les talons sous le siège et contrôle le retour sans relâcher d\'un coup.',
   },
   {
     id: 'hip_thrust_barbell', name: 'Hip thrust barre',
@@ -643,6 +690,7 @@ export const EXERCISES = [
     muscles: { primary: ['Fessiers'], secondary: ['Ischio-jambiers'] },
     type: 'compound', block: 'B', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: true,
+    cue: 'Haut du dos contre le banc, barre sur les hanches avec un coussin. Monte jusqu\'à l\'alignement genoux-hanches-épaules, menton rentré, et serre en haut.',
   },
   {
     id: 'hip_thrust_machine', name: 'Hip thrust machine',
@@ -650,6 +698,7 @@ export const EXERCISES = [
     muscles: { primary: ['Fessiers'], secondary: ['Ischio-jambiers'] },
     type: 'compound', block: 'B', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Dos calé, pousse le coussin par les hanches. Marque un temps d\'arrêt en haut en serrant les fessiers.',
   },
   {
     id: 'hip_thrust_dumbbell', name: 'Hip thrust haltères',
@@ -678,6 +727,7 @@ export const EXERCISES = [
     muscles: { primary: ['Fessiers'], secondary: ['Ischio-jambiers'] },
     type: 'isolation', block: 'C', objectives: ['endurance'],
     level: ['beginner'], failureAllowed: true,
+    cue: 'Allongé sur le dos, pieds au sol près des fessiers. Monte le bassin en serrant les fessiers, sans creuser le bas du dos en haut.',
   },
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -689,6 +739,7 @@ export const EXERCISES = [
     muscles: { primary: ['Abducteurs'], secondary: ['Fessiers'] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Assis, dos calé, écarte les genoux contre la résistance et contrôle le retour. Ne t\'aide pas avec le buste.',
   },
   {
     id: 'adductor_machine', name: 'Adducteur machine',
@@ -721,6 +772,7 @@ export const EXERCISES = [
     muscles: { primary: ['Mollets'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Jambes tendues, amplitude complète, temps de pause en haut de chaque répétition.',
   },
   {
     id: 'seated_calf_raise', name: 'Mollets assis machine',
@@ -728,6 +780,7 @@ export const EXERCISES = [
     muscles: { primary: ['Mollets'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Genoux fléchis à 90°, monte le plus haut possible et descends en étirement complet. Genou fléchi = c\'est le soléaire qui travaille.',
   },
   {
     id: 'leg_press_calf', name: 'Mollets leg press',
@@ -735,6 +788,7 @@ export const EXERCISES = [
     muscles: { primary: ['Mollets'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Avant-pieds sur le bas du plateau. Pousse par les orteils sans déverrouiller les genoux.',
   },
   {
     id: 'calf_raise_barbell', name: 'Mollets debout barre',
@@ -756,6 +810,7 @@ export const EXERCISES = [
     muscles: { primary: ['Mollets'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['endurance'],
     level: ['beginner','intermediate'], failureAllowed: true,
+    cue: 'Sur une jambe, avant-pied sur une marche. Monte le plus haut possible et contrôle la descente jusqu\'à l\'étirement.',
   },
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -767,6 +822,7 @@ export const EXERCISES = [
     muscles: { primary: ['Abdominaux'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Dos bien calé, poignées au niveau des épaules. Enroule le buste et contrôle le retour sans laisser la charge te tirer.',
   },
   {
     id: 'rotation_machine', name: 'Rotation obliques machine',
@@ -781,6 +837,7 @@ export const EXERCISES = [
     muscles: { primary: ['Abdominaux'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: true,
+    cue: 'Suspendu à la barre, monte les jambes tendues sans balancer. Enroule le bassin en fin de montée : c\'est là que les abdos travaillent vraiment.',
   },
   {
     id: 'captain_chair', name: 'Captain chair relevés genoux',
@@ -795,6 +852,7 @@ export const EXERCISES = [
     muscles: { primary: ['Abdominaux'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: true,
+    cue: 'À genoux face à la poulie haute, corde derrière la nuque. Enroule le buste vers les cuisses en gardant les hanches fixes — ce sont les abdos qui tirent, pas les bras.',
   },
   {
     id: 'plank', name: 'Planche',
@@ -802,6 +860,7 @@ export const EXERCISES = [
     muscles: { primary: ['Abdominaux'], secondary: ['Dos','Épaules'] },
     type: 'compound', block: 'C', objectives: ['endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Appui sur les avant-bras et les pointes de pieds, corps aligné des talons à la tête. Serre les fessiers et rentre le bassin — pas de dos creux.',
   },
   {
     id: 'side_plank', name: 'Gainage latéral',
@@ -823,6 +882,7 @@ export const EXERCISES = [
     muscles: { primary: ['Abdominaux'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Allongé sur le dos, genoux fléchis. Décolle les omoplates en enroulant le buste, sans tirer sur la nuque. Inter./avancé : tiens un sac chargé contre la poitrine ou bras tendus derrière la tête.',
   },
   {
     id: 'swiss_ball_crunch', name: 'Crunch Swiss ball',
@@ -864,6 +924,7 @@ export const EXERCISES = [
     muscles: { primary: ['Ischio-jambiers'], secondary: ['Fessiers'] },
     type: 'compound', block: 'B', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: true,
+    cue: 'À genoux, chevilles bloquées. Descends le buste vers l\'avant en résistant le plus longtemps possible, puis rattrape-toi sur les mains.',
   },
   {
     id: 'kettlebell_swing', name: 'Kettlebell swing',
@@ -944,6 +1005,7 @@ export const EXERCISES = [
     muscles: { primary: ['Abdominaux'], secondary: ['Triceps'] },
     type: 'compound', block: 'C', objectives: ['strength'],
     level: ['advanced'], failureAllowed: true,
+    cue: 'Aux barres parallèles, bras tendus, épaules basses. Décolle le bassin et tends les jambes à l\'horizontale, puis tiens la position.',
   },
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -969,6 +1031,7 @@ export const EXERCISES = [
     muscles: { primary: ['Quadriceps','Fessiers'], secondary: ['Ischio-jambiers','Mollets','Abdominaux'] },
     type: 'compound', block: 'B', objectives: ['strength','hypertrophy'],
     level: ['advanced'], failureAllowed: true,
+    cue: 'Squat sur une jambe, l\'autre tendue devant. Tends les bras devant toi pour l\'équilibre, contrôle la descente.',
   },
   {
     id: 'ab_wheel_rollout', name: 'Roulette abdominale',
@@ -976,6 +1039,7 @@ export const EXERCISES = [
     muscles: { primary: ['Abdominaux'], secondary: ['Épaules','Dos'] },
     type: 'compound', block: 'C', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: true,
+    cue: 'À genoux, déroule la roulette vers l\'avant en gardant le bas du dos plat. Ne va que jusqu\'où tu peux revenir sans creuser.',
   },
   {
     id: 'burpees', name: 'Burpees',
@@ -1043,6 +1107,7 @@ export const EXERCISES = [
     muscles: { primary: ['Dos','Pectoraux'], secondary: ['Triceps','Abdominaux'] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: true,
+    cue: 'Face à la poulie haute, bras légèrement fléchis et cet angle ne bouge plus. Ramène vers les cuisses en pensant aux coudes, pas aux mains.',
   },
   {
     id: 'bayesian_curl', name: 'Curl câble bayésien',
@@ -1090,6 +1155,7 @@ export const EXERCISES = [
     muscles: { primary: ['Quadriceps'], secondary: ['Fessiers','Abdominaux','Dos'] },
     type: 'compound', block: 'A', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: false,
+    cue: 'Barre sur les deltoïdes avant, coudes hauts. Le buste reste droit — c\'est ce qui cible les quadriceps.',
   },
   {
     id: 'trap_bar_deadlift', name: 'Soulevé de terre trap bar',
@@ -1110,6 +1176,7 @@ export const EXERCISES = [
     muscles: { primary: ['Poitrine'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Bras légèrement fléchis, angle fixe du début à la fin. Ouvre jusqu\'à l\'étirement, referme sans laisser les haltères se toucher.',
   },
   {
     id: 'pike_pushup', name: 'Pompes piquées',
@@ -1117,6 +1184,7 @@ export const EXERCISES = [
     muscles: { primary: ['Épaules'], secondary: ['Triceps'] },
     type: 'compound', block: 'B', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate'], failureAllowed: true,
+    cue: 'Pompe en position pliée, bassin haut, mains sous les épaules. Descends le sommet du crâne vers le sol — c\'est la marche avant le handstand push-up.',
   },
   {
     id: 'triceps_extension_band', name: 'Extension triceps élastique',
@@ -1124,6 +1192,7 @@ export const EXERCISES = [
     muscles: { primary: ['Triceps'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
+    cue: 'Élastique fixé en hauteur, coudes fixes le long du corps. Tends les bras vers le bas et contrôle le retour.',
   },
   {
     id: 'lunge_bodyweight', name: 'Fentes alternées',
