@@ -635,6 +635,17 @@ const focusSessionCount = (program, focusMuscles) =>
 // 20 séries en une séance) ; au-delà de 2 muscles, 2×/sem suffit. On ne dépasse
 // jamais le nombre de jours dont l'utilisateur dispose.
 function chooseBaseForFocus(candidates, user, focusMuscles) {
+  // Une cible LARGE n'est pas une spécialisation. Le raisonnement ci-dessous
+  // compte les séances qui touchent la cible et vise 2 à 3 par semaine — c'est
+  // une fréquence PAR MUSCLE, valable quand on vise deux ou trois muscles. Dès
+  // que la cible couvre une moitié du corps ou plus, chaque séance la touche :
+  // le compteur devient le nombre total de séances, et viser « 2 » revenait à
+  // choisir systématiquement le programme 3 jours — même avec 5 jours déclarés.
+  // Résultat : ajouter un jour n'allégeait jamais les séances.
+  // Au-delà de 4 muscles (un bas du corps entier), on choisit donc comme pour un
+  // objectif large : selon le nombre de jours réellement disponibles.
+  if (focusMuscles.size > 4) return chooseByFrequency(candidates, user);
+
   const maxDays = availableDayCount(user);
   const ideal = Math.min(focusMuscles.size <= 2 ? 3 : 2, maxDays);
   const days = normalizedAvailableDays(user);
