@@ -35,5 +35,5 @@ desktop.ini
 public/Capture*
 *.tmp
 
-# Fichiers de verrou LibreOffice (créés tant qu%s un tableur est ouvert)
+# Fichiers de verrou LibreOffice (créés tant qu'un tableur est ouvert)
 .~lock.*#
