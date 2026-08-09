@@ -58,6 +58,7 @@ import StepAvailability from '@/components/onboarding/StepAvailability';
 import ObjectivesTab from '@/components/profile/ObjectivesTab';
 import { messageBudgetTemps } from '@/lib/budget-temps';
 import { updateMeTolerant } from '@/lib/profile-save';
+import { messageBarreManquante } from '@/lib/barbell-guard';
 import SubscriptionBadge from '@/components/profile/SubscriptionBadge';
 
 export default function Profile() {
@@ -134,10 +135,27 @@ export default function Profile() {
     // ses mensurations…), ce qui n'a rien à voir.
     const toucheAuTemps = ['available_days', 'duration_per_day', 'availability_optimal']
       .some((f) => JSON.stringify(form[f]) !== JSON.stringify(user?.[f]));
-    if (toucheAuTemps) {
+    const toucheAuMateriel = ['equipment', 'training_context']
+      .some((f) => JSON.stringify(form[f]) !== JSON.stringify(user?.[f]));
+
+    if (toucheAuTemps || toucheAuMateriel) {
       const objectifs = await base44.entities.Objective
         .filter({ status: 'active' })
         .catch(() => null);
+
+      // Retirer la barre alors qu'un objectif porte sur le squat ou le développé
+      // couché rend cet objectif intravaillable. Ce contrôle n'existait que dans
+      // l'onboarding : depuis le profil, on pouvait passer à « aucun matériel »
+      // sans que rien ne l'empêche.
+      if (toucheAuMateriel) {
+        const sansBarre = messageBarreManquante(form.equipment, objectifs);
+        if (sansBarre) {
+          toast.error(sansBarre, { duration: 10000 });
+          setActiveTab('equipment');
+          return;
+        }
+      }
+
       const message = await messageBudgetTemps(form, objectifs, t);
       if (message) {
         toast.error(message, { duration: 8000 });

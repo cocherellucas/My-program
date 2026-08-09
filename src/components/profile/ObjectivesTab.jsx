@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { ensureOnline } from '@/lib/net';
 import { useI18n } from '@/lib/i18n';
 import { messageBudgetTemps } from '@/lib/budget-temps';
+import { messageBarreManquante } from '@/lib/barbell-guard';
 // L'onglet Objectifs du Profil réutilise l'ÉCRAN DE L'ONBOARDING au lieu d'en
 // maintenir une deuxième version (qui avait dérivé : champ texte libre pour les
 // mouvements, zone vide sans explication…). Ici on ne garde que la persistance.
@@ -60,6 +61,16 @@ export default function ObjectivesTab({ userId, level, onProgramImpact }) {
       // temps annoncé — on le dit avant d'enregistrer. (`toList` côté activation
       // accepte aussi bien les listes que le texte séparé par des virgules.)
       const moi = await base44.auth.me().catch(() => null);
+
+      // Choisir un objectif de force sur le squat ou le développé couché sans
+      // posséder de barre : l'objectif serait intravaillable. Même contrôle qu'à
+      // l'étape Équipement de l'onboarding, dans l'autre sens.
+      const sansBarre = messageBarreManquante(moi?.equipment, objectives);
+      if (sansBarre) {
+        toast.error(sansBarre, { duration: 10000 });
+        return;
+      }
+
       const message = await messageBudgetTemps(moi, objectives, t);
       if (message) {
         toast.error(message, { duration: 8000 });

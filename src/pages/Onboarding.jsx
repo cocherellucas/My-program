@@ -16,20 +16,10 @@ import StepMeasurements from '@/components/onboarding/StepMeasurements';
 import WelcomeIntro from '@/components/onboarding/WelcomeIntro';
 import { useI18n } from '@/lib/i18n';
 import { messageBudgetTemps } from '@/lib/budget-temps';
+import { messageBarreManquante } from '@/lib/barbell-guard';
 
 const TOTAL_STEPS = 6;
 const STORAGE_KEY = 'onboarding_draft';
-
-// Mouvements de force qui exigent une BARRE, et leur nom tel qu'on l'écrit à
-// l'utilisateur. On ne vérifie que la barre : un rack ou un banc peuvent
-// s'improviser, la barre non. La traction lestée est volontairement absente —
-// une porte ou un escalier suffisent, il n'y a aucune raison de bloquer.
-const BARBELL = 'Barre olympique';
-const BARBELL_MOVEMENTS = {
-  'Squat barre': 'Squat',
-  'Développé couché': 'Développé couché',
-  'Soulevé de terre': 'Soulevé de terre',
-};
 
 // Garde-fou TEMPS : certains couples objectif × durée sont matériellement
 // impossibles (la force demande 240 s de repos par série — une séance ne rentre
@@ -220,24 +210,9 @@ export default function Onboarding() {
     // soulevé au poids du corps) : on bloque ici, où l'utilisateur peut encore cocher
     // le matériel, plutôt que de le laisser découvrir l'impasse à la génération.
     if (step === 3) {
-      const equip = Array.isArray(data.equipment) ? data.equipment : [];
-      const manquants = [];
-      for (const o of data.objectives || []) {
-        const movs = Array.isArray(o.focus_movement) ? o.focus_movement : (o.focus_movement ? [o.focus_movement] : []);
-        for (const mv of movs) {
-          const label = BARBELL_MOVEMENTS[mv];
-          if (!label || equip.includes(BARBELL)) continue;
-          if (!manquants.includes(label)) manquants.push(label);
-        }
-      }
-      if (manquants.length) {
-        const liste = manquants.length > 1
-          ? `${manquants.slice(0, -1).join(', ')} et ${manquants[manquants.length - 1]}`
-          : manquants[0];
-        setStepError(
-          `${liste} ${manquants.length > 1 ? 'demandent' : 'demande'} une barre — impossible avec ton matériel actuel. `
-          + `Ajoute une barre, ou choisis un autre objectif.`
-        );
+      const sansBarre = messageBarreManquante(data.equipment, data.objectives);
+      if (sansBarre) {
+        setStepError(sansBarre);
         return false;
       }
       // Le matériel est enfin connu : on revérifie le temps. À l'étape 2 on avait
