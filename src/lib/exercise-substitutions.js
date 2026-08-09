@@ -72,7 +72,7 @@ export const SUBSTITUTIONS = {
   "Tirage vertical pronation": ["Traction pronation (barre de fortune)"],
   "Traction pronation": ["Traction pronation (barre de fortune)"],
   "Traction supination (chin-up)": ["Traction supination (barre de fortune)"],
-  "Triceps poulie haute corde": ["Extension triceps nuque avec sac"],
+  "Triceps poulie haute corde": ["Kickback triceps avec sac"],
 };
 
 /** Candidats de repli pour cet exercice, du meilleur au plus accessible. */

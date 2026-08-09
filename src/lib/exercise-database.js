@@ -496,8 +496,13 @@ export const EXERCISES = [
     id: 'diamond_pushup', name: 'Pompe diamant',
     equipmentOptions: [[]], // bodyweight
     muscles: { primary: ['Triceps'], secondary: ['Poitrine'] },
-    type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
-    level: ['beginner','intermediate'], failureAllowed: true,
+    // COMPOUND : une pompe met en jeu l'épaule ET le coude. C'était le seul des
+    // treize mouvements de pompe de la base classé en isolation — les dips buste
+    // droit, qui visent pourtant aussi les triceps, sont bien en compound.
+    // L'écart comptait : les isolations sont rognées EN PREMIER quand le temps
+    // manque, celle-ci sautait donc avant des mouvements équivalents.
+    type: 'compound', block: 'C', objectives: ['hypertrophy','endurance'],
+    level: ['beginner','intermediate','advanced'], failureAllowed: true,
     cue: 'Mains jointes en losange sous la poitrine, coudes serrés le long du corps. Ce sont les triceps qui travaillent, pas les pectoraux.',
   },
 
@@ -1538,13 +1543,13 @@ export const EXERCISES = [
     cue: 'Un sac chargé tenu à deux mains derrière la nuque, coudes hauts et fixes. Tends les bras vers le haut.',
   },
   {
-    id: 'extension_triceps_nuque_avec_sac', name: 'Extension triceps nuque avec sac',
+    id: 'kickback_triceps_avec_sac', name: 'Kickback triceps avec sac',
     equipmentOptions: [[]],
     muscles: { primary: ['Triceps'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
     fallback: true,
-    cue: 'Assis sur une chaise, sac chargé derrière la nuque à deux mains. Coudes fixes, seuls les avant-bras bougent.',
+    cue: 'Buste penché en avant, coude fixé le long du corps, bras replié. Tends l\'avant-bras vers l\'arrière jusqu\'à verrouiller le coude et marque un temps — c\'est en fin de course que le triceps travaille le plus sur ce mouvement. Un sac par la poignée dans chaque main, ou une main après l\'autre en appui sur une chaise.',
   },
   {
     id: 'skull_crusher_avec_sac', name: 'Skull crusher avec sac',

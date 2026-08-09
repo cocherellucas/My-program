@@ -190,7 +190,7 @@ const CONSIGNE_PROPRE = {
   'Fente marchée avec sac': 'Sac à dos chargé, avance en fentes en alternant les jambes. Genou arrière proche du sol sans le toucher.',
   'Squat avec sac': 'Sac à dos chargé sur le dos, ou tenu contre la poitrine. Descends au moins jusqu\'aux cuisses parallèles, dos plat.',
   'Extension triceps avec sac': 'Un sac chargé tenu à deux mains derrière la nuque, coudes hauts et fixes. Tends les bras vers le haut.',
-  'Extension triceps nuque avec sac': 'Assis sur une chaise, sac chargé derrière la nuque à deux mains. Coudes fixes, seuls les avant-bras bougent.',
+  'Kickback triceps avec sac': "Buste penché en avant, coude fixé le long du corps, bras replié. Tends l'avant-bras vers l'arrière jusqu'à verrouiller le coude et marque un temps — c'est en fin de course que le triceps travaille le plus sur ce mouvement. Un sac par la poignée dans chaque main, ou une main après l'autre en appui sur une chaise.",
   'Skull crusher avec sac': 'Allongé au bord d\'un lit ou d\'une chaise, sac chargé tenu à deux mains. Coudes fixes, descends le sac vers le front.',
   'Tirage australien': 'Sous une table solide ou une barre basse, corps gainé et incliné, pieds au sol. Tire la poitrine vers la barre. Plus les pieds sont loin — ou surélevés — plus c\'est dur. C\'est la marche avant la traction.',
 };
@@ -232,6 +232,13 @@ const REDIRECTION = {
   // apporte un vrai second mouvement : genou fléchi, c'est le soléaire qui
   // travaille et non les jumeaux, exactement comme la machine mollets assis.
   'Mollets assis machine': 'Mollets assis avec sac',
+  // Deux lignes du tableau décrivaient le MÊME geste : « extension triceps sac »
+  // et « extension triceps derriere la tete » sont toutes deux une extension au
+  // dessus de la tête. La poulie haute, elle, est une extension COUDES AU CORPS :
+  // épaule en extension, longue portion raccourcie, tension maximale bras tendu —
+  // là où l'extension nuque met la tension dans l'allongement. Deux stimulus
+  // différents, donc deux exercices différents, sinon on faisait un doublon.
+  'Triceps poulie haute corde': 'Kickback triceps avec sac',
 };
 
 // Entrées EXISTANTES dont il suffit d'élargir les niveaux : inutile de créer un
@@ -243,6 +250,9 @@ const A_ELARGIR = [
   { nom: 'Crunch au sol', ajouter: ['intermediate', 'advanced'],
     pourquoi: 'même logique que la pompe : le sac tenu dans les mains fait la charge',
     consigne: 'Inter./avancé : tiens un sac chargé contre la poitrine ou bras tendus derrière la tête.' },
+  { nom: 'Pompe diamant', ajouter: ['advanced'],
+    pourquoi: 'un sac chargé sur le dos rend la charge réglable, comme sur la pompe classique',
+    consigne: 'Avancé : sac à dos chargé sur le haut du dos.' },
 ];
 
 // ── Lecture des deux tableaux ───────────────────────────────────────────────
