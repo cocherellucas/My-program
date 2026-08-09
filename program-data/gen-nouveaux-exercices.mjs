@@ -148,6 +148,11 @@ const MUSCLE_FORCE = {
   'Pullover avec sac': { primaires: ['Dos'], secondaires: ['Pectoraux', 'Triceps', 'Abdominaux'] },
   // Hérite de deux isolations sans secondaires : une pompe sollicite bien plus.
   'Pompe large': { primaires: ['Poitrine'], secondaires: ['Triceps', 'Épaules'] },
+  // Hérite de la roulette abdominale (épaules, dos). Sur un crunch bras tendus,
+  // les bras ne font que tenir la position : ce ne sont pas des muscles
+  // entraînés. Les déclarer ferait croire au moteur qu'ils ont besoin de 48 h de
+  // récupération — voir loadedBy dans program-activation.
+  'Crunch bras tendus au-dessus de la tête': { primaires: ['Abdominaux'], secondaires: [] },
 };
 
 // Consignes RÉÉCRITES. La saisie d'origine reste dans les tableaux de

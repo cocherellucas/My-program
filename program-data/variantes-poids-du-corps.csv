@@ -11,31 +11,13 @@ Abdominaux;Relevés de jambes au sol;iso;déb. inter. avancé;—;—;aucune cha
 Abdominaux;Russian twist;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
 Abducteurs;Abduction de hanche allongé sur le côté;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
 Adducteurs;Copenhagen plank;iso;inter. avancé;—;—;aucune chaîne;—;—;;;
-Biceps;Curl avec sac;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
-Biceps;Curl avec sac alterné;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
-Biceps;Curl incliné sur chaise avec sac;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
-Biceps;Curl marteau avec sac;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
-Dos;Pullover avec sac;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
-Dos;Rowing avec sac;poly;déb. inter. avancé;tractions;1/8;approximative — À VÉRIFIER;—;Traction assistée élastique;;;
-Dos;Rowing bûcheron avec sac;poly;déb. inter. avancé;tractions;1/8;approximative — À VÉRIFIER;—;Traction assistée élastique;;;
-Dos;Rowing unilatéral avec sac;poly;déb. inter. avancé;tractions;1/8;approximative — À VÉRIFIER;—;Traction assistée élastique;;;
-Dos;Soulevé de terre avec sac;poly;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
 Dos;Tirage australien;poly;déb.;—;—;aucune chaîne;—;—;;;
 Dos;Traction pronation (barre de fortune);poly;déb. inter. avancé;tractions;1/8;approximative — À VÉRIFIER;—;Traction assistée élastique;;;
 Dos;Traction supination (barre de fortune);poly;déb. inter. avancé;tractions;1/8;approximative — À VÉRIFIER;—;Traction assistée élastique;;;
-Épaules;Élévations latérales avec sac ou bouteilles;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
-Épaules;Face pull avec sac;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
 Épaules;Handstand push-up contre un mur;poly;avancé;—;—;aucune chaîne;—;—;;;
-Épaules;Oiseau avec sac ou bouteilles;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
 Épaules;Pompes piquées;poly;déb. inter.;pompes;1/6;approximative — À VÉRIFIER;—;Pompes normales;;;
 Fessiers;Pont fessier au sol;iso;déb.;pont fessier;1/5;approximative — À VÉRIFIER;—;Pont fessier sur banc;;;
-Fessiers;Pont fessier avec sac ou unilatéral;poly;déb. inter. avancé;pont fessier;1/5;approximative — À VÉRIFIER;—;Pont fessier sur banc;;;
-Ischio-jambiers;Good morning avec sac;poly;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
-Ischio-jambiers;Leg curl au sol avec sac;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
 Ischio-jambiers;Nordic curl;poly;inter. avancé;—;—;aucune chaîne;—;—;;;
-Ischio-jambiers;Soulevé de terre roumain avec sac;poly;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
-Mollets;Mollets assis avec sac;iso;déb. inter. avancé;mollets;1/4;approximative — À VÉRIFIER;—;Élévation mollets marche 2 jambes;;;
-Mollets;Mollets unilatéraux avec sac;iso;déb. inter. avancé;mollets;1/4;approximative — À VÉRIFIER;—;Élévation mollets marche 2 jambes;;;
 Mollets;Mollets unilatéraux poids du corps;iso;déb. inter.;mollets;1/4;approximative — À VÉRIFIER;—;Élévation mollets marche 2 jambes;;;
 Pectoraux;Dips entre deux chaises (buste penché);poly;déb. inter. avancé;dips;1/4;approximative — À VÉRIFIER;—;Dips triceps banc (jambes tendues) ou Dips triceps pieds surélevés;;;
 Pectoraux;Pompe;poly;déb. inter. avancé;pompes;1/6;approximative — À VÉRIFIER;—;Pompes normales;;;
@@ -44,20 +26,40 @@ Pectoraux;Pompe large pieds surélevés (chaise);poly;déb. inter. avancé;pompe
 Pectoraux;Pompe pieds surélevés (chaise);poly;déb. inter. avancé;pompes;1/6;approximative — À VÉRIFIER;—;Pompes normales;;;
 Quadriceps;Burpees;poly;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
 Quadriceps;Fente bulgare (chaise);poly;déb. inter. avancé;fente;1/4;approximative — À VÉRIFIER;—;Fente marchée poids de corps;;;
-Quadriceps;Fente marchée avec sac;poly;déb. inter. avancé;fente;1/4;approximative — À VÉRIFIER;—;Fente marchée poids de corps;;;
 Quadriceps;Fentes alternées;poly;déb. inter.;fente;—;chaîne devinée par mot-clé — À VÉRIFIER;—;—;;;
-Quadriceps;Front squat avec sac;poly;déb. inter. avancé;squat;2/4;approximative — À VÉRIFIER;Squat assisté (chaise derrière);Pistol squat assisté;;;
-Quadriceps;Leg extension assis avec sac;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
 Quadriceps;Pistol squat;poly;avancé;squat;4/4;exacte;Pistol squat assisté;—;;;
 Quadriceps;Sissy squat;iso;déb. inter. avancé;squat;2/4;approximative — À VÉRIFIER;Squat assisté (chaise derrière);Pistol squat assisté;;;
 Quadriceps;Squat au poids du corps;poly;déb.;squat;1/4;approximative — À VÉRIFIER;—;Squat;;;
-Quadriceps;Squat avec sac;poly;déb. inter. avancé;squat;1/4;approximative — À VÉRIFIER;—;Squat;;;
 Quadriceps;Wall sit;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
 Triceps;Dips entre deux chaises (buste droit);poly;déb. inter. avancé;dips;1/4;approximative — À VÉRIFIER;—;Dips triceps banc (jambes tendues) ou Dips triceps pieds surélevés;;;
-Triceps;Extension triceps avec sac;iso;déb. inter. avancé;gainage;4/7;approximative — À VÉRIFIER;Gainage long (60s);Gainage avec extension jambe alternée;;;
-Triceps;Extension triceps nuque avec sac;iso;déb. inter. avancé;gainage;4/7;approximative — À VÉRIFIER;Gainage long (60s);Gainage avec extension jambe alternée;;;
-Triceps;Pompe diamant;iso;déb. inter.;pompes;1/6;approximative — À VÉRIFIER;—;Pompes normales;;;
-Triceps;Skull crusher avec sac;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
+Triceps;Pompe diamant;poly;déb. inter. avancé;pompes;1/6;approximative — À VÉRIFIER;—;Pompes normales;;;
+
+ÉCARTÉS — 25 exercices dont la progression est la CHARGE du sac (plus dur = sac plus lourd)
+Biceps;Curl avec sac
+Biceps;Curl avec sac alterné
+Biceps;Curl incliné sur chaise avec sac
+Biceps;Curl marteau avec sac
+Dos;Pullover avec sac
+Dos;Rowing avec sac
+Dos;Rowing bûcheron avec sac
+Dos;Rowing unilatéral avec sac
+Dos;Soulevé de terre avec sac
+Épaules;Élévations latérales avec sac ou bouteilles
+Épaules;Face pull avec sac
+Épaules;Oiseau avec sac ou bouteilles
+Fessiers;Pont fessier avec sac ou unilatéral
+Ischio-jambiers;Good morning avec sac
+Ischio-jambiers;Leg curl au sol avec sac
+Ischio-jambiers;Soulevé de terre roumain avec sac
+Mollets;Mollets assis avec sac
+Mollets;Mollets unilatéraux avec sac
+Quadriceps;Fente marchée avec sac
+Quadriceps;Front squat avec sac
+Quadriceps;Leg extension assis avec sac
+Quadriceps;Squat avec sac
+Triceps;Extension triceps avec sac
+Triceps;Kickback triceps avec sac
+Triceps;Skull crusher avec sac
 
 CHAÎNES EXISTANTES (src/lib/progression-chains.js) — du plus simple au plus dur
 pompes;Pompes sur les genoux;Pompes normales;Pompes pieds surélevés;Pompes archer;Pompes 1 bras sur les genoux;Pompes 1 bras

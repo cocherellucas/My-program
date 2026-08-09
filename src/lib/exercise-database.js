@@ -862,7 +862,7 @@ export const EXERCISES = [
   {
     id: 'plank', name: 'Planche',
     equipmentOptions: [[]], // bodyweight
-    muscles: { primary: ['Abdominaux'], secondary: ['Dos','Épaules'] },
+    muscles: { primary: ['Abdominaux'], secondary: [] },
     type: 'compound', block: 'C', objectives: ['endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
     cue: 'Appui sur les avant-bras et les pointes de pieds, corps aligné des talons à la tête. Serre les fessiers et rentre le bassin — pas de dos creux.',
@@ -899,14 +899,14 @@ export const EXERCISES = [
   {
     id: 'pallof_press', name: 'Pallof press câble',
     equipmentOptions: [['Câble poulie haute'],['Câble poulie basse'],['Station câbles double']],
-    muscles: { primary: ['Abdominaux'], secondary: ['Dos'] },
+    muscles: { primary: ['Abdominaux'], secondary: [] },
     type: 'compound', block: 'C', objectives: ['strength','endurance'],
     level: ['intermediate','advanced'], failureAllowed: true,
   },
   {
     id: 'dead_bug', name: 'Dead bug',
     equipmentOptions: [[]], // bodyweight
-    muscles: { primary: ['Abdominaux'], secondary: ['Dos'] },
+    muscles: { primary: ['Abdominaux'], secondary: [] },
     type: 'compound', block: 'C', objectives: ['endurance'],
     level: ['beginner','intermediate'], failureAllowed: true,
   },
@@ -1007,7 +1007,7 @@ export const EXERCISES = [
   {
     id: 'l_sit', name: 'L-sit',
     equipmentOptions: [['Barres parallèles'],['Captain chair']],
-    muscles: { primary: ['Abdominaux'], secondary: ['Triceps'] },
+    muscles: { primary: ['Abdominaux'], secondary: [] },
     type: 'compound', block: 'C', objectives: ['strength'],
     level: ['advanced'], failureAllowed: true,
     cue: 'Aux barres parallèles, bras tendus, épaules basses. Décolle le bassin et tends les jambes à l\'horizontale, puis tiens la position.',
@@ -1019,14 +1019,14 @@ export const EXERCISES = [
   {
     id: 'hollow_body_hold', name: 'Hollow body hold',
     equipmentOptions: [[]],
-    muscles: { primary: ['Abdominaux'], secondary: ['Fessiers','Quadriceps'] },
+    muscles: { primary: ['Abdominaux'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: true,
   },
   {
     id: 'copenhagen_plank', name: 'Copenhagen plank',
     equipmentOptions: [[]],
-    muscles: { primary: ['Adducteurs'], secondary: ['Abdominaux','Fessiers'] },
+    muscles: { primary: ['Adducteurs'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: true,
   },
@@ -1098,7 +1098,7 @@ export const EXERCISES = [
   {
     id: 'wall_sit', name: 'Wall sit',
     equipmentOptions: [[]],
-    muscles: { primary: ['Quadriceps'], secondary: ['Fessiers','Ischio-jambiers'] },
+    muscles: { primary: ['Quadriceps'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
   },
@@ -1221,7 +1221,7 @@ export const EXERCISES = [
   {
     id: 'crunch_bras_tendus_au_dessus_de_la_tete', name: 'Crunch bras tendus au-dessus de la tête',
     equipmentOptions: [[]],
-    muscles: { primary: ['Abdominaux'], secondary: ['Épaules','Dos'] },
+    muscles: { primary: ['Abdominaux'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['strength','hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
     fallback: true,
@@ -1230,7 +1230,7 @@ export const EXERCISES = [
   {
     id: 'l_sit_au_sol', name: 'L-sit au sol',
     equipmentOptions: [[]],
-    muscles: { primary: ['Abdominaux'], secondary: ['Triceps'] },
+    muscles: { primary: ['Abdominaux'], secondary: [] },
     type: 'compound', block: 'C', objectives: ['strength'],
     level: ['advanced'], failureAllowed: true,
     fallback: true,

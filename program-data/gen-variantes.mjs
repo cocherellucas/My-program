@@ -17,11 +17,18 @@ const APP = { Poitrine: 'Pectoraux', Abdos: 'Abdominaux' };
 const FR = { beginner: 'déb.', intermediate: 'inter.', advanced: 'avancé' };
 const nomsEtape = (e) => (e?.or ? e.or : [e]);
 
-const sansMateriel = EXERCISES
-  .filter((e) => e.equipmentOptions?.some((o) => o.length === 0))
-  .sort((a, b) => (APP[a.muscles?.primary?.[0]] || a.muscles?.primary?.[0] || '')
-    .localeCompare(APP[b.muscles?.primary?.[0]] || b.muscles?.primary?.[0] || '')
-    || a.name.localeCompare(b.name));
+// On ne demande de variantes QUE pour les mouvements dont la difficulté dépend
+// du levier et de la position du corps. Sur un exercice avec sac, la progression
+// est déjà réglée par la charge : « plus dur » = sac plus lourd, il n'y a rien à
+// décider. Les inclure noyait les 21 lignes utiles sous 38 lignes vides.
+const parLaCharge = (e) => /\bsacs?\b|bouteille/i.test(e.name);
+
+const tous = EXERCISES.filter((e) => e.equipmentOptions?.some((o) => o.length === 0));
+const parMuscle = (e) => APP[e.muscles?.primary?.[0]] || e.muscles?.primary?.[0] || '';
+const trier = (a, b) => parMuscle(a).localeCompare(parMuscle(b)) || a.name.localeCompare(b.name);
+
+const sansMateriel = tous.filter((e) => !parLaCharge(e)).sort(trier);
+const chargesParSac = tous.filter(parLaCharge).sort(trier);
 
 let exacts = 0, partiels = 0, absents = 0;
 const lignes = sansMateriel.map((e) => {
@@ -69,6 +76,13 @@ for (const l of lignes) {
     l.qualite, l.plusSimple || '—', l.plusDur || '—', '', '', ''].map(csvChamp).join(';'));
 }
 
+// Pour mémoire : les exercices écartés, et pourquoi. Rien à y remplir.
+csv.push('');
+csv.push([`ÉCARTÉS — ${chargesParSac.length} exercices dont la progression est la CHARGE du sac (plus dur = sac plus lourd)`].map(csvChamp).join(';'));
+for (const e of chargesParSac) {
+  csv.push([parMuscle(e), e.name].map(csvChamp).join(';'));
+}
+
 // Les chaînes telles qu'elles existent, pour référence en bas de fichier.
 csv.push('');
 csv.push(['CHAÎNES EXISTANTES (src/lib/progression-chains.js) — du plus simple au plus dur'].map(csvChamp).join(';'));
@@ -79,7 +93,8 @@ for (const [nom, chaine] of Object.entries(PROGRESSION_CHAINS)) {
 const sortie = path.join(ICI, 'variantes-poids-du-corps.csv');
 fs.writeFileSync(sortie, '﻿' + csv.join('\r\n') + '\r\n', 'utf8');
 console.log(`✓ ${sortie}`);
-console.log(`  ${lignes.length} exercices sans matériel`);
+console.log(`  ${lignes.length} exercices à variantes (difficulté = levier)`);
+console.log(`  ${chargesParSac.length} écartés (progression = charge du sac)`);
 console.log(`     rattachement exact à une chaîne : ${exacts}`);
 console.log(`     rattachement approximatif       : ${partiels}  (à vérifier)`);
 console.log(`     aucune chaîne                   : ${absents}`);
