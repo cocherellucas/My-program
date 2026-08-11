@@ -20,12 +20,14 @@ function LocalNumberInput({ value, onCommit, placeholder, decimal = false, readO
   const ref = React.useRef(null);
   const focusedRef = React.useRef(false);
 
-  // Sync prop → DOM UNIQUEMENT quand on n'est pas focus (pour ne pas casser la frappe)
-  // Note : 0 est traité comme "vide" — un poids/reps de 0 n'a aucun sens
+  // Sync prop → DOM UNIQUEMENT quand on n'est pas focus (pour ne pas casser la frappe).
+  // 0 est une valeur VALIDE et doit s'afficher : au poids du corps la charge vaut
+  // bel et bien 0 kg, et 0 répétition dit qu'une série a été manquée. Le champ le
+  // traitait comme vide et l'effaçait aussitôt saisi.
   React.useEffect(() => {
     if (!ref.current) return;
     if (focusedRef.current) return; // ne touche pas pendant la frappe
-    const next = (value === undefined || value === null || value === '' || value === 0) ? '' : String(value);
+    const next = (value === undefined || value === null || value === '') ? '' : String(value);
     if (ref.current.value !== next) ref.current.value = next;
   }, [value]);
 
@@ -53,7 +55,7 @@ function LocalNumberInput({ value, onCommit, placeholder, decimal = false, readO
       type="text"
       inputMode={decimal ? 'decimal' : 'numeric'}
       placeholder={placeholder}
-      defaultValue={(value === undefined || value === null || value === '' || value === 0) ? '' : String(value)}
+      defaultValue={(value === undefined || value === null || value === '') ? '' : String(value)}
       readOnly={readOnly}
       onFocus={() => { focusedRef.current = true; }}
       onInput={(e) => {
@@ -238,9 +240,10 @@ const shouldShowPropagate =
              // déjà un poids DIFFÉRENT, on garde manuallyEdited=true pour proposer « Propager »
              // (écraser). Le reset se fait au clic sur Propager, ou sur Entrée (onEnter).
              setManuallyEdited(true);
-             if (v) onWeightBlur?.(v);
+             // `v !== ''` et non `if (v)` : 0 kg est une charge valide (poids du
+             // corps), la tester en booléen empêchait de la reporter.
+             if (v !== '') onWeightBlur?.(v);
            }}
-           onEnter={() => setManuallyEdited(false)}
            className={`flex h-10 w-full rounded-md border bg-white/10 border-white/20 ${(locked || log.prefill?.weight) ? 'text-white/50' : 'text-white'} placeholder:text-white/35 text-sm text-center px-3 py-1 shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring`}
           />
           <div className="text-xs text-center mt-1 flex items-center justify-center">

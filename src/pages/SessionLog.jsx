@@ -617,7 +617,10 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
               onWeightBlur={(value) => propagateWeight(exIdx, setIdx, value, sets)}
               onWeightPropagate={(value) => {
                 forcePropagateWeight(exIdx, setIdx, value, sets);
-                handleApplyToFuture(exercise.name, { target_weight: Number(value) });
+                // `onApplyToFuture` est le NOM DU PROP ici : `handleApplyToFuture`
+                // est la fonction du parent, invisible dans ce composant. L'appeler
+                // par son nom de parent faisait planter le bouton « Propager ».
+                onApplyToFuture?.(exercise.name, { target_weight: Number(value) });
               }}
               nextWeights={Array.from({ length: sets - setIdx - 1 }, (_, i) => logs[`${exIdx}-${setIdx + 1 + i}`]?.weight)}
               rirContext={rirContext ? { ...rirContext, block: exercise.block } : null}
