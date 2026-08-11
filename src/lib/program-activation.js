@@ -875,9 +875,17 @@ function specializeProgram(program, focus, user, objectiveType = 'hypertrophy', 
   // Muscles qu'un exercice sollicite « assez directement » : ses primaires
   // toujours ; ses secondaires seulement s'il est polyarticulaire (sur une
   // isolation, la charge secondaire est négligeable).
+  // Muscles qu'un exercice met à contribution — sert à refuser un ajout qui
+  // tomberait dans la fenêtre de récupération d'un muscle déjà travaillé.
+  // Les secondaires comptent SANS condition de type. Auparavant ils n'étaient
+  // retenus que pour les polyarticulaires, alors que `sessionLoads` juste en
+  // dessous — l'AUTRE côté de la même comparaison — les comptait toujours : on
+  // ignorait donc le travail secondaire du candidat tout en tenant compte de
+  // celui de la séance. Le projet considère par ailleurs qu'un muscle secondaire
+  // compte 0,5× (coaching-engine.js), donc qu'il travaille réellement.
   const loadedBy = (e) => {
     const list = (e.muscles?.primary || []).map(appMuscle);
-    if (e.type === 'compound') list.push(...(e.muscles?.secondary || []).map(appMuscle));
+    list.push(...(e.muscles?.secondary || []).map(appMuscle));
     return new Set(list);
   };
   const sessionLoads = (idx) => {
