@@ -32,7 +32,7 @@ import { EXERCISES } from './exercise-database';
 // TRAINING_PARAMS = séries/reps/repos par type d'objectif et par phase ;
 // SRA_WINDOWS = heures de récupération mini entre deux stimuli d'un même muscle.
 import { TRAINING_PARAMS, SRA_WINDOWS } from './coaching-engine';
-import { equipementPossede, exerciceFaisable } from './equipment';
+import { equipementPossede, exerciceFaisable, tierDuContexte } from './equipment';
 import { SUBSTITUTIONS } from './exercise-substitutions';
 
 // Normalise en liste : tableau, OU chaîne "a, b, c" (format stocké en base pour
@@ -104,9 +104,10 @@ function userTrainingContext(user) {
 // Mappe le contexte de l'utilisateur vers un TIER généré. Le catalogue n'existe
 // qu'en full_gym (référence) et bodyweight ; home_barbell/custom retombent sur
 // full_gym (le matériel exact sera géré par la substitution, à part).
-function mapContextToTier(ctx) {
-  return ctx === 'bodyweight' ? 'bodyweight' : 'full_gym';
-}
+// La règle vit dans src/lib/equipment.js : la détection d'obsolescence du
+// programme s'en sert aussi, et elle ne peut pas importer ce fichier-ci sans
+// embarquer toute la base d'exercices.
+const mapContextToTier = tierDuContexte;
 
 // Choisit, parmi des candidats de même niveau/tier/objectifs, la variante de
 // FRÉQUENCE : la recommandée si dispo optimales, sinon celle demandée

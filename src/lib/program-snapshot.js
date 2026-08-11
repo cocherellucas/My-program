@@ -8,6 +8,8 @@
 // bandeau « ton programme n'est plus optimisé » apparaissait pour n'importe quel
 // changement, même le sexe, et revenait aussitôt après une régénération.
 
+import { tierDuContexte } from './equipment';
+
 const CLE = 'program_generated_snapshot';
 
 // Champs LUS par la génération de programme (src/lib/program-activation.js).
@@ -50,6 +52,24 @@ export function programmePerime(profil, snapshot) {
   if (!snapshot) return false;
   return CHAMPS_PROGRAMME.some((champ) => {
     if (!(champ in snapshot)) return false;
-    return JSON.stringify(profil?.[champ] ?? null) !== JSON.stringify(snapshot[champ] ?? null);
+    return valeurComparable(champ, profil?.[champ]) !== valeurComparable(champ, snapshot[champ]);
   });
+}
+
+// Deux champs ne peuvent pas être comparés bruts, sinon le bandeau s'affiche pour
+// des changements qui ne changent RIEN au programme :
+//   • `training_context` : « salle complète » et « personnalisé » pointent vers le
+//     même catalogue. Basculer de l'un à l'autre avec le même matériel produisait
+//     un programme identique et affichait quand même le bandeau (vérifié).
+//   • `equipment` : c'est un ENSEMBLE. Cocher le même matériel dans un autre ordre
+//     donnait deux listes différentes pour un contenu identique.
+function valeurComparable(champ, valeur) {
+  if (champ === 'training_context') return tierDuContexte(valeur);
+  if (champ === 'equipment') {
+    const liste = Array.isArray(valeur)
+      ? valeur
+      : (() => { try { return JSON.parse(valeur || '[]'); } catch { return []; } })();
+    return JSON.stringify([...new Set(liste)].sort());
+  }
+  return JSON.stringify(valeur ?? null);
 }

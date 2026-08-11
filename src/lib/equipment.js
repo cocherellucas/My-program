@@ -34,6 +34,21 @@ export function equipementPossede(equipment) {
 }
 
 /**
+ * Contexte d'entraînement → TIER du catalogue. Le catalogue n'existe qu'en deux
+ * versions : salle complète (référence) et poids du corps. `home_barbell` et
+ * `custom` retombent sur la salle, le matériel exact étant géré par les replis.
+ *
+ * Vit ici plutôt que dans program-activation pour que la détection
+ * d'obsolescence du programme puisse s'en servir sans embarquer toute la base
+ * d'exercices. Passer de « salle complète » à « personnalisé » ne change pas de
+ * tier : sans cette fonction, le bandeau « programme plus à jour » s'affichait
+ * pour un changement qui ne change rien.
+ */
+export function tierDuContexte(ctx) {
+  return ctx === 'bodyweight' ? 'bodyweight' : 'full_gym';
+}
+
+/**
  * Un exercice est faisable si AU MOINS UNE de ses options de matériel est
  * entièrement possédée. Un exercice sans exigence est toujours faisable.
  */
