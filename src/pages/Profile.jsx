@@ -17,14 +17,6 @@ import { Calendar as CalendarPicker } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { fr as frLocale } from 'date-fns/locale';
 
-// Champs dont le changement rend le programme obsolète. Liste alignée sur ce que
-// `program-activation.js` lit RÉELLEMENT — ni plus, ni moins :
-//   • trop large → l'app réclamait une régénération pour des réglages sans effet
-//     (zones fragiles, exercices préférés/évités, peaking… qui ne sont pas lus) ;
-//   • trop étroite → elle ratait `training_context` (salle ↔ poids du corps, qui
-//     change de catalogue !) et `availability_optimal`.
-// Les OBJECTIFS comptent aussi, mais ils vivent dans une autre table : c'est
-// ObjectivesTab qui signale leur modification.
 // Champs qui ne partent JAMAIS au serveur — et qui ne comptent donc pas non plus
 // comme une modification à enregistrer. Deux familles :
 //   • identité et métadonnées, gérées ailleurs ;
@@ -41,15 +33,6 @@ const IGNORED = new Set([
   'same_duration_all', 'equipment_validated', 'gym_chain',
 ]);
 
-const PROGRAM_IMPACTING_FIELDS = [
-  'level',
-  'training_context',
-  'equipment',
-  'availability_optimal',
-  'available_days',
-  'duration_per_day',
-  'frequency_max',
-];
 import StepPreferences from '@/components/onboarding/StepPreferences';
 import { toast } from 'sonner';
 import StepMeasurements from '@/components/onboarding/StepMeasurements';
@@ -60,6 +43,10 @@ import { messageBudgetTemps } from '@/lib/budget-temps';
 import { updateMeTolerant } from '@/lib/profile-save';
 import { messageBarreManquante } from '@/lib/barbell-guard';
 import SubscriptionBadge from '@/components/profile/SubscriptionBadge';
+// Les champs qui rendent le programme obsolète vivent dans ce module, partagés
+// avec Program.jsx qui écrit l'instantané. Les objectifs comptent aussi, mais ils
+// sont dans une autre table : c'est ObjectivesTab qui signale leur modification.
+import { lireSnapshot, effacerSnapshot, programmePerime } from '@/lib/program-snapshot';
 
 export default function Profile() {
   const { t, lang } = useI18n();
@@ -108,7 +95,7 @@ export default function Profile() {
       const estImporte = p && !p.program_data?.matched_program_name;
       if (p && (estImporte || importedIds.includes(p.id))) {
         localStorage.removeItem('pending_program_regen');
-        localStorage.removeItem('program_generated_snapshot');
+        effacerSnapshot();
         setShowRegenBanner(false);
       }
     }).catch(() => {});
@@ -188,13 +175,10 @@ export default function Profile() {
     // Équipement, qui les introduit dans le formulaire.
     await updateMeTolerant(sanitized);
 
-    // Comparer vs snapshot de génération — uniquement pour programmes générés par IA
-    const snapshotRaw = localStorage.getItem('program_generated_snapshot');
-    const snapshot = (() => { try { return JSON.parse(snapshotRaw || 'null'); } catch { return null; } })();
+    // Comparer vs instantané de génération — uniquement pour programmes générés
+    const snapshot = lireSnapshot();
     if (snapshot) {
-      const hasImpact = PROGRAM_IMPACTING_FIELDS.some(
-        field => JSON.stringify(form[field]) !== JSON.stringify(snapshot[field])
-      );
+      const hasImpact = programmePerime(form, snapshot);
       if (hasImpact) {
         localStorage.setItem('pending_program_regen', JSON.stringify({ timestamp: Date.now() }));
         setShowRegenBanner(true);

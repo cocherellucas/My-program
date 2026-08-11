@@ -4,13 +4,11 @@ import { Badge } from '@/components/ui/badge';
 import { Activity, TrendingUp, Calendar } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 
-const STRUCTURE_LABELS = {
-  full_body: 'Corps complet',
-  upper_lower: 'Haut / Bas',
-  ppl: 'Pousser / Tirer / Jambes',
-  arnold_split: 'Split Arnold',
-  custom: 'Personnalisé',
-};
+// Cette liste ne sert qu'à savoir si une structure a un libellé traduit : le
+// texte affiché vient de l'i18n. Elle était incomplète — « ul_ppl », que produit
+// un programme 5 jours du catalogue, n'y figurait pas, et la carte affichait
+// alors la clé brute « ul_ppl » à l'utilisateur.
+const STRUCTURES_CONNUES = ['full_body', 'upper_lower', 'ppl', 'ul_ppl', 'arnold_split', 'custom'];
 
 export default function ProgramSummaryCard({ program, objectives, sessions = [] }) {
   const { t } = useI18n();
@@ -47,7 +45,7 @@ export default function ProgramSummaryCard({ program, objectives, sessions = [] 
       <div className="space-y-3">
         <div className="flex items-center gap-2 text-sm">
           <Activity className="w-4 h-4 text-white/80" />
-          <span className="font-medium text-white">{STRUCTURE_LABELS[program.weekly_structure] ? t(`struct_${program.weekly_structure}`) : program.weekly_structure}</span>
+          <span className="font-medium text-white">{STRUCTURES_CONNUES.includes(program.weekly_structure) ? t(`struct_${program.weekly_structure}`) : program.weekly_structure}</span>
         </div>
 
         <div className="flex items-center gap-2 text-sm">

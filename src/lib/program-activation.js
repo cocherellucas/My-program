@@ -374,6 +374,38 @@ const movementsOf = (objectives) => {
 const STRENGTH_HEAVY = { sets: 4, target_reps: '3-5', rest_seconds: 210, notes: 'Charge lourde, récupération complète entre séries.' };
 const STRENGTH_VOLUME = { sets: 4, target_reps: '6-8', rest_seconds: 150, notes: 'Jour volume : charge modérée, exécution stricte.' };
 
+// Une semaine de force ne répète pas deux fois la même séance : on alterne un
+// jour qui taxe le système nerveux (charge lourde, peu de répétitions) et un jour
+// qui accumule du volume à charge modérée. Sans ça, un objectif de force par ZONE
+// recevait 2-4 répétitions et 4 min de repos sur TOUS ses exercices, deux fois
+// par semaine — intenable, et la progression s'arrête faute de jour facile.
+// Les objectifs « sur un mouvement » ondulaient déjà ainsi (specializeMovements) ;
+// on réutilise les mêmes profils plutôt que d'inventer d'autres chiffres.
+// On n'impose QUE les répétitions et le repos : le nombre de séries vient du
+// programme, le changer modifierait le volume hebdomadaire.
+const profilForce = (indexSeance) => (indexSeance % 2 === 0 ? STRENGTH_HEAVY : STRENGTH_VOLUME);
+const programmationPour = (type, indexSeance, exercice) => {
+  if (type === 'strength') {
+    // Les POLYARTICULAIRES portent l'objectif : ils ondulent lourd / volume.
+    if (isCompoundEx(exercice)) {
+      const p = profilForce(indexSeance);
+      return { target_reps: p.target_reps, rest_seconds: p.rest_seconds };
+    }
+    // Les ISOLATIONS ne se font pas à 3 répétitions — mais elles ne doivent pas
+    // pour autant garder la plage du programme d'origine. Un objectif de force
+    // sans matériel se dérive faute de mieux d'un programme d'endurance : les
+    // accessoires ressortaient alors en 15-20 à 45 s de repos, soit une séance
+    // d'endurance greffée dans une séance de force. On les ramène aux plages par
+    // bloc, comme le fait le programme SBD du catalogue (8-12 en B, 10-15 en C).
+    return {
+      target_reps: REPS_BY_BLOCK[exercice?.block] || REPS_BY_BLOCK.C,
+      rest_seconds: REST_BY_BLOCK[exercice?.block] || REST_BY_BLOCK.C,
+    };
+  }
+  const p = TRAINING_PARAMS[type]?.MAV;
+  return p ? { target_reps: `${p.reps[0]}-${p.reps[1]}`, rest_seconds: p.rest } : null;
+};
+
 const MOVEMENT_FAMILY = {
   'Squat barre': /squat/i,
   'Développé couché': /développé (couché|incliné)/i,
@@ -435,15 +467,16 @@ function completerAvecObjectifs(program, objectifs, user, days) {
   for (const o of objectifs) {
     for (const m of musclesOfObjective(o)) if (!typePourMuscle[m]) typePourMuscle[m] = o.type;
   }
-  for (const s of sessions) {
+  sessions.forEach((s, idx) => {
     s.exercises = s.exercises.map((x) => {
       const ty = typePourMuscle[x.muscle_group];
       if (!ty) return x;
-      const applique = ty === 'endurance' || (ty === 'strength' && isCompoundEx(x));
-      const p = applique ? TRAINING_PARAMS[ty]?.MAV : null;
-      return p ? { ...x, target_reps: `${p.reps[0]}-${p.reps[1]}`, rest_seconds: p.rest } : x;
+      // La force couvre desormais AUSSI ses isolations (plages par bloc).
+      const applique = ty === 'endurance' || ty === 'strength';
+      const p = applique ? programmationPour(ty, idx, x) : null;
+      return p ? { ...x, ...p } : x;
     });
-  }
+  });
 
   for (const o of objectifs) {
     const cible = o.priority === 'secondary' ? Math.round(bands.mav * 0.5) : bands.mav;
@@ -840,7 +873,7 @@ function specializeProgram(program, focus, user, objectiveType = 'hypertrophy', 
   //    cible. Les muscles non ciblés sont IGNORÉS (règle du brief : « non-ciblé =
   //    ignoré, indirect seulement, pas de maintien forcé ») — l'utilisateur veut
   //    son objectif, pas des exercices en plus. ────────────────────────────────
-  const built = program.sessions.map((s) => {
+  const built = program.sessions.map((s, idxSeance) => {
     const ranked = s.exercises
       .map((x, i) => ({ x, i }))
       .sort((a, b) => ((blockRank[a.x.block] ?? 3) - (blockRank[b.x.block] ?? 3)) || (a.i - b.i));
@@ -858,12 +891,11 @@ function specializeProgram(program, focus, user, objectiveType = 'hypertrophy', 
       //     curls à 3 reps ; les accessoires restent en 8-12, comme dans le
       //     programme SBD du catalogue) ;
       //   • hypertrophie → on garde le découpage par bloc du catalogue, plus fin.
+      //   • la force ONDULE d'une séance à l'autre : lourd / volume (profilForce).
       const ty = typeOf(x.muscle_group);
-      const applique = ty === 'endurance' || (ty === 'strength' && isCompoundEx(x));
-      const p = applique ? TRAINING_PARAMS[ty]?.MAV : null;
-      exercises.push(p
-        ? { ...x, sets, target_reps: `${p.reps[0]}-${p.reps[1]}`, rest_seconds: p.rest }
-        : { ...x, sets });
+      const applique = ty === 'endurance' || ty === 'strength';
+      const p = applique ? programmationPour(ty, idxSeance, x) : null;
+      exercises.push(p ? { ...x, sets, ...p } : { ...x, sets });
     }
     return { ...s, exercises };
   });

@@ -18,6 +18,7 @@ import { buildActivationResult } from '@/lib/program-activation';
 import { normalizeUser } from '@/lib/utils';
 import { ensureOnline } from '@/lib/net';
 import { devNow } from '@/lib/dev-time';
+import { ecrireSnapshot } from '@/lib/program-snapshot';
 import ImportSessionDialog from '@/components/coach/ImportSessionDialog';
 import { calcDuration } from '@/lib/duration';
 import { exportProgramPDF } from '@/lib/program-pdf';
@@ -654,11 +655,12 @@ export default function Program() {
     queryClient.invalidateQueries({ queryKey: ['programs'] });
     queryClient.invalidateQueries({ queryKey: ['program-sessions'] });
 
-    // Snapshot des conditions de génération — permet de détecter l'obsolescence et les reverts
-    const SNAPSHOT_FIELDS = ['available_days','duration_per_day','frequency_min','frequency_max','equipment','level','fragile_zones','preferred_exercises','disliked_exercises','no_volume_muscles','peaking_enabled'];
-    const snapshot = {};
-    SNAPSHOT_FIELDS.forEach(f => { snapshot[f] = freshUser[f]; });
-    localStorage.setItem('program_generated_snapshot', JSON.stringify(snapshot));
+    // Instantané des conditions de génération — sert à détecter l'obsolescence.
+    // La liste des champs vit dans src/lib/program-snapshot.js, partagée avec le
+    // Profil qui fait la comparaison : quand les deux listes vivaient séparément,
+    // deux champs comparés n'étaient jamais écrits et le bandeau « programme plus
+    // à jour » s'affichait pour n'importe quelle modification.
+    ecrireSnapshot(freshUser);
     localStorage.removeItem('pending_program_regen');
     setStaleBanner(false);
 
