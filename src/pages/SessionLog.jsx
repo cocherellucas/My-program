@@ -1538,7 +1538,12 @@ export default function SessionLog() {
     queryKey: ['session', sessionId],
     queryFn: async () => {
       const results = await base44.entities.Session.filter({ id: sessionId });
-      return results[0];
+      // `null` et non `undefined` : React Query refuse undefined et le signale
+      // comme une erreur. Or une séance introuvable est un cas NORMAL — après une
+      // régénération, l'ancienne a été supprimée mais un lien peut encore la
+      // viser. L'écran affiche alors son état vide, ce qui est le bon
+      // comportement ; c'est la console qui criait pour rien.
+      return results[0] ?? null;
     },
     enabled: !!sessionId
   });

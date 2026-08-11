@@ -237,6 +237,30 @@ const SPLIT_MAP = {
 };
 const mapStructure = (split) => SPLIT_MAP[split] || 'custom';
 
+// Structure RÉELLEMENT obtenue, et non celle déclarée par le programme d'origine.
+// Le badge affiché à l'utilisateur annonçait « Upper / Lower » sur des séances
+// intitulées « Corps entier » : le libellé venait du `split` du catalogue, alors
+// que la spécialisation, la bascule haut/bas et le rognage remodèlent les
+// séances après coup. On ne corrige que les deux CONTRADICTIONS franches, sans
+// toucher au reste — un PPL a des séances d'une seule moitié lui aussi, on ne
+// saurait pas le distinguer d'un haut/bas à partir des seuls muscles.
+function structureReelle(sessions, declaree) {
+  if (!sessions?.length) return declaree;
+  const moities = sessions.map((s) => {
+    const m = [...new Set(s.exercises.map((x) => x.muscle_group))];
+    return {
+      haut: m.some((x) => MUSCLE_ZONE[x] !== 'lower'),
+      bas: m.some((x) => MUSCLE_ZONE[x] === 'lower'),
+    };
+  });
+  // Toutes les séances couvrent les DEUX moitiés → c'est un corps entier.
+  if (moities.every((z) => z.haut && z.bas)) return 'full_body';
+  // Le programme se disait corps entier mais chaque séance ne fait qu'une moitié
+  // (cas de la bascule haut/bas sur jours collés) → c'est un haut/bas.
+  if (declaree === 'full_body' && moities.every((z) => z.haut !== z.bas)) return 'upper_lower';
+  return declaree;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // SPÉCIALISATION — objectifs "specific_group" (muscles précis)
 // Le catalogue n'a que des cibles LARGES (impossible de pré-générer 2^10 sous-
@@ -1742,7 +1766,7 @@ export async function buildActivationResult(user, objectives) {
     });
   }
   return {
-    weekly_structure: mapStructure(p.split),
+    weekly_structure: structureReelle(shapedParite[0], mapStructure(p.split)),
     planned_weeks: INFINITE_WEEKS, // → programme en boucle (durée non définie)
     // Métadonnée uniquement (la gestion multi-objectifs est déjà bakée dans le
     // programme). 'simple' passe toujours la contrainte SQL programs_*_check.
