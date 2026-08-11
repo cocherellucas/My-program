@@ -171,7 +171,7 @@ function WarmupAccordion({ exercise, logs, exIdx, sets: totalSets }) {
 }
 
 // ─── Single Exercise Focus View ───────────────────────────────────────────────
-function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog, openAtLastSet, isImported, editMode, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, suggestion, onClearSuggestion, onApplyVariant, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach, sessionsHistory, sessionId }) {
+function ExerciseFocusCard({ exercise, originalExercise, prescription, exIdx, logs, updateLog, openAtLastSet, isImported, editMode, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, suggestion, onClearSuggestion, onApplyVariant, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach, sessionsHistory, sessionId }) {
   const { t } = useI18n();
   const sets = Math.max(1, exercise.sets || 3);
   // L'exercice fait-il partie de la base (chaînes de progression) ? Sinon on ne
@@ -401,9 +401,12 @@ function ExerciseFocusCard({ exercise, originalExercise, exIdx, logs, updateLog,
               <span className="text-xs font-bold text-white uppercase tracking-wider block">{t('se_objective')}</span>
               <div className="flex items-center gap-1">
                 {!isImported && (() => {
-                  const originalSets = Math.max(1, originalExercise?.sets || 3);
-                  const originalReps = originalExercise?.target_reps || '';
-                  const originalRest = originalExercise?.rest_seconds || 90;
+                  // Référence = ce que la GÉNÉRATION avait prescrit. À défaut
+                  // (programme importé), on retombe sur la valeur de la séance.
+                  const ref = prescription || originalExercise;
+                  const originalSets = Math.max(1, ref?.sets || 3);
+                  const originalReps = ref?.target_reps || '';
+                  const originalRest = ref?.rest_seconds || 90;
                   const hasChanges = editSets !== originalSets || editReps !== originalReps || editRest !== originalRest;
                   return (
                     <Button
@@ -1735,10 +1738,29 @@ export default function SessionLog() {
     queryKey: ['active-program-session', session?.program_id],
     queryFn: async () => {
       const results = await base44.entities.Program.filter({ id: session.program_id });
-      return results[0];
+      return results[0] ?? null;
     },
     enabled: !!session?.program_id
   });
+
+  // Ce que la GÉNÉRATION avait prescrit pour cet exercice, avant toute
+  // modification. « Réinitialiser » restaurait jusqu'ici la valeur enregistrée
+  // dans la séance — or valider une modification écrit justement dans la séance :
+  // la référence devenait la modification elle-même, et le bouton se grisait
+  // sans jamais pouvoir revenir en arrière.
+  // Le programme, lui, conserve la génération intacte dans `program_data` : les
+  // modifications n'écrivent que dans les séances. On y retrouve donc la
+  // prescription d'origine. Correspondance par NOM : l'ordre des exercices peut
+  // avoir été changé en séance. Rien pour un programme importé — il n'a pas de
+  // `program_data` — et le bouton garde alors son ancien comportement.
+  const prescriptionDe = React.useCallback((nom) => {
+    if (!nom) return null;
+    for (const s of activeProgram?.program_data?.sessions || []) {
+      const trouve = (s.exercises || []).find((x) => x.name === nom);
+      if (trouve) return trouve;
+    }
+    return null;
+  }, [activeProgram]);
 
   // Phase calculée dynamiquement depuis la position dans le cycle (active_phase est statique)
   const _wk = session?.week_number || 1;
@@ -2890,6 +2912,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
           key={`${currentExIdx}-${relaunchKey}`}
           exercise={exercises[currentExIdx]}
           originalExercise={session.exercises[currentExIdx]}
+          prescription={prescriptionDe(exercises[currentExIdx]?.name)}
           exIdx={currentExIdx}
           sessionId={sessionId}
           logs={logs}

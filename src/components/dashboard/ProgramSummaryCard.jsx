@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Activity, TrendingUp, Calendar } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
+import { devNow } from '@/lib/dev-time';
 
 // Cette liste ne sert qu'à savoir si une structure a un libellé traduit : le
 // texte affiché vient de l'i18n. Elle était incomplète — « ul_ppl », que produit
@@ -22,6 +23,20 @@ export default function ProgramSummaryCard({ program, objectives, sessions = [] 
 
   const isInfinite = (program.planned_weeks || 1) >= 52;
 
+  // Sur un programme en boucle, « Cycle ∞ » n'apprend rien : il n'y a ni semaine
+  // 2/8 ni date de fin pour se situer. On affiche depuis quand il tourne.
+  // Même règle que l'onglet de la page Programme : au jour près en dessous de
+  // deux semaines, en semaines au-delà — « 20 jours » se compte mal, « 2 semaines »
+  // se situe tout de suite.
+  const anciennete = (() => {
+    const debut = program.created_date ? new Date(program.created_date) : null;
+    if (!debut || Number.isNaN(debut.getTime())) return t('prog_infinite');
+    const jours = Math.max(0, Math.floor((devNow() - debut) / 86400000));
+    if (jours === 0) return t('pg_started_today');
+    if (jours < 14) return `${t('pg_active_since')} ${jours} ${jours > 1 ? t('pg_days') : t('pg_day')}`;
+    return `${t('pg_active_since')} ${Math.floor(jours / 7)} ${t('pg_weeks')}`;
+  })();
+
   // Séances/semaine réelles, comptées depuis les séances planifiées (les champs
   // du programme comme active_days ne sont pas remplis par les imports).
   const perWeek = {};
@@ -38,7 +53,7 @@ export default function ProgramSummaryCard({ program, objectives, sessions = [] 
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-heading font-bold text-lg text-white">{t('active_program')}</h3>
         <Badge className="bg-white/20 text-white border-white/30">
-          {isInfinite ? t('prog_infinite') : `${program.planned_weeks || 1} ${t('prog_weeks')}`}
+          {isInfinite ? anciennete : `${program.planned_weeks || 1} ${t('prog_weeks')}`}
         </Badge>
       </div>
 
