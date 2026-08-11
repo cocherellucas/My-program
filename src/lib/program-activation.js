@@ -1583,7 +1583,19 @@ function remplacerInfaisables(program, user) {
       //    vaut varier le mouvement que répéter deux fois le même dans la séance ;
       // 4) sinon on fusionne avec l'occurrence déjà présente (le volume est
       //    conservé, seul le nombre d'exercices baisse).
-      const choisi = candidats.find((c) => libre(c) && bonNiveau(c))
+      // 1) D'ABORD un VRAI exercice que l'utilisateur peut faire avec SON
+      //    matériel, même muscle, même famille (poly/iso) et même bloc.
+      //    Les replis (`fallback`) n'exigent rien, donc ils passaient toujours en
+      //    premier : quelqu'un possédant des haltères recevait un « curl avec
+      //    sac » à la place d'un curl haltères. Le repli est une solution de
+      //    dernier ressort, pas le premier choix.
+      const equivalentReel = EXERCISES.find((c) => !c.fallback
+        && cibleMuscle(c, x.muscle_group)
+        && (c.type === 'compound') === isCompoundEx(x)
+        && c.block === x.block
+        && bonNiveau(c) && libre(c));
+      const choisi = equivalentReel
+        || candidats.find((c) => libre(c) && bonNiveau(c))
         || candidats.find(libre)
         || EXERCISES.find((c) => cibleMuscle(c, x.muscle_group) && bonNiveau(c) && libre(c))
         || candidats.find((c) => c && exerciceFaisable(c, possede));

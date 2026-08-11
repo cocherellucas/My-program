@@ -94,23 +94,30 @@ const csvChamp = (v) => {
 };
 const ligne = (cols) => cols.map(csvChamp).join(';');
 
+// IMPORTANT : le fichier commence DIRECTEMENT par la ligne d'en-têtes, et toutes
+// les lignes ont le même nombre de colonnes. Une ligne de titre en texte libre
+// en tête faisait deviner « espace » comme séparateur à LibreOffice, qui
+// éclatait alors chaque phrase sur vingt colonnes.
 const csv = [];
-csv.push(ligne(['CARTE « ALERTES » DE L\'ACCUEIL — quand chaque alerte apparaît et disparaît']));
-csv.push(ligne(['Source : src/lib/coaching-engine.js → computeDashboardAlerts(). Régénérer ce fichier si un seuil change.']));
-csv.push('');
-csv.push(ligne(['Type', 'Alerte', 'Apparaît quand', 'Disparaît quand', 'Données nécessaires', 'Seuil exact']));
-for (const a of ALERTES) csv.push(ligne(a));
-
-csv.push('');
-csv.push(ligne(['SCORE DE DÉCHARGE — les signaux qui l\'alimentent']));
-csv.push(ligne(['Le score va de 0 à 100. Total = systémique + (zonal ÷ 2), borné à 100.']));
-csv.push(ligne(['Type de signal', 'Signal', 'Points', 'Condition']));
-for (const s of SIGNAUX) csv.push(ligne(s));
-
-csv.push('');
-csv.push(ligne(['CE QUI FAIT DISPARAÎTRE TOUTE LA CARTE']));
-csv.push(ligne(['Aucune des conditions ci-dessus n\'est remplie → « Tout va bien ! Aucune alerte pour le moment. »']));
-csv.push(ligne(['Un compte NEUF n\'a aucune alerte : la plupart des règles exigent des séances complétées ou des séries enregistrées.']));
+csv.push(ligne(['Section', 'Type', 'Alerte ou signal', 'Apparaît quand', 'Disparaît quand', 'Données nécessaires', 'Seuil exact']));
+for (const [type, nom, apparait, disparait, donnees, seuil] of ALERTES) {
+  csv.push(ligne(['Alerte', type, nom, apparait, disparait, donnees, seuil]));
+}
+for (const [type, signal, points, condition] of SIGNAUX) {
+  csv.push(ligne(['Signal de décharge', type, signal, condition, '', '', points]));
+}
+csv.push(ligne(['Repère', '—', 'Score de décharge',
+  'Total = systémique + (zonal ÷ 2), borné à 100.',
+  'Sous 30 : aucune alerte. 30 → semaine légère. 50 → décharge 7 j. 75 → repos 10-14 j.',
+  '', '0 à 100']));
+csv.push(ligne(['Repère', '—', 'Carte vide « Tout va bien »',
+  "Aucune condition ci-dessus n'est remplie.",
+  "Un compte NEUF n'affiche jamais d'alerte : presque toutes les règles exigent des séances complétées ou des séries enregistrées.",
+  '', '—']));
+csv.push(ligne(['Repère', '—', 'Source',
+  'src/lib/coaching-engine.js → computeDashboardAlerts()',
+  'Régénérer avec program-data/gen-alertes.mjs si un seuil change dans le moteur.',
+  '', '—']));
 
 const sortie = path.join(ICI, 'alertes-accueil.csv');
 fs.writeFileSync(sortie, '﻿' + csv.join('\r\n') + '\r\n', 'utf8');
