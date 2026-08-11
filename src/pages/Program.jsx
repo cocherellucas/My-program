@@ -19,6 +19,7 @@ import { normalizeUser } from '@/lib/utils';
 import { ensureOnline } from '@/lib/net';
 import { devNow } from '@/lib/dev-time';
 import { ecrireSnapshot } from '@/lib/program-snapshot';
+import { useRestTimer } from '@/lib/RestTimerContext';
 import ImportSessionDialog from '@/components/coach/ImportSessionDialog';
 import { calcDuration } from '@/lib/duration';
 import { exportProgramPDF } from '@/lib/program-pdf';
@@ -681,22 +682,39 @@ export default function Program() {
   };
 
   const [deleting, setDeleting] = useState(false);
+  // Le minuteur de repos est global (il survit à la navigation) : supprimer un
+  // programme doit l'arrêter, sinon il continue de tourner par-dessus un
+  // programme qui n'existe plus.
+  const { stopTimer } = useRestTimer();
 
   const deleteProgram = async () => {
     if (!activeProgram) return;
     if (!ensureOnline()) return;
     setDeleting(true);
     try {
-      await base44.entities.Program.update(activeProgram.id, { status: 'completed' });
+      // On désactive TOUS les programmes actifs, pas seulement celui affiché.
+      // La page ne montre que le plus récent (`filter({status:'active'}, …, 1)`) :
+      // en n'archivant que celui-là, un ancien programme resté actif en base
+      // remontait aussitôt après la suppression, comme s'il ressuscitait.
+      const actifs = await base44.entities.Program.filter({ status: 'active' }).catch(() => []);
+      const aArchiver = [...new Set([activeProgram.id, ...actifs.map((p) => p.id)])];
+      for (const id of aArchiver) {
+        await base44.entities.Program.update(id, { status: 'completed' });
+      }
+      // Le minuteur de repos vit hors de la page Séance : sans ça il continuait
+      // de tourner par-dessus un programme qui n'existe plus.
+      stopTimer?.();
       // Supprime toutes les séances NON complétées en relisant la base à chaque tour
       // (le cache local peut être périmé après un import → la suppression échouait).
       // Les séances complétées sont conservées dans l'historique.
-      let toDelete;
-      do {
-        const batch = await base44.entities.Session.filter({ program_id: activeProgram.id });
-        toDelete = batch.filter(s => s.status !== 'completed');
-        await Promise.all(toDelete.map(s => base44.entities.Session.delete(s.id)));
-      } while (toDelete.length > 0);
+      for (const id of aArchiver) {
+        let toDelete;
+        do {
+          const batch = await base44.entities.Session.filter({ program_id: id });
+          toDelete = batch.filter(s => s.status !== 'completed');
+          await Promise.all(toDelete.map(s => base44.entities.Session.delete(s.id)));
+        } while (toDelete.length > 0);
+      }
       queryClient.invalidateQueries({ queryKey: ['programs'] });
       queryClient.invalidateQueries({ queryKey: ['program-sessions'] });
     } catch (e) {
