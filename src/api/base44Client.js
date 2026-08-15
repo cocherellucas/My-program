@@ -1,12 +1,33 @@
 import { supabase } from './supabaseClient';
 import { createClient } from '@base44/sdk';
 
-const base44SDK = createClient({
-  appId: "69dea11732e05b616e23bace",
-  headers: {
-    "api_key": "475bbcdd4d4241f3b36539e8523339b1"
-  }
-});
+// ─── Client base44 (IA + fonctions distantes) ────────────────────────────────
+// La clé API était ÉCRITE EN DUR ici. Le dépôt étant public, elle s'est
+// retrouvée sur GitHub et dans chaque bundle livré — vérifié, elle apparaissait
+// telle quelle dans dist/assets. Elle doit être considérée comme compromise et
+// RÉVOQUÉE côté base44 ; la retirer d'ici n'efface pas ce qui a été publié.
+//
+// ⚠ ATTENTION — passer par une variable d'environnement ne SÉCURISE RIEN :
+// Vite remplace les `import.meta.env.VITE_*` par leur valeur au build, la clé
+// repartirait donc dans le bundle, simplement plus dans le dépôt. Tant que
+// l'appel part du navigateur, la clé est publique, point.
+//
+// La vraie parade, avant de repasser AI_BLOCKED à false : router l'appel par
+// une fonction serveur (Edge Function Supabase ou fonction Vercel) qui détient
+// la clé et relaie la requête — même schéma que supabase/functions/stripe-webhook.
+// D'ici là le client n'est construit QUE si on l'appelle vraiment, et il refuse
+// de partir sans clé plutôt que d'échouer silencieusement.
+let sdkCache = null;
+function base44SDKClient() {
+  if (sdkCache) return sdkCache;
+  const apiKey = import.meta.env.VITE_BASE44_API_KEY;
+  if (!apiKey) throw new Error("base44 : clé API absente (VITE_BASE44_API_KEY). Voir le commentaire dans base44Client.js — l'appel doit passer par une fonction serveur.");
+  sdkCache = createClient({
+    appId: import.meta.env.VITE_BASE44_APP_ID || "69dea11732e05b616e23bace",
+    headers: { api_key: apiKey },
+  });
+  return sdkCache;
+}
 
 export { supabase };
 
@@ -169,7 +190,7 @@ const integrations = {
     async InvokeLLM({ prompt, response_json_schema, model, add_context_from_images }) {
       if (AI_BLOCKED) throw new Error('IA temporairement désactivée.');
       // @ts-ignore
-      return base44SDK.integrations.Core.InvokeLLM(
+      return base44SDKClient().integrations.Core.InvokeLLM(
         add_context_from_images?.length
           ? Object.assign({ prompt, model }, { add_context_from_images })
           : { prompt, response_json_schema, model }
@@ -180,7 +201,7 @@ const integrations = {
 
 const functions = {
   async invoke(functionName, params) {
-    return base44SDK.functions.invoke(functionName, params);
+    return base44SDKClient().functions.invoke(functionName, params);
   },
 };
 

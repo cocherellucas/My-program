@@ -6,6 +6,31 @@ import { repSetCap } from '@/lib/coaching-engine';
 const HANDLED_KEY = (programId) => `volume_adjust_handled_${programId}`;
 const SUPPRESS_MS = 7 * 24 * 60 * 60 * 1000; // 7 jours (≈ 1 semaine d'entraînement)
 
+// ─── Trace des décharges effectuées ──────────────────────────────────────────
+// Il n'existait AUCUN enregistrement d'une décharge dans le projet. Le score de
+// décharge comptait donc les semaines depuis la création du programme — qui,
+// tournant en boucle, n'est jamais recréé : passé 8 semaines, le signal
+// « 8+ semaines sans décharge » (+30, soit le seuil de déclenchement) restait
+// allumé à vie, même au lendemain d'une décharge.
+//
+// Stocké en local, comme l'anti-spam ci-dessus. Ce n'est donc PAS synchronisé
+// entre appareils : sur un second appareil le compteur repart de la création du
+// programme. Pour synchroniser il faudrait une colonne `profiles` ou un champ de
+// UserMemory — décision à prendre, pas un oubli.
+const DECHARGE_KEY = (programId) => `derniere_decharge_${programId}`;
+
+/** Enregistre qu'une décharge vient d'être appliquée. */
+export function marquerDecharge(programId) {
+  if (!programId) return;
+  try { localStorage.setItem(DECHARGE_KEY(programId), new Date().toISOString()); } catch { /* stockage bloqué */ }
+}
+
+/** Date ISO de la dernière décharge appliquée, ou null si aucune. */
+export function lireDerniereDecharge(programId) {
+  if (!programId) return null;
+  try { return localStorage.getItem(DECHARGE_KEY(programId)) || null; } catch { return null; }
+}
+
 // Mémorise qu'une proposition a été traitée (appliquée / ignorée / faite manuellement)
 export function markVolumeHandled(programId) {
   if (!programId) return;
@@ -32,6 +57,10 @@ async function invalidateSessions() {
 
 // Applique la proposition aux séances PLANIFIÉES à venir. Retourne le nb de séances modifiées.
 export async function applyVolumeProposal(programId, apply) {
+  // Alléger ou se reposer = une décharge : on la date, pour que le compteur
+  // « semaines sans décharge » reparte de zéro. Le repos complet n'écrit aucune
+  // séance mais reste une décharge — on le marque avant de sortir.
+  if (apply?.mode === 'trim' || apply?.mode === 'rest') marquerDecharge(programId);
   if (!programId || !apply || apply.mode === 'rest') return 0;
 
   const all = await base44.entities.Session.filter({ program_id: programId });

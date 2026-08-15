@@ -24,6 +24,7 @@ import ImportSessionDialog from '@/components/coach/ImportSessionDialog';
 import { calcDuration } from '@/lib/duration';
 import { exportProgramPDF } from '@/lib/program-pdf';
 import { useI18n } from '@/lib/i18n';
+import { estStructureConnue, libelleStructure } from '@/lib/structures';
 import { enUS } from 'date-fns/locale';
 
 function LoadingOrb() {
@@ -61,7 +62,18 @@ function LoadingOrb() {
   );
 }
 
-const TYPE_LABELS = { strength: 'Force', hypertrophy: 'Hypertrophie', endurance: 'Endurance', mixed: 'Mixte', full_body: 'Corps entier', upper_lower: 'Haut/Bas', ppl: 'Pousser/Tirer/Jambes', arnold_split: 'Split Arnold', custom: 'Personnalisé' };
+// Repli pour un `session.type` inattendu (séances importées). Cette table
+// contenait aussi des libellés de STRUCTURE — « Haut/Bas », « Pousser/Tirer/
+// Jambes » —, une quatrième orthographe qui ne pouvait jamais s'afficher : une
+// séance a un type (force, hypertrophie…), jamais une structure. Retirés.
+const TYPE_LABELS = { strength: 'Force', hypertrophy: 'Hypertrophie', endurance: 'Endurance', mixed: 'Mixte' };
+
+// Tout programme tourne en BOUCLE : 52 semaines vaut « durée non définie ».
+// Le sélecteur qui permettait de choisir une durée finie a été retiré — il était
+// le dernier chemin produisant des programmes avec une date de fin.
+// Constante de module : elle est lue avant sa position d'origine dans le corps
+// du composant, où elle dépendait de l'ordre d'exécution.
+const INFINITE_THRESHOLD = 52;
 const TYPE_COLORS = { strength: 'bg-chart-5/10 text-chart-5', hypertrophy: 'bg-primary/10 text-primary', endurance: 'bg-accent/10 text-accent', mixed: 'bg-chart-4/10 text-chart-4' };
 
 export default function Program() {
@@ -123,7 +135,7 @@ export default function Program() {
   const openEditDialog = async () => {
     try { localStorage.removeItem('_import_form'); localStorage.removeItem('_import_scroll'); } catch {}
     if (!activeProgram) {
-      setPendingImportSessions({ sessions: [], isEditing: false, initialWeeks: 'infinite' });
+      setPendingImportSessions({ sessions: [], isEditing: false });
       return;
     }
     try {
@@ -205,15 +217,16 @@ export default function Program() {
         list.sort((a, b) => (a.order || 9) - (b.order || 9));
         list.forEach((s, idx) => { s.order = idx + 1; });
       });
-      const pw = activeProgram.planned_weeks;
-      const initialWeeks = pw && pw >= 52 ? 'infinite' : (pw || 4);
-      setPendingImportSessions({ sessions: formatted, isEditing: true, initialWeeks });
+      setPendingImportSessions({ sessions: formatted, isEditing: true });
     } catch (e) {
       console.error(e);
     }
   };
 
-  const saveEditedSessions = async (editedSessions, targetWeeks, opts = {}) => {
+  // `targetWeeks` n'est plus lu : le sélecteur de durée a disparu et tout
+  // programme tourne en boucle. Le paramètre reste dans la signature, le
+  // dialogue le transmet encore.
+  const saveEditedSessions = async (editedSessions, _targetWeeks, opts = {}) => {
     if (!ensureOnline()) return;
     try {
       // Plus aucune séance → on supprime le programme entièrement
@@ -234,7 +247,7 @@ export default function Program() {
         setPendingImportSessions(null);
         return;
       }
-      const CYCLE_WEEKS = targetWeeks === 'infinite' ? 52 : (targetWeeks || 4);
+      const CYCLE_WEEKS = INFINITE_THRESHOLD; // tout programme tourne en boucle
       const dayMap = { monday:0, tuesday:1, wednesday:2, thursday:3, friday:4, saturday:5, sunday:6 };
       const today = devNow(); today.setHours(0,0,0,0);
       const thisMon = new Date(today);
@@ -317,10 +330,9 @@ export default function Program() {
     }
   };
 
-  // Programmes "infinis" (planned_weeks >= 52) : on maintient toujours ~1 an de séances
-  // d'avance. Dès qu'il reste moins de 12 semaines futures, on recrée des cycles
-  // jusqu'à 52 semaines devant → en pratique le programme ne s'arrête jamais.
-  const INFINITE_THRESHOLD = 52;
+  // On maintient toujours ~1 an de séances d'avance. Dès qu'il reste moins de
+  // 8 semaines futures, on recrée des cycles jusqu'à 20 semaines devant → en
+  // pratique le programme ne s'arrête jamais.
   const INFINITE_BUFFER_WEEKS = 8;
   const INFINITE_TARGET_WEEKS = 20;
   const infiniteToppedRef = useRef(null);
@@ -509,7 +521,7 @@ export default function Program() {
   useEffect(() => {
     if (!autoImported.current && searchParams.get('openImport') === 'true') {
       autoImported.current = true;
-      setPendingImportSessions({ sessions: [], isEditing: false, initialWeeks: 'infinite' });
+      setPendingImportSessions({ sessions: [], isEditing: false });
     }
   }, []);  
 
@@ -600,9 +612,11 @@ export default function Program() {
       version: 1,
       objective_ids: freshObjectives.map(o => o.id),
       weekly_structure: (() => {
-        const allowed = ['full_body', 'upper_lower', 'ppl', 'arnold_split', 'phul', 'ul_ppl', 'custom'];
+        // Liste partagée (src/lib/structures.js) : celle-ci et celle de
+        // detectStructureType divergeaient, si bien qu'une structure acceptée
+        // ici était déclarée « unknown » à la sauvegarde du même programme.
         const raw = structure || result.weekly_structure || 'full_body';
-        return allowed.includes(raw) ? raw : 'full_body';
+        return estStructureConnue(raw) ? raw : 'full_body';
       })(),
       active_days: (freshUser.available_days || []).map(d => ({ day: d, duration_minutes: (freshUser.duration_per_day || {})[d] || 60 })),
       planned_weeks: weeksIsAuto ? (result.planned_weeks || 4) : weeks,
@@ -727,8 +741,7 @@ export default function Program() {
 
   const detectStructureType = (prog) => {
     const ws = (prog?.weekly_structure || '').toLowerCase();
-    if (['full_body', 'upper_lower', 'ppl', 'arnold_split', 'custom'].includes(ws)) return ws;
-    return 'unknown';
+    return estStructureConnue(ws) ? ws : 'unknown';
   };
 
   const saveProgram = async () => {
@@ -756,8 +769,10 @@ export default function Program() {
         exercises: s.exercises,
       }));
 
-      const structureLabel = { full_body: 'Full Body', upper_lower: 'Upper/Lower', ppl: 'PPL', arnold_split: 'Arnold Split', custom: 'Personnalisé', unknown: '' };
-      const label = structureLabel[structureType] || '';
+      // Le nom du programme sauvegardé reprend le libellé traduit — il y avait
+      // ici une TROISIÈME orthographe (« Upper/Lower » sans espaces) et aucune
+      // entrée pour ul_ppl, qui se sauvegardait donc sous le seul « 4 sem. ».
+      const label = libelleStructure(structureType, t);
       const distinctWeeks = new Set(sessions.map(s => s.week_number).filter(Boolean)).size;
       const actualWeeks = distinctWeeks || activeProgram.planned_weeks || 1; // toujours un nombre (colonne numérique)
       const name = `${label ? label + ' — ' : ''}${actualWeeks} sem.`.trim();
@@ -812,8 +827,8 @@ export default function Program() {
           type: s.type || 'mixed',
           estimated_duration: s.estimated_duration || calcDuration(s.exercises || []),
         }));
-      const wk = (activeProgram.planned_weeks || 1) >= 52 ? 'infinite' : (activeProgram.planned_weeks || 4);
-      await saveEditedSessions(cycle, wk);
+      // La relance repart toujours en boucle : la durée finie n'existe plus.
+      await saveEditedSessions(cycle);
     } catch (e) {
       console.error('[relaunch même programme]', e);
       alert(`Erreur lors de la relance : ${e?.message || e}`);
@@ -1403,7 +1418,6 @@ export default function Program() {
       <ImportSessionDialog
         sessions={pendingImportSessions.sessions}
         isEditing={true}
-        initialWeeks={pendingImportSessions.initialWeeks}
         onClose={() => setPendingImportSessions(null)}
         onPersist={(editedSessions, weeks) => persistImport(editedSessions, weeks)}
       />,

@@ -22,6 +22,7 @@ class ErrorBoundary extends React.Component {
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { base44 } from '@/api/base44Client';
+import { updateMeTolerant } from '@/lib/profile-save';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
@@ -80,17 +81,11 @@ const RESET_LOCALSTORAGE_KEYS = [
 // ailleurs). PostgREST renvoie alors PGRST204 « Could not find the 'X' column »
 // et rejette TOUTE la requête. On retire la colonne fautive et on réessaie, pour
 // que les vrais champs (onboarding_completed, accepted_terms_at…) soient bien remis à zéro.
-async function updateMeTolerant(fields) {
-  let payload = { ...fields };
-  for (let i = 0; i < 30 && Object.keys(payload).length; i++) {
-    try { await base44.auth.updateMe(payload); return; }
-    catch (e) {
-      const col = (e?.message || '').match(/Could not find the '([^']+)' column/)?.[1];
-      if (col && col in payload) { delete payload[col]; continue; }
-      throw e; // autre erreur → on remonte
-    }
-  }
-}
+//
+// La copie qui vivait ici ne reconnaissait qu'UNE des trois formulations que
+// PostgREST emploie selon sa version : sur « column "x" of relation … », elle
+// remontait l'erreur au lieu de retirer la colonne, et la remise à zéro échouait.
+// Une seule implémentation, dans src/lib/profile-save.js.
 
 // ?resetProfile → repart à neuf : efface profil + objectifs + programme + séances, puis onboarding
 async function runProfileReset() {

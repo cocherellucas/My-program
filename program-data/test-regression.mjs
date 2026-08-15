@@ -24,7 +24,7 @@ function objectivesFromSignature(sig) {
   }).filter(Boolean);
 }
 
-let checked = 0, rotated = 0, redistributed = 0, lostContent = 0, otherDiff = 0;
+let checked = 0, rotated = 0, redistributed = 0, lostContent = 0, otherDiff = 0, allegeCount = 0;
 const samples = [];
 // Multiset ordre-insensible, par MUSCLE et non par nom : un exercice remplacé par
 // son repli sans matériel (même muscle, mêmes séries) ne doit pas compter comme
@@ -68,17 +68,28 @@ for (const p of PRE_GENERATED_PROGRAMS) {
   const got = r.sessions.filter((s) => s.week === 1);
   if (got.length !== p.program.sessions.length) continue;
 
-  // 1) Le programme n'a RIEN perdu ni gagné sur la semaine ?
+  // 1) Aucun muscle ne doit DISPARAÎTRE de la semaine.
+  //
+  // L'assertion était « volume strictement identique ». Elle ne décrit plus la
+  // règle : au-delà de 3 séances, la liste de jours ci-dessus contient forcément
+  // des jours qui se suivent (dimanche+lundi au bouclage, mardi+mercredi), et
+  // l'activation retire alors les ACCESSOIRES répétés à 24 h — c'est voulu, un
+  // muscle ne doit pas revenir le lendemain quand sa fenêtre en demande 48 h.
+  //
+  // Ce qui reste interdit, c'est de PERDRE un muscle : espacer est un progrès,
+  // faire sortir les biceps du programme est une régression.
   const va = weekVolume(p.program.sessions), vb = weekVolume(got);
   const noms = [...new Set([...Object.keys(va), ...Object.keys(vb)])];
-  const delta = noms.filter((n) => (va[n] || 0) !== (vb[n] || 0));
-  if (delta.length) {
+  const disparus = noms.filter((n) => (va[n] || 0) > 0 && (vb[n] || 0) === 0);
+  const allege = noms.filter((n) => (vb[n] || 0) > 0 && (vb[n] || 0) < (va[n] || 0));
+  if (disparus.length) {
     lostContent++;
     if (samples.length < 3) {
-      samples.push(`  ✗ VOLUME MODIFIÉ — ${p.match.level}/${p.match.training_context} sig=${p.match.objectives_signature}`
-        + `\n      ${delta.map((n) => `${n} ${va[n] || 0}→${vb[n] || 0}`).join(', ')}`);
+      samples.push(`  ✗ MUSCLE PERDU — ${p.match.level}/${p.match.training_context} sig=${p.match.objectives_signature}`
+        + `\n      ${disparus.map((n) => `${n} ${va[n] || 0}→0`).join(', ')}`);
     }
   }
+  if (allege.length) allegeCount++;
 
   // 2) Séance par séance : rotation de priorité (ordre) vs redistribution haut/bas.
   for (let i = 0; i < got.length; i++) {
@@ -105,6 +116,7 @@ console.log(`  séances vérifiées       : ${checked}`);
 console.log(`  séances réordonnées     : ${rotated}  (${((rotated / checked) * 100).toFixed(1)} %)`);
 console.log(`  séances redistribuées   : ${redistributed}  (split haut/bas — normal dès 5 séances/sem.)`);
 console.log(`  séances inchangées      : ${checked - rotated - redistributed}`);
-console.log(`  VOLUME HEBDO modifié    : ${lostContent} programme(s) ${lostContent === 0 ? '✓ (rien de perdu ni d’ajouté sur la semaine)' : '✗ PROBLÈME'}`);
+console.log(`  accessoires espacés     : ${allegeCount} programme(s)  (retrait d’un doublon à 24 h — voulu)`);
+console.log(`  MUSCLE PERDU            : ${lostContent} programme(s) ${lostContent === 0 ? '✓ (aucun muscle ne sort du programme)' : '✗ PROBLÈME'}`);
 if (samples.length) { console.log('\n  Exemples :'); samples.forEach((s) => console.log(s)); }
 void otherDiff;

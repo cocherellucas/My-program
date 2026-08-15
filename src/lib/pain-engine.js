@@ -7,7 +7,7 @@
 // Épisodes stockés dans UserMemory.injuries (JSON, synchronisé entre appareils).
 // ─────────────────────────────────────────────────────────────────────────────
 import { base44 } from '@/api/base44Client';
-import { FRAGILE_ZONE_MUSCLES } from '@/lib/coaching-engine';
+import { FRAGILE_ZONE_MUSCLES, nomBaseMuscle } from '@/lib/coaching-engine';
 import { EXERCISES } from '@/lib/exercise-database';
 import { devNow } from '@/lib/dev-time';
 
@@ -276,7 +276,11 @@ const ZONE_NAME_HINTS = {
 
 export function exerciseStressesZone(ex, zone) {
   const muscles = new Set(FRAGILE_ZONE_MUSCLES[zone] || []);
-  if (muscles.has(ex?.muscle_group)) return true;
+  // `nomBaseMuscle` : un exercice généré porte « Pectoraux » là où la table dit
+  // « Poitrine ». Le premier filet échouait donc toujours sur les pectoraux, et
+  // seul le repli par le nom de l'exercice sauvait la détection — c'est-à-dire
+  // uniquement pour les exercices présents dans la base.
+  if (muscles.has(nomBaseMuscle(ex?.muscle_group))) return true;
   const name = (ex?.name || '').toLowerCase();
   if (!name) return false;
   const dbEx = EXERCISES.find(e => e.name?.toLowerCase() === name);

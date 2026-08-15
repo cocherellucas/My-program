@@ -17,7 +17,7 @@ import {
   getSessionsNeedingCheckin,
   computeVolumeProposal,
 } from '@/lib/coaching-engine';
-import { applyVolumeProposal, markVolumeHandled, isVolumeSuppressed } from '@/lib/volume-adjust';
+import { applyVolumeProposal, markVolumeHandled, isVolumeSuppressed, lireDerniereDecharge } from '@/lib/volume-adjust';
 import { loadEpisodes, saveEpisodes, episodesToCheck, computePainPrescription } from '@/lib/pain-engine';
 import { applyPainLevel } from '@/lib/pain-adjust';
 import { ensureOnline } from '@/lib/net';
@@ -85,9 +85,14 @@ export default function Dashboard() {
   const nextSession  = sessions.find(s => s.status === 'planned' && s.planned_date > today);
   const hasSessions  = sessions.length > 0;
 
+  // Date de la dernière décharge appliquée : sans elle, le score compte les
+  // semaines depuis la CRÉATION du programme, qui ne se remet jamais à zéro sur
+  // un programme en boucle (voir volume-adjust).
+  const derniereDecharge = lireDerniereDecharge(activeProgram?.id);
+
   const alerts = useMemo(() =>
-    computeDashboardAlerts({ sessions, program: activeProgram, user: user || {}, checkins, seriesLogs, lang }),
-    [sessions, activeProgram, user, checkins, seriesLogs]
+    computeDashboardAlerts({ sessions, program: activeProgram, user: user || {}, checkins, seriesLogs, lang, derniereDecharge }),
+    [sessions, activeProgram, user, checkins, seriesLogs, derniereDecharge]
   );
 
   const sessionsNeedingCheckin = useMemo(() =>
@@ -97,8 +102,8 @@ export default function Dashboard() {
 
   // Autorégulation du volume — proposition actionnable (augmenter / alléger)
   const volumeProposal = useMemo(() =>
-    activeProgram ? computeVolumeProposal({ sessions, program: activeProgram, user: user || {}, seriesLogs, checkins, lang }) : null,
-    [sessions, activeProgram, user, seriesLogs, checkins]
+    activeProgram ? computeVolumeProposal({ sessions, program: activeProgram, user: user || {}, seriesLogs, checkins, lang, derniereDecharge }) : null,
+    [sessions, activeProgram, user, seriesLogs, checkins, derniereDecharge]
   );
   const [volumeBusy, setVolumeBusy] = useState(false);
   const [, setVolumeTick] = useState(0); // force le re-rendu après action (suppression localStorage)

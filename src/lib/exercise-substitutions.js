@@ -60,7 +60,7 @@ export const SUBSTITUTIONS = {
   "Pompe pieds surélevés": ["Pompe pieds surélevés (chaise)"],
   "Pull-over poulie": ["Pullover avec sac"],
   "Relevés de jambes suspendu": ["Relevés de jambes au sol"],
-  "Roulette abdominale": ["Crunch bras tendus au-dessus de la tête"],
+  "Roulette abdominale": ["Crunch au sol"],
   "Rowing barre": ["Rowing avec sac"],
   "Rowing haltère unilatéral": ["Rowing unilatéral avec sac"],
   "Rowing TRX": ["Rowing bûcheron avec sac"],

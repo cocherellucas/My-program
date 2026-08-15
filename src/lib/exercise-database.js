@@ -1218,15 +1218,13 @@ export const EXERCISES = [
   // seraient sinon éligibles partout, et un utilisateur en salle pourrait se voir
   // proposer un « curl avec sac ». Les sélections normales les placent en dernier
   // et ne les retiennent que si plus rien d'autre n'est faisable.
-  {
-    id: 'crunch_bras_tendus_au_dessus_de_la_tete', name: 'Crunch bras tendus au-dessus de la tête',
-    equipmentOptions: [[]],
-    muscles: { primary: ['Abdominaux'], secondary: [] },
-    type: 'isolation', block: 'C', objectives: ['strength','hypertrophy'],
-    level: ['beginner','intermediate','advanced'], failureAllowed: true,
-    fallback: true,
-    cue: 'Bras tendus au-dessus de la tête, décolle les omoplates sans tirer sur la nuque. Trop facile ? Tiens un sac chargé entre les mains.',
-  },
+  // (RETIRÉ) « Crunch bras tendus au-dessus de la tête ». Ce n'était pas un
+  // exercice mais un crunch avec les bras tendus — un RÉGLAGE de difficulté du
+  // crunch au sol. Le garder comme entrée distincte permettait de le voir tomber
+  // dans la même séance que le crunch normal, comme s'il s'agissait de deux
+  // mouvements. Le réglage vit désormais dans les consignes du crunch au sol
+  // (src/lib/bodyweight-adjust.js). Sa seule autre référence était la
+  // substitution de « Roulette abdominale », repointée sur « Crunch au sol ».
   {
     id: 'l_sit_au_sol', name: 'L-sit au sol',
     equipmentOptions: [[]],

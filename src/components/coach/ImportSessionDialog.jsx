@@ -98,11 +98,8 @@ const IMPORT_TUTORIAL_STEPS = [
     title: 'Tu peux corriger',
     description: 'Voici comment ta séance a été comprise. Si quelque chose ne te convient pas, appuie sur "Modifier" pour réécrire ta séance.',
   },
-  {
-    target: 'cycle-weeks-slider',
-    title: 'Durée du cycle',
-    description: 'Choisis sur combien de semaines ton programme se répète. Mets ∞ si tu veux qu\'il tourne en boucle indéfiniment.',
-  },
+  // (Étape « Durée du cycle » retirée avec le sélecteur : tous les programmes
+  // tournent maintenant en boucle, il n'y a plus de durée à choisir.)
 ];
 
 const DAY_ORDER = { monday:0, tuesday:1, wednesday:2, thursday:3, friday:4, saturday:5, sunday:6 };
@@ -121,7 +118,7 @@ const sortAndRenumber = (arr) => {
   });
 };
 
-export default function ImportSessionDialog({ sessions: initialSessions, onPersist, onClose, isEditing = false, initialWeeks }) {
+export default function ImportSessionDialog({ sessions: initialSessions, onPersist, onClose, isEditing = false }) {
   const { startTutorial, nextStep, skipStep, wakeTutorial, endTutorial, activeTutorial } = useTutorial() || {};
   const activeTutorialRef = useRef(null);
   activeTutorialRef.current = activeTutorial;
@@ -160,10 +157,9 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
       order: s.order,
     })));
   });
-  const [weeks, setWeeks] = useState(() => {
-    try { const f = JSON.parse(localStorage.getItem('_import_form') || 'null'); if (f?.weeks !== undefined && f?.sessionCount === _expLen) return f.weeks; } catch {}
-    return initialWeeks !== undefined ? initialWeeks : 'infinite';
-  });
+  // Plus de durée à choisir : tout programme tourne en boucle. La valeur reste
+  // transmise à `onPersist` pour ne pas changer sa signature.
+  const weeks = 'infinite';
 
   // Construit la liste à persister : seules les séances "complètes" (avec exercices)
   // entrent dans le programme — une séance non vérifiée/vide n'y apparaît pas.
@@ -464,33 +460,9 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
             </button>
           )}
 
-          {/* Durée — slider */}
-          <div className="pt-1" data-tutorial="cycle-weeks-slider">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-white/40 text-xs font-semibold uppercase tracking-wider">Durée du cycle</p>
-              <span className="font-bold text-white text-lg" style={{ minWidth: 28, textAlign: 'right' }}>
-                {weeks === 'infinite' ? '∞' : `${weeks} sem.`}
-              </span>
-            </div>
-            <style>{`
-              .weeks-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 99px; outline: none; background: linear-gradient(to right, #7c3aed 0%, #a855f7 var(--pct), rgba(255,255,255,0.12) var(--pct), rgba(255,255,255,0.12) 100%); }
-              .weeks-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; border-radius: 50%; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(124,58,237,0.5); }
-              .weeks-slider::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: white; cursor: pointer; border: none; box-shadow: 0 2px 8px rgba(124,58,237,0.5); }
-            `}</style>
-            <input
-              type="range" min={1} max={11} step={1}
-              value={weeks === 'infinite' ? 11 : weeks}
-              onChange={e => { const v = parseInt(e.target.value); setWeeks(v === 11 ? 'infinite' : v); }}
-              className="weeks-slider"
-              style={{ '--pct': `${((weeks === 'infinite' ? 11 : weeks) - 1) / 10 * 100}%` }}
-            />
-            <div className="relative mt-2 h-6">
-              {[{label:'1',step:0},{label:'5',step:4},{label:'10',step:9},{label:'∞',step:10,big:true}].map(t => (
-                <span key={t.label} className={`absolute -translate-x-1/2 text-white/70 font-bold ${t.big ? 'text-xl leading-none' : 'text-sm'}`}
-                  style={{ left: `calc(${t.step}/10 * (100% - 24px) + 12px)` }}>{t.label}</span>
-              ))}
-            </div>
-          </div>
+          {/* (Sélecteur « Durée du cycle » retiré : tous les programmes tournent
+              en boucle. La durée finie n'avait plus de raison d'être et c'était
+              le dernier chemin qui produisait des programmes à date de fin.) */}
         </div>
 
         {/* Modal confirmation suppression */}

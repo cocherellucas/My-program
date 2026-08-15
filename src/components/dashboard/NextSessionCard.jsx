@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useI18n } from '@/lib/i18n';
+import { libelleStructure } from '@/lib/structures';
 
 function SessionInfo({ session }) {
   const { lang } = useI18n();
@@ -37,7 +38,9 @@ function SessionInfo({ session }) {
   );
 }
 
-const STRUCTURE_LABELS = { full_body: 'Full Body', upper_lower: 'Upper / Lower', ppl: 'PPL', arnold_split: 'Arnold Split', custom: 'Personnalisé' };
+// Le libellé vient de l'i18n (voir src/lib/structures.js). Cette carte gardait
+// sa propre liste, à laquelle « ul_ppl » manquait : le badge disparaissait
+// purement et simplement pour les programmes concernés.
 
 export default function NextSessionCard({ todaySession, nextSession, hasSessions, activeProgram }) {
   const { t, lang } = useI18n();
@@ -53,8 +56,8 @@ export default function NextSessionCard({ todaySession, nextSession, hasSessions
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-heading font-bold text-lg text-white">{t('today_session')}</h3>
             <div className="flex items-center gap-1.5">
-              {activeProgram?.weekly_structure && STRUCTURE_LABELS[activeProgram.weekly_structure] && (
-                <Badge className="bg-white/25 text-white border-white/30">{t(`struct_${activeProgram.weekly_structure}`)}</Badge>
+              {libelleStructure(activeProgram?.weekly_structure, t) && (
+                <Badge className="bg-white/25 text-white border-white/30">{libelleStructure(activeProgram.weekly_structure, t)}</Badge>
               )}
               <Badge className="bg-white/25 text-white border-white/30">
                 {['hypertrophy', 'strength', 'endurance', 'mixed'].includes(todaySession.type) ? t(`type_${todaySession.type}`) : todaySession.type}

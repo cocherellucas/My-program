@@ -1,73 +1,73 @@
 ﻿Muscle;Exercice;Type;Niveaux;Chaîne existante;Position;Fiabilité du rattachement;Proposition PLUS SIMPLE;Proposition PLUS DUR;VARIANTE PLUS SIMPLE (à remplir);VARIANTE PLUS DURE (à remplir);Remarque
-Abdominaux;Crunch au sol;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
-Abdominaux;Crunch bras tendus au-dessus de la tête;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
-Abdominaux;Dead bug;poly;déb. inter.;—;—;aucune chaîne;—;—;;;
-Abdominaux;Gainage latéral;iso;déb. inter. avancé;gainage;1/7;approximative — À VÉRIFIER;—;Gainage normal (30s);;;
-Abdominaux;Hollow body hold;iso;inter. avancé;—;—;aucune chaîne;—;—;;;
-Abdominaux;L-sit au sol;poly;avancé;—;—;aucune chaîne;—;—;;;
-Abdominaux;Mountain climbers;poly;déb. inter. avancé;gainage;6/7;approximative — À VÉRIFIER;Gainage avec extension jambe alternée;Gainage sur 1 bras;;;
-Abdominaux;Planche;poly;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
-Abdominaux;Relevés de jambes au sol;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
-Abdominaux;Russian twist;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
-Abducteurs;Abduction de hanche allongé sur le côté;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
-Adducteurs;Copenhagen plank;iso;inter. avancé;—;—;aucune chaîne;—;—;;;
-Dos;Tirage australien;poly;déb.;—;—;aucune chaîne;—;—;;;
-Dos;Traction pronation (barre de fortune);poly;déb. inter. avancé;tractions;1/8;approximative — À VÉRIFIER;—;Traction assistée élastique;;;
-Dos;Traction supination (barre de fortune);poly;déb. inter. avancé;tractions;1/8;approximative — À VÉRIFIER;—;Traction assistée élastique;;;
-Épaules;Handstand push-up contre un mur;poly;avancé;—;—;aucune chaîne;—;—;;;
-Épaules;Pompes piquées;poly;déb. inter.;pompes;1/6;approximative — À VÉRIFIER;—;Pompes normales;;;
-Fessiers;Pont fessier au sol;iso;déb.;pont fessier;1/5;approximative — À VÉRIFIER;—;Pont fessier sur banc;;;
-Ischio-jambiers;Nordic curl;poly;inter. avancé;—;—;aucune chaîne;—;—;;;
-Mollets;Mollets unilatéraux poids du corps;iso;déb. inter.;mollets;1/4;approximative — À VÉRIFIER;—;Élévation mollets marche 2 jambes;;;
-Pectoraux;Dips entre deux chaises (buste penché);poly;déb. inter. avancé;dips;1/4;approximative — À VÉRIFIER;—;Dips triceps banc (jambes tendues) ou Dips triceps pieds surélevés;;;
-Pectoraux;Pompe;poly;déb. inter. avancé;pompes;1/6;approximative — À VÉRIFIER;—;Pompes normales;;;
-Pectoraux;Pompe large;poly;déb. inter. avancé;pompes;1/6;approximative — À VÉRIFIER;—;Pompes normales;;;
-Pectoraux;Pompe large pieds surélevés (chaise);poly;déb. inter. avancé;pompes;1/6;approximative — À VÉRIFIER;—;Pompes normales;;;
-Pectoraux;Pompe pieds surélevés (chaise);poly;déb. inter. avancé;pompes;1/6;approximative — À VÉRIFIER;—;Pompes normales;;;
-Quadriceps;Burpees;poly;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
-Quadriceps;Fente bulgare (chaise);poly;déb. inter. avancé;fente;1/4;approximative — À VÉRIFIER;—;Fente marchée poids de corps;;;
-Quadriceps;Fentes alternées;poly;déb. inter.;fente;—;chaîne devinée par mot-clé — À VÉRIFIER;—;—;;;
-Quadriceps;Pistol squat;poly;avancé;squat;4/4;exacte;Pistol squat assisté;—;;;
-Quadriceps;Sissy squat;iso;déb. inter. avancé;squat;2/4;approximative — À VÉRIFIER;Squat assisté (chaise derrière);Pistol squat assisté;;;
-Quadriceps;Squat au poids du corps;poly;déb.;squat;1/4;approximative — À VÉRIFIER;—;Squat;;;
-Quadriceps;Wall sit;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;
-Triceps;Dips entre deux chaises (buste droit);poly;déb. inter. avancé;dips;1/4;approximative — À VÉRIFIER;—;Dips triceps banc (jambes tendues) ou Dips triceps pieds surélevés;;;
-Triceps;Pompe diamant;poly;déb. inter. avancé;pompes;1/6;approximative — À VÉRIFIER;—;Pompes normales;;;
-
-ÉCARTÉS — 25 exercices dont la progression est la CHARGE du sac (plus dur = sac plus lourd)
-Biceps;Curl avec sac
-Biceps;Curl avec sac alterné
-Biceps;Curl incliné sur chaise avec sac
-Biceps;Curl marteau avec sac
-Dos;Pullover avec sac
-Dos;Rowing avec sac
-Dos;Rowing bûcheron avec sac
-Dos;Rowing unilatéral avec sac
-Dos;Soulevé de terre avec sac
-Épaules;Élévations latérales avec sac ou bouteilles
-Épaules;Face pull avec sac
-Épaules;Oiseau avec sac ou bouteilles
-Fessiers;Pont fessier avec sac ou unilatéral
-Ischio-jambiers;Good morning avec sac
-Ischio-jambiers;Leg curl au sol avec sac
-Ischio-jambiers;Soulevé de terre roumain avec sac
-Mollets;Mollets assis avec sac
-Mollets;Mollets unilatéraux avec sac
-Quadriceps;Fente marchée avec sac
-Quadriceps;Front squat avec sac
-Quadriceps;Leg extension assis avec sac
-Quadriceps;Squat avec sac
-Triceps;Extension triceps avec sac
-Triceps;Kickback triceps avec sac
-Triceps;Skull crusher avec sac
-
-CHAÎNES EXISTANTES (src/lib/progression-chains.js) — du plus simple au plus dur
-pompes;Pompes sur les genoux;Pompes normales;Pompes pieds surélevés;Pompes archer;Pompes 1 bras sur les genoux;Pompes 1 bras
-dips;Dips triceps banc (jambes fléchies);Dips triceps banc (jambes tendues) ou Dips triceps pieds surélevés;Dips barres parallèles assistés élastique ou Dips barres parallèles (descente seule);Dips barres parallèles
-tractions;Traction australienne (rowing barre basse);Traction assistée élastique;Traction prise neutre;Traction supination;Traction prise large;Traction;Traction 1 bras assistée élastique;Traction 1 bras
-squat;Squat assisté (chaise derrière);Squat;Pistol squat assisté;Pistol squat
-fente;Fente assistée;Fente marchée poids de corps;Fente bulgare poids de corps;Fente bulgare surélevée
-pont fessier;Pont fessier sol poids de corps;Pont fessier sur banc;Hip thrust poids de corps;Pont fessier 1 jambe sol;Hip thrust 1 jambe
-gainage;Gainage sur les genoux (30s);Gainage normal (30s);Gainage long (60s);Gainage avec extension bras alternés;Gainage avec extension jambe alternée;Gainage avec rotation (mountain climber lent);Gainage sur 1 bras
-triceps;Extension triceps élastique vertical;Diamond push-up sur les genoux;Diamond push-up;Diamond push-up élastique
-mollets;Élévation mollets sol 2 jambes;Élévation mollets marche 2 jambes;Élévation mollets 1 jambe sol;Élévation mollets marche 1 jambe
+Abdominaux;Crunch au sol;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;on oublie les variante, il faut soi un support pour aider à tirer et faire le crucnh, soit un sac pour alourdir, ça tu peut ettre dans le point d interrogation 
+Abdominaux;Crunch bras tendus au-dessus de la tête;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;ç on ooublie, genre on peut dire de mttre les bras tendu pour un crunch normal pour augmenter la difficulté, ça enlève donc ce semblant de nouveau exercice
+Abdominaux;Dead bug;poly;déb. inter.;—;—;aucune chaîne;—;—;;;crunch croisé alterné pour plus dur
+Abdominaux;Gainage latéral;iso;déb. inter. avancé;gainage;1/7;approximative — À VÉRIFIER;—;Gainage normal (30s);;;genou et ou coude au sol pour plus simple et sinon bras tendu et l audre bras tiens une charge ou un sac pour plus dur 
+Abdominaux;Hollow body hold;iso;inter. avancé;—;—;aucune chaîne;—;—;;;pour ajusté la difficulté il sufit de rapprocher ou eloigner pllus ou moins nos segment et si il faut porte un truc au bout des bras 
+Abdominaux;L-sit au sol;poly;avancé;—;—;aucune chaîne;—;—;;;entre deux banc ou chaise on rapproche nos jalbe pour plus simple et pour plus dur on met du poid sur le bout de nos jambes
+Abdominaux;Mountain climbers;poly;déb. inter. avancé;gainage;6/7;approximative — À VÉRIFIER;Gainage avec extension jambe alternée;Gainage sur 1 bras;;;un banc, chaise pour plus simple, un sac a dos du poid pour plus dur 
+Abdominaux;Planche;poly;déb. inter. avancé;—;—;aucune chaîne;—;—;;;idem
+Abdominaux;Relevés de jambes au sol;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;jambe rapproché pour plus simple ou poid au bouut des piedspour plus dur
+Abdominaux;Russian twist;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;jambes au sol voir rapporcher pour plus simple, et pour plus dur on ajoute du poids dans les mains et ten les jambes 
+Abducteurs;Abduction de hanche allongé sur le côté;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;plus simple c est jambes rapproché et plus dur c est poids au bout de la jambes
+Adducteurs;Copenhagen plank;iso;inter. avancé;—;—;aucune chaîne;—;—;;;juste dire de se rapprocher du banc ou de la chaise ça sera plus simpl enon ? Et sinon mettre un sac au niveau du coté de la hanche non ? 
+Dos;Tirage australien;poly;déb.;—;—;aucune chaîne;—;—;;;juste sac a dos 
+Dos;Traction pronation (barre de fortune);poly;déb. inter. avancé;tractions;1/8;approximative — À VÉRIFIER;—;Traction assistée élastique;;;traction pronation avec support (aide avec les jambes qui pousse) et pour plsu dur Traction pronation 1 bras
+Dos;Traction supination (barre de fortune);poly;déb. inter. avancé;tractions;1/8;approximative — À VÉRIFIER;—;Traction assistée élastique;;;traction supination avec support (aide avec les jambes qui pousse) et pour plsu dur Traction supination 1 bras
+Épaules;Handstand push-up contre un mur;poly;avancé;—;—;aucune chaîne;—;—;Pompe piquée puis Pompe piquée contre un mur;;
+Épaules;Pompes piquées;poly;déb. inter.;pompes;1/6;approximative — À VÉRIFIER;—;Pompes normales;;Hand stand push up contre un mur;Pompe piquée contre un mur plus simple
+Fessiers;Pont fessier au sol;iso;déb.;pont fessier;1/5;approximative — À VÉRIFIER;—;Pont fessier sur banc;;;juste en uni  et ou sac en plus 
+Ischio-jambiers;Nordic curl;poly;inter. avancé;—;—;aucune chaîne;—;—;;;juste se lester le dos pour plus dur ou plus simple il faut un peut plus sur pencher le buste vers l avant et garder le cul vers les molet normalement
+Mollets;Mollets unilatéraux poids du corps;iso;déb. inter.;mollets;1/4;approximative — À VÉRIFIER;—;Élévation mollets marche 2 jambes;;;2 pied pour plus simple mais sinonon a vu qu on pouvais mettre un sac a dos ou tenir des poids
+Pectoraux;Dips entre deux chaises (buste penché);poly;déb. inter. avancé;dips;1/4;approximative — À VÉRIFIER;—;Dips triceps banc (jambes tendues) ou Dips triceps pieds surélevés;;;plus simple il faut s aider en poussant avec les jambes et plus dur il faut un sac 
+Pectoraux;Pompe;poly;déb. inter. avancé;pompes;1/6;approximative — À VÉRIFIER;—;Pompes normales;;;sur les genoux, contre un mur et pour plus dur il faut mettre un sac a dos ou élastique 
+Pectoraux;Pompe large;poly;déb. inter. avancé;pompes;1/6;approximative — À VÉRIFIER;—;Pompes normales;;;sur les genoux, contre un mur et pour plus dur il faut mettre un sac a dos ou élastique 
+Pectoraux;Pompe large pieds surélevés (chaise);poly;déb. inter. avancé;pompes;1/6;approximative — À VÉRIFIER;—;Pompes normales;;;sur les genoux, contre un mur et pour plus dur il faut mettre un sac a dos ou élastique 
+Pectoraux;Pompe pieds surélevés (chaise);poly;déb. inter. avancé;pompes;1/6;approximative — À VÉRIFIER;—;Pompes normales;;;sur les genoux, contre un mur et pour plus dur il faut mettre un sac a dos ou élastique 
+Quadriceps;Burpees;poly;déb. inter. avancé;—;—;aucune chaîne;—;—;;;pour les pompe ( sur les genoux, contre un mur et pour plus dur il faut mettre un sac a dos ou élastique ) et pour le saut sinon juste un squat, meme avec un support pour aider 
+Quadriceps;Fente bulgare (chaise);poly;déb. inter. avancé;fente;1/4;approximative — À VÉRIFIER;—;Fente marchée poids de corps;;;juste au sol pour plus simple, voir un support, et plus dur il faut cahrge quand les mains 
+Quadriceps;Fentes alternées;poly;déb. inter.;fente;—;chaîne devinée par mot-clé — À VÉRIFIER;—;—;;;support plus simpl et poids plus dur 
+Quadriceps;Pistol squat;poly;avancé;squat;4/4;exacte;Pistol squat assisté;—;;;support plus simpl et poids plus dur 
+Quadriceps;Sissy squat;iso;déb. inter. avancé;squat;2/4;approximative — À VÉRIFIER;Squat assisté (chaise derrière);Pistol squat assisté;;;plus simple support, plus dur poids voir unilatéral
+Quadriceps;Squat au poids du corps;poly;déb.;squat;1/4;approximative — À VÉRIFIER;—;Squat;;pistole squat;lesté plus dur support plus simple
+Quadriceps;Wall sit;iso;déb. inter. avancé;—;—;aucune chaîne;—;—;;;juste a resté plus haut plus plus simple et pour plus dur il faut 90 degres et poids
+Triceps;Dips entre deux chaises (buste droit);poly;déb. inter. avancé;dips;1/4;approximative — À VÉRIFIER;—;Dips triceps banc (jambes tendues) ou Dips triceps pieds surélevés;;;plus simple il faut s aider en poussant avec les jambes et plus dur il faut un sac 
+Triceps;Pompe diamant;poly;déb. inter. avancé;pompes;1/6;approximative — À VÉRIFIER;—;Pompes normales;;;sur les genoux, contre un mur et pour plus dur il faut mettre un sac a dos ou élastique 
+;;;;;;;;;;;
+ÉCARTÉS — 25 exercices dont la progression est la CHARGE du sac (plus dur = sac plus lourd);;;;;;;;;;;
+Biceps;Curl avec sac;;;;;;;;;;
+Biceps;Curl avec sac alterné;;;;;;;;;;
+Biceps;Curl incliné sur chaise avec sac;;;;;;;;;;
+Biceps;Curl marteau avec sac;;;;;;;;;;
+Dos;Pullover avec sac;;;;;;;;;;
+Dos;Rowing avec sac;;;;;;;;;;
+Dos;Rowing bûcheron avec sac;;;;;;;;;;
+Dos;Rowing unilatéral avec sac;;;;;;;;;;
+Dos;Soulevé de terre avec sac;;;;;;;;;;
+Épaules;Élévations latérales avec sac ou bouteilles;;;;;;;;;;
+Épaules;Face pull avec sac;;;;;;;;;;
+Épaules;Oiseau avec sac ou bouteilles;;;;;;;;;;
+Fessiers;Pont fessier avec sac ou unilatéral;;;;;;;;;;
+Ischio-jambiers;Good morning avec sac;;;;;;;;;;
+Ischio-jambiers;Leg curl au sol avec sac;;;;;;;;;;
+Ischio-jambiers;Soulevé de terre roumain avec sac;;;;;;;;;;
+Mollets;Mollets assis avec sac;;;;;;;;;;
+Mollets;Mollets unilatéraux avec sac;;;;;;;;;;
+Quadriceps;Fente marchée avec sac;;;;;;;;;;
+Quadriceps;Front squat avec sac;;;;;;;;;;
+Quadriceps;Leg extension assis avec sac;;;;;;;;;;
+Quadriceps;Squat avec sac;;;;;;;;;;
+Triceps;Extension triceps avec sac;;;;;;;;;;
+Triceps;Kickback triceps avec sac;;;;;;;;;;
+Triceps;Skull crusher avec sac;;;;;;;;;;
+;;;;;;;;;;;
+CHAÎNES EXISTANTES (src/lib/progression-chains.js) — du plus simple au plus dur;;;;;;;;;;;
+pompes;Pompes sur les genoux;Pompes normales;Pompes pieds surélevés;Pompes archer;Pompes 1 bras sur les genoux;Pompes 1 bras;;;;;
+dips;Dips triceps banc (jambes fléchies);Dips triceps banc (jambes tendues) ou Dips triceps pieds surélevés;Dips barres parallèles assistés élastique ou Dips barres parallèles (descente seule);Dips barres parallèles;;;;;;;
+tractions;Traction australienne (rowing barre basse);Traction assistée élastique;Traction prise neutre;Traction supination;Traction prise large;Traction;Traction 1 bras assistée élastique;Traction 1 bras;;;
+squat;Squat assisté (chaise derrière);Squat;Pistol squat assisté;Pistol squat;;;;;;;
+fente;Fente assistée;Fente marchée poids de corps;Fente bulgare poids de corps;Fente bulgare surélevée;;;;;;;
+pont fessier;Pont fessier sol poids de corps;Pont fessier sur banc;Hip thrust poids de corps;Pont fessier 1 jambe sol;Hip thrust 1 jambe;;;;;;
+gainage;Gainage sur les genoux (30s);Gainage normal (30s);Gainage long (60s);Gainage avec extension bras alternés;Gainage avec extension jambe alternée;Gainage avec rotation (mountain climber lent);Gainage sur 1 bras;;;;
+triceps;Extension triceps élastique vertical;Diamond push-up sur les genoux;Diamond push-up;Diamond push-up élastique;;;;;;;
+mollets;Élévation mollets sol 2 jambes;Élévation mollets marche 2 jambes;Élévation mollets 1 jambe sol;Élévation mollets marche 1 jambe;;;;;;;

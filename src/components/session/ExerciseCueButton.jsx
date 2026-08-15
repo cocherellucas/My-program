@@ -2,6 +2,7 @@ import React from 'react';
 import { HelpCircle } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { EXERCISES } from '@/lib/exercise-database';
+import { reglagesPoidsDuCorps } from '@/lib/bodyweight-adjust';
 
 // Consigne d'exécution d'un exercice, derrière un « ? » à côté de son nom.
 //
@@ -15,12 +16,16 @@ import { EXERCISES } from '@/lib/exercise-database';
 const CONSIGNES = new Map(EXERCISES.filter((e) => e.cue).map((e) => [e.name, e.cue]));
 
 export function aUneConsigne(nomExercice) {
-  return CONSIGNES.has(nomExercice);
+  return CONSIGNES.has(nomExercice) || !!reglagesPoidsDuCorps(nomExercice);
 }
 
 export default function ExerciseCueButton({ name, className = '' }) {
   const consigne = CONSIGNES.get(name);
-  if (!consigne) return null;
+  // Au poids du corps on ne peut pas ajouter 2,5 kg : le réglage se fait par le
+  // bras de levier, l'assistance, le lest ou l'unilatéral. Ces leviers étaient
+  // connus de personne — c'est ce que ce bloc rend enfin visible.
+  const reglages = reglagesPoidsDuCorps(name);
+  if (!consigne && !reglages) return null;
 
   return (
     <Popover>
@@ -35,9 +40,20 @@ export default function ExerciseCueButton({ name, className = '' }) {
           <HelpCircle className="w-4 h-4" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-72 text-xs space-y-2" onClick={(e) => e.stopPropagation()}>
-        <p className="font-semibold text-white">Comment faire</p>
-        <p className="leading-relaxed">{consigne}</p>
+      <PopoverContent className="w-72 text-xs space-y-3" onClick={(e) => e.stopPropagation()}>
+        {consigne && (
+          <div className="space-y-1.5">
+            <p className="font-semibold text-white">Comment faire</p>
+            <p className="leading-relaxed">{consigne}</p>
+          </div>
+        )}
+        {reglages && (
+          <div className="space-y-1.5 border-t border-white/15 pt-2.5">
+            <p className="font-semibold text-white">Ajuster la difficulté</p>
+            <p className="leading-relaxed"><span className="font-semibold text-emerald-300">Plus simple —</span> {reglages.simple}</p>
+            <p className="leading-relaxed"><span className="font-semibold text-orange-300">Plus dur —</span> {reglages.dur}</p>
+          </div>
+        )}
       </PopoverContent>
     </Popover>
   );

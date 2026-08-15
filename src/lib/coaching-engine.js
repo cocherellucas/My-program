@@ -4,11 +4,36 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { devNow } from './dev-time.js';
 
+// ⚠ Exports actuellement SANS AUCUN APPELANT dans l'app — conservés parce
+// qu'ils portent des repères scientifiques réutilisables, pas parce qu'ils
+// servent : SMALL_MUSCLES, computeEffectiveVolumePerMuscle,
+// computeProgressiveOverload, getVolumeRange, getTrainingParams,
+// computeSessionTechniques. Deux d'entre eux comparaient des noms de muscles
+// dans le mauvais vocabulaire (voir plus bas) ; c'est corrigé, pour qu'un jour
+// de réveil ne réintroduise pas le bug avec eux.
+
+// ─── DEUX VOCABULAIRES DE MUSCLES ───
+// La base d'exercices dit « Poitrine » et « Abdos » ; la génération, elle,
+// produit « Pectoraux » et « Abdominaux » (program-activation.js traduit via
+// appMuscle()). Un `muscle_group` issu d'un programme ne correspond donc JAMAIS
+// à une liste écrite en vocabulaire de base — silencieusement, sans erreur.
+//
+// Les listes ci-dessous restent écrites en vocabulaire de base (pain-engine les
+// compare aux `muscles.primary` de la base) : on NORMALISE au moment de
+// comparer, plutôt que de les réécrire et de casser l'autre usage.
+export const NOM_BASE_MUSCLE = { Pectoraux: 'Poitrine', Abdominaux: 'Abdos' };
+
+/** Nom d'un muscle dans le vocabulaire de la BASE d'exercices. */
+export const nomBaseMuscle = (m) => NOM_BASE_MUSCLE[m] || m;
+
 // ─── Grands muscles (fatigue systémique élevée, tolèrent plus de volume) ───
-export const LARGE_MUSCLES = new Set(['Dos', 'Poitrine', 'Quadriceps', 'Fessiers', 'Épaules']);
+// Les deux orthographes y figurent : ces ensembles sont interrogés tantôt avec
+// un nom de base, tantôt avec un `muscle_group` généré. « Pectoraux » manquait,
+// et se retrouvait donc classé petit muscle (MEV 5 au lieu de 8).
+export const LARGE_MUSCLES = new Set(['Dos', 'Poitrine', 'Pectoraux', 'Quadriceps', 'Fessiers', 'Épaules']);
 
 // ─── Petits muscles (fatigue locale, récupèrent plus vite mais moins de volume) ───
-export const SMALL_MUSCLES = new Set(['Biceps', 'Triceps', 'Mollets', 'Ischio-jambiers', 'Abdominaux', 'Adducteurs', 'Abducteurs']);
+export const SMALL_MUSCLES = new Set(['Biceps', 'Triceps', 'Mollets', 'Ischio-jambiers', 'Abdominaux', 'Abdos', 'Adducteurs', 'Abducteurs']);
 
 // ─── Volume par muscle par semaine (séries) — par objectif × taille × niveau ───
 export const VOLUME_TABLES = {
@@ -210,42 +235,35 @@ export function computeEffectiveVolumePerMuscle(exercises = []) {
 // VÉRIFICATION SRA — espacement des séances
 // Retourne les violations (même groupe musculaire < fenêtre SRA)
 // ─────────────────────────────────────────────────────────────────────────────
-export function checkSRAViolations(sessions = []) {
-  const completed = sessions
-    .filter(s => s.status === 'completed' && (s.actual_date || s.planned_date))
-    .sort((a, b) => new Date(a.actual_date || a.planned_date) - new Date(b.actual_date || b.planned_date));
+// `active_zones` est une liste d'OBJETS `{ muscle_group: 'Pectoraux' }` — c'est
+// le format produit par la génération (program-activation.js) et celui que lit
+// l'interface (NextSessionCard affiche `z.muscle_group`). Le code le traitait
+// comme une liste de chaînes ; on normalise ici, en tolérant les deux formes au
+// cas où un import fournirait des chaînes.
+const nomsDesZones = (zones) => (zones || [])
+  .map((z) => (typeof z === 'string' ? z : z?.muscle_group))
+  .filter(Boolean);
 
-  const violations = [];
-
-  for (let i = 1; i < completed.length; i++) {
-    const prev = completed[i - 1];
-    const curr = completed[i];
-
-    const prevDate  = new Date(prev.actual_date || prev.planned_date);
-    const currDate  = new Date(curr.actual_date || curr.planned_date);
-    const diffHours = (currDate - prevDate) / (1000 * 60 * 60);
-
-    const prevZones = prev.active_zones || [];
-    const currZones = curr.active_zones || [];
-    const overlap   = prevZones.filter(z => currZones.includes(z));
-
-    if (overlap.length > 0) {
-      const sessionType = prev.type || 'hypertrophy';
-      const required    = SRA_WINDOWS[sessionType] || 48;
-
-      if (diffHours < required) {
-        violations.push({
-          zones:    overlap,
-          diffHours: Math.round(diffHours),
-          required,
-          dates:    [prev.actual_date || prev.planned_date, curr.actual_date || curr.planned_date],
-        });
-      }
-    }
-  }
-
-  return violations;
-}
+// (RETIRÉ) checkSRAViolations — détection a posteriori des conflits de
+// récupération entre séances complétées.
+//
+// Elle ne pouvait de toute façon pas fonctionner : elle comparait les zones avec
+// `includes` sur des OBJETS `{ muscle_group: … }`, donc par référence — le
+// chevauchement était toujours vide et l'alerte ne s'est jamais affichée pour
+// personne. Une fois la comparaison réparée, elle condamnait des programmes
+// parfaitement standards (un corps entier 3 jours espace ses séances de 48 h,
+// alors que la fenêtre « force » en demande 72), et sonnait en permanence sur les
+// mollets, présents à dessein dans chaque séance de jambes.
+//
+// La vraie raison de l'abandonner est en amont : l'espacement est décidé à la
+// GÉNÉRATION, et l'utilisateur ne peut pas déplacer une séance — changer ses
+// disponibilités régénère le programme. Il ne restait donc à reprocher que
+// l'ordre ou le retard, ce qui relève d'une conversation avec le coach, pas
+// d'une alerte qui revient toutes les semaines.
+//
+// `SRA_WINDOWS` est conservé : il sert au GÉNÉRATEUR, qui refuse d'ajouter un
+// exercice sollicitant un muscle encore en récupération. La règle agit en amont,
+// pour construire un programme juste — pas en aval pour constater les dégâts.
 
 // Muscles impactés par zone fragile (même map que program-builder)
 export const FRAGILE_ZONE_MUSCLES = {
@@ -262,7 +280,7 @@ export const FRAGILE_ZONE_MUSCLES = {
 // Systémique → décharge complète (fatigue SNC, RIR drift, régression globale)
 // Zonal → décharge ciblée sur les muscles/zones concernés seulement
 // ─────────────────────────────────────────────────────────────────────────────
-export function computeDeloadScore({ sessions = [], program = null, user = {}, checkins = {}, seriesLogs = [] }) {
+export function computeDeloadScore({ sessions = [], program = null, user = {}, checkins = {}, seriesLogs = [], derniereDecharge = null }) {
   let systemicScore = 0;
   let zonalScore    = 0;
   const flags       = [];
@@ -275,14 +293,39 @@ export function computeDeloadScore({ sessions = [], program = null, user = {}, c
 
   // ── SIGNAUX SYSTÉMIQUES ──────────────────────────────────────────────────
 
-  // 1. Semaines écoulées — préventif tendineux uniquement en force
+  // 1. Semaines SANS DÉCHARGE — préventif tendineux uniquement en force
+  //
+  // Ce compteur partait de `program.created_date`. Or les programmes tournent en
+  // boucle : ils ne sont jamais recréés, et RIEN ne remettait le compteur à
+  // zéro. Passé 8 semaines, tout utilisateur portait donc +30 à vie — c'est
+  // exactement le seuil de déclenchement, si bien que « Décharge conseillée »
+  // s'affichait en permanence, y compris au lendemain d'une décharge. Le drapeau
+  // annonçait « 8+ semaines sans décharge » sans que personne ne sache s'il y en
+  // avait eu une.
+  //
+  // On compte désormais depuis la dernière décharge EFFECTIVEMENT appliquée
+  // (`derniereDecharge`, enregistrée par volume-adjust au moment où
+  // l'utilisateur applique une proposition d'allègement). Sans enregistrement —
+  // aucune décharge encore faite — on retombe sur la date de création du
+  // programme, c'est-à-dire le comportement d'origine.
+  const semainesSansDecharge = (() => {
+    if (!derniereDecharge) return null;
+    const t = new Date(derniereDecharge).getTime();
+    if (Number.isNaN(t)) return null;
+    return Math.max(0, Math.floor((devNow() - t) / (7 * 24 * 60 * 60 * 1000))) + 1;
+  })();
+
   const meso = getMesocyclePosition(program);
-  if (meso) {
-    if (meso.weekNumber >= 8)                              { systemicScore += 30; flags.push('8+ semaines sans décharge'); }
-    else if (preventive && meso.weekNumber >= preventive)  { systemicScore += 20; flags.push(`${preventive} sem en force — décharge préventive tendineuse`); }
-    else if (meso.weekNumber >= 4)                         { systemicScore += 8;  flags.push('4 semaines écoulées — surveiller'); }
-    if (meso.isDeloadTime)                                 { systemicScore += 15; flags.push('Fin de mésocycle atteinte'); }
+  const semaines = semainesSansDecharge ?? meso?.weekNumber ?? null;
+  if (semaines !== null) {
+    if (semaines >= 8)                              { systemicScore += 30; flags.push('8+ semaines sans décharge'); }
+    else if (preventive && semaines >= preventive)  { systemicScore += 20; flags.push(`${preventive} sem en force — décharge préventive tendineuse`); }
+    else if (semaines >= 4)                         { systemicScore += 8;  flags.push('4 semaines écoulées — surveiller'); }
   }
+  // (RETIRÉ : « Fin de mésocycle atteinte », +15. Il valait
+  // `weekNumber >= plannedWeeks`, soit 52 semaines pour un programme en boucle :
+  // jamais avant un an, puis vrai définitivement. Un programme sans fin n'a pas
+  // de fin de mésocycle — c'est la fatigue qui décide, pas le calendrier.)
 
   // 2. Fatigue globale SNC — systémique par nature
   const completed = sessions.filter(s => s.status === 'completed').slice(-6);
@@ -350,7 +393,13 @@ export function computeDeloadScore({ sessions = [], program = null, user = {}, c
     zonalScore += 18;
     flags.push('Raideur post-séance répétée (règle 24h)');
     stifferSessions.forEach(s => {
-      (s.active_zones || []).forEach(z => {
+      // `active_zones` contient des OBJETS : `FRAGILE_ZONE_MUSCLES[z]` valait
+      // donc toujours undefined et le repli `[z]` ajoutait l'OBJET lui-même à la
+      // liste des muscles concernés. Résultat, la décharge ciblée s'annonçait
+      // « Décharge ciblée — [object Object] » (affectedMuscles.join()).
+      // Ce sont déjà des muscles, pas des clés de zone fragile : le repli était
+      // le bon chemin, il manquait juste le nom.
+      nomsDesZones(s.active_zones).forEach(z => {
         const muscles = FRAGILE_ZONE_MUSCLES[z] || [z];
         muscles.forEach(m => zonalMuscles.add(m));
       });
@@ -373,13 +422,10 @@ export function computeDeloadScore({ sessions = [], program = null, user = {}, c
     systemicScore = Math.round(systemicScore * (1 + rawZones.length * 0.03)); // légère amplification systémique
   }
 
-  // 8. Violations SRA — zonal (muscles concernés)
-  const sraViolations = checkSRAViolations(sessions);
-  if (sraViolations.length >= 2) {
-    zonalScore += 12;
-    flags.push(`${sraViolations.length} violations SRA`);
-    sraViolations.forEach(v => v.zones.forEach(z => zonalMuscles.add(z)));
-  }
+  // 8. (RETIRÉ) « Au moins 2 violations SRA » → +12 zonal.
+  //    Même raison que l'alerte du même nom : l'espacement est garanti à la
+  //    génération, et l'utilisateur ne peut pas déplacer une séance. Ce signal ne
+  //    mesurait donc que l'ordre dans lequel il a fait ses séances.
 
   // ── CALCUL FINAL ─────────────────────────────────────────────────────────
   const totalScore = Math.max(0, Math.min(100, systemicScore + Math.round(zonalScore * 0.5)));
@@ -464,40 +510,25 @@ export function getDeloadRecommendation(score, deloadType = 'full', affectedMusc
 // READINESS DE PHASE — est-on prêt à passer à la phase suivante ?
 // Bloque la progression si régression ou fatigue élevée
 // ─────────────────────────────────────────────────────────────────────────────
-export function checkPhaseReadiness({ sessions = [], seriesLogs = [], program = null, level = 'intermediate' }) {
-  const meso = getMesocyclePosition(program);
-  if (!meso) return { ready: true, reason: null };
-
-  // Débutants : MRV interdit — trop de risque blessure sans bénéfice supplémentaire
-  if (level === 'beginner' && meso.phase === 'MRV') {
-    return {
-      ready:  false,
-      reason: 'Phase MRV déconseillée pour un débutant — rester en MAV pour progresser en sécurité.',
-    };
-  }
-
-  const { regressing } = detectPerformanceRegression(seriesLogs);
-  const completed  = sessions.filter(s => s.status === 'completed').slice(-4);
-  const avgFatigue = completed.length
-    ? completed.reduce((s, x) => s + (x.global_fatigue || 0), 0) / completed.length
-    : 0;
-
-  if (regressing && meso.phase !== 'MEV') {
-    return {
-      ready:  false,
-      reason: 'Régression de performance détectée — rester en phase actuelle avant de progresser.',
-    };
-  }
-
-  if (avgFatigue >= 4 && meso.phase === 'MAV') {
-    return {
-      ready:  false,
-      reason: 'Fatigue trop élevée pour passer en MRV — effectuer une décharge d\'abord.',
-    };
-  }
-
-  return { ready: true, reason: null };
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// (RETIRÉ) checkPhaseReadiness et ses trois alertes :
+//   « Phase MRV déconseillée pour un débutant »
+//   « Régression de performance — rester en phase actuelle »
+//   « Fatigue trop élevée pour passer en MRV »
+//
+// Aucune des trois ne pouvait s'afficher, pour deux raisons cumulées :
+//   1. `active_phase` est écrit 'MEV' à la création du programme et n'est
+//      modifié NULLE PART ensuite. Les trois conditions portaient sur
+//      phase === 'MRV', phase !== 'MEV' et phase === 'MAV' : jamais remplies.
+//   2. l'appel se faisait sans `level`, qui retombait donc sur 'intermediate' —
+//      la protection du débutant n'aurait pas fonctionné même si la phase
+//      montait.
+//
+// Le jour où les phases avanceront vraiment (MEV → MAV → MRV), ces trois règles
+// sont à réécrire : elles sont justes sur le fond, elles n'avaient simplement
+// aucun mécanisme derrière. La régression de performance, elle, continue d'être
+// prise en compte — via le SCORE de décharge (detectPerformanceRegression, +20).
+// ─────────────────────────────────────────────────────────────────────────────
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SURCHARGE PROGRESSIVE — charge ET poids de corps
@@ -646,8 +677,11 @@ export function computeSessionTechniques({ durationMinutes, acceptsAdvanced, exe
   if (timeShort || acceptsAdvanced) {
     techniques.supersets = true;
 
-    // Identifier les paires antagonistes dans les exercices de la séance
-    const muscleGroups = [...new Set(exercises.map(e => e.muscle_group).filter(Boolean))];
+    // Identifier les paires antagonistes dans les exercices de la séance.
+    // Les paires sont écrites en vocabulaire de BASE (« Poitrine ») alors que les
+    // `muscle_group` générés sont en vocabulaire APP (« Pectoraux ») : sans
+    // normalisation, la paire pectoraux/dos n'était jamais reconnue.
+    const muscleGroups = [...new Set(exercises.map(e => nomBaseMuscle(e.muscle_group)).filter(Boolean))];
     ANTAGONIST_PAIRS.forEach(([a, b]) => {
       const hasA = muscleGroups.some(m => m.includes(a));
       const hasB = muscleGroups.some(m => m.includes(b));
@@ -732,12 +766,12 @@ export function detectStructuralPlateau({ seriesLogs = [], sessions = [], progra
 // ─────────────────────────────────────────────────────────────────────────────
 // ALERTES DASHBOARD
 // ─────────────────────────────────────────────────────────────────────────────
-export function computeDashboardAlerts({ sessions = [], program = null, user = {}, checkins = {}, seriesLogs = [], lang = 'fr' }) {
+export function computeDashboardAlerts({ sessions = [], program = null, user = {}, checkins = {}, seriesLogs = [], lang = 'fr', derniereDecharge = null }) {
   const P = (fr, en) => (lang === 'en' ? en : fr);
   const alerts = [];
 
   // Décharge / fatigue
-  const { score, flags, deloadType, affectedMuscles } = computeDeloadScore({ sessions, program, user, checkins, seriesLogs });
+  const { score, flags, deloadType, affectedMuscles } = computeDeloadScore({ sessions, program, user, checkins, seriesLogs, derniereDecharge });
   const rec = getDeloadRecommendation(score, deloadType, affectedMuscles, lang);
 
   if (rec.type !== 'continue') {
@@ -760,21 +794,22 @@ export function computeDashboardAlerts({ sessions = [], program = null, user = {
   // décide, via getDeloadRecommendation / la carte volume. La position dans le
   // cycle reste un simple facteur du score de décharge, pas une alerte.)
 
-  // Readiness phase
-  const { ready, reason } = checkPhaseReadiness({ sessions, seriesLogs, program });
-  if (!ready) {
-    alerts.push({ type: 'plateau', message: reason });
-  }
+  // (Plus d'alerte de « readiness » de phase — voir le bloc RETIRÉ plus haut.)
 
-  // Violations SRA
-  const sraViolations = checkSRAViolations(sessions);
-  if (sraViolations.length > 0) {
-    const zonesStr = sraViolations.map(v => v.zones.join('/')).join(', ');
-    alerts.push({
-      type:    'imbalance',
-      message: P(`${sraViolations.length} conflit${sraViolations.length > 1 ? 's' : ''} SRA — récupération insuffisante sur ${zonesStr}.`, `${sraViolations.length} SRA conflict${sraViolations.length > 1 ? 's' : ''} — insufficient recovery on ${zonesStr}.`),
-    });
-  }
+  // (RETIRÉ) « N conflits SRA — récupération insuffisante sur … »
+  //
+  // L'espacement des séances est décidé à la GÉNÉRATION : le programme respecte
+  // déjà les fenêtres de récupération, et l'utilisateur ne peut pas déplacer une
+  // séance — changer ses disponibilités déclenche une régénération complète.
+  // L'alerte ne pouvait donc reprocher qu'une chose : avoir fait ses séances
+  // dans un autre ordre ou en retard. Ce n'est pas un défaut à signaler en
+  // boucle sur l'accueil ; c'est une question à poser au coach, qui dispose de
+  // tout l'historique pour répondre au cas par cas.
+  //
+  // `SRA_WINDOWS` reste utilisé — par le GÉNÉRATEUR, qui refuse d'ajouter un
+  // exercice sollicitant un muscle encore en récupération. C'est là que la règle
+  // sert : en amont, pour construire un programme juste, plutôt qu'en aval pour
+  // constater les dégâts.
 
   // Blocage structurel — stagnation sans fatigue après décharge
   const structural = detectStructuralPlateau({ seriesLogs, sessions, program });
@@ -794,21 +829,12 @@ export function computeDashboardAlerts({ sessions = [], program = null, user = {
     alerts.push({ type: 'missed', message: P(`${missed.length} séances non complétées — adhérence à surveiller.`, `${missed.length} missed workouts — watch your consistency.`) });
   }
 
-  // Fin de cycle — dernière séance planifiée dans les 7 prochains jours
-  const planned = sessions.filter(s => s.status === 'planned' && s.planned_date);
-  if (planned.length > 0 && program) {
-    const lastPlanned = planned.map(s => s.planned_date).sort().pop();
-    const daysLeft = Math.ceil((new Date(lastPlanned) - new Date(today)) / 86400000);
-    if (daysLeft >= 0 && daysLeft <= 7) {
-      const whenStr = lang === 'en'
-        ? (daysLeft === 0 ? 'today' : `in ${daysLeft} day${daysLeft > 1 ? 's' : ''}`)
-        : (daysLeft === 0 ? "aujourd'hui" : `dans ${daysLeft} jour${daysLeft > 1 ? 's' : ''}`);
-      alerts.push({
-        type: 'cycle_end',
-        message: P(`Ton cycle se termine ${whenStr} — veux-tu repartir sur 4 nouvelles semaines ?`, `Your cycle ends ${whenStr} — want to start 4 new weeks?`),
-      });
-    }
-  }
+  // (RETIRÉ) « Ton cycle se termine — repartir sur 4 nouvelles semaines ? »
+  // Tout programme tourne désormais en boucle : il est créé sur 52 semaines et
+  // la page Programme maintient en permanence une vingtaine de semaines de
+  // séances d'avance. La dernière séance planifiée n'est donc jamais à moins de
+  // 7 jours, et le sélecteur de durée qui permettait encore de produire un
+  // programme fini a été retiré. L'alerte n'avait plus de cas où s'afficher.
 
   return alerts;
 }
@@ -829,13 +855,13 @@ export function repSetCap(targetReps) {
 
 // Renvoie UNE proposition d'ajustement de volume, ou null.
 // La décharge (fatigue) est prioritaire sur l'augmentation (stagnation).
-export function computeVolumeProposal({ sessions = [], program = null, user = {}, seriesLogs = [], checkins = {}, lang = 'fr' }) {
+export function computeVolumeProposal({ sessions = [], program = null, user = {}, seriesLogs = [], checkins = {}, lang = 'fr', derniereDecharge = null }) {
   const P = (fr, en) => (lang === 'en' ? en : fr);
   const completed = sessions.filter(s => s.status === 'completed');
   if (completed.length < 3) return null; // pas assez de signal
 
   // ── DÉCHARGE (fatigue) — douce, prioritaire ────────────────────────────────
-  const { score, deloadType, affectedMuscles } = computeDeloadScore({ sessions, program, user, checkins, seriesLogs });
+  const { score, deloadType, affectedMuscles } = computeDeloadScore({ sessions, program, user, checkins, seriesLogs, derniereDecharge });
   const rec = getDeloadRecommendation(score, deloadType, affectedMuscles);
   if (rec.type === 'rest') {
     return {

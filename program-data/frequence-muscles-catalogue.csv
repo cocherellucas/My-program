@@ -1,0 +1,1341 @@
+﻿Programme;Nom;Muscle;Seances;Total;Dans toutes les seances
+advanced/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Quadriceps;3;3;OUI
+advanced/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Pectoraux;3;3;OUI
+advanced/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Dos;3;3;OUI
+advanced/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Ischio-jambiers;3;3;OUI
+advanced/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Épaules;3;3;OUI
+advanced/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Fessiers;3;3;OUI
+advanced/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Biceps;3;3;OUI
+advanced/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Triceps;3;3;OUI
+advanced/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Mollets;3;3;OUI
+advanced/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Abdominaux;3;3;OUI
+advanced/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Abdominaux;4;4;OUI
+advanced/bodyweight/endurance:full_body:primary/5j;Full Body — Endurance (5j);Abdominaux;5;5;OUI
+advanced/bodyweight/endurance:full_body:primary/6j;Full Body — Endurance (6j);Abdominaux;6;6;OUI
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Quadriceps;3;3;OUI
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Pectoraux;3;3;OUI
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Dos;3;3;OUI
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Ischio-jambiers;3;3;OUI
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Épaules;3;3;OUI
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Fessiers;3;3;OUI
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Biceps;3;3;OUI
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Triceps;3;3;OUI
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Mollets;3;3;OUI
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Abdominaux;3;3;OUI
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Abdominaux;4;4;OUI
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Abdominaux;5;5;OUI
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/6j;Endurance & Hypertrophie (6j);Abdominaux;6;6;OUI
+advanced/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Quadriceps;3;3;OUI
+advanced/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Pectoraux;3;3;OUI
+advanced/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Dos;3;3;OUI
+advanced/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Ischio-jambiers;3;3;OUI
+advanced/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Épaules;3;3;OUI
+advanced/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Fessiers;3;3;OUI
+advanced/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Biceps;3;3;OUI
+advanced/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Triceps;3;3;OUI
+advanced/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Mollets;3;3;OUI
+advanced/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Abdominaux;3;3;OUI
+advanced/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Abdominaux;4;4;OUI
+advanced/bodyweight/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Abdominaux;5;5;OUI
+advanced/bodyweight/hypertrophy:full_body:primary/6j;Full Body — Hypertrophie (6j);Abdominaux;6;6;OUI
+advanced/bodyweight/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Mollets;3;3;OUI
+advanced/bodyweight/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Mollets;4;4;OUI
+advanced/bodyweight/hypertrophy:lower_body:primary/5j;Bas du Corps — Hypertrophie (5j);Mollets;5;5;OUI
+advanced/bodyweight/hypertrophy:lower_body:primary/6j;Bas du Corps — Hypertrophie (6j);Mollets;6;6;OUI
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Abdominaux;3;3;OUI
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Abdominaux;4;4;OUI
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Abdominaux;5;5;OUI
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/6j;Bas Prioritaire — Hypertrophie (6j);Abdominaux;6;6;OUI
+advanced/bodyweight/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Abdominaux;3;3;OUI
+advanced/bodyweight/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Abdominaux;4;4;OUI
+advanced/bodyweight/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Abdominaux;5;5;OUI
+advanced/bodyweight/hypertrophy:upper_body:primary/6j;Haut du Corps — Hypertrophie (6j);Abdominaux;6;6;OUI
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Abdominaux;3;3;OUI
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Abdominaux;4;4;OUI
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Abdominaux;5;5;OUI
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/6j;Haut Prioritaire — Hypertrophie (6j);Abdominaux;6;6;OUI
+advanced/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Quadriceps;3;3;OUI
+advanced/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Pectoraux;3;3;OUI
+advanced/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Dos;3;3;OUI
+advanced/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Ischio-jambiers;3;3;OUI
+advanced/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Épaules;3;3;OUI
+advanced/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Fessiers;3;3;OUI
+advanced/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Biceps;3;3;OUI
+advanced/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Triceps;3;3;OUI
+advanced/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Mollets;3;3;OUI
+advanced/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Abdominaux;3;3;OUI
+advanced/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Abdominaux;4;4;OUI
+advanced/full_gym/endurance:full_body:primary/5j;Full Body — Endurance (5j);Abdominaux;5;5;OUI
+advanced/full_gym/endurance:full_body:primary/6j;Full Body — Endurance (6j);Abdominaux;6;6;OUI
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Quadriceps;3;3;OUI
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Pectoraux;3;3;OUI
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Dos;3;3;OUI
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Ischio-jambiers;3;3;OUI
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Épaules;3;3;OUI
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Fessiers;3;3;OUI
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Biceps;3;3;OUI
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Triceps;3;3;OUI
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Mollets;3;3;OUI
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Abdominaux;3;3;OUI
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Abdominaux;4;4;OUI
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Abdominaux;5;5;OUI
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/6j;Endurance & Hypertrophie (6j);Abdominaux;6;6;OUI
+advanced/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Quadriceps;3;3;OUI
+advanced/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Pectoraux;3;3;OUI
+advanced/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Dos;3;3;OUI
+advanced/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Ischio-jambiers;3;3;OUI
+advanced/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Épaules;3;3;OUI
+advanced/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Fessiers;3;3;OUI
+advanced/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Biceps;3;3;OUI
+advanced/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Triceps;3;3;OUI
+advanced/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Mollets;3;3;OUI
+advanced/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Abdominaux;3;3;OUI
+advanced/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Abdominaux;4;4;OUI
+advanced/full_gym/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Abdominaux;5;5;OUI
+advanced/full_gym/hypertrophy:full_body:primary/6j;Full Body — Hypertrophie (6j);Abdominaux;6;6;OUI
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Quadriceps;3;3;OUI
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Pectoraux;3;3;OUI
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Dos;3;3;OUI
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Ischio-jambiers;3;3;OUI
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Épaules;3;3;OUI
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Fessiers;3;3;OUI
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Biceps;3;3;OUI
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Triceps;3;3;OUI
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Mollets;3;3;OUI
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Abdominaux;3;3;OUI
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Abdominaux;4;4;OUI
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/5j;Full Body — Hypertrophie & Force Bas (5j);Abdominaux;5;5;OUI
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/6j;Full Body — Hypertrophie & Force Bas (6j);Abdominaux;6;6;OUI
+advanced/full_gym/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Mollets;3;3;OUI
+advanced/full_gym/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Mollets;4;4;OUI
+advanced/full_gym/hypertrophy:lower_body:primary/5j;Bas du Corps — Hypertrophie (5j);Mollets;5;5;OUI
+advanced/full_gym/hypertrophy:lower_body:primary/6j;Bas du Corps — Hypertrophie (6j);Mollets;6;6;OUI
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Abdominaux;3;3;OUI
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Abdominaux;4;4;OUI
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Abdominaux;5;5;OUI
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/6j;Bas Prioritaire — Hypertrophie (6j);Abdominaux;6;6;OUI
+advanced/full_gym/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Abdominaux;3;3;OUI
+advanced/full_gym/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Abdominaux;4;4;OUI
+advanced/full_gym/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Abdominaux;5;5;OUI
+advanced/full_gym/hypertrophy:upper_body:primary/6j;Haut du Corps — Hypertrophie (6j);Abdominaux;6;6;OUI
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Abdominaux;3;3;OUI
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Abdominaux;4;4;OUI
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Abdominaux;5;5;OUI
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/6j;Haut Prioritaire — Hypertrophie (6j);Abdominaux;6;6;OUI
+beginner/bodyweight/endurance:full_body:primary/2j;Full Body — Endurance (2j);Quadriceps;2;2;OUI
+beginner/bodyweight/endurance:full_body:primary/2j;Full Body — Endurance (2j);Pectoraux;2;2;OUI
+beginner/bodyweight/endurance:full_body:primary/2j;Full Body — Endurance (2j);Dos;2;2;OUI
+beginner/bodyweight/endurance:full_body:primary/2j;Full Body — Endurance (2j);Ischio-jambiers;2;2;OUI
+beginner/bodyweight/endurance:full_body:primary/2j;Full Body — Endurance (2j);Épaules;2;2;OUI
+beginner/bodyweight/endurance:full_body:primary/2j;Full Body — Endurance (2j);Fessiers;2;2;OUI
+beginner/bodyweight/endurance:full_body:primary/2j;Full Body — Endurance (2j);Biceps;2;2;OUI
+beginner/bodyweight/endurance:full_body:primary/2j;Full Body — Endurance (2j);Triceps;2;2;OUI
+beginner/bodyweight/endurance:full_body:primary/2j;Full Body — Endurance (2j);Mollets;2;2;OUI
+beginner/bodyweight/endurance:full_body:primary/2j;Full Body — Endurance (2j);Abdominaux;2;2;OUI
+beginner/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Quadriceps;3;3;OUI
+beginner/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Pectoraux;3;3;OUI
+beginner/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Dos;3;3;OUI
+beginner/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Ischio-jambiers;3;3;OUI
+beginner/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Épaules;3;3;OUI
+beginner/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Fessiers;3;3;OUI
+beginner/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Biceps;3;3;OUI
+beginner/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Triceps;3;3;OUI
+beginner/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Mollets;3;3;OUI
+beginner/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Abdominaux;3;3;OUI
+beginner/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Abdominaux;4;4;OUI
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/2j;Endurance & Hypertrophie (2j);Quadriceps;2;2;OUI
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/2j;Endurance & Hypertrophie (2j);Pectoraux;2;2;OUI
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/2j;Endurance & Hypertrophie (2j);Dos;2;2;OUI
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/2j;Endurance & Hypertrophie (2j);Ischio-jambiers;2;2;OUI
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/2j;Endurance & Hypertrophie (2j);Épaules;2;2;OUI
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/2j;Endurance & Hypertrophie (2j);Fessiers;2;2;OUI
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/2j;Endurance & Hypertrophie (2j);Biceps;2;2;OUI
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/2j;Endurance & Hypertrophie (2j);Triceps;2;2;OUI
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/2j;Endurance & Hypertrophie (2j);Mollets;2;2;OUI
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/2j;Endurance & Hypertrophie (2j);Abdominaux;2;2;OUI
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Quadriceps;3;3;OUI
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Pectoraux;3;3;OUI
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Dos;3;3;OUI
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Ischio-jambiers;3;3;OUI
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Épaules;3;3;OUI
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Fessiers;3;3;OUI
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Biceps;3;3;OUI
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Triceps;3;3;OUI
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Mollets;3;3;OUI
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Abdominaux;3;3;OUI
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Abdominaux;4;4;OUI
+beginner/bodyweight/hypertrophy:full_body:primary/2j;Full Body — Hypertrophie (2j);Quadriceps;2;2;OUI
+beginner/bodyweight/hypertrophy:full_body:primary/2j;Full Body — Hypertrophie (2j);Pectoraux;2;2;OUI
+beginner/bodyweight/hypertrophy:full_body:primary/2j;Full Body — Hypertrophie (2j);Dos;2;2;OUI
+beginner/bodyweight/hypertrophy:full_body:primary/2j;Full Body — Hypertrophie (2j);Ischio-jambiers;2;2;OUI
+beginner/bodyweight/hypertrophy:full_body:primary/2j;Full Body — Hypertrophie (2j);Épaules;2;2;OUI
+beginner/bodyweight/hypertrophy:full_body:primary/2j;Full Body — Hypertrophie (2j);Fessiers;2;2;OUI
+beginner/bodyweight/hypertrophy:full_body:primary/2j;Full Body — Hypertrophie (2j);Biceps;2;2;OUI
+beginner/bodyweight/hypertrophy:full_body:primary/2j;Full Body — Hypertrophie (2j);Triceps;2;2;OUI
+beginner/bodyweight/hypertrophy:full_body:primary/2j;Full Body — Hypertrophie (2j);Mollets;2;2;OUI
+beginner/bodyweight/hypertrophy:full_body:primary/2j;Full Body — Hypertrophie (2j);Abdominaux;2;2;OUI
+beginner/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Quadriceps;3;3;OUI
+beginner/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Pectoraux;3;3;OUI
+beginner/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Dos;3;3;OUI
+beginner/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Ischio-jambiers;3;3;OUI
+beginner/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Épaules;3;3;OUI
+beginner/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Fessiers;3;3;OUI
+beginner/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Biceps;3;3;OUI
+beginner/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Triceps;3;3;OUI
+beginner/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Mollets;3;3;OUI
+beginner/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Abdominaux;3;3;OUI
+beginner/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Abdominaux;4;4;OUI
+beginner/bodyweight/hypertrophy:lower_body:primary/2j;Bas du Corps — Hypertrophie (2j);Quadriceps;2;2;OUI
+beginner/bodyweight/hypertrophy:lower_body:primary/2j;Bas du Corps — Hypertrophie (2j);Ischio-jambiers;2;2;OUI
+beginner/bodyweight/hypertrophy:lower_body:primary/2j;Bas du Corps — Hypertrophie (2j);Fessiers;2;2;OUI
+beginner/bodyweight/hypertrophy:lower_body:primary/2j;Bas du Corps — Hypertrophie (2j);Mollets;2;2;OUI
+beginner/bodyweight/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Mollets;3;3;OUI
+beginner/bodyweight/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Mollets;4;4;OUI
+beginner/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/2j;Bas Prioritaire — Hypertrophie (2j);Abdominaux;2;2;OUI
+beginner/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Abdominaux;3;3;OUI
+beginner/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Abdominaux;4;4;OUI
+beginner/bodyweight/hypertrophy:upper_body:primary/2j;Haut du Corps — Hypertrophie (2j);Pectoraux;2;2;OUI
+beginner/bodyweight/hypertrophy:upper_body:primary/2j;Haut du Corps — Hypertrophie (2j);Dos;2;2;OUI
+beginner/bodyweight/hypertrophy:upper_body:primary/2j;Haut du Corps — Hypertrophie (2j);Épaules;2;2;OUI
+beginner/bodyweight/hypertrophy:upper_body:primary/2j;Haut du Corps — Hypertrophie (2j);Biceps;2;2;OUI
+beginner/bodyweight/hypertrophy:upper_body:primary/2j;Haut du Corps — Hypertrophie (2j);Triceps;2;2;OUI
+beginner/bodyweight/hypertrophy:upper_body:primary/2j;Haut du Corps — Hypertrophie (2j);Abdominaux;2;2;OUI
+beginner/bodyweight/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Abdominaux;3;3;OUI
+beginner/bodyweight/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Abdominaux;4;4;OUI
+beginner/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/2j;Haut Prioritaire — Hypertrophie (2j);Abdominaux;2;2;OUI
+beginner/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Abdominaux;3;3;OUI
+beginner/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Abdominaux;4;4;OUI
+beginner/full_gym/endurance:full_body:primary/2j;Full Body — Endurance (2j);Quadriceps;2;2;OUI
+beginner/full_gym/endurance:full_body:primary/2j;Full Body — Endurance (2j);Pectoraux;2;2;OUI
+beginner/full_gym/endurance:full_body:primary/2j;Full Body — Endurance (2j);Dos;2;2;OUI
+beginner/full_gym/endurance:full_body:primary/2j;Full Body — Endurance (2j);Ischio-jambiers;2;2;OUI
+beginner/full_gym/endurance:full_body:primary/2j;Full Body — Endurance (2j);Épaules;2;2;OUI
+beginner/full_gym/endurance:full_body:primary/2j;Full Body — Endurance (2j);Fessiers;2;2;OUI
+beginner/full_gym/endurance:full_body:primary/2j;Full Body — Endurance (2j);Biceps;2;2;OUI
+beginner/full_gym/endurance:full_body:primary/2j;Full Body — Endurance (2j);Triceps;2;2;OUI
+beginner/full_gym/endurance:full_body:primary/2j;Full Body — Endurance (2j);Mollets;2;2;OUI
+beginner/full_gym/endurance:full_body:primary/2j;Full Body — Endurance (2j);Abdominaux;2;2;OUI
+beginner/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Quadriceps;3;3;OUI
+beginner/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Pectoraux;3;3;OUI
+beginner/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Dos;3;3;OUI
+beginner/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Ischio-jambiers;3;3;OUI
+beginner/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Épaules;3;3;OUI
+beginner/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Fessiers;3;3;OUI
+beginner/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Biceps;3;3;OUI
+beginner/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Triceps;3;3;OUI
+beginner/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Mollets;3;3;OUI
+beginner/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Abdominaux;3;3;OUI
+beginner/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Abdominaux;4;4;OUI
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/2j;Endurance & Hypertrophie (2j);Quadriceps;2;2;OUI
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/2j;Endurance & Hypertrophie (2j);Pectoraux;2;2;OUI
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/2j;Endurance & Hypertrophie (2j);Dos;2;2;OUI
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/2j;Endurance & Hypertrophie (2j);Ischio-jambiers;2;2;OUI
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/2j;Endurance & Hypertrophie (2j);Épaules;2;2;OUI
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/2j;Endurance & Hypertrophie (2j);Fessiers;2;2;OUI
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/2j;Endurance & Hypertrophie (2j);Biceps;2;2;OUI
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/2j;Endurance & Hypertrophie (2j);Triceps;2;2;OUI
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/2j;Endurance & Hypertrophie (2j);Mollets;2;2;OUI
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/2j;Endurance & Hypertrophie (2j);Abdominaux;2;2;OUI
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Quadriceps;3;3;OUI
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Pectoraux;3;3;OUI
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Dos;3;3;OUI
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Ischio-jambiers;3;3;OUI
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Épaules;3;3;OUI
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Fessiers;3;3;OUI
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Biceps;3;3;OUI
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Triceps;3;3;OUI
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Mollets;3;3;OUI
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Abdominaux;3;3;OUI
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Abdominaux;4;4;OUI
+beginner/full_gym/hypertrophy:full_body:primary/2j;Full Body — Hypertrophie (2j);Quadriceps;2;2;OUI
+beginner/full_gym/hypertrophy:full_body:primary/2j;Full Body — Hypertrophie (2j);Pectoraux;2;2;OUI
+beginner/full_gym/hypertrophy:full_body:primary/2j;Full Body — Hypertrophie (2j);Dos;2;2;OUI
+beginner/full_gym/hypertrophy:full_body:primary/2j;Full Body — Hypertrophie (2j);Ischio-jambiers;2;2;OUI
+beginner/full_gym/hypertrophy:full_body:primary/2j;Full Body — Hypertrophie (2j);Épaules;2;2;OUI
+beginner/full_gym/hypertrophy:full_body:primary/2j;Full Body — Hypertrophie (2j);Fessiers;2;2;OUI
+beginner/full_gym/hypertrophy:full_body:primary/2j;Full Body — Hypertrophie (2j);Biceps;2;2;OUI
+beginner/full_gym/hypertrophy:full_body:primary/2j;Full Body — Hypertrophie (2j);Triceps;2;2;OUI
+beginner/full_gym/hypertrophy:full_body:primary/2j;Full Body — Hypertrophie (2j);Mollets;2;2;OUI
+beginner/full_gym/hypertrophy:full_body:primary/2j;Full Body — Hypertrophie (2j);Abdominaux;2;2;OUI
+beginner/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Quadriceps;3;3;OUI
+beginner/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Pectoraux;3;3;OUI
+beginner/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Dos;3;3;OUI
+beginner/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Ischio-jambiers;3;3;OUI
+beginner/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Épaules;3;3;OUI
+beginner/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Fessiers;3;3;OUI
+beginner/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Biceps;3;3;OUI
+beginner/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Triceps;3;3;OUI
+beginner/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Mollets;3;3;OUI
+beginner/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Abdominaux;3;3;OUI
+beginner/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Abdominaux;4;4;OUI
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/2j;Full Body — Hypertrophie & Force Bas (2j);Quadriceps;2;2;OUI
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/2j;Full Body — Hypertrophie & Force Bas (2j);Pectoraux;2;2;OUI
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/2j;Full Body — Hypertrophie & Force Bas (2j);Dos;2;2;OUI
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/2j;Full Body — Hypertrophie & Force Bas (2j);Ischio-jambiers;2;2;OUI
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/2j;Full Body — Hypertrophie & Force Bas (2j);Épaules;2;2;OUI
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/2j;Full Body — Hypertrophie & Force Bas (2j);Fessiers;2;2;OUI
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/2j;Full Body — Hypertrophie & Force Bas (2j);Biceps;2;2;OUI
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/2j;Full Body — Hypertrophie & Force Bas (2j);Triceps;2;2;OUI
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/2j;Full Body — Hypertrophie & Force Bas (2j);Mollets;2;2;OUI
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/2j;Full Body — Hypertrophie & Force Bas (2j);Abdominaux;2;2;OUI
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Quadriceps;3;3;OUI
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Pectoraux;3;3;OUI
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Dos;3;3;OUI
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Ischio-jambiers;3;3;OUI
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Épaules;3;3;OUI
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Fessiers;3;3;OUI
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Biceps;3;3;OUI
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Triceps;3;3;OUI
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Mollets;3;3;OUI
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Abdominaux;3;3;OUI
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Abdominaux;4;4;OUI
+beginner/full_gym/hypertrophy:lower_body:primary/2j;Bas du Corps — Hypertrophie (2j);Quadriceps;2;2;OUI
+beginner/full_gym/hypertrophy:lower_body:primary/2j;Bas du Corps — Hypertrophie (2j);Ischio-jambiers;2;2;OUI
+beginner/full_gym/hypertrophy:lower_body:primary/2j;Bas du Corps — Hypertrophie (2j);Fessiers;2;2;OUI
+beginner/full_gym/hypertrophy:lower_body:primary/2j;Bas du Corps — Hypertrophie (2j);Mollets;2;2;OUI
+beginner/full_gym/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Mollets;3;3;OUI
+beginner/full_gym/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Mollets;4;4;OUI
+beginner/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/2j;Bas Prioritaire — Hypertrophie (2j);Abdominaux;2;2;OUI
+beginner/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Abdominaux;3;3;OUI
+beginner/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Abdominaux;4;4;OUI
+beginner/full_gym/hypertrophy:upper_body:primary/2j;Haut du Corps — Hypertrophie (2j);Pectoraux;2;2;OUI
+beginner/full_gym/hypertrophy:upper_body:primary/2j;Haut du Corps — Hypertrophie (2j);Dos;2;2;OUI
+beginner/full_gym/hypertrophy:upper_body:primary/2j;Haut du Corps — Hypertrophie (2j);Épaules;2;2;OUI
+beginner/full_gym/hypertrophy:upper_body:primary/2j;Haut du Corps — Hypertrophie (2j);Biceps;2;2;OUI
+beginner/full_gym/hypertrophy:upper_body:primary/2j;Haut du Corps — Hypertrophie (2j);Triceps;2;2;OUI
+beginner/full_gym/hypertrophy:upper_body:primary/2j;Haut du Corps — Hypertrophie (2j);Abdominaux;2;2;OUI
+beginner/full_gym/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Abdominaux;3;3;OUI
+beginner/full_gym/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Abdominaux;4;4;OUI
+beginner/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/2j;Haut Prioritaire — Hypertrophie (2j);Abdominaux;2;2;OUI
+beginner/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Abdominaux;3;3;OUI
+beginner/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Abdominaux;4;4;OUI
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/2j;Force SBD — Squat/Développé/Soulevé (2j);Quadriceps;2;2;OUI
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/2j;Force SBD — Squat/Développé/Soulevé (2j);Pectoraux;2;2;OUI
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/2j;Force SBD — Squat/Développé/Soulevé (2j);Dos;2;2;OUI
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/2j;Force SBD — Squat/Développé/Soulevé (2j);Abdominaux;2;2;OUI
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/2j;Powerbuilding — Force & Volume (2j);Quadriceps;2;2;OUI
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/2j;Powerbuilding — Force & Volume (2j);Pectoraux;2;2;OUI
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/2j;Powerbuilding — Force & Volume (2j);Dos;2;2;OUI
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/2j;Powerbuilding — Force & Volume (2j);Biceps;2;2;OUI
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/2j;Powerbuilding — Force & Volume (2j);Abdominaux;2;2;OUI
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/2j;Powerbuilding — Force & Volume (2j);Mollets;2;2;OUI
+intermediate/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Quadriceps;3;3;OUI
+intermediate/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Pectoraux;3;3;OUI
+intermediate/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Dos;3;3;OUI
+intermediate/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Ischio-jambiers;3;3;OUI
+intermediate/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Épaules;3;3;OUI
+intermediate/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Fessiers;3;3;OUI
+intermediate/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Biceps;3;3;OUI
+intermediate/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Triceps;3;3;OUI
+intermediate/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Mollets;3;3;OUI
+intermediate/bodyweight/endurance:full_body:primary/3j;Full Body — Endurance (3j);Abdominaux;3;3;OUI
+intermediate/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Abdominaux;4;4;OUI
+intermediate/bodyweight/endurance:full_body:primary/5j;Full Body — Endurance (5j);Abdominaux;5;5;OUI
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Quadriceps;3;3;OUI
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Pectoraux;3;3;OUI
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Dos;3;3;OUI
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Ischio-jambiers;3;3;OUI
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Épaules;3;3;OUI
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Fessiers;3;3;OUI
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Biceps;3;3;OUI
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Triceps;3;3;OUI
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Mollets;3;3;OUI
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Abdominaux;3;3;OUI
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Abdominaux;4;4;OUI
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Abdominaux;5;5;OUI
+intermediate/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Quadriceps;3;3;OUI
+intermediate/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Pectoraux;3;3;OUI
+intermediate/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Dos;3;3;OUI
+intermediate/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Ischio-jambiers;3;3;OUI
+intermediate/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Épaules;3;3;OUI
+intermediate/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Fessiers;3;3;OUI
+intermediate/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Biceps;3;3;OUI
+intermediate/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Triceps;3;3;OUI
+intermediate/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Mollets;3;3;OUI
+intermediate/bodyweight/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Abdominaux;3;3;OUI
+intermediate/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Abdominaux;4;4;OUI
+intermediate/bodyweight/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Abdominaux;5;5;OUI
+intermediate/bodyweight/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Mollets;3;3;OUI
+intermediate/bodyweight/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Mollets;4;4;OUI
+intermediate/bodyweight/hypertrophy:lower_body:primary/5j;Bas du Corps — Hypertrophie (5j);Mollets;5;5;OUI
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Abdominaux;3;3;OUI
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Abdominaux;4;4;OUI
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Abdominaux;5;5;OUI
+intermediate/bodyweight/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Abdominaux;3;3;OUI
+intermediate/bodyweight/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Abdominaux;4;4;OUI
+intermediate/bodyweight/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Abdominaux;5;5;OUI
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Abdominaux;3;3;OUI
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Abdominaux;4;4;OUI
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Abdominaux;5;5;OUI
+intermediate/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Quadriceps;3;3;OUI
+intermediate/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Pectoraux;3;3;OUI
+intermediate/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Dos;3;3;OUI
+intermediate/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Ischio-jambiers;3;3;OUI
+intermediate/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Épaules;3;3;OUI
+intermediate/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Fessiers;3;3;OUI
+intermediate/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Biceps;3;3;OUI
+intermediate/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Triceps;3;3;OUI
+intermediate/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Mollets;3;3;OUI
+intermediate/full_gym/endurance:full_body:primary/3j;Full Body — Endurance (3j);Abdominaux;3;3;OUI
+intermediate/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Abdominaux;4;4;OUI
+intermediate/full_gym/endurance:full_body:primary/5j;Full Body — Endurance (5j);Abdominaux;5;5;OUI
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Quadriceps;3;3;OUI
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Pectoraux;3;3;OUI
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Dos;3;3;OUI
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Ischio-jambiers;3;3;OUI
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Épaules;3;3;OUI
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Fessiers;3;3;OUI
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Biceps;3;3;OUI
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Triceps;3;3;OUI
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Mollets;3;3;OUI
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/3j;Endurance & Hypertrophie (3j);Abdominaux;3;3;OUI
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Abdominaux;4;4;OUI
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Abdominaux;5;5;OUI
+intermediate/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Quadriceps;3;3;OUI
+intermediate/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Pectoraux;3;3;OUI
+intermediate/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Dos;3;3;OUI
+intermediate/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Ischio-jambiers;3;3;OUI
+intermediate/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Épaules;3;3;OUI
+intermediate/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Fessiers;3;3;OUI
+intermediate/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Biceps;3;3;OUI
+intermediate/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Triceps;3;3;OUI
+intermediate/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Mollets;3;3;OUI
+intermediate/full_gym/hypertrophy:full_body:primary/3j;Full Body — Hypertrophie (3j);Abdominaux;3;3;OUI
+intermediate/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Abdominaux;4;4;OUI
+intermediate/full_gym/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Abdominaux;5;5;OUI
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Quadriceps;3;3;OUI
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Pectoraux;3;3;OUI
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Dos;3;3;OUI
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Ischio-jambiers;3;3;OUI
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Épaules;3;3;OUI
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Fessiers;3;3;OUI
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Biceps;3;3;OUI
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Triceps;3;3;OUI
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Mollets;3;3;OUI
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/3j;Full Body — Hypertrophie & Force Bas (3j);Abdominaux;3;3;OUI
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Abdominaux;4;4;OUI
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/5j;Full Body — Hypertrophie & Force Bas (5j);Abdominaux;5;5;OUI
+intermediate/full_gym/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Mollets;3;3;OUI
+intermediate/full_gym/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Mollets;4;4;OUI
+intermediate/full_gym/hypertrophy:lower_body:primary/5j;Bas du Corps — Hypertrophie (5j);Mollets;5;5;OUI
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Abdominaux;3;3;OUI
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Abdominaux;4;4;OUI
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Abdominaux;5;5;OUI
+intermediate/full_gym/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Abdominaux;3;3;OUI
+intermediate/full_gym/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Abdominaux;4;4;OUI
+intermediate/full_gym/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Abdominaux;5;5;OUI
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Abdominaux;3;3;OUI
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Abdominaux;4;4;OUI
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Abdominaux;5;5;OUI
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/4j;Force SBD — Squat/Développé/Soulevé (4j);Pectoraux;3;4;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/4j;Force SBD — Squat/Développé/Soulevé (4j);Ischio-jambiers;3;4;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Pectoraux;3;4;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Ischio-jambiers;3;4;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Épaules;3;4;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/4j;Force SBD — Squat/Développé/Soulevé (4j);Pectoraux;3;4;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/4j;Force SBD — Squat/Développé/Soulevé (4j);Ischio-jambiers;3;4;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Pectoraux;3;4;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Ischio-jambiers;3;4;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Épaules;3;4;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/4j;Force SBD — Squat/Développé/Soulevé (4j);Pectoraux;3;4;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/4j;Force SBD — Squat/Développé/Soulevé (4j);Ischio-jambiers;3;4;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Pectoraux;3;4;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Ischio-jambiers;3;4;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Épaules;3;4;
+advanced/bodyweight/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Quadriceps;2;3;
+advanced/bodyweight/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Ischio-jambiers;2;3;
+advanced/bodyweight/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Fessiers;2;3;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Quadriceps;2;3;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Ischio-jambiers;2;3;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Fessiers;2;3;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Mollets;2;3;
+advanced/bodyweight/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Pectoraux;2;3;
+advanced/bodyweight/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Épaules;2;3;
+advanced/bodyweight/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Triceps;2;3;
+advanced/bodyweight/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Dos;2;3;
+advanced/bodyweight/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Biceps;2;3;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Pectoraux;2;3;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Dos;2;3;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Épaules;2;3;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Biceps;2;3;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Triceps;2;3;
+advanced/full_gym/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Quadriceps;2;3;
+advanced/full_gym/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Ischio-jambiers;2;3;
+advanced/full_gym/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Fessiers;2;3;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Quadriceps;2;3;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Ischio-jambiers;2;3;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Fessiers;2;3;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Mollets;2;3;
+advanced/full_gym/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Pectoraux;2;3;
+advanced/full_gym/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Épaules;2;3;
+advanced/full_gym/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Triceps;2;3;
+advanced/full_gym/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Dos;2;3;
+advanced/full_gym/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Biceps;2;3;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Pectoraux;2;3;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Dos;2;3;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Épaules;2;3;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Biceps;2;3;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Triceps;2;3;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/3j;Force SBD — Squat/Développé/Soulevé (3j);Quadriceps;2;3;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/3j;Force SBD — Squat/Développé/Soulevé (3j);Pectoraux;2;3;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/3j;Force SBD — Squat/Développé/Soulevé (3j);Ischio-jambiers;2;3;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/3j;Force SBD — Squat/Développé/Soulevé (3j);Abdominaux;2;3;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/3j;Force SBD — Squat/Développé/Soulevé (3j);Dos;2;3;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/6j;Force SBD — Squat/Développé/Soulevé (6j);Ischio-jambiers;4;6;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/3j;Powerbuilding — Force & Volume (3j);Quadriceps;2;3;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/3j;Powerbuilding — Force & Volume (3j);Pectoraux;2;3;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/3j;Powerbuilding — Force & Volume (3j);Ischio-jambiers;2;3;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/3j;Powerbuilding — Force & Volume (3j);Abdominaux;2;3;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/3j;Powerbuilding — Force & Volume (3j);Mollets;2;3;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/3j;Powerbuilding — Force & Volume (3j);Dos;2;3;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/6j;Powerbuilding — Force & Volume (6j);Ischio-jambiers;4;6;
+beginner/bodyweight/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Quadriceps;2;3;
+beginner/bodyweight/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Ischio-jambiers;2;3;
+beginner/bodyweight/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Fessiers;2;3;
+beginner/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Quadriceps;2;3;
+beginner/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Ischio-jambiers;2;3;
+beginner/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Fessiers;2;3;
+beginner/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Mollets;2;3;
+beginner/bodyweight/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Pectoraux;2;3;
+beginner/bodyweight/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Épaules;2;3;
+beginner/bodyweight/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Triceps;2;3;
+beginner/bodyweight/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Dos;2;3;
+beginner/bodyweight/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Biceps;2;3;
+beginner/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Pectoraux;2;3;
+beginner/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Dos;2;3;
+beginner/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Épaules;2;3;
+beginner/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Biceps;2;3;
+beginner/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Triceps;2;3;
+beginner/full_gym/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Quadriceps;2;3;
+beginner/full_gym/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Ischio-jambiers;2;3;
+beginner/full_gym/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Fessiers;2;3;
+beginner/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Quadriceps;2;3;
+beginner/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Ischio-jambiers;2;3;
+beginner/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Fessiers;2;3;
+beginner/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Mollets;2;3;
+beginner/full_gym/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Pectoraux;2;3;
+beginner/full_gym/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Épaules;2;3;
+beginner/full_gym/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Triceps;2;3;
+beginner/full_gym/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Dos;2;3;
+beginner/full_gym/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Biceps;2;3;
+beginner/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Pectoraux;2;3;
+beginner/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Dos;2;3;
+beginner/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Épaules;2;3;
+beginner/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Biceps;2;3;
+beginner/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Triceps;2;3;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/3j;Force SBD — Squat/Développé/Soulevé (3j);Quadriceps;2;3;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/3j;Force SBD — Squat/Développé/Soulevé (3j);Pectoraux;2;3;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/3j;Force SBD — Squat/Développé/Soulevé (3j);Ischio-jambiers;2;3;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/3j;Force SBD — Squat/Développé/Soulevé (3j);Abdominaux;2;3;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/3j;Force SBD — Squat/Développé/Soulevé (3j);Dos;2;3;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/3j;Powerbuilding — Force & Volume (3j);Quadriceps;2;3;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/3j;Powerbuilding — Force & Volume (3j);Pectoraux;2;3;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/3j;Powerbuilding — Force & Volume (3j);Ischio-jambiers;2;3;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/3j;Powerbuilding — Force & Volume (3j);Abdominaux;2;3;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/3j;Powerbuilding — Force & Volume (3j);Mollets;2;3;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/3j;Powerbuilding — Force & Volume (3j);Dos;2;3;
+intermediate/bodyweight/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Quadriceps;2;3;
+intermediate/bodyweight/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Ischio-jambiers;2;3;
+intermediate/bodyweight/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Fessiers;2;3;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Quadriceps;2;3;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Ischio-jambiers;2;3;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Fessiers;2;3;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Mollets;2;3;
+intermediate/bodyweight/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Pectoraux;2;3;
+intermediate/bodyweight/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Épaules;2;3;
+intermediate/bodyweight/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Triceps;2;3;
+intermediate/bodyweight/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Dos;2;3;
+intermediate/bodyweight/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Biceps;2;3;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Pectoraux;2;3;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Dos;2;3;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Épaules;2;3;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Biceps;2;3;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Triceps;2;3;
+intermediate/full_gym/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Quadriceps;2;3;
+intermediate/full_gym/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Ischio-jambiers;2;3;
+intermediate/full_gym/hypertrophy:lower_body:primary/3j;Bas du Corps — Hypertrophie (3j);Fessiers;2;3;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Quadriceps;2;3;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Ischio-jambiers;2;3;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Fessiers;2;3;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/3j;Bas Prioritaire — Hypertrophie (3j);Mollets;2;3;
+intermediate/full_gym/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Pectoraux;2;3;
+intermediate/full_gym/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Épaules;2;3;
+intermediate/full_gym/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Triceps;2;3;
+intermediate/full_gym/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Dos;2;3;
+intermediate/full_gym/hypertrophy:upper_body:primary/3j;Haut du Corps — Hypertrophie (3j);Biceps;2;3;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Pectoraux;2;3;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Dos;2;3;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Épaules;2;3;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Biceps;2;3;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/3j;Haut Prioritaire — Hypertrophie (3j);Triceps;2;3;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/3j;Force SBD — Squat/Développé/Soulevé (3j);Quadriceps;2;3;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/3j;Force SBD — Squat/Développé/Soulevé (3j);Pectoraux;2;3;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/3j;Force SBD — Squat/Développé/Soulevé (3j);Ischio-jambiers;2;3;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/3j;Force SBD — Squat/Développé/Soulevé (3j);Abdominaux;2;3;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/3j;Force SBD — Squat/Développé/Soulevé (3j);Dos;2;3;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/3j;Powerbuilding — Force & Volume (3j);Quadriceps;2;3;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/3j;Powerbuilding — Force & Volume (3j);Pectoraux;2;3;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/3j;Powerbuilding — Force & Volume (3j);Ischio-jambiers;2;3;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/3j;Powerbuilding — Force & Volume (3j);Abdominaux;2;3;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/3j;Powerbuilding — Force & Volume (3j);Mollets;2;3;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/3j;Powerbuilding — Force & Volume (3j);Dos;2;3;
+advanced/bodyweight/hypertrophy:lower_body:primary/5j;Bas du Corps — Hypertrophie (5j);Quadriceps;3;5;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Quadriceps;3;5;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Ischio-jambiers;3;5;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Fessiers;3;5;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Mollets;3;5;
+advanced/bodyweight/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Pectoraux;3;5;
+advanced/bodyweight/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Épaules;3;5;
+advanced/bodyweight/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Triceps;3;5;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Pectoraux;3;5;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Dos;3;5;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Épaules;3;5;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Biceps;3;5;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Triceps;3;5;
+advanced/full_gym/hypertrophy:lower_body:primary/5j;Bas du Corps — Hypertrophie (5j);Quadriceps;3;5;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Quadriceps;3;5;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Ischio-jambiers;3;5;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Fessiers;3;5;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Mollets;3;5;
+advanced/full_gym/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Pectoraux;3;5;
+advanced/full_gym/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Épaules;3;5;
+advanced/full_gym/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Triceps;3;5;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Pectoraux;3;5;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Dos;3;5;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Épaules;3;5;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Biceps;3;5;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Triceps;3;5;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/5j;Force SBD — Squat/Développé/Soulevé (5j);Pectoraux;3;5;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/5j;Force SBD — Squat/Développé/Soulevé (5j);Ischio-jambiers;3;5;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/5j;Powerbuilding — Force & Volume (5j);Pectoraux;3;5;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/5j;Powerbuilding — Force & Volume (5j);Ischio-jambiers;3;5;
+intermediate/bodyweight/hypertrophy:lower_body:primary/5j;Bas du Corps — Hypertrophie (5j);Quadriceps;3;5;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Quadriceps;3;5;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Ischio-jambiers;3;5;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Fessiers;3;5;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Mollets;3;5;
+intermediate/bodyweight/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Pectoraux;3;5;
+intermediate/bodyweight/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Épaules;3;5;
+intermediate/bodyweight/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Triceps;3;5;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Pectoraux;3;5;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Dos;3;5;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Épaules;3;5;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Biceps;3;5;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Triceps;3;5;
+intermediate/full_gym/hypertrophy:lower_body:primary/5j;Bas du Corps — Hypertrophie (5j);Quadriceps;3;5;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Quadriceps;3;5;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Ischio-jambiers;3;5;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Fessiers;3;5;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Mollets;3;5;
+intermediate/full_gym/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Pectoraux;3;5;
+intermediate/full_gym/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Épaules;3;5;
+intermediate/full_gym/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Triceps;3;5;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Pectoraux;3;5;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Dos;3;5;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Épaules;3;5;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Biceps;3;5;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Triceps;3;5;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/5j;Force SBD — Squat/Développé/Soulevé (5j);Pectoraux;3;5;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/5j;Force SBD — Squat/Développé/Soulevé (5j);Ischio-jambiers;3;5;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/5j;Powerbuilding — Force & Volume (5j);Pectoraux;3;5;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/5j;Powerbuilding — Force & Volume (5j);Ischio-jambiers;3;5;
+advanced/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Pectoraux;2;4;
+advanced/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Dos;2;4;
+advanced/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Épaules;2;4;
+advanced/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Biceps;2;4;
+advanced/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Triceps;2;4;
+advanced/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Quadriceps;2;4;
+advanced/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Ischio-jambiers;2;4;
+advanced/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Fessiers;2;4;
+advanced/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Mollets;2;4;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Pectoraux;2;4;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Dos;2;4;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Épaules;2;4;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Biceps;2;4;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Triceps;2;4;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Quadriceps;2;4;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Ischio-jambiers;2;4;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Fessiers;2;4;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Mollets;2;4;
+advanced/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Pectoraux;2;4;
+advanced/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Dos;2;4;
+advanced/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Épaules;2;4;
+advanced/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Biceps;2;4;
+advanced/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Triceps;2;4;
+advanced/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Quadriceps;2;4;
+advanced/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Ischio-jambiers;2;4;
+advanced/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Fessiers;2;4;
+advanced/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Mollets;2;4;
+advanced/bodyweight/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Quadriceps;2;4;
+advanced/bodyweight/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Ischio-jambiers;2;4;
+advanced/bodyweight/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Fessiers;2;4;
+advanced/bodyweight/hypertrophy:lower_body:primary/6j;Bas du Corps — Hypertrophie (6j);Quadriceps;3;6;
+advanced/bodyweight/hypertrophy:lower_body:primary/6j;Bas du Corps — Hypertrophie (6j);Ischio-jambiers;3;6;
+advanced/bodyweight/hypertrophy:lower_body:primary/6j;Bas du Corps — Hypertrophie (6j);Fessiers;3;6;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Quadriceps;2;4;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Ischio-jambiers;2;4;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Fessiers;2;4;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Mollets;2;4;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Pectoraux;2;4;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Dos;2;4;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Épaules;2;4;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Biceps;2;4;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Triceps;2;4;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/6j;Bas Prioritaire — Hypertrophie (6j);Quadriceps;3;6;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/6j;Bas Prioritaire — Hypertrophie (6j);Ischio-jambiers;3;6;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/6j;Bas Prioritaire — Hypertrophie (6j);Fessiers;3;6;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/6j;Bas Prioritaire — Hypertrophie (6j);Mollets;3;6;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/6j;Bas Prioritaire — Hypertrophie (6j);Pectoraux;3;6;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/6j;Bas Prioritaire — Hypertrophie (6j);Dos;3;6;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/6j;Bas Prioritaire — Hypertrophie (6j);Épaules;3;6;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/6j;Bas Prioritaire — Hypertrophie (6j);Biceps;3;6;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/6j;Bas Prioritaire — Hypertrophie (6j);Triceps;3;6;
+advanced/bodyweight/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Pectoraux;2;4;
+advanced/bodyweight/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Épaules;2;4;
+advanced/bodyweight/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Triceps;2;4;
+advanced/bodyweight/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Dos;2;4;
+advanced/bodyweight/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Biceps;2;4;
+advanced/bodyweight/hypertrophy:upper_body:primary/6j;Haut du Corps — Hypertrophie (6j);Pectoraux;3;6;
+advanced/bodyweight/hypertrophy:upper_body:primary/6j;Haut du Corps — Hypertrophie (6j);Épaules;3;6;
+advanced/bodyweight/hypertrophy:upper_body:primary/6j;Haut du Corps — Hypertrophie (6j);Triceps;3;6;
+advanced/bodyweight/hypertrophy:upper_body:primary/6j;Haut du Corps — Hypertrophie (6j);Dos;3;6;
+advanced/bodyweight/hypertrophy:upper_body:primary/6j;Haut du Corps — Hypertrophie (6j);Biceps;3;6;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Pectoraux;2;4;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Dos;2;4;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Épaules;2;4;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Biceps;2;4;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Triceps;2;4;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Quadriceps;2;4;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Ischio-jambiers;2;4;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Fessiers;2;4;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Mollets;2;4;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/6j;Haut Prioritaire — Hypertrophie (6j);Pectoraux;3;6;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/6j;Haut Prioritaire — Hypertrophie (6j);Dos;3;6;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/6j;Haut Prioritaire — Hypertrophie (6j);Épaules;3;6;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/6j;Haut Prioritaire — Hypertrophie (6j);Biceps;3;6;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/6j;Haut Prioritaire — Hypertrophie (6j);Triceps;3;6;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/6j;Haut Prioritaire — Hypertrophie (6j);Quadriceps;3;6;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/6j;Haut Prioritaire — Hypertrophie (6j);Ischio-jambiers;3;6;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/6j;Haut Prioritaire — Hypertrophie (6j);Fessiers;3;6;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/6j;Haut Prioritaire — Hypertrophie (6j);Mollets;3;6;
+advanced/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Pectoraux;2;4;
+advanced/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Dos;2;4;
+advanced/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Épaules;2;4;
+advanced/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Biceps;2;4;
+advanced/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Triceps;2;4;
+advanced/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Quadriceps;2;4;
+advanced/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Ischio-jambiers;2;4;
+advanced/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Fessiers;2;4;
+advanced/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Mollets;2;4;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Pectoraux;2;4;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Dos;2;4;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Épaules;2;4;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Biceps;2;4;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Triceps;2;4;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Quadriceps;2;4;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Ischio-jambiers;2;4;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Fessiers;2;4;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Mollets;2;4;
+advanced/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Pectoraux;2;4;
+advanced/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Dos;2;4;
+advanced/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Épaules;2;4;
+advanced/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Biceps;2;4;
+advanced/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Triceps;2;4;
+advanced/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Quadriceps;2;4;
+advanced/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Ischio-jambiers;2;4;
+advanced/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Fessiers;2;4;
+advanced/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Mollets;2;4;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Pectoraux;2;4;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Dos;2;4;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Épaules;2;4;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Biceps;2;4;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Triceps;2;4;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Quadriceps;2;4;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Ischio-jambiers;2;4;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Fessiers;2;4;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Mollets;2;4;
+advanced/full_gym/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Quadriceps;2;4;
+advanced/full_gym/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Ischio-jambiers;2;4;
+advanced/full_gym/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Fessiers;2;4;
+advanced/full_gym/hypertrophy:lower_body:primary/6j;Bas du Corps — Hypertrophie (6j);Quadriceps;3;6;
+advanced/full_gym/hypertrophy:lower_body:primary/6j;Bas du Corps — Hypertrophie (6j);Ischio-jambiers;3;6;
+advanced/full_gym/hypertrophy:lower_body:primary/6j;Bas du Corps — Hypertrophie (6j);Fessiers;3;6;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Quadriceps;2;4;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Ischio-jambiers;2;4;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Fessiers;2;4;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Mollets;2;4;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Pectoraux;2;4;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Dos;2;4;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Épaules;2;4;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Biceps;2;4;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Triceps;2;4;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/6j;Bas Prioritaire — Hypertrophie (6j);Quadriceps;3;6;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/6j;Bas Prioritaire — Hypertrophie (6j);Ischio-jambiers;3;6;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/6j;Bas Prioritaire — Hypertrophie (6j);Fessiers;3;6;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/6j;Bas Prioritaire — Hypertrophie (6j);Mollets;3;6;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/6j;Bas Prioritaire — Hypertrophie (6j);Pectoraux;3;6;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/6j;Bas Prioritaire — Hypertrophie (6j);Dos;3;6;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/6j;Bas Prioritaire — Hypertrophie (6j);Épaules;3;6;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/6j;Bas Prioritaire — Hypertrophie (6j);Biceps;3;6;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/6j;Bas Prioritaire — Hypertrophie (6j);Triceps;3;6;
+advanced/full_gym/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Pectoraux;2;4;
+advanced/full_gym/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Épaules;2;4;
+advanced/full_gym/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Triceps;2;4;
+advanced/full_gym/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Dos;2;4;
+advanced/full_gym/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Biceps;2;4;
+advanced/full_gym/hypertrophy:upper_body:primary/6j;Haut du Corps — Hypertrophie (6j);Pectoraux;3;6;
+advanced/full_gym/hypertrophy:upper_body:primary/6j;Haut du Corps — Hypertrophie (6j);Épaules;3;6;
+advanced/full_gym/hypertrophy:upper_body:primary/6j;Haut du Corps — Hypertrophie (6j);Triceps;3;6;
+advanced/full_gym/hypertrophy:upper_body:primary/6j;Haut du Corps — Hypertrophie (6j);Dos;3;6;
+advanced/full_gym/hypertrophy:upper_body:primary/6j;Haut du Corps — Hypertrophie (6j);Biceps;3;6;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Pectoraux;2;4;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Dos;2;4;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Épaules;2;4;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Biceps;2;4;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Triceps;2;4;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Quadriceps;2;4;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Ischio-jambiers;2;4;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Fessiers;2;4;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Mollets;2;4;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/6j;Haut Prioritaire — Hypertrophie (6j);Pectoraux;3;6;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/6j;Haut Prioritaire — Hypertrophie (6j);Dos;3;6;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/6j;Haut Prioritaire — Hypertrophie (6j);Épaules;3;6;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/6j;Haut Prioritaire — Hypertrophie (6j);Biceps;3;6;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/6j;Haut Prioritaire — Hypertrophie (6j);Triceps;3;6;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/6j;Haut Prioritaire — Hypertrophie (6j);Quadriceps;3;6;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/6j;Haut Prioritaire — Hypertrophie (6j);Ischio-jambiers;3;6;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/6j;Haut Prioritaire — Hypertrophie (6j);Fessiers;3;6;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/6j;Haut Prioritaire — Hypertrophie (6j);Mollets;3;6;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/4j;Force SBD — Squat/Développé/Soulevé (4j);Quadriceps;2;4;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/4j;Force SBD — Squat/Développé/Soulevé (4j);Abdominaux;2;4;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/4j;Force SBD — Squat/Développé/Soulevé (4j);Dos;2;4;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/4j;Force SBD — Squat/Développé/Soulevé (4j);Épaules;2;4;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/6j;Force SBD — Squat/Développé/Soulevé (6j);Quadriceps;3;6;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/6j;Force SBD — Squat/Développé/Soulevé (6j);Pectoraux;3;6;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/6j;Force SBD — Squat/Développé/Soulevé (6j);Dos;3;6;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Quadriceps;2;4;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Abdominaux;2;4;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Mollets;2;4;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Dos;2;4;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Biceps;2;4;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Triceps;2;4;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/6j;Powerbuilding — Force & Volume (6j);Quadriceps;3;6;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/6j;Powerbuilding — Force & Volume (6j);Pectoraux;3;6;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/6j;Powerbuilding — Force & Volume (6j);Dos;3;6;
+beginner/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Pectoraux;2;4;
+beginner/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Dos;2;4;
+beginner/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Épaules;2;4;
+beginner/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Biceps;2;4;
+beginner/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Triceps;2;4;
+beginner/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Quadriceps;2;4;
+beginner/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Ischio-jambiers;2;4;
+beginner/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Fessiers;2;4;
+beginner/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Mollets;2;4;
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Pectoraux;2;4;
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Dos;2;4;
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Épaules;2;4;
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Biceps;2;4;
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Triceps;2;4;
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Quadriceps;2;4;
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Ischio-jambiers;2;4;
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Fessiers;2;4;
+beginner/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Mollets;2;4;
+beginner/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Pectoraux;2;4;
+beginner/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Dos;2;4;
+beginner/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Épaules;2;4;
+beginner/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Biceps;2;4;
+beginner/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Triceps;2;4;
+beginner/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Quadriceps;2;4;
+beginner/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Ischio-jambiers;2;4;
+beginner/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Fessiers;2;4;
+beginner/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Mollets;2;4;
+beginner/bodyweight/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Quadriceps;2;4;
+beginner/bodyweight/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Ischio-jambiers;2;4;
+beginner/bodyweight/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Fessiers;2;4;
+beginner/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Quadriceps;2;4;
+beginner/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Ischio-jambiers;2;4;
+beginner/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Fessiers;2;4;
+beginner/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Mollets;2;4;
+beginner/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Pectoraux;2;4;
+beginner/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Dos;2;4;
+beginner/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Épaules;2;4;
+beginner/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Biceps;2;4;
+beginner/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Triceps;2;4;
+beginner/bodyweight/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Pectoraux;2;4;
+beginner/bodyweight/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Épaules;2;4;
+beginner/bodyweight/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Triceps;2;4;
+beginner/bodyweight/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Dos;2;4;
+beginner/bodyweight/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Biceps;2;4;
+beginner/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Pectoraux;2;4;
+beginner/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Dos;2;4;
+beginner/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Épaules;2;4;
+beginner/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Biceps;2;4;
+beginner/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Triceps;2;4;
+beginner/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Quadriceps;2;4;
+beginner/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Ischio-jambiers;2;4;
+beginner/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Fessiers;2;4;
+beginner/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Mollets;2;4;
+beginner/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Pectoraux;2;4;
+beginner/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Dos;2;4;
+beginner/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Épaules;2;4;
+beginner/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Biceps;2;4;
+beginner/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Triceps;2;4;
+beginner/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Quadriceps;2;4;
+beginner/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Ischio-jambiers;2;4;
+beginner/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Fessiers;2;4;
+beginner/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Mollets;2;4;
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Pectoraux;2;4;
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Dos;2;4;
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Épaules;2;4;
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Biceps;2;4;
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Triceps;2;4;
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Quadriceps;2;4;
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Ischio-jambiers;2;4;
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Fessiers;2;4;
+beginner/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Mollets;2;4;
+beginner/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Pectoraux;2;4;
+beginner/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Dos;2;4;
+beginner/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Épaules;2;4;
+beginner/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Biceps;2;4;
+beginner/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Triceps;2;4;
+beginner/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Quadriceps;2;4;
+beginner/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Ischio-jambiers;2;4;
+beginner/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Fessiers;2;4;
+beginner/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Mollets;2;4;
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Pectoraux;2;4;
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Dos;2;4;
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Épaules;2;4;
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Biceps;2;4;
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Triceps;2;4;
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Quadriceps;2;4;
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Ischio-jambiers;2;4;
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Fessiers;2;4;
+beginner/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Mollets;2;4;
+beginner/full_gym/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Quadriceps;2;4;
+beginner/full_gym/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Ischio-jambiers;2;4;
+beginner/full_gym/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Fessiers;2;4;
+beginner/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Quadriceps;2;4;
+beginner/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Ischio-jambiers;2;4;
+beginner/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Fessiers;2;4;
+beginner/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Mollets;2;4;
+beginner/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Pectoraux;2;4;
+beginner/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Dos;2;4;
+beginner/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Épaules;2;4;
+beginner/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Biceps;2;4;
+beginner/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Triceps;2;4;
+beginner/full_gym/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Pectoraux;2;4;
+beginner/full_gym/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Épaules;2;4;
+beginner/full_gym/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Triceps;2;4;
+beginner/full_gym/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Dos;2;4;
+beginner/full_gym/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Biceps;2;4;
+beginner/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Pectoraux;2;4;
+beginner/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Dos;2;4;
+beginner/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Épaules;2;4;
+beginner/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Biceps;2;4;
+beginner/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Triceps;2;4;
+beginner/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Quadriceps;2;4;
+beginner/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Ischio-jambiers;2;4;
+beginner/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Fessiers;2;4;
+beginner/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Mollets;2;4;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/4j;Force SBD — Squat/Développé/Soulevé (4j);Quadriceps;2;4;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/4j;Force SBD — Squat/Développé/Soulevé (4j);Abdominaux;2;4;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/4j;Force SBD — Squat/Développé/Soulevé (4j);Dos;2;4;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/4j;Force SBD — Squat/Développé/Soulevé (4j);Épaules;2;4;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Quadriceps;2;4;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Abdominaux;2;4;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Mollets;2;4;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Dos;2;4;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Biceps;2;4;
+beginner/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Triceps;2;4;
+intermediate/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Pectoraux;2;4;
+intermediate/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Dos;2;4;
+intermediate/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Épaules;2;4;
+intermediate/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Biceps;2;4;
+intermediate/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Triceps;2;4;
+intermediate/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Quadriceps;2;4;
+intermediate/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Ischio-jambiers;2;4;
+intermediate/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Fessiers;2;4;
+intermediate/bodyweight/endurance:full_body:primary/4j;Full Body — Endurance (4j);Mollets;2;4;
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Pectoraux;2;4;
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Dos;2;4;
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Épaules;2;4;
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Biceps;2;4;
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Triceps;2;4;
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Quadriceps;2;4;
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Ischio-jambiers;2;4;
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Fessiers;2;4;
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Mollets;2;4;
+intermediate/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Pectoraux;2;4;
+intermediate/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Dos;2;4;
+intermediate/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Épaules;2;4;
+intermediate/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Biceps;2;4;
+intermediate/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Triceps;2;4;
+intermediate/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Quadriceps;2;4;
+intermediate/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Ischio-jambiers;2;4;
+intermediate/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Fessiers;2;4;
+intermediate/bodyweight/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Mollets;2;4;
+intermediate/bodyweight/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Quadriceps;2;4;
+intermediate/bodyweight/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Ischio-jambiers;2;4;
+intermediate/bodyweight/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Fessiers;2;4;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Quadriceps;2;4;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Ischio-jambiers;2;4;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Fessiers;2;4;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Mollets;2;4;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Pectoraux;2;4;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Dos;2;4;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Épaules;2;4;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Biceps;2;4;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Triceps;2;4;
+intermediate/bodyweight/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Pectoraux;2;4;
+intermediate/bodyweight/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Épaules;2;4;
+intermediate/bodyweight/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Triceps;2;4;
+intermediate/bodyweight/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Dos;2;4;
+intermediate/bodyweight/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Biceps;2;4;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Pectoraux;2;4;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Dos;2;4;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Épaules;2;4;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Biceps;2;4;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Triceps;2;4;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Quadriceps;2;4;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Ischio-jambiers;2;4;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Fessiers;2;4;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Mollets;2;4;
+intermediate/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Pectoraux;2;4;
+intermediate/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Dos;2;4;
+intermediate/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Épaules;2;4;
+intermediate/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Biceps;2;4;
+intermediate/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Triceps;2;4;
+intermediate/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Quadriceps;2;4;
+intermediate/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Ischio-jambiers;2;4;
+intermediate/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Fessiers;2;4;
+intermediate/full_gym/endurance:full_body:primary/4j;Full Body — Endurance (4j);Mollets;2;4;
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Pectoraux;2;4;
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Dos;2;4;
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Épaules;2;4;
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Biceps;2;4;
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Triceps;2;4;
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Quadriceps;2;4;
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Ischio-jambiers;2;4;
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Fessiers;2;4;
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/4j;Endurance & Hypertrophie (4j);Mollets;2;4;
+intermediate/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Pectoraux;2;4;
+intermediate/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Dos;2;4;
+intermediate/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Épaules;2;4;
+intermediate/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Biceps;2;4;
+intermediate/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Triceps;2;4;
+intermediate/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Quadriceps;2;4;
+intermediate/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Ischio-jambiers;2;4;
+intermediate/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Fessiers;2;4;
+intermediate/full_gym/hypertrophy:full_body:primary/4j;Full Body — Hypertrophie (4j);Mollets;2;4;
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Pectoraux;2;4;
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Dos;2;4;
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Épaules;2;4;
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Biceps;2;4;
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Triceps;2;4;
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Quadriceps;2;4;
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Ischio-jambiers;2;4;
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Fessiers;2;4;
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/4j;Full Body — Hypertrophie & Force Bas (4j);Mollets;2;4;
+intermediate/full_gym/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Quadriceps;2;4;
+intermediate/full_gym/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Ischio-jambiers;2;4;
+intermediate/full_gym/hypertrophy:lower_body:primary/4j;Bas du Corps — Hypertrophie (4j);Fessiers;2;4;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Quadriceps;2;4;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Ischio-jambiers;2;4;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Fessiers;2;4;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Mollets;2;4;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Pectoraux;2;4;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Dos;2;4;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Épaules;2;4;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Biceps;2;4;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/4j;Bas Prioritaire — Hypertrophie (4j);Triceps;2;4;
+intermediate/full_gym/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Pectoraux;2;4;
+intermediate/full_gym/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Épaules;2;4;
+intermediate/full_gym/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Triceps;2;4;
+intermediate/full_gym/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Dos;2;4;
+intermediate/full_gym/hypertrophy:upper_body:primary/4j;Haut du Corps — Hypertrophie (4j);Biceps;2;4;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Pectoraux;2;4;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Dos;2;4;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Épaules;2;4;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Biceps;2;4;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Triceps;2;4;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Quadriceps;2;4;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Ischio-jambiers;2;4;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Fessiers;2;4;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/4j;Haut Prioritaire — Hypertrophie (4j);Mollets;2;4;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/4j;Force SBD — Squat/Développé/Soulevé (4j);Quadriceps;2;4;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/4j;Force SBD — Squat/Développé/Soulevé (4j);Abdominaux;2;4;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/4j;Force SBD — Squat/Développé/Soulevé (4j);Dos;2;4;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/4j;Force SBD — Squat/Développé/Soulevé (4j);Épaules;2;4;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Quadriceps;2;4;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Abdominaux;2;4;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Mollets;2;4;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Dos;2;4;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Biceps;2;4;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/4j;Powerbuilding — Force & Volume (4j);Triceps;2;4;
+advanced/bodyweight/endurance:full_body:primary/5j;Full Body — Endurance (5j);Pectoraux;2;5;
+advanced/bodyweight/endurance:full_body:primary/5j;Full Body — Endurance (5j);Épaules;2;5;
+advanced/bodyweight/endurance:full_body:primary/5j;Full Body — Endurance (5j);Triceps;2;5;
+advanced/bodyweight/endurance:full_body:primary/5j;Full Body — Endurance (5j);Dos;2;5;
+advanced/bodyweight/endurance:full_body:primary/5j;Full Body — Endurance (5j);Biceps;2;5;
+advanced/bodyweight/endurance:full_body:primary/5j;Full Body — Endurance (5j);Quadriceps;2;5;
+advanced/bodyweight/endurance:full_body:primary/5j;Full Body — Endurance (5j);Ischio-jambiers;2;5;
+advanced/bodyweight/endurance:full_body:primary/5j;Full Body — Endurance (5j);Fessiers;2;5;
+advanced/bodyweight/endurance:full_body:primary/5j;Full Body — Endurance (5j);Mollets;2;5;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Pectoraux;2;5;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Épaules;2;5;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Triceps;2;5;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Dos;2;5;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Biceps;2;5;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Quadriceps;2;5;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Ischio-jambiers;2;5;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Fessiers;2;5;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Mollets;2;5;
+advanced/bodyweight/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Pectoraux;2;5;
+advanced/bodyweight/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Épaules;2;5;
+advanced/bodyweight/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Triceps;2;5;
+advanced/bodyweight/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Dos;2;5;
+advanced/bodyweight/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Biceps;2;5;
+advanced/bodyweight/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Quadriceps;2;5;
+advanced/bodyweight/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Ischio-jambiers;2;5;
+advanced/bodyweight/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Fessiers;2;5;
+advanced/bodyweight/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Mollets;2;5;
+advanced/bodyweight/hypertrophy:lower_body:primary/5j;Bas du Corps — Hypertrophie (5j);Ischio-jambiers;2;5;
+advanced/bodyweight/hypertrophy:lower_body:primary/5j;Bas du Corps — Hypertrophie (5j);Fessiers;2;5;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Pectoraux;2;5;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Dos;2;5;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Épaules;2;5;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Biceps;2;5;
+advanced/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Triceps;2;5;
+advanced/bodyweight/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Dos;2;5;
+advanced/bodyweight/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Biceps;2;5;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Quadriceps;2;5;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Ischio-jambiers;2;5;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Fessiers;2;5;
+advanced/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Mollets;2;5;
+advanced/full_gym/endurance:full_body:primary/5j;Full Body — Endurance (5j);Pectoraux;2;5;
+advanced/full_gym/endurance:full_body:primary/5j;Full Body — Endurance (5j);Épaules;2;5;
+advanced/full_gym/endurance:full_body:primary/5j;Full Body — Endurance (5j);Triceps;2;5;
+advanced/full_gym/endurance:full_body:primary/5j;Full Body — Endurance (5j);Dos;2;5;
+advanced/full_gym/endurance:full_body:primary/5j;Full Body — Endurance (5j);Biceps;2;5;
+advanced/full_gym/endurance:full_body:primary/5j;Full Body — Endurance (5j);Quadriceps;2;5;
+advanced/full_gym/endurance:full_body:primary/5j;Full Body — Endurance (5j);Ischio-jambiers;2;5;
+advanced/full_gym/endurance:full_body:primary/5j;Full Body — Endurance (5j);Fessiers;2;5;
+advanced/full_gym/endurance:full_body:primary/5j;Full Body — Endurance (5j);Mollets;2;5;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Pectoraux;2;5;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Épaules;2;5;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Triceps;2;5;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Dos;2;5;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Biceps;2;5;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Quadriceps;2;5;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Ischio-jambiers;2;5;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Fessiers;2;5;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Mollets;2;5;
+advanced/full_gym/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Pectoraux;2;5;
+advanced/full_gym/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Épaules;2;5;
+advanced/full_gym/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Triceps;2;5;
+advanced/full_gym/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Dos;2;5;
+advanced/full_gym/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Biceps;2;5;
+advanced/full_gym/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Quadriceps;2;5;
+advanced/full_gym/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Ischio-jambiers;2;5;
+advanced/full_gym/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Fessiers;2;5;
+advanced/full_gym/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Mollets;2;5;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/5j;Full Body — Hypertrophie & Force Bas (5j);Pectoraux;2;5;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/5j;Full Body — Hypertrophie & Force Bas (5j);Épaules;2;5;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/5j;Full Body — Hypertrophie & Force Bas (5j);Triceps;2;5;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/5j;Full Body — Hypertrophie & Force Bas (5j);Dos;2;5;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/5j;Full Body — Hypertrophie & Force Bas (5j);Biceps;2;5;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/5j;Full Body — Hypertrophie & Force Bas (5j);Quadriceps;2;5;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/5j;Full Body — Hypertrophie & Force Bas (5j);Ischio-jambiers;2;5;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/5j;Full Body — Hypertrophie & Force Bas (5j);Fessiers;2;5;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/5j;Full Body — Hypertrophie & Force Bas (5j);Mollets;2;5;
+advanced/full_gym/hypertrophy:lower_body:primary/5j;Bas du Corps — Hypertrophie (5j);Ischio-jambiers;2;5;
+advanced/full_gym/hypertrophy:lower_body:primary/5j;Bas du Corps — Hypertrophie (5j);Fessiers;2;5;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Pectoraux;2;5;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Dos;2;5;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Épaules;2;5;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Biceps;2;5;
+advanced/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Triceps;2;5;
+advanced/full_gym/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Dos;2;5;
+advanced/full_gym/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Biceps;2;5;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Quadriceps;2;5;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Ischio-jambiers;2;5;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Fessiers;2;5;
+advanced/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Mollets;2;5;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/5j;Force SBD — Squat/Développé/Soulevé (5j);Quadriceps;2;5;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/5j;Force SBD — Squat/Développé/Soulevé (5j);Dos;2;5;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/5j;Force SBD — Squat/Développé/Soulevé (5j);Abdominaux;2;5;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/5j;Force SBD — Squat/Développé/Soulevé (5j);Épaules;2;5;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/5j;Powerbuilding — Force & Volume (5j);Quadriceps;2;5;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/5j;Powerbuilding — Force & Volume (5j);Mollets;2;5;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/5j;Powerbuilding — Force & Volume (5j);Dos;2;5;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/5j;Powerbuilding — Force & Volume (5j);Abdominaux;2;5;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/5j;Powerbuilding — Force & Volume (5j);Épaules;2;5;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/5j;Powerbuilding — Force & Volume (5j);Triceps;2;5;
+intermediate/bodyweight/endurance:full_body:primary/5j;Full Body — Endurance (5j);Pectoraux;2;5;
+intermediate/bodyweight/endurance:full_body:primary/5j;Full Body — Endurance (5j);Épaules;2;5;
+intermediate/bodyweight/endurance:full_body:primary/5j;Full Body — Endurance (5j);Triceps;2;5;
+intermediate/bodyweight/endurance:full_body:primary/5j;Full Body — Endurance (5j);Dos;2;5;
+intermediate/bodyweight/endurance:full_body:primary/5j;Full Body — Endurance (5j);Biceps;2;5;
+intermediate/bodyweight/endurance:full_body:primary/5j;Full Body — Endurance (5j);Quadriceps;2;5;
+intermediate/bodyweight/endurance:full_body:primary/5j;Full Body — Endurance (5j);Ischio-jambiers;2;5;
+intermediate/bodyweight/endurance:full_body:primary/5j;Full Body — Endurance (5j);Fessiers;2;5;
+intermediate/bodyweight/endurance:full_body:primary/5j;Full Body — Endurance (5j);Mollets;2;5;
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Pectoraux;2;5;
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Épaules;2;5;
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Triceps;2;5;
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Dos;2;5;
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Biceps;2;5;
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Quadriceps;2;5;
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Ischio-jambiers;2;5;
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Fessiers;2;5;
+intermediate/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Mollets;2;5;
+intermediate/bodyweight/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Pectoraux;2;5;
+intermediate/bodyweight/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Épaules;2;5;
+intermediate/bodyweight/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Triceps;2;5;
+intermediate/bodyweight/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Dos;2;5;
+intermediate/bodyweight/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Biceps;2;5;
+intermediate/bodyweight/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Quadriceps;2;5;
+intermediate/bodyweight/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Ischio-jambiers;2;5;
+intermediate/bodyweight/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Fessiers;2;5;
+intermediate/bodyweight/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Mollets;2;5;
+intermediate/bodyweight/hypertrophy:lower_body:primary/5j;Bas du Corps — Hypertrophie (5j);Ischio-jambiers;2;5;
+intermediate/bodyweight/hypertrophy:lower_body:primary/5j;Bas du Corps — Hypertrophie (5j);Fessiers;2;5;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Pectoraux;2;5;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Dos;2;5;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Épaules;2;5;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Biceps;2;5;
+intermediate/bodyweight/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Triceps;2;5;
+intermediate/bodyweight/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Dos;2;5;
+intermediate/bodyweight/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Biceps;2;5;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Quadriceps;2;5;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Ischio-jambiers;2;5;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Fessiers;2;5;
+intermediate/bodyweight/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Mollets;2;5;
+intermediate/full_gym/endurance:full_body:primary/5j;Full Body — Endurance (5j);Pectoraux;2;5;
+intermediate/full_gym/endurance:full_body:primary/5j;Full Body — Endurance (5j);Épaules;2;5;
+intermediate/full_gym/endurance:full_body:primary/5j;Full Body — Endurance (5j);Triceps;2;5;
+intermediate/full_gym/endurance:full_body:primary/5j;Full Body — Endurance (5j);Dos;2;5;
+intermediate/full_gym/endurance:full_body:primary/5j;Full Body — Endurance (5j);Biceps;2;5;
+intermediate/full_gym/endurance:full_body:primary/5j;Full Body — Endurance (5j);Quadriceps;2;5;
+intermediate/full_gym/endurance:full_body:primary/5j;Full Body — Endurance (5j);Ischio-jambiers;2;5;
+intermediate/full_gym/endurance:full_body:primary/5j;Full Body — Endurance (5j);Fessiers;2;5;
+intermediate/full_gym/endurance:full_body:primary/5j;Full Body — Endurance (5j);Mollets;2;5;
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Pectoraux;2;5;
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Épaules;2;5;
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Triceps;2;5;
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Dos;2;5;
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Biceps;2;5;
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Quadriceps;2;5;
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Ischio-jambiers;2;5;
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Fessiers;2;5;
+intermediate/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/5j;Endurance & Hypertrophie (5j);Mollets;2;5;
+intermediate/full_gym/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Pectoraux;2;5;
+intermediate/full_gym/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Épaules;2;5;
+intermediate/full_gym/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Triceps;2;5;
+intermediate/full_gym/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Dos;2;5;
+intermediate/full_gym/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Biceps;2;5;
+intermediate/full_gym/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Quadriceps;2;5;
+intermediate/full_gym/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Ischio-jambiers;2;5;
+intermediate/full_gym/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Fessiers;2;5;
+intermediate/full_gym/hypertrophy:full_body:primary/5j;Full Body — Hypertrophie (5j);Mollets;2;5;
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/5j;Full Body — Hypertrophie & Force Bas (5j);Pectoraux;2;5;
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/5j;Full Body — Hypertrophie & Force Bas (5j);Épaules;2;5;
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/5j;Full Body — Hypertrophie & Force Bas (5j);Triceps;2;5;
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/5j;Full Body — Hypertrophie & Force Bas (5j);Dos;2;5;
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/5j;Full Body — Hypertrophie & Force Bas (5j);Biceps;2;5;
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/5j;Full Body — Hypertrophie & Force Bas (5j);Quadriceps;2;5;
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/5j;Full Body — Hypertrophie & Force Bas (5j);Ischio-jambiers;2;5;
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/5j;Full Body — Hypertrophie & Force Bas (5j);Fessiers;2;5;
+intermediate/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/5j;Full Body — Hypertrophie & Force Bas (5j);Mollets;2;5;
+intermediate/full_gym/hypertrophy:lower_body:primary/5j;Bas du Corps — Hypertrophie (5j);Ischio-jambiers;2;5;
+intermediate/full_gym/hypertrophy:lower_body:primary/5j;Bas du Corps — Hypertrophie (5j);Fessiers;2;5;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Pectoraux;2;5;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Dos;2;5;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Épaules;2;5;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Biceps;2;5;
+intermediate/full_gym/hypertrophy:lower_body:primary+hypertrophy:upper_body:secondary/5j;Bas Prioritaire — Hypertrophie (5j);Triceps;2;5;
+intermediate/full_gym/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Dos;2;5;
+intermediate/full_gym/hypertrophy:upper_body:primary/5j;Haut du Corps — Hypertrophie (5j);Biceps;2;5;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Quadriceps;2;5;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Ischio-jambiers;2;5;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Fessiers;2;5;
+intermediate/full_gym/hypertrophy:upper_body:primary+hypertrophy:lower_body:secondary/5j;Haut Prioritaire — Hypertrophie (5j);Mollets;2;5;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/5j;Force SBD — Squat/Développé/Soulevé (5j);Quadriceps;2;5;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/5j;Force SBD — Squat/Développé/Soulevé (5j);Dos;2;5;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/5j;Force SBD — Squat/Développé/Soulevé (5j);Abdominaux;2;5;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/5j;Force SBD — Squat/Développé/Soulevé (5j);Épaules;2;5;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/5j;Powerbuilding — Force & Volume (5j);Quadriceps;2;5;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/5j;Powerbuilding — Force & Volume (5j);Mollets;2;5;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/5j;Powerbuilding — Force & Volume (5j);Dos;2;5;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/5j;Powerbuilding — Force & Volume (5j);Abdominaux;2;5;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/5j;Powerbuilding — Force & Volume (5j);Épaules;2;5;
+intermediate/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/5j;Powerbuilding — Force & Volume (5j);Triceps;2;5;
+advanced/bodyweight/endurance:full_body:primary/6j;Full Body — Endurance (6j);Pectoraux;2;6;
+advanced/bodyweight/endurance:full_body:primary/6j;Full Body — Endurance (6j);Épaules;2;6;
+advanced/bodyweight/endurance:full_body:primary/6j;Full Body — Endurance (6j);Triceps;2;6;
+advanced/bodyweight/endurance:full_body:primary/6j;Full Body — Endurance (6j);Dos;2;6;
+advanced/bodyweight/endurance:full_body:primary/6j;Full Body — Endurance (6j);Biceps;2;6;
+advanced/bodyweight/endurance:full_body:primary/6j;Full Body — Endurance (6j);Quadriceps;2;6;
+advanced/bodyweight/endurance:full_body:primary/6j;Full Body — Endurance (6j);Ischio-jambiers;2;6;
+advanced/bodyweight/endurance:full_body:primary/6j;Full Body — Endurance (6j);Fessiers;2;6;
+advanced/bodyweight/endurance:full_body:primary/6j;Full Body — Endurance (6j);Mollets;2;6;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/6j;Endurance & Hypertrophie (6j);Pectoraux;2;6;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/6j;Endurance & Hypertrophie (6j);Épaules;2;6;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/6j;Endurance & Hypertrophie (6j);Triceps;2;6;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/6j;Endurance & Hypertrophie (6j);Dos;2;6;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/6j;Endurance & Hypertrophie (6j);Biceps;2;6;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/6j;Endurance & Hypertrophie (6j);Quadriceps;2;6;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/6j;Endurance & Hypertrophie (6j);Ischio-jambiers;2;6;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/6j;Endurance & Hypertrophie (6j);Fessiers;2;6;
+advanced/bodyweight/endurance:full_body:primary+hypertrophy:full_body:secondary/6j;Endurance & Hypertrophie (6j);Mollets;2;6;
+advanced/bodyweight/hypertrophy:full_body:primary/6j;Full Body — Hypertrophie (6j);Pectoraux;2;6;
+advanced/bodyweight/hypertrophy:full_body:primary/6j;Full Body — Hypertrophie (6j);Épaules;2;6;
+advanced/bodyweight/hypertrophy:full_body:primary/6j;Full Body — Hypertrophie (6j);Triceps;2;6;
+advanced/bodyweight/hypertrophy:full_body:primary/6j;Full Body — Hypertrophie (6j);Dos;2;6;
+advanced/bodyweight/hypertrophy:full_body:primary/6j;Full Body — Hypertrophie (6j);Biceps;2;6;
+advanced/bodyweight/hypertrophy:full_body:primary/6j;Full Body — Hypertrophie (6j);Quadriceps;2;6;
+advanced/bodyweight/hypertrophy:full_body:primary/6j;Full Body — Hypertrophie (6j);Ischio-jambiers;2;6;
+advanced/bodyweight/hypertrophy:full_body:primary/6j;Full Body — Hypertrophie (6j);Fessiers;2;6;
+advanced/bodyweight/hypertrophy:full_body:primary/6j;Full Body — Hypertrophie (6j);Mollets;2;6;
+advanced/full_gym/endurance:full_body:primary/6j;Full Body — Endurance (6j);Pectoraux;2;6;
+advanced/full_gym/endurance:full_body:primary/6j;Full Body — Endurance (6j);Épaules;2;6;
+advanced/full_gym/endurance:full_body:primary/6j;Full Body — Endurance (6j);Triceps;2;6;
+advanced/full_gym/endurance:full_body:primary/6j;Full Body — Endurance (6j);Dos;2;6;
+advanced/full_gym/endurance:full_body:primary/6j;Full Body — Endurance (6j);Biceps;2;6;
+advanced/full_gym/endurance:full_body:primary/6j;Full Body — Endurance (6j);Quadriceps;2;6;
+advanced/full_gym/endurance:full_body:primary/6j;Full Body — Endurance (6j);Ischio-jambiers;2;6;
+advanced/full_gym/endurance:full_body:primary/6j;Full Body — Endurance (6j);Fessiers;2;6;
+advanced/full_gym/endurance:full_body:primary/6j;Full Body — Endurance (6j);Mollets;2;6;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/6j;Endurance & Hypertrophie (6j);Pectoraux;2;6;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/6j;Endurance & Hypertrophie (6j);Épaules;2;6;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/6j;Endurance & Hypertrophie (6j);Triceps;2;6;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/6j;Endurance & Hypertrophie (6j);Dos;2;6;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/6j;Endurance & Hypertrophie (6j);Biceps;2;6;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/6j;Endurance & Hypertrophie (6j);Quadriceps;2;6;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/6j;Endurance & Hypertrophie (6j);Ischio-jambiers;2;6;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/6j;Endurance & Hypertrophie (6j);Fessiers;2;6;
+advanced/full_gym/endurance:full_body:primary+hypertrophy:full_body:secondary/6j;Endurance & Hypertrophie (6j);Mollets;2;6;
+advanced/full_gym/hypertrophy:full_body:primary/6j;Full Body — Hypertrophie (6j);Pectoraux;2;6;
+advanced/full_gym/hypertrophy:full_body:primary/6j;Full Body — Hypertrophie (6j);Épaules;2;6;
+advanced/full_gym/hypertrophy:full_body:primary/6j;Full Body — Hypertrophie (6j);Triceps;2;6;
+advanced/full_gym/hypertrophy:full_body:primary/6j;Full Body — Hypertrophie (6j);Dos;2;6;
+advanced/full_gym/hypertrophy:full_body:primary/6j;Full Body — Hypertrophie (6j);Biceps;2;6;
+advanced/full_gym/hypertrophy:full_body:primary/6j;Full Body — Hypertrophie (6j);Quadriceps;2;6;
+advanced/full_gym/hypertrophy:full_body:primary/6j;Full Body — Hypertrophie (6j);Ischio-jambiers;2;6;
+advanced/full_gym/hypertrophy:full_body:primary/6j;Full Body — Hypertrophie (6j);Fessiers;2;6;
+advanced/full_gym/hypertrophy:full_body:primary/6j;Full Body — Hypertrophie (6j);Mollets;2;6;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/6j;Full Body — Hypertrophie & Force Bas (6j);Pectoraux;2;6;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/6j;Full Body — Hypertrophie & Force Bas (6j);Épaules;2;6;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/6j;Full Body — Hypertrophie & Force Bas (6j);Triceps;2;6;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/6j;Full Body — Hypertrophie & Force Bas (6j);Dos;2;6;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/6j;Full Body — Hypertrophie & Force Bas (6j);Biceps;2;6;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/6j;Full Body — Hypertrophie & Force Bas (6j);Quadriceps;2;6;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/6j;Full Body — Hypertrophie & Force Bas (6j);Ischio-jambiers;2;6;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/6j;Full Body — Hypertrophie & Force Bas (6j);Fessiers;2;6;
+advanced/full_gym/hypertrophy:full_body:primary+strength:lower_body:secondary/6j;Full Body — Hypertrophie & Force Bas (6j);Mollets;2;6;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/6j;Force SBD — Squat/Développé/Soulevé (6j);Abdominaux;2;6;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary/6j;Force SBD — Squat/Développé/Soulevé (6j);Épaules;2;6;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/6j;Powerbuilding — Force & Volume (6j);Mollets;2;6;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/6j;Powerbuilding — Force & Volume (6j);Abdominaux;2;6;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/6j;Powerbuilding — Force & Volume (6j);Épaules;2;6;
+advanced/full_gym/strength:movements[Squat barre,Développé couché,Soulevé de terre]:primary+hypertrophy:full_body:secondary/6j;Powerbuilding — Force & Volume (6j);Triceps;2;6;

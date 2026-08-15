@@ -19,9 +19,9 @@ import SetRow from '@/components/session/SetRow';
 import ExerciseGif from '@/components/session/ExerciseGif';
 import { RestTimerControl } from '@/components/session/RestTimer';
 import { computeTargetRIR } from '@/lib/rir-optimizer';
-import { findExerciseInChains, isAtChainBottom, ELASTIC_PROGRESSION_CHAINS } from '@/lib/progression-chains';
-import { computeVolumeProposal } from '@/lib/coaching-engine';
-import { applyVolumeProposal, markVolumeHandled, isVolumeSuppressed } from '@/lib/volume-adjust';
+import { reglagesPoidsDuCorps } from '@/lib/bodyweight-adjust';
+import { computeVolumeProposal, FRAGILE_ZONE_MUSCLES, nomBaseMuscle } from '@/lib/coaching-engine';
+import { applyVolumeProposal, markVolumeHandled, isVolumeSuppressed, lireDerniereDecharge } from '@/lib/volume-adjust';
 import VolumeProposalCard from '@/components/coaching/VolumeProposalCard';
 import PainCheckCard from '@/components/coaching/PainCheckCard';
 import { detectZoneFromText, loadEpisodes, saveEpisodes, upsertEpisode, episodesToCheck, sessionTouchesZone, computePainPrescription, buildPainAdvice, isSeverePain } from '@/lib/pain-engine';
@@ -53,8 +53,8 @@ const ZONE_LABELS = {
   wrists: 'Poignets', shoulders: 'Épaules', elbows: 'Coudes',
   knees: 'Genoux', lower_back: 'Bas du dos', neck: 'Cervicales',
 };
-// Normalise les noms de groupes musculaires vers les clés FRAGILE_ZONE_MUSCLES
-const MUSCLE_NORMALIZE = { 'Pectoraux': 'Poitrine', 'Abdominaux': 'Abdos' };
+// (La normalisation des noms de muscles vit désormais dans coaching-engine —
+// `nomBaseMuscle` — au lieu d'une table locale qui n'était jamais appelée.)
 
 const fatigueLabels = ['', 'Frais', 'Normal', 'Fatigué', 'Épuisé', 'Détruit'];
 const fatigueColors = ['', 'text-accent', 'text-primary', 'text-chart-4', 'text-destructive', 'text-destructive'];
@@ -68,20 +68,24 @@ function formatSeconds(s) {
 }
 
 // ─── Helper niveau module — accessible depuis tous les composants ────────────
+// Deux bugs corrigés ici, qui se combinaient :
+//   1. la table des muscles par zone fragile était RECOPIÉE localement au lieu
+//      d'être importée de coaching-engine — libre de diverger de la version qui
+//      sert au score de décharge et aux propositions de réduction ;
+//   2. le `muscle_group` était comparé BRUT. Or la génération produit
+//      « Pectoraux » quand la table dit « Poitrine » : aucun exercice de
+//      pectoraux n'était jamais signalé à quelqu'un ayant déclaré les poignets
+//      ou les épaules fragiles. `MUSCLE_NORMALIZE`, écrit juste au-dessus pour
+//      ça, n'était appelé nulle part.
+// Le moteur de douleur (pain-engine) rattrapait le coup par son repli « nom de
+// l'exercice » : la proposition de réduction considérait donc le développé
+// couché comme sollicitant l'épaule, pendant que la séance affirmait le
+// contraire sur le même exercice.
 function getExerciseFragileZones(exercise, fragileZones = []) {
-  const FRAGILE_ZONE_MUSCLES_LOCAL = {
-    wrists: ['Biceps','Triceps','Poitrine','Épaules'],
-    shoulders: ['Épaules','Poitrine','Triceps'],
-    elbows: ['Biceps','Triceps'],
-    knees: ['Quadriceps','Ischio-jambiers','Mollets'],
-    lower_back: ['Dos','Ischio-jambiers','Fessiers'],
-    neck: ['Épaules','Dos'],
-  };
-  const raw = exercise?.muscle_group || '';
-  const muscle = raw;
+  const muscle = nomBaseMuscle(exercise?.muscle_group || '');
   return fragileZones.filter(z => {
     const key = typeof z === 'string' ? z : z.key;
-    return (FRAGILE_ZONE_MUSCLES_LOCAL[key] || []).includes(muscle);
+    return (FRAGILE_ZONE_MUSCLES[key] || []).includes(muscle);
   });
 }
 
@@ -174,9 +178,15 @@ function WarmupAccordion({ exercise, logs, exIdx, sets: totalSets }) {
 function ExerciseFocusCard({ exercise, originalExercise, prescription, exIdx, logs, updateLog, openAtLastSet, isImported, editMode, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, suggestion, onClearSuggestion, onApplyVariant, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach, sessionsHistory, sessionId }) {
   const { t } = useI18n();
   const sets = Math.max(1, exercise.sets || 3);
-  // L'exercice fait-il partie de la base (chaînes de progression) ? Sinon on ne
-  // propose aucune variante (pas de variante générique inventée).
-  const inChain = findExerciseInChains(exercise.name) !== null;
+  // Réglages connus pour CET exercice (src/lib/bodyweight-adjust.js) — la liste
+  // passée en revue, rien d'autre. Un exercice absent n'obtient ni bouton ni
+  // conseil : mieux vaut se taire qu'un conseil générique qui ne correspond pas.
+  //
+  // Remplace les anciennes « chaînes de progression » : sur leurs 48 étapes,
+  // 47 nommaient des exercices ABSENTS de la base. Accepter la variante
+  // renommait donc la séance vers un exercice inconnu — plus de consigne, plus
+  // de GIF, et l'historique de performances repartait de zéro sur ce nom.
+  const reglages = reglagesPoidsDuCorps(exercise.name);
   const [editSets, setEditSets] = useState(Math.max(1, originalExercise?.sets || 3));
   const [editReps, setEditReps] = useState(originalExercise?.target_reps || '');
   const [editRest, setEditRest] = useState(currentRestSeconds ?? originalExercise?.rest_seconds ?? 90);
@@ -691,7 +701,8 @@ function ExerciseFocusCard({ exercise, originalExercise, prescription, exIdx, lo
       const isUnder = coachTip === 'under';
       const isPain = coachTip === 'pain';
       const currentRest = currentRestSeconds ?? exercise.rest_seconds ?? 90;
-      const atBottom = !inChain || isAtChainBottom(exercise.name);
+      // Un réglage « plus simple » existe-t-il pour cet exercice ?
+      const peutAlleger = !!reglages;
       return (
         <div className="fixed left-3 top-1/2 -translate-y-1/2 z-40 flex flex-col-reverse items-start gap-2 max-w-[calc(100vw-1.5rem)]">
           {tipOpen && (
@@ -705,7 +716,7 @@ function ExerciseFocusCard({ exercise, originalExercise, prescription, exIdx, lo
                         ? 'Ne force pas dessus : passe à l\'exercice suivant et laisse la zone tranquille aujourd\'hui. Si c\'est encore douloureux demain, avis médical.'
                         : 'Le mieux : adapte selon ton ressenti. Sinon, voici une proposition automatique, pas forcément optimale pour ton cas.')
                       : isUnder
-                        ? (atBottom ? 'Augmente le repos pour mieux récupérer et atteindre tes cibles.' : 'Ajuste le repos ou passe à une variante plus simple.')
+                        ? (peutAlleger ? 'Ajuste le repos, ou allège l\'exercice — voici comment.' : 'Augmente le repos pour mieux récupérer et atteindre tes cibles.')
                         : 'Réduis le repos ou augmente le poids.'}
                   </p>
                 </div>
@@ -755,7 +766,7 @@ function ExerciseFocusCard({ exercise, originalExercise, prescription, exIdx, lo
                         −20 % de charge · +5 reps visées
                       </button>
                     )}
-                    {inChain && (
+                    {reglages && (
                       <button onClick={() => { onRegressionRequest(exIdx); setTipOpen(false); }}
                         className="text-xs px-3 py-1.5 rounded-lg bg-white/20 text-white font-medium hover:bg-white/30 transition-colors">
                         {t('se_variant_simple')}
@@ -783,7 +794,10 @@ function ExerciseFocusCard({ exercise, originalExercise, prescription, exIdx, lo
                       className="text-xs px-3 py-1.5 rounded-lg bg-chart-4 text-white font-medium hover:bg-chart-4/80 transition-colors flex items-center gap-1">
                       <Timer className="w-3 h-3" /> +30s repos
                     </button>
-                    {!isBodyweightExercise(exercise.name) && (
+                    {/* Le retrait de charge vaut aussi au poids du corps quand le
+                        lest est le levier de l'exercice (sac à dos, gilet) : il y a
+                        bien des kilos à enlever. */}
+                    {(!isBodyweightExercise(exercise.name) || reglages?.charge) && (
                       <button onClick={() => {
                           for (let s = activeSetIdx + 1; s < sets; s++) {
                             const key = `${exIdx}-${s}`;
@@ -796,7 +810,7 @@ function ExerciseFocusCard({ exercise, originalExercise, prescription, exIdx, lo
                         −2.5 kg
                       </button>
                     )}
-                    {inChain && (
+                    {reglages && (
                       <button onClick={() => { onRegressionRequest(exIdx); setTipOpen(false); }}
                         className="text-xs px-3 py-1.5 rounded-lg bg-destructive text-white font-medium hover:bg-destructive/80 transition-colors">
                         {t('se_variant_simple')}
@@ -809,7 +823,11 @@ function ExerciseFocusCard({ exercise, originalExercise, prescription, exIdx, lo
                       className="text-xs px-3 py-1.5 rounded-lg bg-white/20 text-white font-medium hover:bg-white/30 transition-colors flex items-center gap-1">
                       <Timer className="w-3 h-3" /> −30s repos
                     </button>
-                    {!isBodyweightExercise(exercise.name) ? (
+                    {/* Au poids du corps, ajouter des kilos n'a de sens que si le
+                        lest est vraiment le levier (`charge`). Sur une pompe piquée,
+                        la marche suivante est technique — proposer « +2,5 kg » y
+                        serait un mauvais conseil. */}
+                    {(!isBodyweightExercise(exercise.name) || reglages?.charge) && (
                       <button onClick={() => {
                           for (let s = activeSetIdx + 1; s < sets; s++) {
                             const key = `${exIdx}-${s}`;
@@ -819,14 +837,15 @@ function ExerciseFocusCard({ exercise, originalExercise, prescription, exIdx, lo
                           dismissTip();
                         }}
                         className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors">
-                        +2.5 kg
+                        {isBodyweightExercise(exercise.name) ? '+2.5 kg dans le sac' : '+2.5 kg'}
                       </button>
-                    ) : inChain ? (
+                    )}
+                    {reglages && (
                       <button onClick={() => { onProgressionRequest(exIdx); setTipOpen(false); }}
-                        className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors">
+                        className="text-xs px-3 py-1.5 rounded-lg bg-white/20 text-white font-medium hover:bg-white/30 transition-colors">
                         {t('se_variant_harder')}
                       </button>
-                    ) : null}
+                    )}
                   </>
                 )}
               </div>
@@ -1929,12 +1948,6 @@ export default function SessionLog() {
     setLogs(newLogs);
   };
 
-  const stepToSuggestion = (step) => {
-    if (!step) return null;
-    if (step?.or) return { options: step.or };
-    return { name: step };
-  };
-
   const handleRegressionRequest = (exIdx) => {
     const ex = exercises[exIdx];
     const name = ex.name || '';
@@ -1952,15 +1965,17 @@ export default function SessionLog() {
     const avgReps = filledCount > 0 ? totalReps / filledCount : 0;
     const hasBadQuality = qualities.some(q => q === 'bad' || q === 'degraded');
     const repsCloseToTarget = targetLow > 0 && avgReps >= targetLow - 3;
-    const found = findExerciseInChains(name);
+    const reglages = reglagesPoidsDuCorps(name);
 
+    // On ne RENOMME plus l'exercice : on explique comment l'alléger. L'ancienne
+    // version proposait l'étape précédente d'une chaîne de progression, dont
+    // 47 noms sur 48 n'existaient pas dans la base — accepter la suggestion
+    // faisait perdre la consigne, le GIF et l'historique de l'exercice.
     let suggestion;
     if (hasBadQuality && repsCloseToTarget && !isEccentric) {
       suggestion = { exIdx, name: `${name} (excentrique 4s)`, notes: 'Descente lente 4s — consolider le patron moteur avant de recharger.' };
-    } else if (found && found.currentIndex > 0) {
-      suggestion = { exIdx, ...stepToSuggestion(found.chain[found.currentIndex - 1]) };
-    } else if (found && found.currentIndex === 0) {
-      suggestion = { exIdx, name: null, notes: 'Niveau minimum — réduis d\'une série ou diminue l\'amplitude.' };
+    } else if (reglages) {
+      suggestion = { exIdx, name: null, notes: reglages.simple };
     } else {
       suggestion = { exIdx, name: `${name} (excentrique 4s)`, notes: 'Descente lente 4s pour réduire la difficulté.' };
     }
@@ -1971,19 +1986,14 @@ export default function SessionLog() {
     const ex = exercises[exIdx];
     const name = ex.name || '';
     const isEccentric = /excentrique/i.test(name);
-    const found = findExerciseInChains(name);
-    const hasElastic = found && ELASTIC_PROGRESSION_CHAINS.includes(found.chainName);
+    const reglages = reglagesPoidsDuCorps(name);
 
+    // Même principe qu'à la régression : on explique le réglage au lieu de
+    // renommer l'exercice vers une étape de chaîne inexistante.
     let suggestion;
-    if (found && found.currentIndex !== -1 && found.currentIndex < found.chain.length - 1) {
-      const nextStep = found.chain[found.currentIndex + 1];
-      if (hasElastic) {
-        const nextName = nextStep?.or ? nextStep.or[0] : nextStep;
-        suggestion = { exIdx, options: [`${name} élastique`, nextName] };
-      } else {
-        suggestion = { exIdx, ...stepToSuggestion(nextStep) };
-      }
-    } else if (!isEccentric && found) {
+    if (reglages) {
+      suggestion = { exIdx, name: null, notes: reglages.dur };
+    } else if (!isEccentric) {
       suggestion = { exIdx, name: `${name} (excentrique 5s)`, notes: 'Descente lente 5s, montée explosive.' };
     } else {
       suggestion = { exIdx, name: null, notes: 'Niveau maximum atteint pour cet exercice.' };
@@ -2557,7 +2567,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
         ]);
         const program = progs?.[0] || null;
         let proposal = (program && !isVolumeSuppressed(program.id))
-          ? computeVolumeProposal({ sessions: progSessions, program, user, seriesLogs: recentLogs, lang })
+          ? computeVolumeProposal({ sessions: progSessions, program, user, seriesLogs: recentLogs, lang, derniereDecharge: lireDerniereDecharge(program.id) })
           : null;
         // Pas d'AUGMENTATION de volume pendant un épisode de douleur en cours
         // (contradictoire avec les réductions du suivi) — les baisses restent ok.

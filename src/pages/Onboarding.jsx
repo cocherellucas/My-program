@@ -17,6 +17,7 @@ import WelcomeIntro from '@/components/onboarding/WelcomeIntro';
 import { useI18n } from '@/lib/i18n';
 import { messageBudgetTemps } from '@/lib/budget-temps';
 import { messageBarreManquante } from '@/lib/barbell-guard';
+import { updateMeTolerant } from '@/lib/profile-save';
 
 const TOTAL_STEPS = 6;
 const STORAGE_KEY = 'onboarding_draft';
@@ -40,21 +41,15 @@ function erreurBudgetTemps(data, equipementConnu, t) {
   return messageBudgetTemps(user, data.objectives, t);
 }
 
-// updateMe tolérant (même repli que App.jsx) : si une colonne n'existe pas encore
-// dans `profiles`, PostgREST renvoie PGRST204 « Could not find the 'X' column » et
-// rejette TOUTE la requête. On retire la colonne fautive et on réessaie, pour que
-// l'onboarding ne soit JAMAIS bloqué par une migration en retard.
-async function updateMeTolerant(fields) {
-  const payload = { ...fields };
-  for (let i = 0; i < 30 && Object.keys(payload).length; i++) {
-    try { await base44.auth.updateMe(payload); return; }
-    catch (e) {
-      const col = (e?.message || '').match(/Could not find the '([^']+)' column/)?.[1];
-      if (col && col in payload) { delete payload[col]; continue; }
-      throw e; // autre erreur → on remonte
-    }
-  }
-}
+// updateMe tolérant : si une colonne n'existe pas encore dans `profiles`,
+// PostgREST renvoie PGRST204 et rejette TOUTE la requête. On retire la colonne
+// fautive et on réessaie, pour que l'onboarding ne soit JAMAIS bloqué par une
+// migration en retard.
+//
+// La copie qui vivait ici ne reconnaissait qu'une des trois formulations de
+// l'erreur : sur les autres, elle remontait l'exception et bloquait la fin de
+// l'onboarding — exactement ce qu'elle était censée empêcher. Une seule
+// implémentation, dans src/lib/profile-save.js.
 
 export default function Onboarding() {
   const navigate = useNavigate();

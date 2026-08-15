@@ -16,23 +16,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useI18n } from '@/lib/i18n';
 import { ensureOnline } from '@/lib/net';
 import { devNow } from '@/lib/dev-time';
+import { estStructureConnue, libelleStructure } from '@/lib/structures';
 
-const STRUCTURE_LABELS = {
-  full_body: 'Full Body',
-  upper_lower: 'Upper / Lower',
-  ppl: 'PPL',
-  arnold_split: 'Arnold Split',
-  custom: 'Personnalisé',
-  unknown: null,
+// Pastille de structure. Elle était calculée dans SavedProgramCard puis jamais
+// rendue — le conteneur `gap-2 flex-wrap` autour du nom lui gardait sa place.
+// Le libellé vient maintenant de l'i18n via src/lib/structures.js, et non d'une
+// table recopiée : c'est ainsi que « ul_ppl » s'était retrouvé sans libellé sur
+// trois écrans à la fois.
+// Seul « custom » (programme importé) se démarque, en plus discret : ce n'est
+// pas une structure d'entraînement, juste l'absence d'information.
+const COULEUR_STRUCTURE = {
+  custom: 'bg-white/10 text-white/60 border-white/15',
 };
-
-const STRUCTURE_COLORS = {
-  full_body:    'bg-white/20 text-white border-white/20',
-  upper_lower:  'bg-white/20 text-white border-white/20',
-  ppl:          'bg-white/20 text-white border-white/20',
-  arnold_split: 'bg-white/20 text-white border-white/20',
-  custom:       'bg-white/10 text-white/60 border-white/15',
-};
+const COULEUR_STRUCTURE_DEFAUT = 'bg-white/20 text-white border-white/20';
 
 const TYPE_LABELS = { strength: 'Force', hypertrophy: 'Hypertrophie', endurance: 'Endurance', mixed: 'Mixte' };
 const TYPE_COLORS = {
@@ -46,11 +42,10 @@ function SavedProgramCard({ prog, onDelete, onReapply, isReapplying }) {
   const { t } = useI18n();
   const [expanded, setExpanded] = useState(false);
   const [openSessions, setOpenSessions] = useState({});
-  const label = STRUCTURE_LABELS[prog.structure_type];
-  const color = STRUCTURE_COLORS[prog.structure_type] || '';
   const sessions = prog.sessions_templates || [];
   // Programme importé → on ne connaît pas le vrai type des séances, pas de badge (Mixte…)
   const isImported = prog.weekly_structure === 'custom' || prog.structure_type === 'custom';
+  const structure = libelleStructure(prog.structure_type, t);
 
   return (
     <Card className="p-5 space-y-3 bg-white/15 backdrop-blur-sm border-white/20">
@@ -58,6 +53,9 @@ function SavedProgramCard({ prog, onDelete, onReapply, isReapplying }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold font-heading text-base text-white">{prog.name?.replace(/\s*·\s*\w+$/, '')}</span>
+            {structure && (
+              <Badge className={`text-xs flex-shrink-0 ${COULEUR_STRUCTURE[prog.structure_type] || COULEUR_STRUCTURE_DEFAUT}`}>{structure}</Badge>
+            )}
           </div>
           <div className="flex items-center gap-3 mt-1 text-xs text-white/60 flex-wrap">
             <span>Sauvegardé le {format(new Date(prog.created_date), 'd MMM yyyy', { locale: fr })}</span>
@@ -466,10 +464,19 @@ export default function Library() {
           estimated_duration: s.estimated_duration, active_zones: s.active_zones, exercises: s.exercises,
         }));
       const weeksCount = new Set(existing.map(s => s.week_number).filter(Boolean)).size || p.planned_weeks || 1;
+      // Même nom que la sauvegarde depuis la page Programme. Il était codé en
+      // dur (« Programme — 4 sem. ») alors que la structure était disponible :
+      // deux programmes identiques portaient deux noms différents selon le
+      // bouton qui les avait enregistrés.
+      const structure = estStructureConnue(p.weekly_structure) ? p.weekly_structure : 'unknown';
+      const label = libelleStructure(structure, t);
       await base44.entities.SavedProgram.create({
         user_id: user.id,
-        name: `Programme — ${weeksCount} sem.`,
-        structure_type: p.weekly_structure || 'custom',
+        name: `${label || 'Programme'} — ${weeksCount} sem.`,
+        // Même règle que Program.jsx (detectStructureType) : une structure non
+        // reconnue vaut 'unknown', pas la valeur brute — sinon le même programme
+        // porte deux `structure_type` différents selon l'écran qui l'enregistre.
+        structure_type: structure,
         weekly_structure: p.weekly_structure,
         planned_weeks: weeksCount,
         active_phase: p.active_phase,

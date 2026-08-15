@@ -34,6 +34,7 @@ import { EXERCISES } from './exercise-database';
 import { TRAINING_PARAMS, SRA_WINDOWS } from './coaching-engine';
 import { equipementPossede, exerciceFaisable, tierDuContexte } from './equipment';
 import { SUBSTITUTIONS } from './exercise-substitutions';
+import { EXEC_SECONDS_PER_SET, sessionMinutes } from './duration';
 
 // Normalise en liste : tableau, OU chaîne "a, b, c" (format stocké en base pour
 // focus_group / focus_movement), OU vide. Le split gère les deux formes.
@@ -1150,11 +1151,10 @@ function muscleObjectiveRank(objectives) {
 // Coût en TEMPS d'un exercice ≈ séries × (repos + exécution). Raisonner en temps
 // encode automatiquement le nombre de muscles/objectifs ciblés (un full body
 // "coûte" cher, un muscle précis "coûte" peu) — pas de règle séparée à écrire.
-const EXEC_SECONDS_PER_SET = 45;
-const WARMUP_MINUTES = 8;
-const exerciseMinutes = (x) => ((x.sets || 0) * ((x.rest_seconds || 90) + EXEC_SECONDS_PER_SET)) / 60;
-const sessionMinutes = (exercises) =>
-  WARMUP_MINUTES + exercises.reduce((n, x) => n + exerciseMinutes(x), 0);
+// Modèle de durée partagé (src/lib/duration.js) : l'affichage des séances
+// importées utilisait un modèle différent — 5 min d'échauffement au lieu de 8 —
+// et annonçait donc une autre durée que celle sur laquelle le garde-fou décide
+// de bloquer ou non une validation.
 
 // Fait rentrer une séance dans le temps disponible, dans cet ordre : (1) couper
 // l'ISOLATION (bloc C avant B), en commençant par l'objectif le MOINS
@@ -1283,7 +1283,133 @@ function zonePrioritaire(objectives) {
   return rang.upper < rang.lower ? 'upper' : 'lower';
 }
 
-function splitConsecutiveSessions(sessions, days, parite = 0, prioritaire = null, user = null) {
+// ─────────────────────────────────────────────────────────────────────────────
+// ESPACEMENT DES ACCESSOIRES SUR JOURS COLLÉS
+//
+// `splitConsecutiveSessions` ne sait faire qu'une chose : ALTERNER haut et bas.
+// Quand il n'y a rien à alterner — objectif d'une seule zone, ou muscle présent
+// dans TOUTES les séances — il ne peut rien, et le muscle revient à 24 h.
+//
+// Deux cas concrets, mesurés sur les programmes réellement produits :
+//   • les ABDOMINAUX, présents dans 83 % des séances du catalogue et exclus de
+//     la détection de conflit (sans quoi le découpage démonterait les PPL) ;
+//   • les MOLLETS sur un objectif bas du corps, où aucune autre zone n'existe.
+// 24 h suffisent en endurance (SRA_WINDOWS), mais pas en hypertrophie (48 h) ni
+// en force (72 h) — et l'app mène tous les muscles à la même intensité, petits
+// comme grands : rien ne justifie de les exempter.
+//
+// On retire donc le muscle en double de la SECONDE séance, mais UNIQUEMENT s'il
+// n'y est qu'en ACCESSOIRE (bloc C, l'isolation de fin de séance). Le travail
+// principal — bloc A, le lourd à froid — n'est jamais touché : sur deux jours de
+// jambes collés, retirer le squat viderait la séance de son objet. Ce cas-là ne
+// se règle pas ici mais dans le choix des jours.
+//
+// Le volume hebdomadaire du muscle BAISSE, et c'est voulu : quatre séances
+// d'abdos près de l'échec en quatre jours, ce n'est pas du volume utile.
+// ─────────────────────────────────────────────────────────────────────────────
+// ORDRE CHRONOLOGIQUE DE LA SEMAINE D'ENTRAÎNEMENT
+//
+// La semaine SE REFERME : après la dernière séance vient la première de la
+// semaine suivante. Trier les séances de lundi à dimanche donne donc un ordre
+// FAUX dès que le bloc d'entraînement traverse le week-end — sur
+// dimanche + lundi + mardi, c'est la séance du dimanche qui ouvre la série, et
+// la paire dimanche→lundi n'apparaît jamais entre deux voisines de la liste
+// triée : elle est aux deux bouts. Un utilisateur s'entraînant dimanche, lundi
+// et mardi n'était donc protégé par AUCUNE des passes d'espacement.
+//
+// On trie par jour, puis on fait tourner la liste pour qu'elle commence juste
+// après le plus grand trou — le vrai début du bloc d'entraînement.
+function ordreChronologique(dayIdx) {
+  const tri = dayIdx.map((_, i) => i).sort((a, b) => dayIdx[a] - dayIdx[b]);
+  if (tri.length < 2) return tri;
+  let coupe = 0;
+  let max = -1;
+  for (let k = 0; k < tri.length; k++) {
+    const suivant = tri[(k + 1) % tri.length];
+    const g = ((dayIdx[suivant] - dayIdx[tri[k]] + 7) % 7) || 7;
+    if (g > max) { max = g; coupe = (k + 1) % tri.length; }
+  }
+  return [...tri.slice(coupe), ...tri.slice(0, coupe)];
+}
+
+// Écart en JOURS vers la séance suivante dans l'ordre chronologique, bouclage
+// compris. Sur lundi + mardi, l'écart mardi→lundi vaut 6 ; sur dimanche + lundi,
+// l'écart dimanche→lundi vaut 1.
+function ecartVersSuivante(dayIdx, ordre, k) {
+  const suivant = ordre[(k + 1) % ordre.length];
+  return ((dayIdx[suivant] - dayIdx[ordre[k]] + 7) % 7) || 7;
+}
+
+// Fenêtre de récupération applicable à un muscle pour les décisions de STRUCTURE
+// (découpage haut/bas, retrait d'accessoires).
+//
+// C'est le type d'objectif DU MUSCLE qui commande, jamais l'étiquette de la
+// séance : à ce stade de la chaîne, un programme du catalogue intitulé
+// « Hypertrophie » puis spécialisé en endurance porte ENCORE son étiquette
+// d'origine — le réétiquetage n'a lieu qu'en toute fin, dans `construire`. On
+// lisait donc 48 h là où l'endurance n'en demande que 24, et le moteur remaniait
+// des programmes d'endurance sans aucune raison : 15 structures remaniées et
+// 2 pertes de volume sur 36 configurations mesurées.
+//
+// PLAFONNÉE à la fenêtre d'hypertrophie. Les 72 h de la force protègent le
+// stimulus LOURD, et celui-ci est déjà traité en aval par la conversion
+// lourd→volume (`allegerSecondeExpositionLourde`, plus aucun cas). Faire aussi
+// découper la structure à 48 h corrigerait deux fois le même défaut. Ce plafond
+// est un choix d'implémentation assumé, pas une valeur du brief du catalogue.
+const fenetreStructure = (muscle, typeParMuscle, typeSeance) => Math.min(
+  SRA_WINDOWS[typeParMuscle?.[muscle] || typeSeance || 'hypertrophy'] || SRA_WINDOWS.hypertrophy,
+  SRA_WINDOWS.hypertrophy,
+);
+
+function espacerAccessoiresColles(sessions, days, typeParMuscle = null) {
+  if (sessions.length < 2 || !days?.length) return sessions;
+  const dayIdx = sessions.map((_, i) => DAY_ORDER.indexOf(days[i % days.length]));
+  const ordre = ordreChronologique(dayIdx);
+  const out = sessions.map((s) => ({ ...s, exercises: [...s.exercises] }));
+
+  // Combien de séances travaillent chaque muscle sur la semaine. GARDE-FOU
+  // ABSOLU : on ne descend jamais à zéro. Espacer un muscle est un progrès, le
+  // faire disparaître de la semaine est une régression — une première version de
+  // cette passe retirait les biceps des trois séances d'un programme de force,
+  // et le muscle sortait purement et simplement du programme.
+  const presence = new Map();
+  for (const s of out) {
+    for (const m of new Set(s.exercises.map((x) => x.muscle_group))) {
+      presence.set(m, (presence.get(m) || 0) + 1);
+    }
+  }
+
+  for (let k = 1; k <= ordre.length; k++) {
+    const precedent = ordre[k - 1];
+    const courant = ordre[k % ordre.length]; // k === ordre.length → bouclage
+    if (precedent === courant) continue;
+    const ecartJours = ecartVersSuivante(dayIdx, ordre, k - 1);
+    if (ecartJours >= 2) continue;
+
+    const veille = new Set(out[precedent].exercises.map((x) => x.muscle_group));
+    const enDouble = [...new Set(out[courant].exercises.map((x) => x.muscle_group))]
+      .filter((m) => veille.has(m));
+
+    for (const muscle of enDouble) {
+      // Cet écart suffit-il à CE muscle ? En endurance, 24 h oui — on ne touche
+      // à rien. La décision est prise muscle par muscle et non séance par
+      // séance : un même programme peut mêler des objectifs de types différents.
+      if (ecartJours * 24 >= fenetreStructure(muscle, typeParMuscle, out[precedent].type)) continue;
+      if ((presence.get(muscle) || 0) <= 1) continue; // dernière occurrence → on garde
+      const duMuscle = out[courant].exercises.filter((x) => x.muscle_group === muscle);
+      // Accessoire seulement : si le muscle porte du bloc A ou B ce jour-là,
+      // c'est un vrai travail de séance, on n'y touche pas.
+      if (duMuscle.some((x) => x.block !== 'C')) continue;
+      const restant = out[courant].exercises.filter((x) => x.muscle_group !== muscle);
+      if (!restant.length) continue; // ne jamais vider une séance
+      out[courant].exercises = restant;
+      presence.set(muscle, presence.get(muscle) - 1);
+    }
+  }
+  return out;
+}
+
+function splitConsecutiveSessions(sessions, days, parite = 0, prioritaire = null, user = null, typeParMuscle = null) {
   if (sessions.length < 2 || !days?.length) return sessions;
   const dayIdx = sessions.map((_, i) => DAY_ORDER.indexOf(days[i % days.length]));
   const gapEntre = (i, j) => {
@@ -1302,12 +1428,21 @@ function splitConsecutiveSessions(sessions, days, parite = 0, prioritaire = null
     s.exercises.map((x) => x.muscle_group).filter((m) => m !== 'Abdominaux')
   );
 
+  // Il n'y a conflit que si l'écart est trop court POUR LE MUSCLE partagé : en
+  // endurance 24 h suffisent, et découper un programme d'endurance sur jours
+  // collés le remaniait sans le moindre bénéfice.
+  const tropCourt = (gap, a, b) => {
+    const ma = musclesUtiles(a);
+    return [...musclesUtiles(b)].some(
+      (m) => ma.has(m) && gap * 24 < fenetreStructure(m, typeParMuscle, a.type),
+    );
+  };
+
   let conflit = false;
   for (let i = 0; i < sessions.length && !conflit; i++) {
     for (let j = i + 1; j < sessions.length && !conflit; j++) {
       if (gapEntre(i, j) >= 2) continue;
-      const mi = musclesUtiles(sessions[i]);
-      if ([...musclesUtiles(sessions[j])].some((m) => mi.has(m))) conflit = true;
+      if (tropCourt(gapEntre(i, j), sessions[i], sessions[j])) conflit = true;
     }
   }
   if (!conflit) return sessions;
@@ -1315,58 +1450,103 @@ function splitConsecutiveSessions(sessions, days, parite = 0, prioritaire = null
   // 1) D'ABORD essayer de simplement RÉORDONNER les séances : si le programme est
   //    déjà en haut/bas, il suffit d'alterner pour que deux jours collés ne
   //    retombent pas sur les mêmes muscles. On ne touche alors à rien d'autre.
-  const creneaux = sessions.map((_, i) => i).sort((a, b) => dayIdx[a] - dayIdx[b]);
+  // Ordre chronologique RÉEL (bouclage de semaine compris) : sur
+  // dimanche+lundi+mardi, le bloc s'ouvre le dimanche. Le tri lundi→dimanche
+  // faisait commencer la série au lundi et ne voyait jamais la paire
+  // dimanche→lundi.
+  const ordreC = ordreChronologique(dayIdx);
   const musclesDe = musclesUtiles; // même règle : les abdos ne comptent pas
   const restants = sessions.map((_, i) => i);
-  const place = [];
-  while (restants.length) {
-    const precedent = place.length ? sessions[place[place.length - 1]] : null;
-    const colle = place.length
-      && gapEntre(creneaux[place.length - 1], creneaux[place.length]) < 2;
+  const parCreneau = new Array(sessions.length);
+  for (let k = 0; k < ordreC.length; k++) {
+    const creneau = ordreC[k];
+    const precedent = k ? sessions[parCreneau[ordreC[k - 1]]] : null;
+    const colle = precedent && ecartVersSuivante(dayIdx, ordreC, k - 1) < 2;
     let choix = 0;
-    if (precedent && colle) {
+    if (colle) {
       const mp = musclesDe(precedent);
       let min = Infinity;
-      restants.forEach((idx, k) => {
+      restants.forEach((idx, j) => {
         const n = [...musclesDe(sessions[idx])].filter((m) => mp.has(m)).length;
-        if (n < min) { min = n; choix = k; }
+        if (n < min) { min = n; choix = j; }
       });
     }
-    place.push(restants.splice(choix, 1)[0]);
+    parCreneau[creneau] = restants.splice(choix, 1)[0];
   }
-  const reordonne = creneaux.map((_, k) => sessions[place[k]]);
+  const reordonne = parCreneau.map((idx) => sessions[idx]);
   let resteConflit = false;
-  for (let k = 0; k < reordonne.length - 1 && !resteConflit; k++) {
-    if (gapEntre(creneaux[k], creneaux[k + 1]) >= 2) continue;
-    const ma = musclesDe(reordonne[k]);
-    if ([...musclesDe(reordonne[k + 1])].some((m) => ma.has(m))) resteConflit = true;
+  for (let k = 0; k < ordreC.length && !resteConflit; k++) {
+    const creneau = ordreC[k];
+    const suivant = ordreC[(k + 1) % ordreC.length];
+    if (creneau === suivant) continue;
+    const ecartJours = ecartVersSuivante(dayIdx, ordreC, k);
+    if (ecartJours >= 2) continue;
+    if (tropCourt(ecartJours, reordonne[creneau], reordonne[suivant])) resteConflit = true;
   }
   if (!resteConflit) return reordonne;
 
   // 2) Sinon seulement (vrai corps entier : toutes les séances partagent les mêmes
-  //    muscles), on redistribue en haut/bas.
-  const ordre = sessions.map((_, i) => i).sort((a, b) => dayIdx[a] - dayIdx[b]);
+  //    muscles), on redistribue en haut/bas. L'alternance suit l'ordre
+  //    CHRONOLOGIQUE de la semaine d'entraînement : trié lundi→dimanche, un bloc
+  //    dimanche+lundi+mardi donnait haut/bas/haut à lundi/mardi/dimanche, soit le
+  //    HAUT deux jours de suite (dimanche puis lundi).
+  const ordre = ordreChronologique(dayIdx);
 
   // Regroupe le volume de la semaine par exercice (les séances corps entier
   // répètent les mêmes mouvements : on les fusionne au lieu de les dupliquer).
-  const pool = { upper: new Map(), lower: new Map() };
-  for (const s of sessions) {
-    for (const x of s.exercises) {
-      const z = MUSCLE_ZONE[x.muscle_group] === 'lower' ? 'lower' : 'upper';
-      const prev = pool[z].get(x.name);
-      // Somme SANS plafond ici : le volume sera réparti sur les séances de la zone
-      // à la distribution. Plafonner dès la fusion faisait perdre des séries alors
-      // qu'il restait de la place ailleurs dans la semaine.
-      if (prev) prev.sets = (prev.sets || 0) + (x.sets || 0);
-      else pool[z].set(x.name, { ...x });
+  // AXES de découpage, du plus large au plus fin. Le premier qui sépare
+  // réellement les muscles présents en deux groupes non vides est retenu.
+  // Les abdominaux suivent le TIRAGE (Dos + Biceps) — règle de Lucas.
+  const POUSSEE = new Set(['Pectoraux', 'Épaules', 'Triceps']);
+  const TIRAGE = new Set(['Dos', 'Biceps', 'Abdominaux']);
+  const QUADRI = new Set(['Quadriceps', 'Mollets']);
+  const POSTERIEURE = new Set(['Ischio-jambiers', 'Fessiers', 'Abdominaux']);
+  const AXES = [
+    (m) => (MUSCLE_ZONE[m] === 'lower' ? 'lower' : 'upper'),
+    (m) => (POUSSEE.has(m) ? 'upper' : TIRAGE.has(m) ? 'lower' : null),
+    (m) => (QUADRI.has(m) ? 'upper' : POSTERIEURE.has(m) ? 'lower' : null),
+  ];
+  const construirePool = (axe) => {
+    const p = { upper: new Map(), lower: new Map() };
+    for (const s of sessions) {
+      for (const x of s.exercises) {
+        const z = axe(x.muscle_group);
+        if (!z) continue;
+        const prev = p[z].get(x.name);
+        // Somme SANS plafond ici : le volume sera réparti sur les séances de la
+        // moitié à la distribution. Plafonner dès la fusion faisait perdre des
+        // séries alors qu'il restait de la place ailleurs dans la semaine.
+        if (prev) prev.sets = (prev.sets || 0) + (x.sets || 0);
+        else p[z].set(x.name, { ...x });
+      }
     }
+    return p;
+  };
+  let pool = null;
+  for (const axe of AXES) {
+    const p = construirePool(axe);
+    if (p.upper.size && p.lower.size) { pool = p; break; }
   }
+  if (!pool) pool = construirePool(AXES[0]);
 
   // Le découpage haut/bas suppose que le programme couvre les DEUX moitiés. Sur un
   // objectif « haut du corps » il n'y a aucun exercice de jambes : découper y
-  // créait des séances vides. Dans ce cas on garde l'ordre réordonné — le conflit
-  // vient alors des disponibilités (jours collés sur une seule zone), pas du
-  // programme, et le message d'honnêteté sur le budget le couvre déjà.
+  // créait des séances vides. Dans ce cas on garde l'ordre réordonné.
+  //
+  // Le découpage INTRA-ZONE (axes 2 et 3 ci-dessus) sert exactement à ça : quand
+  // l'objectif ne couvre qu'une moitié du corps, on sépare quand même en deux —
+  // poussée / tirage pour le haut, quadriceps / chaîne postérieure pour le bas,
+  // comme le catalogue le fait déjà (« Jambes (quadriceps) »). Les ABDOMINAUX
+  // suivent le TIRAGE (règle de Lucas) : une première version les envoyait à la
+  // moitié la plus légère, ce qui les mettait côté poussée — à ne pas refaire.
+  //
+  // Les clés internes restent 'upper'/'lower' quel que soit l'axe retenu : elles
+  // ne servent qu'à répartir. Les LIBELLÉS affichés sont dérivés des muscles
+  // réellement présents (voir `titreDe` plus bas), sans quoi une séance Dos +
+  // Biceps découpée sur l'axe 2 s'annonçait « Bas du corps ».
+  //
+  // Reste ce cas-ci : aucun axe ne sépare, donc rien à alterner. On garde l'ordre
+  // réordonné plutôt que de créer des séances vides.
   if (!pool.upper.size || !pool.lower.size) return reordonne;
 
   // Attribution des créneaux aux deux moitiés du corps.
@@ -1530,13 +1710,48 @@ function splitConsecutiveSessions(sessions, days, parite = 0, prioritaire = null
     acc[zone] = (acc[zone] || 0) + 1;
     return acc;
   }, {});
-  return gardees.map(({ s, zone }) => {
+  // Le titre vient des MUSCLES réellement présents, pas de la clé interne
+  // 'upper'/'lower' : depuis que le découpage peut couper à l'intérieur d'une
+  // zone (poussée/tirage), une séance Dos + Biceps se retrouvait dans la moitié
+  // nommée 'lower' et s'affichait « Bas du corps » à l'écran.
+  const titreDe = (s) => {
+    const muscles = [...new Set(s.exercises.map((x) => x.muscle_group))];
+    const haut = muscles.filter((m) => MUSCLE_ZONE[m] !== 'lower');
+    const bas = muscles.filter((m) => MUSCLE_ZONE[m] === 'lower');
+    if (haut.length && bas.length) return 'Corps entier';
+    if (bas.length) {
+      if (bas.every((m) => QUADRI.has(m))) return 'Jambes (quadriceps)';
+      if (bas.every((m) => POSTERIEURE.has(m))) return 'Jambes (chaîne postérieure)';
+      return 'Bas du corps';
+    }
+    if (haut.every((m) => POUSSEE.has(m))) return 'Poussée';
+    if (haut.every((m) => TIRAGE.has(m))) return 'Tirage';
+    return 'Haut du corps';
+  };
+  const totalParTitre = gardees.reduce((acc, { s }) => {
+    const t = titreDe(s);
+    acc[t] = (acc[t] || 0) + 1;
+    return acc;
+  }, {});
+  void totalParZone;
+
+  return gardees.map(({ s }) => {
+    // Ordre des BLOCS uniquement : A (composé lourd, à froid) → B → C (isolation).
+    //
+    // On a essayé d'imposer en plus de grouper les exercices d'un même muscle,
+    // puis on l'a RETIRÉ. Débat tranché le 2026-07-30, données à l'appui : grouper
+    // vs alterner est un quasi match nul pour la croissance, la tension mécanique
+    // dominant le stress métabolique — et l'avantage penche même légèrement vers
+    // l'ALTERNANCE, puisque espacer deux exercices d'un même muscle le laisse
+    // récupérer et donc porter plus lourd. Ce qui compte vraiment est déjà tenu
+    // ici : muscle prioritaire en premier (ordre de première apparition) et
+    // compounds avant isolations (ordre des blocs).
     s.exercises.sort((a, b) => (rang[a.block] ?? 3) - (rang[b.block] ?? 3));
-    const titre = zone === 'lower' ? 'Bas du corps' : 'Haut du corps';
+    const titre = titreDe(s);
     compte[titre] = (compte[titre] || 0) + 1;
     return {
       ...s,
-      day_label: totalParZone[zone] > 1 ? `${titre} ${String.fromCharCode(64 + compte[titre])}` : titre,
+      day_label: totalParTitre[titre] > 1 ? `${titre} ${String.fromCharCode(64 + compte[titre])}` : titre,
     };
   });
 }
@@ -1650,10 +1865,7 @@ function shapeSessions(program, user, objectives, days, parite = 0) {
   // Compte les variantes d'une même séance (mêmes muscles) pour alterner le lead.
   const variantSeen = {};
 
-  // Jours qui se suivent + mêmes muscles → bascule en haut/bas (voir plus haut).
-  const base = splitConsecutiveSessions(program.sessions, days, parite, zonePrioritaire(objectives), user);
-
-  return base.map((s, i) => {
+  const construire = (base) => base.map((s, i) => {
     let exercises = s.exercises;
 
     const sig = [...new Set(exercises.map((x) => x.muscle_group))].sort().join('|');
@@ -1676,6 +1888,239 @@ function shapeSessions(program, user, objectives, days, parite = 0) {
     }
     return { ...s, type, exercises, active_zones, estimated_duration: Math.round(sessionMinutes(exercises)) };
   });
+
+  const musclesDe = (liste) => new Set(liste.flatMap((s) => s.exercises.map((x) => x.muscle_group)));
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // SECONDE EXPOSITION LOURDE → EXPOSITION VOLUME
+  //
+  // Revenir sur un muscle avant la fin de sa fenêtre SRA n'est pas un problème en
+  // soi : un programme de force bien construit alterne une séance LOURDE et une
+  // séance VOLUME sur le même muscle — c'est déjà ce que fait le catalogue entre
+  // ses séances A (3-5 reps) et B (6-8). Ce qui coûte cher, et ce que la fenêtre
+  // de 72 h protège, c'est le système nerveux : DEUX séances lourdes rapprochées.
+  //
+  // Mesuré (program-data/audit-fenetre-sra.mjs) : sur 188 retours à moins de
+  // 72 h, 121 étaient déjà « lourd + volume » — corrects. Restaient 67 cas
+  // « lourd/lourd », tous en force à partir de 3 jours collés, là où le découpage
+  // en deux moitiés ne peut plus rendre 72 h à chacun.
+  //
+  // On garde donc la PREMIÈRE exposition lourde (le muscle est frais) et on
+  // convertit les suivantes qui tombent dans la fenêtre. La fourchette de
+  // remplacement n'est PAS inventée : c'est celle que le programme emploie déjà
+  // pour ce muscle en bloc A hors plage lourde — sa propre séance « volume ».
+  // Sans variante disponible, on ne touche à rien plutôt que d'imposer un chiffre.
+  // « Lourd » = bloc A dont TOUTE la fourchette tient dans la plage de force
+  // définie par le brief du catalogue (« Force (SBD) : reps 3-6 »). C'est le HAUT
+  // de la fourchette qui tranche : « 3-5 » est lourd, « 6-8 » est la variante
+  // volume. Prendre le bas classait « 6-8 » comme lourd, donc plus aucune
+  // variante de remplacement n'existait et cette passe ne faisait rien.
+  const hautRep = (r) => {
+    const n = String(r ?? '').match(/\d+/g);
+    return n?.length ? parseInt(n[n.length - 1], 10) : 99;
+  };
+  const estLourd = (x) => x.block === 'A' && hautRep(x.target_reps) <= 6;
+
+  const allegerSecondeExpositionLourde = (base) => {
+    if (base.length < 2 || !days?.length) return base;
+    const dayIdx = base.map((_, i) => DAY_ORDER.indexOf(days[i % days.length]));
+    const ordre = ordreChronologique(dayIdx);
+    // Position de chaque séance sur une ligne de temps DÉPLIÉE, en jours depuis
+    // l'ouverture du bloc d'entraînement. Déplier évite tout repli modulo : les
+    // écarts se lisent alors par simple soustraction, y compris pour l'amorce de
+    // bouclage posée une semaine plus tôt. Un `min(d, 7-d)` donnait 0 pour un
+    // muscle lourd une seule fois dans la semaine, qui se retrouvait comparé à
+    // lui-même et allégé à tort — mesuré sur « lundi + jeudi », pourtant espacé
+    // de 72 h, qui perdait TOUT son travail lourd.
+    const position = [];
+    let cumul = 0;
+    for (let k = 0; k < ordre.length; k++) {
+      position[ordre[k]] = cumul;
+      cumul += ecartVersSuivante(dayIdx, ordre, k);
+    }
+    const semaine = cumul; // 7 jours, par construction
+
+    // Où prendre la fourchette « volume » ? Par ordre de préférence :
+    //  1. le programme a déjà une séance volume pour ce muscle en bloc A → on la
+    //     reprend telle quelle (c'est son propre langage) ;
+    //  2. sinon n'importe quel autre bloc du programme pour ce muscle ;
+    //  3. sinon seulement, la bande hypertrophie MRV de TRAINING_PARAMS (6-10
+    //     reps, 150 s) — la plus proche de la force, et déjà définie par le
+    //     projet. La plupart des programmes de force n'ont QUE du lourd : sans ce
+    //     dernier recours, la passe ne corrigeait que 6 cas sur 43.
+    // La sélection se fait sur la FOURCHETTE, pas sur le bloc : un « good morning
+    // avec sac » rangé en bloc C mais programmé en 3-5 reps reste du lourd, et le
+    // prendre comme variante volume revenait à ne rien changer du tout.
+    const tousExercices = program.sessions.flatMap((s) => s.exercises);
+    const enVolume = (x) => hautRep(x.target_reps) > 6;
+    const plusLeger = (liste) => liste
+      .slice()
+      .sort((a, b) => hautRep(a.target_reps) - hautRep(b.target_reps))
+      .pop();
+    const hypertrophieMRV = TRAINING_PARAMS.hypertrophy.MRV;
+    const varianteVolume = (muscle) => {
+      const duMuscle = tousExercices.filter((x) => x.muscle_group === muscle && enVolume(x));
+      return plusLeger(duMuscle.filter((x) => x.block === 'A'))
+        || plusLeger(duMuscle)
+        || { target_reps: hypertrophieMRV.reps.join('-'), rest_seconds: hypertrophieMRV.rest };
+    };
+
+    // Le programme TOURNE : la dernière séance de la semaine précède la première
+    // de la suivante. On amorce donc avec les charges lourdes de fin de semaine,
+    // placées une semaine plus tôt.
+    const dernierLourd = new Map();
+    for (const i of ordre) {
+      for (const x of base[i].exercises) {
+        if (estLourd(x)) dernierLourd.set(x.muscle_group, position[i] - semaine);
+      }
+    }
+
+    const out = base.map((s) => ({ ...s, exercises: s.exercises.map((x) => ({ ...x })) }));
+    let change = false;
+    for (const i of ordre) {
+      const restentLourds = new Set();
+      // Un muscle peut porter DEUX exercices lourds le même jour : c'est une seule
+      // exposition, pas une répétition. On décide muscle par muscle, pas exo par exo.
+      for (const muscle of new Set(out[i].exercises.filter(estLourd).map((x) => x.muscle_group))) {
+        // Fenêtre prise sur le type d'objectif DU MUSCLE, pas sur `s.type` : à ce
+        // stade la séance porte encore l'étiquette du programme d'origine (un
+        // « Full Body — Hypertrophie » spécialisé en force reste marqué
+        // hypertrophie jusqu'à ce que `construire` le réétiquette). On lisait donc
+        // 48 h là où la force en demande 72, et deux nordic curls à 48 h passaient.
+        const fenetre = SRA_WINDOWS[typeParMuscle[muscle] || out[i].type || 'hypertrophy'] || 48;
+        const precedent = dernierLourd.get(muscle);
+        if (precedent === undefined || (position[i] - precedent) * 24 >= fenetre) {
+          restentLourds.add(muscle);
+          continue;
+        }
+        const volume = varianteVolume(muscle);
+        if (!volume) { restentLourds.add(muscle); continue; } // rien pour remplacer
+        for (const x of out[i].exercises) {
+          if (x.muscle_group !== muscle || !estLourd(x)) continue;
+          x.target_reps = volume.target_reps;
+          x.rest_seconds = volume.rest_seconds;
+          change = true;
+        }
+      }
+      for (const m of restentLourds) dernierLourd.set(m, position[i]);
+    }
+    return change ? out : base;
+  };
+
+  // Réinjecte dans les séances DÉJÀ découpées les muscles que le rognage au temps
+  // a fait disparaître. Rend null si le rattrapage est impossible — l'appelant
+  // renonce alors au découpage (repli historique).
+  const rattraperMusclesPerdus = (base, perdus) => {
+    const out = base.map((s) => ({ ...s, exercises: s.exercises.map((x) => ({ ...x })) }));
+    const budgetDe = (i) => (noTimeLimit ? Infinity : (Number(durations[days[i % days.length]]) || Infinity));
+    const rang = (x) => BLOCK_RANK[x.block] ?? 3;
+
+    for (const muscle of perdus) {
+      // Modèles possibles : les exercices de ce muscle dans le programme d'origine,
+      // du PLUS PETIT au plus gros — on récupère le muscle, pas tout son volume.
+      const modeles = program.sessions
+        .flatMap((s) => s.exercises)
+        .filter((x) => x.muscle_group === muscle)
+        .sort((a, b) => (a.sets || 0) - (b.sets || 0));
+      if (!modeles.length) return null;
+
+      // Séances d'accueil possibles : celles qui travaillent déjà la même moitié
+      // du corps (sinon on rouvrirait le haut du corps un jour de jambes, ce que le
+      // découpage vient justement d'éviter), la plus au large d'abord.
+      const zone = MUSCLE_ZONE[muscle];
+      const candidates = out
+        .map((s, i) => ({ s, i, marge: budgetDe(i) - sessionMinutes(s.exercises) }))
+        .filter(({ s }) => s.exercises.some((x) => MUSCLE_ZONE[x.muscle_group] === zone))
+        .sort((a, b) => b.marge - a.marge);
+      if (!candidates.length) return null;
+
+      // Le nom ne doit PAS déjà figurer dans la séance d'accueil. Avec du matériel
+      // partiel, deux exercices distincts retombent sur le MÊME repli tout en
+      // gardant chacun son muscle : « Fente avant barre » pouvait donc exister en
+      // Quadriceps dans la séance et être réinjectée en Fessiers — le même
+      // mouvement affiché deux fois. On cherche le premier couple (séance, modèle)
+      // qui n'entre pas en collision.
+      let cible = null;
+      let modele = null;
+      for (const c of candidates) {
+        const noms = new Set(c.s.exercises.map((x) => String(x.name).toLowerCase()));
+        const libre = modeles.find((m) => !noms.has(String(m.name).toLowerCase()));
+        if (libre) { cible = c; modele = libre; break; }
+      }
+      if (!cible) return null; // aucun mouvement disponible sans doublon
+
+      const ajout = { ...modele, sets: 2 };
+      const place = cible.s.exercises.findIndex((x) => rang(x) > rang(ajout));
+      if (place === -1) cible.s.exercises.push(ajout);
+      else cible.s.exercises.splice(place, 0, ajout);
+
+      // On paie le temps : des séries reprises au muscle le mieux servi de la
+      // séance, jamais sous le plancher de 2 séries et jamais sur l'ajout.
+      const budget = budgetDe(cible.i);
+      let garde = 100;
+      while (sessionMinutes(cible.s.exercises) > budget && garde-- > 0) {
+        const donneur = cible.s.exercises
+          .filter((x) => x !== ajout && (x.sets || 0) > 2)
+          .sort((a, b) => (b.sets || 0) - (a.sets || 0))[0];
+        if (!donneur) return null; // rien à prendre → rattrapage impossible
+        donneur.sets -= 1;
+      }
+      if (sessionMinutes(cible.s.exercises) > budget) return null;
+    }
+
+    // Séances recomposées : zones actives et durée annoncée à recalculer.
+    return out.map((s) => {
+      const seen = new Set();
+      const active_zones = [];
+      for (const x of s.exercises) {
+        if (!seen.has(x.muscle_group)) { seen.add(x.muscle_group); active_zones.push({ muscle_group: x.muscle_group }); }
+      }
+      return { ...s, active_zones, estimated_duration: Math.round(sessionMinutes(s.exercises)) };
+    });
+  };
+
+  // Jours qui se suivent + mêmes muscles → bascule en haut/bas (voir plus haut),
+  // puis retrait des ACCESSOIRES que la bascule n'a pas pu espacer.
+  const decoupe = construire(allegerSecondeExpositionLourde(espacerAccessoiresColles(
+    splitConsecutiveSessions(program.sessions, days, parite, zonePrioritaire(objectives), user, typeParMuscle),
+    days,
+    typeParMuscle,
+  )));
+
+  // GARANTIE : le découpage ne doit JAMAIS faire disparaître un muscle de la
+  // semaine. Il entasse le haut du corps de trois séances dans une seule ; le
+  // budget temps rogne ensuite le surplus, et ce sont les accessoires qui
+  // sautent. Mesuré sur « Force SBD 3j » en jours collés : les biceps passaient
+  // de 6 séries à 0 et les abdominaux de 6 à 0 — le muscle sortait purement et
+  // simplement du programme.
+  //
+  // Espacer la récupération est un progrès ; perdre un muscle est une
+  // régression. En cas de perte, on renonce au découpage et on garde les séances
+  // d'origine — quitte à laisser un chevauchement à 24 h, qui reste le moindre
+  // mal et que l'utilisateur peut corriger en écartant ses jours.
+  const attendus = musclesDe(program.sessions);
+  const obtenus = musclesDe(decoupe);
+  const perdus = [...attendus].filter((m) => !obtenus.has(m));
+  if (!perdus.length) return decoupe;
+
+  // RATTRAPAGE — avant de renoncer, essayer de RÉCUPÉRER le muscle perdu.
+  //
+  // Mesuré : sur « corps entier, force, 2 et 3 jours collés », le découpage
+  // marche (haut lundi / bas mardi) et UN SEUL muscle saute au rognage — les
+  // biceps, ou les mollets. Renoncer entièrement pour ça revenait à ramener les
+  // dix muscles à 24 h d'écart pour sauver deux séries de curl : le mauvais
+  // échange. On réinjecte donc le muscle dans la séance de sa moitié de corps,
+  // et on PAIE le temps en retirant des séries au muscle le mieux servi de cette
+  // séance. Volume de la séance inchangé, découpage préservé, aucun muscle perdu.
+  const rattrape = rattraperMusclesPerdus(decoupe, perdus);
+  if (rattrape) return rattrape;
+
+  // Repli SANS découpage — mais on espace quand même les accessoires, sinon le
+  // renoncement au découpage ramènerait tous les chevauchements à 24 h.
+  for (const k of Object.keys(variantSeen)) delete variantSeen[k]; // le compteur a servi
+  return construire(allegerSecondeExpositionLourde(
+    espacerAccessoiresColles(program.sessions, days, typeParMuscle),
+  ));
 }
 
 // Construit l'objet "result" attendu par generateProgram (même forme que
