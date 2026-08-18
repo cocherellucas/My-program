@@ -1112,6 +1112,153 @@ function specializeProgram(program, focus, user, objectiveType = 'hypertrophy', 
 // ─────────────────────────────────────────────────────────────────────────────
 const BLOCK_RANK = { A: 0, B: 1, C: 2 };
 
+// Familles de mouvement. Servent à DEUX choses : les axes de découpage fin
+// (poussée/tirage, quadriceps/chaîne postérieure) et le titre d'une séance.
+// Les abdominaux suivent le tirage et la chaîne postérieure — règle de Lucas.
+const POUSSEE = new Set(['Pectoraux', 'Épaules', 'Triceps']);
+const TIRAGE = new Set(['Dos', 'Biceps', 'Abdominaux']);
+const QUADRI = new Set(['Quadriceps', 'Mollets']);
+const POSTERIEURE = new Set(['Ischio-jambiers', 'Fessiers', 'Abdominaux']);
+
+// Titre d'une séance, dérivé des MUSCLES réellement présents.
+//
+// C'est la seule source de vérité pour nommer une journée. Le catalogue fournit
+// ses propres libellés, corrects dans la grande majorité des cas ; mais les
+// programmes de force nommaient la journée d'après UN mouvement — « Jour
+// Développé couché barre (lourd) » sur une séance qui travaillait aussi
+// quadriceps, dos et épaules. Le nom annonçait le focus sans dire le contenu.
+// Muscle qui porte le PLUS de séries dans la séance. Départage par l'ordre
+// d'apparition : le muscle placé en tête par le programme mène la journée.
+function dominanteDe(exercises) {
+  const parMuscle = new Map();
+  for (const x of exercises || []) {
+    parMuscle.set(x.muscle_group, (parMuscle.get(x.muscle_group) || 0) + (x.sets || 0));
+  }
+  let meilleur = null;
+  let max = -1;
+  for (const [m, n] of parMuscle) if (n > max) { max = n; meilleur = m; }
+  return meilleur;
+}
+
+export function titreDeSeance(exercises) {
+  const muscles = [...new Set((exercises || []).map((x) => x.muscle_group))];
+  const haut = muscles.filter((m) => MUSCLE_ZONE[m] !== 'lower');
+  const bas = muscles.filter((m) => MUSCLE_ZONE[m] === 'lower');
+  // Les ABDOMINAUX ne suffisent pas à faire un « haut du corps ». Une séance de
+  // jambes terminée par du gainage s'annonçait « Corps entier » : le gainage
+  // accompagne, il ne constitue pas une moitié de corps travaillée.
+  const hautReel = haut.filter((m) => m !== 'Abdominaux');
+  // « Corps entier » seul ne distingue rien : sur un programme 2 jours, les deux
+  // séances s'appelaient « Corps entier A » et « Corps entier B », ce qui
+  // n'apprend rien. On y accroche le muscle qui MÈNE la séance — le badge
+  // d'objectif (Force, Hypertrophie) donne déjà le type d'effort.
+  if (hautReel.length && bas.length) {
+    const dom = dominanteDe(exercises);
+    return dom ? `Corps entier · ${dom.toLowerCase()}` : 'Corps entier';
+  }
+  // Rien d'autre que du gainage.
+  if (!bas.length && !hautReel.length && haut.length) return 'Abdominaux';
+  if (bas.length) {
+    if (bas.every((m) => QUADRI.has(m))) return 'Jambes (quadriceps)';
+    if (bas.every((m) => POSTERIEURE.has(m))) return 'Jambes (chaîne postérieure)';
+    return 'Bas du corps';
+  }
+  if (!haut.length) return 'Séance';
+  if (haut.every((m) => POUSSEE.has(m))) return 'Poussée';
+  if (haut.every((m) => TIRAGE.has(m))) return 'Tirage';
+  return 'Haut du corps';
+}
+
+// Le catalogue nomme certaines journées d'après UN mouvement — « Jour Développé
+// couché barre (lourd) », « Jour Squat barre (lourd) ». C'est la convention des
+// programmes de force, mais 64 de ces 70 séances travaillent en réalité tout le
+// corps : le nom annonce le focus sans dire le contenu, et traîne le matériel
+// (« barre ») qui n'apporte rien à un nom de journée.
+//
+// On les renomme d'après leur STRUCTURE réelle, comme les 593 autres séances du
+// catalogue. Les libellés déjà exacts — « Haut du corps A », « Poussée »,
+// « Jambes (quadriceps) » — ne sont jamais touchés.
+// Un libellé peut aussi devenir FAUX en cours de route : le découpage fixe le
+// titre au moment où il compose la séance, puis le rognage au temps retire des
+// exercices — une journée annoncée « Corps entier » pouvait finir avec seulement
+// des jambes. On ne remplace que les libellés qui promettent une moitié du corps
+// absente ; ceux qui restent exacts ne sont jamais touchés.
+function libelleMent(libelle, exercises) {
+  const muscles = [...new Set((exercises || []).map((x) => x.muscle_group))];
+  const bas = muscles.some((m) => MUSCLE_ZONE[m] === 'lower');
+  const haut = muscles.some((m) => MUSCLE_ZONE[m] !== 'lower' && m !== 'Abdominaux');
+  const l = String(libelle || '').toLowerCase();
+  if (/bas du corps|jambes/.test(l) && !bas) return true;
+  if (/haut du corps|poussée|tirage/.test(l) && !haut) return true;
+  if (/corps entier|full body/.test(l) && !(haut && bas)) return true;
+  return false;
+}
+
+// Une note d'exercice peut devenir FAUSSE de la même façon que le libellé. Le
+// catalogue est propre (0 contradiction sur 579 notes), mais la spécialisation
+// transforme un programme — hypertrophie vers force, ou l'inverse — et réécrit
+// `target_reps` et `rest_seconds` en laissant la note d'origine. On lisait donc
+// « Jour volume : charge modérée » sous un soulevé de terre en 4×3-5 à 3 min 30.
+//
+// On RETIRE la note contradictoire plutôt que d'en réécrire une : mieux vaut pas
+// de conseil qu'un conseil faux, et inventer un texte ici reviendrait à fabriquer
+// une consigne que personne n'a validée.
+const hautRepDe = (r) => {
+  const n = String(r ?? '').match(/\d+/g);
+  return n?.length ? parseInt(n[n.length - 1], 10) : 99;
+};
+function retirerNotesContradictoires(sessions) {
+  let touche = false;
+  const out = sessions.map((s) => {
+    let modifie = false;
+    const exercises = s.exercises.map((x) => {
+      if (!x.notes) return x;
+      const annonce = /volume/i.test(x.notes) ? 'volume'
+        : /lourd|force/i.test(x.notes) ? 'lourd' : null;
+      if (!annonce) return x;
+      const reel = hautRepDe(x.target_reps) <= 6 ? 'lourd' : 'volume';
+      if (annonce === reel) return x;
+      modifie = true;
+      const { notes, ...reste } = x;
+      void notes;
+      return reste;
+    });
+    if (!modifie) return s;
+    touche = true;
+    return { ...s, exercises };
+  });
+  return touche ? out : sessions;
+}
+
+// TOUS les libellés sont recalculés ici, en toute fin de chaîne.
+//
+// Rattraper au cas par cas ne suffisait pas : un libellé peut être posé à
+// plusieurs endroits (catalogue, découpage) et devenir faux plus tard, quand le
+// rognage au temps retire une moitié du corps de la séance. Recalculer
+// systématiquement, une fois les séances définitivement composées, garantit par
+// construction qu'un titre décrit son contenu.
+//
+// Ce n'est pas destructeur : `titreDeSeance` régénère à l'identique les libellés
+// déjà justes — « Poussée », « Tirage », « Jambes (quadriceps) », « Haut du
+// corps ». Seuls changent ceux qui étaient faux ou peu informatifs.
+function renommerSeances(sessions) {
+  if (!sessions?.length) return sessions;
+  const titres = numeroterTitres(sessions.map((s) => titreDeSeance(s.exercises)));
+  return sessions.map((s, i) => (s.day_label === titres[i] ? s : { ...s, day_label: titres[i] }));
+}
+
+// Renumérote une liste de séances : « Corps entier A / B / C » quand plusieurs
+// portent le même titre, « Corps entier » tout court quand elle est seule.
+function numeroterTitres(titres) {
+  const total = {};
+  for (const t of titres) total[t] = (total[t] || 0) + 1;
+  const compte = {};
+  return titres.map((t) => {
+    compte[t] = (compte[t] || 0) + 1;
+    return total[t] > 1 ? `${t} ${String.fromCharCode(64 + compte[t])}` : t;
+  });
+}
+
 // Muscles couverts par une zone large (dérivé de MUSCLE_ZONE, source unique).
 const ZONE_MUSCLES = {
   upper_body: Object.keys(MUSCLE_ZONE).filter((m) => MUSCLE_ZONE[m] === 'upper'),
@@ -1497,10 +1644,6 @@ function splitConsecutiveSessions(sessions, days, parite = 0, prioritaire = null
   // AXES de découpage, du plus large au plus fin. Le premier qui sépare
   // réellement les muscles présents en deux groupes non vides est retenu.
   // Les abdominaux suivent le TIRAGE (Dos + Biceps) — règle de Lucas.
-  const POUSSEE = new Set(['Pectoraux', 'Épaules', 'Triceps']);
-  const TIRAGE = new Set(['Dos', 'Biceps', 'Abdominaux']);
-  const QUADRI = new Set(['Quadriceps', 'Mollets']);
-  const POSTERIEURE = new Set(['Ischio-jambiers', 'Fessiers', 'Abdominaux']);
   const AXES = [
     (m) => (MUSCLE_ZONE[m] === 'lower' ? 'lower' : 'upper'),
     (m) => (POUSSEE.has(m) ? 'upper' : TIRAGE.has(m) ? 'lower' : null),
@@ -1714,20 +1857,7 @@ function splitConsecutiveSessions(sessions, days, parite = 0, prioritaire = null
   // 'upper'/'lower' : depuis que le découpage peut couper à l'intérieur d'une
   // zone (poussée/tirage), une séance Dos + Biceps se retrouvait dans la moitié
   // nommée 'lower' et s'affichait « Bas du corps » à l'écran.
-  const titreDe = (s) => {
-    const muscles = [...new Set(s.exercises.map((x) => x.muscle_group))];
-    const haut = muscles.filter((m) => MUSCLE_ZONE[m] !== 'lower');
-    const bas = muscles.filter((m) => MUSCLE_ZONE[m] === 'lower');
-    if (haut.length && bas.length) return 'Corps entier';
-    if (bas.length) {
-      if (bas.every((m) => QUADRI.has(m))) return 'Jambes (quadriceps)';
-      if (bas.every((m) => POSTERIEURE.has(m))) return 'Jambes (chaîne postérieure)';
-      return 'Bas du corps';
-    }
-    if (haut.every((m) => POUSSEE.has(m))) return 'Poussée';
-    if (haut.every((m) => TIRAGE.has(m))) return 'Tirage';
-    return 'Haut du corps';
-  };
+  const titreDe = (s) => titreDeSeance(s.exercises);
   const totalParTitre = gardees.reduce((acc, { s }) => {
     const t = titreDe(s);
     acc[t] = (acc[t] || 0) + 1;
@@ -2236,9 +2366,10 @@ export async function buildActivationResult(user, objectives) {
   // un nombre impair de séances, cela évite qu'une moitié du corps soit toujours
   // travaillée deux fois et l'autre une seule. Quand aucune bascule n'a eu lieu,
   // les deux variantes sont identiques et rien ne change.
+  const finaliser = (liste) => renommerSeances(retirerNotesContradictoires(liste));
   const shapedParite = [
-    shapeSessions(programFaisable, user, objectives, days, 0),
-    shapeSessions(programFaisable, user, objectives, days, 1),
+    finaliser(shapeSessions(programFaisable, user, objectives, days, 0)),
+    finaliser(shapeSessions(programFaisable, user, objectives, days, 1)),
   ];
   const sessions = [];
   for (let w = 1; w <= initialWeeks; w++) {

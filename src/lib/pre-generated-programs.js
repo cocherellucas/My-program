@@ -208,7 +208,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -1151,7 +1151,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -1654,7 +1654,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -1969,7 +1969,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 90
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -2284,7 +2284,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 90
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -3341,7 +3341,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 45
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -4281,7 +4281,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 45
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -5700,7 +5700,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -6000,7 +6000,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -6398,7 +6398,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -7048,7 +7048,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -7311,7 +7311,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -9298,7 +9298,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -10245,7 +10245,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -10821,7 +10821,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -11764,7 +11764,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -20463,7 +20463,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -20897,7 +20897,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 60
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -21065,7 +21065,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -21642,7 +21642,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 90
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -22219,7 +22219,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 90
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -22534,7 +22534,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 90
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -22873,7 +22873,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 90
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -24201,7 +24201,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 45
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -24634,7 +24634,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 45
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -24801,7 +24801,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 45
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -25374,7 +25374,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 60
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -26998,7 +26998,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -27421,7 +27421,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -27900,7 +27900,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -28358,7 +28358,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 60
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -28646,7 +28646,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -31469,7 +31469,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -31905,7 +31905,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 60
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -32073,7 +32073,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -32652,7 +32652,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 90
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -33278,7 +33278,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -33712,7 +33712,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 45
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -33880,7 +33880,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -34457,7 +34457,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 60
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -45002,7 +45002,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -45460,7 +45460,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 60
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -45670,7 +45670,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -46460,7 +46460,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 90
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -47225,7 +47225,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 90
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -48014,7 +48014,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 90
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -48464,7 +48464,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 90
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -48897,7 +48897,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 90
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -49366,7 +49366,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 90
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -49684,7 +49684,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 90
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -51293,7 +51293,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 45
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -51750,7 +51750,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 45
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -51959,7 +51959,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 45
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -52743,7 +52743,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 60
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -53503,7 +53503,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 60
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -55790,7 +55790,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -56375,7 +56375,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -56983,7 +56983,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -57465,7 +57465,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 60
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -57621,7 +57621,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -58079,7 +58079,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 60
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -58519,7 +58519,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -59027,7 +59027,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -59593,7 +59593,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -62909,7 +62909,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -63369,7 +63369,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 60
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -63579,7 +63579,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -64371,7 +64371,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 90
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -65138,7 +65138,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 90
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -65921,7 +65921,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -66379,7 +66379,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 45
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -66589,7 +66589,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "notes": "Grand étirement en bas, contraction complète."
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -67379,7 +67379,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 60
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",
@@ -68144,7 +68144,7 @@ export const PRE_GENERATED_PROGRAMS = [
               "rest_seconds": 60
             },
             {
-              "name": "Pull-over poulie",
+              "name": "Tirage poulie bras tendus",
               "muscle_group": "Dos",
               "muscles_secondary": [],
               "block": "C",

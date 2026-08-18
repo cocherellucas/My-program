@@ -58,7 +58,6 @@ export const SUBSTITUTIONS = {
   "Oiseau haltères (deltoïde postérieur)": ["Oiseau avec sac ou bouteilles"],
   "Pec deck": ["Pompe large"],
   "Pompe pieds surélevés": ["Pompe pieds surélevés (chaise)"],
-  "Pull-over poulie": ["Pullover avec sac"],
   "Relevés de jambes suspendu": ["Relevés de jambes au sol"],
   "Roulette abdominale": ["Crunch au sol"],
   "Rowing barre": ["Rowing avec sac"],

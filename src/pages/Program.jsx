@@ -27,6 +27,33 @@ import { useI18n } from '@/lib/i18n';
 import { estStructureConnue, libelleStructure } from '@/lib/structures';
 import { enUS } from 'date-fns/locale';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// SUR QUELLE SEMAINE POSER LA SEMAINE 1 ?
+//
+// Le programme doit pouvoir commencer AUJOURD'HUI : une règle antérieure ne
+// gardait la semaine courante que si on générait un lundi, si bien qu'un
+// programme créé un mardi ne démarrait que six jours plus tard.
+//
+// Mais l'ancrer systématiquement sur le lundi en cours donne l'inverse : créé un
+// dimanche avec des jours d'entraînement mardi et jeudi, TOUTES les séances de la
+// semaine 1 tombent dans le passé. Le programme s'ouvre alors sur deux séances
+// « Passée » et un compteur à « 0/6 », alors qu'il vient d'être créé — l'utilisateur
+// démarre avec deux séances manquées qu'il n'a jamais eu l'occasion de faire.
+//
+// Règle : on garde la semaine en cours dès qu'il y reste AU MOINS un jour
+// d'entraînement à venir ; sinon on décale d'une semaine. Les jours déjà écoulés
+// de la semaine 1 ne sont pas créés (voir `estAvant`) — ils n'ont jamais été une
+// occasion réelle. Les semaines suivantes ne sont jamais concernées.
+function ancrerSemaine1(lundiCourant, joursOffsets, aujourdhui) {
+  if (!joursOffsets?.length) return lundiCourant;
+  const dernier = new Date(lundiCourant);
+  dernier.setDate(lundiCourant.getDate() + Math.max(...joursOffsets));
+  if (dernier >= aujourdhui) return lundiCourant; // il reste au moins un jour
+  const suivant = new Date(lundiCourant);
+  suivant.setDate(lundiCourant.getDate() + 7);
+  return suivant;
+}
+
 function LoadingOrb() {
   return (
     <div className="relative flex items-center justify-center w-24 h-24">
@@ -293,17 +320,22 @@ export default function Program() {
         editedSessions.map(s => ({ ...s, week_number: i + 1 }))
       ).flat().filter(s => s.week_number <= CYCLE_WEEKS);
 
-      // On ancre le programme sur le lundi de la semaine COURANTE et on crée TOUTE
-      // la semaine (semaine 0 = semaine en cours). Les jours déjà écoulés de cette
-      // semaine restent créés → visibles en "passées". Aucune semaine antérieure
-      // n'est créée (la 1ʳᵉ séance est au plus tôt ce lundi).
-      const startMon = new Date(thisMon);
+      // Ancrage sur la semaine COURANTE tant qu'il y reste un jour d'entraînement,
+      // sinon la semaine suivante — même règle qu'à la génération (`ancrerSemaine1`).
+      // Un programme importé un dimanche avec des jours mardi/jeudi s'ouvrait
+      // sinon sur des séances déjà « passées ».
+      const startMon = ancrerSemaine1(
+        new Date(thisMon),
+        editedSessions.map((s) => dayMap[s.day?.toLowerCase()] ?? 0),
+        today,
+      );
 
       for (const s of expanded) {
         const dayOffset = dayMap[s.day?.toLowerCase()] ?? 0;
         const weekNum = (s.week_number || 1) - 1;
         const d = new Date(startMon);
         d.setDate(startMon.getDate() + dayOffset + weekNum * 7);
+        if (d < today) continue; // jour déjà écoulé : jamais une occasion réelle
         const slotKey = `${toLocalDate(d)}::${(s.label || s.day || '').replace(/§\d/, '').trim().toLowerCase()}`;
         if (doneSlots.has(slotKey)) continue; // déjà faite ce jour-là
         await base44.entities.Session.create({
@@ -368,10 +400,17 @@ export default function Program() {
         const curWeekNum = weekRows.length
           ? Math.min(...weekRows.map(s => s.week_number || 1))
           : Math.min(...planned.map(s => s.week_number || 1));
+        // Jamais AVANT le début du programme. Cette réparation comble les trous
+        // de la semaine en cours, mais un programme créé en cours de semaine n'a
+        // volontairement aucune séance sur les jours déjà écoulés : sans cette
+        // garde, elle les recréait aussitôt et ramenait les « Passée » que la
+        // création vient d'éviter.
+        const debutProgramme = all.map(s => s.planned_date).filter(Boolean).sort()[0] || '';
         for (const t of tpl) {
           const dow = (new Date(t.planned_date + 'T12:00:00').getDay() + 6) % 7; // 0 = lundi
           const d = new Date(thisMon); d.setDate(thisMon.getDate() + dow);
           const dateStr = toLocalDate(d);
+          if (debutProgramme && dateStr < debutProgramme) continue;
           const key = `${dateStr}::${norm(t.day_label)}`;
           if (have.has(key)) continue;
           have.add(key);
@@ -626,13 +665,8 @@ export default function Program() {
       program_data: result,
     });
 
-    // Le programme démarre sur la semaine EN COURS, pas la suivante. L'ancienne
-    // règle ne gardait la semaine courante que si on générait un lundi : créé un
-    // mardi, le programme ne commençait que 6 jours plus tard. Les jours déjà
-    // passés de la semaine sont créés puis affichés grisés (même comportement que
-    // la réparation de semaine dans ensureInfiniteSessions), et l'utilisateur peut
-    // s'entraîner dès aujourd'hui si c'est un de ses jours.
-    const monday = startOfWeek(devNow(), { weekStartsOn: 1 });
+    // Le programme démarre sur la semaine EN COURS quand il y reste au moins un
+    // jour d'entraînement — sinon la semaine suivante (voir `ancrerSemaine1`).
     const dayMap = {
       monday: 0, lundi: 0,
       tuesday: 1, mardi: 1,
@@ -642,16 +676,27 @@ export default function Program() {
       saturday: 5, samedi: 5,
       sunday: 6, dimanche: 6,
     };
+    const aujourdhui = devNow(); aujourdhui.setHours(0, 0, 0, 0);
+    const offsetDe = (s) => dayMap[(s.day || '').toLowerCase().trim()] ?? 0;
+    const monday = ancrerSemaine1(
+      startOfWeek(devNow(), { weekStartsOn: 1 }),
+      (result.sessions || []).filter((s) => (s.week || 1) === 1).map(offsetDe),
+      aujourdhui,
+    );
 
     const totalSessions = (result.sessions || []).length;
     let sessionIdx = 0;
+    let ignorees = 0;
     for (const s of (result.sessions || [])) {
       sessionIdx++;
       setGenPhase(`Création des séances… (${sessionIdx}/${totalSessions})`);
       const weekOffset = ((s.week || 1) - 1) * 7;
-      const normalizedDay = (s.day || '').toLowerCase().trim();
-      const dayOffset = dayMap[normalizedDay] ?? 0;
+      const dayOffset = offsetDe(s);
       const date = addDays(monday, weekOffset + dayOffset);
+      // Jour déjà écoulé : le programme n'existait pas, ce n'était pas une
+      // occasion manquée. Ne concerne que la semaine 1, et jamais toutes ses
+      // séances à la fois — `ancrerSemaine1` a décalé le cas échéant.
+      if (date < aujourdhui) { ignorees++; continue; }
 
       await base44.entities.Session.create({
         program_id: program.id,
@@ -666,6 +711,7 @@ export default function Program() {
         day_label: s.day_label || s.day,
       });
     }
+    void ignorees;
 
     queryClient.invalidateQueries({ queryKey: ['programs'] });
     queryClient.invalidateQueries({ queryKey: ['program-sessions'] });
