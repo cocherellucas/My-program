@@ -14,7 +14,13 @@
 //       supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_...
 //  4. Stripe → Développeurs → Webhooks : ajouter l'endpoint
 //       https://<ref-projet>.supabase.co/functions/v1/stripe-webhook
-//     avec l'événement  checkout.session.completed .
+//     avec les événements  checkout.session.completed  ET
+//     customer.subscription.deleted  (le second rétrograde vers Starter —
+//     sans lui, une annulation laisse le plan payant actif à vie).
+//  5. Essai gratuit : se règle dans Stripe, pas ici — sur chaque prix,
+//     « Période d'essai » = 7 jours. checkout.session.completed part dès le
+//     jour 0, donc le plan s'active immédiatement ; si l'essai est annulé,
+//     customer.subscription.deleted ramène à Starter.
 //
 //  Sécurité : la mise à jour utilise la clé service_role (fournie automatiquement
 //  aux Edge Functions) — c'est la SEULE voie autorisée à changer
@@ -58,12 +64,27 @@ Deno.serve(async (req) => {
         .update({ subscription_plan: plan })
         .eq('id', userId);
       if (error) return new Response(`Erreur profil : ${error.message}`, { status: 500 });
+
+      // Reporter l'utilisateur sur l'ABONNEMENT lui-même : `client_reference_id`
+      // n'existe que sur la session de paiement, alors que l'annulation arrive
+      // plus tard sur l'abonnement. Sans cette ligne, `customer.subscription
+      // .deleted` ne sait pas quel profil rétrograder — et un compte annulé
+      // garderait son plan payant indéfiniment. Critique avec l'essai gratuit :
+      // l'annulation pendant l'essai y est le cas NORMAL, pas l'exception.
+      if (session.subscription) {
+        try {
+          await stripe.subscriptions.update(session.subscription as string, {
+            metadata: { user_id: userId },
+          });
+        } catch (e) {
+          console.error('[stripe] metadata user_id non posée', (e as Error).message);
+        }
+      }
     }
   }
 
-  // Abonnement annulé/expiré → retour au plan gratuit
-  // (nécessite l'événement customer.subscription.deleted sur le webhook et la
-  //  metadata user_id sur l'abonnement — à activer quand les abonnements tournent)
+  // Abonnement annulé/expiré (essai compris) → retour au plan gratuit.
+  // La metadata user_id est posée à la fin du checkout, ci-dessus.
   if (event.type === 'customer.subscription.deleted') {
     const sub = event.data.object as Stripe.Subscription;
     const userId = (sub.metadata?.user_id as string) || null;
