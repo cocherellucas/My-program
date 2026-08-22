@@ -48,6 +48,7 @@ import AdminPricing from '@/pages/AdminPricing';
 import Library from '@/pages/Library';
 import Settings from '@/pages/Settings';
 import TechniquesGuide from '@/pages/TechniquesGuide';
+import AllegerGuide from '@/pages/AllegerGuide';
 import GifCheck from '@/pages/GifCheck';
 import Login from '@/pages/Login';
 import Legal from '@/pages/Legal';
@@ -237,6 +238,7 @@ const AuthenticatedApp = () => {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/techniques" element={<TechniquesGuide />} />
+          <Route path="/alleger" element={<AllegerGuide />} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </div>

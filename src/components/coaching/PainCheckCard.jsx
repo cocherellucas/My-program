@@ -6,7 +6,10 @@ import { useI18n } from '@/lib/i18n';
 
 // Carte de suivi douleur — 2 étapes :
 //   1. question « Comment a réagi ton poignet ? » (4 réponses)
-//   2. la prescription du coach (Appliquer / Le faire moi-même / Ignorer)
+//   2. le CONSTAT du coach (« c'est noté » / ouvrir le programme / ignorer).
+//      Depuis le 2026-08-16 rien n'est appliqué aux séances : « c'est noté »
+//      enregistre seulement le cran atteint sur l'échelle, pour que le prochain
+//      check sache d'où on part. Le « comment » vit dans le guide des Paramètres.
 // Variante « pause » quand l'épisode est en stop_advised (douleur vive).
 // Props : episode, proposal (null = étape question), busy,
 //         onReaction(r), onApply, onManual, onDismiss, onResume, onEnd
@@ -91,11 +94,11 @@ export default function PainCheckCard({ episode, proposal, busy, onReaction, onA
         ) : (
           <>
             <button onClick={onApply} disabled={busy} className={`${btn} flex items-center gap-1.5 bg-white text-violet-700 hover:bg-white/90`}>
-              {busy && <Loader2 className="w-3.5 h-3.5 animate-spin" />} {isStop ? t('pain_remove7') : t('apply')}
+              {busy && <Loader2 className="w-3.5 h-3.5 animate-spin" />} {t('pain_noted')}
             </button>
             {!isStop && (
               <button onClick={onManual} disabled={busy} className={`${btn} flex items-center gap-1.5 bg-white/10 text-white border border-white/20 hover:bg-white/20`}>
-                <Pencil className="w-3.5 h-3.5" /> {t('do_myself')}
+                <Pencil className="w-3.5 h-3.5" /> {t('vp_open_program')}
               </button>
             )}
             <button onClick={onDismiss} disabled={busy} className={`${btn} text-white/45 hover:text-white/70 px-2`}>{isStop ? t('got_it') : t('ignore')}</button>

@@ -80,7 +80,7 @@ const LEXIQUE = [
   ['MEV / MAV / MRV', "Les trois repères de volume. *MEV* = minimum pour progresser. *MAV* = volume optimal, là où le rapport résultat/fatigue est le meilleur. *MRV* = maximum récupérable, au-delà duquel tu accumules plus de fatigue que d'adaptation. Un cycle monte progressivement de MEV vers MRV."],
   ['Programme en boucle', "*Tous* les programmes tournent maintenant en boucle : ils n'ont pas de date de fin, et l'app maintient en permanence une vingtaine de semaines de séances d'avance. Il n'y a donc plus ni « fin de cycle » à annoncer, ni durée à choisir."],
   ['Mésocycle', "Un bloc d'entraînement de plusieurs semaines qui monte en volume, puis se conclut par une décharge. *Ce découpage n'existe plus dans l'app* : le programme ne s'arrête pas, et c'est la fatigue mesurée qui déclenche les décharges, pas le calendrier."],
-  ['Décharge', "Une période allégée destinée à laisser la fatigue redescendre. *Le volume baisse, les charges restent identiques* : c'est le volume qui fatigue, la charge qui maintient l'adaptation.\n\nL'app *date* chaque décharge que tu appliques. C'est ce qui permet au compteur « semaines sans décharge » de repartir de zéro. Attention : cette date est stockée *sur cet appareil uniquement* — sur un autre téléphone, le compteur repart de la création du programme."],
+  ['Décharge', "Une période allégée destinée à laisser la fatigue redescendre. *Le volume baisse, les charges restent identiques* : c'est le volume qui fatigue, la charge qui maintient l'adaptation.\n\nL'app *date* chaque décharge que tu déclares avoir faite (bouton « C'est fait »). C'est ce qui permet au compteur « semaines sans décharge » de repartir de zéro. Attention : cette date est stockée *sur cet appareil uniquement* — sur un autre téléphone, le compteur repart de la création du programme."],
   ['Check-in', "Les deux questions posées après une séance et le lendemain : comment tu as dormi, et si tu te sens raide. Elles alimentent les signaux *sommeil dégradé* et *raideur post-séance*."],
   ['Pourquoi je ne vois aucune alerte', "*Un compte neuf n'en affiche jamais.* Presque toutes les règles exigent des séances complétées avec la fatigue renseignée, ou des séries enregistrées. « Tout va bien » ne veut pas dire « tout est vérifié » — ça veut dire qu'il n'y a pas encore de quoi juger."],
 ];
@@ -106,9 +106,37 @@ const RETIRES = [
    "*Ne s'est jamais affichée* : la règle comparait les muscles de deux séances avec `includes` sur des OBJETS, donc par référence — le recouvrement était toujours vide.\n\nMais la vraie raison de l'abandonner est ailleurs. *L'espacement des séances est décidé à la génération*, et tu ne peux pas déplacer une séance : changer tes disponibilités régénère le programme. L'alerte ne pouvait donc reprocher qu'une chose — avoir fait ses séances en retard ou dans le désordre. Ça ne se règle pas par une alerte hebdomadaire mais en demandant au *coach*, qui a tout l'historique pour répondre au cas par cas.\n\n*La règle elle-même n'est pas perdue* : `SRA_WINDOWS` sert toujours au générateur, qui refuse d'ajouter un exercice sollicitant un muscle encore en récupération. Elle agit en amont, pour construire un programme juste."],
 ];
 
+// Ce que l'alerte DÉCLENCHE. Colonne ajoutée parce que le document répondait à
+// « pourquoi elle apparaît » et « comment elle disparaît », mais jamais à
+// « et ensuite ? » — on ne pouvait pas savoir, en le lisant, si quelque chose se
+// modifiait tout seul dans le programme.
+//
+// La réponse est non, pour les quatre. Vérifié dans le code : la carte Alertes
+// n'effectue aucune action, et la carte de constat (VolumeProposalCard) n'écrit
+// plus rien nulle part depuis le 2026-08-16 — elle rapporte des mesures et
+// conseille, l'utilisateur agit lui-même dans son programme.
+const DECLENCHE = {
+  'Décharge conseillée':
+    "*Rien.* L'alerte informe, elle ne touche pas au programme.\n\n"
+    + "Une carte *séparée* de l'Accueil te montre alors ce que l'app a MESURÉ (fatigue déclarée, "
+    + "performances, semaines sans allègement) et te conseille d'alléger — sans dire quel exercice "
+    + "toucher : elle ne connaît pas ton contexte du jour. Le *comment* vit dans le guide « Comment "
+    + "alléger une semaine » (Paramètres).\n\n"
+    + "Depuis le 2026-08-16, *plus rien n'est jamais écrit dans ton programme.* Le bouton « C'est fait » "
+    + 'ne modifie aucune séance : il date ton allègement, pour que le compteur « semaines sans décharge » reparte de zéro.',
+  'Sous-stimulation':
+    "*Rien.* Information seule. À toi d'augmenter le volume ou l'intensité si le constat te paraît juste.",
+  'Blocage structurel':
+    "*Rien.* L'alerte propose des pistes en texte — ajouter un jour, changer de structure, progresser par la "
+    + "charge — mais n'en applique aucune.",
+  'Séances non complétées':
+    "*Rien.* Information seule. Les séances en retard restent au statut « planifiée » jusqu'à ce que tu les "
+    + 'fasses, les supprimes, ou régénères le programme.',
+};
+
 // ── Assemblage du document ──────────────────────────────────────────────────
 const LARGEURS = {
-  alertes: ['5.5cm', '13cm', '9cm', '7cm'],
+  alertes: ['5.5cm', '13cm', '9cm', '7cm', '9cm'],
   signaux: ['3cm', '7.5cm', '2.5cm', '14cm'],
   lexique: ['5cm', '20cm'],
   retires: ['6cm', '9cm', '17cm'],
@@ -154,7 +182,8 @@ const doc = `<?xml version="1.0" encoding="UTF-8"?>
 </office:automatic-styles>
 <office:body><office:spreadsheet>
 ${feuille('Alertes', 'a', LARGEURS.alertes,
-  ['Alerte', 'Pourquoi elle apparaît', 'Ce qui la fait disparaître', 'Ce qu\'il faut comme données'], ALERTES)}
+  ['Alerte', 'Pourquoi elle apparaît', 'Ce qui la fait disparaître', 'Ce qu\'il faut comme données', 'Ce que ça déclenche'],
+  ALERTES.map((l) => [...l, DECLENCHE[l[0]] || '']))}
 ${feuille('Score de décharge', 's', LARGEURS.signaux,
   ['Nature', 'Signal', 'Points', 'Ce que ça veut dire'], SIGNAUX)}
 ${feuille('Vocabulaire', 'l', LARGEURS.lexique, ['Terme', 'Définition'], LEXIQUE)}

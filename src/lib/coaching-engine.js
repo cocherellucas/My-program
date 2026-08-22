@@ -12,16 +12,16 @@ import { devNow } from './dev-time.js';
 // dans le mauvais vocabulaire (voir plus bas) ; c'est corrigé, pour qu'un jour
 // de réveil ne réintroduise pas le bug avec eux.
 
-// ─── DEUX VOCABULAIRES DE MUSCLES ───
-// La base d'exercices dit « Poitrine » et « Abdos » ; la génération, elle,
-// produit « Pectoraux » et « Abdominaux » (program-activation.js traduit via
-// appMuscle()). Un `muscle_group` issu d'un programme ne correspond donc JAMAIS
-// à une liste écrite en vocabulaire de base — silencieusement, sans erreur.
-//
-// Les listes ci-dessous restent écrites en vocabulaire de base (pain-engine les
-// compare aux `muscles.primary` de la base) : on NORMALISE au moment de
-// comparer, plutôt que de les réécrire et de casser l'autre usage.
-export const NOM_BASE_MUSCLE = { Pectoraux: 'Poitrine', Abdominaux: 'Abdos' };
+// ─── VOCABULAIRE DES MUSCLES ───
+// La base d'exercices et la génération disent désormais toutes deux
+// « Pectoraux ». Il reste UN écart : la base écrit « Abdos » là où la
+// génération produit « Abdominaux ». Tant qu'il subsiste, un `muscle_group`
+// comparé BRUT à une liste écrite en vocabulaire de base échoue en silence,
+// sans erreur — d'où la normalisation systématique avant comparaison.
+// Les listes ci-dessous sont écrites en vocabulaire d'application ; pain-engine
+// les confronte aussi aux `muscles.primary` de la base, ce qui ne marche que
+// parce que les deux se sont rejoints sur les pectoraux.
+export const NOM_BASE_MUSCLE = { Abdominaux: 'Abdos' };
 
 /** Nom d'un muscle dans le vocabulaire de la BASE d'exercices. */
 export const nomBaseMuscle = (m) => NOM_BASE_MUSCLE[m] || m;
@@ -30,7 +30,7 @@ export const nomBaseMuscle = (m) => NOM_BASE_MUSCLE[m] || m;
 // Les deux orthographes y figurent : ces ensembles sont interrogés tantôt avec
 // un nom de base, tantôt avec un `muscle_group` généré. « Pectoraux » manquait,
 // et se retrouvait donc classé petit muscle (MEV 5 au lieu de 8).
-export const LARGE_MUSCLES = new Set(['Dos', 'Poitrine', 'Pectoraux', 'Quadriceps', 'Fessiers', 'Épaules']);
+export const LARGE_MUSCLES = new Set(['Dos', 'Pectoraux', 'Quadriceps', 'Fessiers', 'Épaules']);
 
 // ─── Petits muscles (fatigue locale, récupèrent plus vite mais moins de volume) ───
 export const SMALL_MUSCLES = new Set(['Biceps', 'Triceps', 'Mollets', 'Ischio-jambiers', 'Abdominaux', 'Abdos', 'Adducteurs', 'Abducteurs']);
@@ -267,8 +267,8 @@ const nomsDesZones = (zones) => (zones || [])
 
 // Muscles impactés par zone fragile (même map que program-builder)
 export const FRAGILE_ZONE_MUSCLES = {
-  wrists:     ['Biceps', 'Triceps', 'Poitrine', 'Épaules'],
-  shoulders:  ['Épaules', 'Poitrine', 'Triceps'],
+  wrists:     ['Biceps', 'Triceps', 'Pectoraux', 'Épaules'],
+  shoulders:  ['Épaules', 'Pectoraux', 'Triceps'],
   elbows:     ['Biceps', 'Triceps'],
   knees:      ['Quadriceps', 'Ischio-jambiers', 'Mollets'],
   lower_back: ['Dos', 'Ischio-jambiers', 'Fessiers'],
@@ -280,9 +280,27 @@ export const FRAGILE_ZONE_MUSCLES = {
 // Systémique → décharge complète (fatigue SNC, RIR drift, régression globale)
 // Zonal → décharge ciblée sur les muscles/zones concernés seulement
 // ─────────────────────────────────────────────────────────────────────────────
+/**
+ * La fatigue de cette séance a-t-elle VRAIMENT été renseignée ?
+ * Le curseur démarrait autrefois sur 2, et cette valeur partait en base que
+ * l'utilisateur y touche ou non : toutes les séances portaient « 2 » sans que
+ * personne ne l'ait choisi. Il démarre désormais vide, donc `global_fatigue`
+ * peut être absent — et un champ absent n'est PAS un zéro. Sans ce filtre, une
+ * séance non renseignée tirait les moyennes vers le bas et allumait
+ * « sous-stimulation » en permanence.
+ */
+export function fatigueRenseignee(session) {
+  const f = Number(session?.global_fatigue);
+  return f >= 1 && f <= 5;
+}
+
 export function computeDeloadScore({ sessions = [], program = null, user = {}, checkins = {}, seriesLogs = [], derniereDecharge = null }) {
   let systemicScore = 0;
   let zonalScore    = 0;
+  // `flags` = les FAITS OBSERVÉS qui ont fait monter le score. Longtemps calculés
+  // puis jetés (aucune interface ne les lisait). Ils portent désormais une clé de
+  // traduction et la valeur mesurée — c'est ce que la carte de conseil affiche
+  // à l'utilisateur, à la place d'une prescription par exercice.
   const flags       = [];
   const zonalMuscles = new Set();
 
@@ -318,9 +336,9 @@ export function computeDeloadScore({ sessions = [], program = null, user = {}, c
   const meso = getMesocyclePosition(program);
   const semaines = semainesSansDecharge ?? meso?.weekNumber ?? null;
   if (semaines !== null) {
-    if (semaines >= 8)                              { systemicScore += 30; flags.push('8+ semaines sans décharge'); }
-    else if (preventive && semaines >= preventive)  { systemicScore += 20; flags.push(`${preventive} sem en force — décharge préventive tendineuse`); }
-    else if (semaines >= 4)                         { systemicScore += 8;  flags.push('4 semaines écoulées — surveiller'); }
+    if (semaines >= 8)                              { systemicScore += 30; flags.push({ tk: 'fait_sans_decharge', n: semaines }); }
+    else if (preventive && semaines >= preventive)  { systemicScore += 20; flags.push({ tk: 'fait_preventif_force', n: semaines }); }
+    else if (semaines >= 4)                         { systemicScore += 8;  flags.push({ tk: 'fait_4_semaines', n: semaines }); }
   }
   // (RETIRÉ : « Fin de mésocycle atteinte », +15. Il valait
   // `weekNumber >= plannedWeeks`, soit 52 semaines pour un programme en boucle :
@@ -328,20 +346,24 @@ export function computeDeloadScore({ sessions = [], program = null, user = {}, c
   // de fin de mésocycle — c'est la fatigue qui décide, pas le calendrier.)
 
   // 2. Fatigue globale SNC — systémique par nature
-  const completed = sessions.filter(s => s.status === 'completed').slice(-6);
+  // On ne garde que les séances où la fatigue a VRAIMENT été renseignée. Elle
+  // peut désormais rester vide (le curseur ne démarre plus sur 2), et un
+  // `null` traité comme 0 par les `|| 0` ci-dessous aurait tiré la moyenne vers
+  // le bas et déclenché « sous-stimulation » en permanence.
+  const completed = sessions.filter(s => s.status === 'completed' && fatigueRenseignee(s)).slice(-6);
   if (completed.length >= 2) {
-    const avg       = completed.reduce((s, x) => s + (x.global_fatigue || 0), 0) / completed.length;
+    const avg       = completed.reduce((s, x) => s + x.global_fatigue, 0) / completed.length;
     const last2     = completed.slice(-2);
     const last3     = completed.slice(-3);
-    const bothHigh  = last2.every(s => (s.global_fatigue || 0) >= 4);
+    const bothHigh  = last2.every(s => s.global_fatigue >= 4);
     const anyMax    = last2.some(s => s.global_fatigue === 5);
-    const underStim = last3.length === 3 && last3.every(s => (s.global_fatigue || 0) <= 2);
+    const underStim = last3.length === 3 && last3.every(s => s.global_fatigue <= 2);
 
-    if (anyMax)        { systemicScore += 55; flags.push('Fatigue maximale (5/5) — décharge immédiate'); }
-    else if (bothHigh) { systemicScore += 40; flags.push('Fatigue ≥ 4 sur 2 séances — décharge complète −40% volume'); }
-    else if (avg >= 3.5){ systemicScore += 15; flags.push('Fatigue moyenne élevée'); }
+    if (anyMax)        { systemicScore += 55; flags.push({ tk: 'fait_fatigue_max' }); }
+    else if (bothHigh) { systemicScore += 40; flags.push({ tk: 'fait_fatigue_2seances' }); }
+    else if (avg >= 3.5){ systemicScore += 15; flags.push({ tk: 'fait_fatigue_moyenne', n: Math.round(avg * 10) / 10 }); }
 
-    if (underStim)     { systemicScore -= 10; flags.push('Sous-stimulation — augmenter volume ou intensité'); }
+    if (underStim)     { systemicScore -= 10; flags.push({ tk: 'fait_sous_stimulation' }); }
     else if (avg <= 2) { systemicScore -= 8; }
   }
 
@@ -350,7 +372,7 @@ export function computeDeloadScore({ sessions = [], program = null, user = {}, c
     const fatigues  = completed.map(s => s.global_fatigue || 0);
     const first2avg = (fatigues[0] + fatigues[1]) / 2;
     const last2avg  = (fatigues[fatigues.length - 2] + fatigues[fatigues.length - 1]) / 2;
-    if (last2avg >= first2avg + 1.5) { systemicScore += 15; flags.push('Dérive de fatigue globale'); }
+    if (last2avg >= first2avg + 1.5) { systemicScore += 15; flags.push({ tk: 'fait_derive_fatigue' }); }
   }
 
   // 4. Régression + dérive RIR — systémiques si généralisés
@@ -360,7 +382,7 @@ export function computeDeloadScore({ sessions = [], program = null, user = {}, c
 
     if (regressing) {
       systemicScore += 20;
-      flags.push('Régression généralisée — suspicion fatigue SNC');
+      flags.push({ tk: 'fait_regression' });
     } else if (stagnating) {
       // Appliquer le délai de grâce selon le niveau (stagnationWeeks)
       // Un débutant a besoin de 3 semaines de stagnation confirmée avant signal
@@ -370,16 +392,16 @@ export function computeDeloadScore({ sessions = [], program = null, user = {}, c
       const weeksSpanned = (lastDate - firstDate) / (7 * 24 * 60 * 60 * 1000);
       if (weeksSpanned >= (thresholds.stagnationWeeks || 2)) {
         systemicScore += 8;
-        flags.push(`Stagnation des performances (${Math.round(weeksSpanned)} sem)`);
+        flags.push({ tk: 'fait_stagnation', n: Math.round(weeksSpanned) });
       }
     }
-    if (rirDrift) { systemicScore += 15; flags.push('Dérive de RIR — fatigue chronique systémique'); }
+    if (rirDrift) { systemicScore += 15; flags.push({ tk: 'fait_derive_rir' }); }
   }
 
   // 5. Sommeil dégradé — systémique (récupération globale compromise)
   const recentIds    = sessions.filter(s => s.status === 'completed').slice(-4).map(s => s.id);
   const badSleepCount = recentIds.filter(id => checkins[id]?.sleep === 'bad').length;
-  if (badSleepCount >= 2) { systemicScore += 10; flags.push('Sommeil dégradé répété'); }
+  if (badSleepCount >= 2) { systemicScore += 10; flags.push({ tk: 'fait_sommeil', n: badSleepCount }); }
 
   // ── SIGNAUX ZONAUX ───────────────────────────────────────────────────────
 
@@ -391,7 +413,7 @@ export function computeDeloadScore({ sessions = [], program = null, user = {}, c
 
   if (stifferSessions.length >= 2) {
     zonalScore += 18;
-    flags.push('Raideur post-séance répétée (règle 24h)');
+    flags.push({ tk: 'fait_raideur' });
     stifferSessions.forEach(s => {
       // `active_zones` contient des OBJETS : `FRAGILE_ZONE_MUSCLES[z]` valait
       // donc toujours undefined et le repli `[z]` ajoutait l'OBJET lui-même à la
@@ -655,7 +677,7 @@ export function getTrainingParams(objective = 'hypertrophy', phase = 'MAV') {
 // Paires d'exercices antagonistes — idéales en superset (repos croisé)
 const ANTAGONIST_PAIRS = [
   ['Biceps',          'Triceps'],
-  ['Poitrine',        'Dos'],
+  ['Pectoraux',      'Dos'],
   ['Quadriceps',      'Ischio-jambiers'],
   ['Épaules',         'Dos'],
   ['Adducteurs',      'Abducteurs'],
@@ -678,9 +700,10 @@ export function computeSessionTechniques({ durationMinutes, acceptsAdvanced, exe
     techniques.supersets = true;
 
     // Identifier les paires antagonistes dans les exercices de la séance.
-    // Les paires sont écrites en vocabulaire de BASE (« Poitrine ») alors que les
-    // `muscle_group` générés sont en vocabulaire APP (« Pectoraux ») : sans
-    // normalisation, la paire pectoraux/dos n'était jamais reconnue.
+    // Normalisation avant comparaison : les `muscle_group` générés disent
+    // « Abdominaux » là où la base dit « Abdos ». Sans elle, toute paire
+    // touchant les abdos passerait inaperçue — c'était le cas des pectoraux
+    // avant que les deux vocabulaires se rejoignent sur « Pectoraux ».
     const muscleGroups = [...new Set(exercises.map(e => nomBaseMuscle(e.muscle_group)).filter(Boolean))];
     ANTAGONIST_PAIRS.forEach(([a, b]) => {
       const hasA = muscleGroups.some(m => m.includes(a));
@@ -732,18 +755,20 @@ export function detectStructuralPlateau({ seriesLogs = [], sessions = [], progra
   }
 
   // Si la fatigue est élevée → plateau de fatigue, pas structurel
-  const completed = sessions.filter(s => s.status === 'completed').slice(-4);
+  // (mêmes précautions qu'au score de décharge : une séance dont la fatigue n'a
+  //  pas été renseignée ne vaut pas zéro, elle ne compte pas.)
+  const completed = sessions.filter(s => s.status === 'completed' && fatigueRenseignee(s)).slice(-4);
   const avgFatigue = completed.length
-    ? completed.reduce((s, x) => s + (x.global_fatigue || 0), 0) / completed.length
+    ? completed.reduce((s, x) => s + x.global_fatigue, 0) / completed.length
     : 0;
   if (avgFatigue >= 3.5) return { isStructural: false, confidence: 0, reason: null };
 
   // Détecter si une décharge a eu lieu récemment (fatigue haute → basse → stagnation persiste)
-  const last8 = sessions.filter(s => s.status === 'completed').slice(-8);
+  const last8 = sessions.filter(s => s.status === 'completed' && fatigueRenseignee(s)).slice(-8);
   let hadRecentDeload = false;
   if (last8.length >= 6) {
-    const earlyFatigue = last8.slice(0, 3).reduce((s, x) => s + (x.global_fatigue || 0), 0) / 3;
-    const midFatigue   = last8.slice(3, 5).reduce((s, x) => s + (x.global_fatigue || 0), 0) / 2;
+    const earlyFatigue = last8.slice(0, 3).reduce((s, x) => s + x.global_fatigue, 0) / 3;
+    const midFatigue   = last8.slice(3, 5).reduce((s, x) => s + x.global_fatigue, 0) / 2;
     // Fatigue haute → chute (décharge) → stagnation sans fatigue = blocage structurel confirmé
     if (earlyFatigue >= 3 && midFatigue <= 2 && avgFatigue <= 2.5) hadRecentDeload = true;
   }
@@ -861,30 +886,37 @@ export function computeVolumeProposal({ sessions = [], program = null, user = {}
   if (completed.length < 3) return null; // pas assez de signal
 
   // ── DÉCHARGE (fatigue) — douce, prioritaire ────────────────────────────────
-  const { score, deloadType, affectedMuscles } = computeDeloadScore({ sessions, program, user, checkins, seriesLogs, derniereDecharge });
+  const { score, deloadType, affectedMuscles, flags } = computeDeloadScore({ sessions, program, user, checkins, seriesLogs, derniereDecharge });
   const rec = getDeloadRecommendation(score, deloadType, affectedMuscles);
+
+  // ── Conseils, plus prescriptions ───────────────────────────────────────────
+  // Ces cartes disaient « on retire 2 séries sur tes derniers exercices » et le
+  // faisaient vraiment, en base. Elles rapportent maintenant les FAITS mesurés
+  // (`faits`) et laissent la décision à l'utilisateur : l'app ne peut pas se
+  // tromper sur une donnée qu'elle a observée, alors qu'un choix d'exercice est
+  // un pari sur un contexte qu'elle ne connaît pas.
   if (rec.type === 'rest') {
     return {
-      direction: 'decrease',
+      direction: 'decrease', gravite: 'repos',
       label: P('Repos conseillé', 'Rest recommended'),
-      detail: P(rec.action || 'Signaux de fatigue importants — privilégie le repos quelques jours.', 'Strong fatigue signals — favor rest for a few days.'),
-      apply: { mode: 'rest' },
+      faits: flags,
+      conseil: P('Prends quelques jours de repos avant de reprendre.', 'Take a few days off before starting again.'),
     };
   }
   if (rec.type === 'deload') {
     return {
-      direction: 'decrease',
-      label: P('Fatigue élevée — alléger le volume', 'High fatigue — reduce volume'),
-      detail: P('On retire 2 séries sur tes derniers exercices cette semaine (charges inchangées) pour mieux récupérer.', "We remove 2 sets from your last exercises this week (loads unchanged) to recover better."),
-      apply: { mode: 'trim', removeSets: 2 },
+      direction: 'decrease', gravite: 'decharge',
+      label: P('Fatigue élevée', 'High fatigue'),
+      faits: flags,
+      conseil: P('Allège nettement cette semaine.', 'Go noticeably lighter this week.'),
     };
   }
   if (rec.type === 'light_week' || rec.type === 'zone_deload') {
     return {
-      direction: 'decrease',
-      label: P('Semaine plus légère', 'Lighter week'),
-      detail: P('On retire 1 série sur ton dernier exercice cette semaine (charges inchangées).', 'We remove 1 set from your last exercise this week (loads unchanged).'),
-      apply: { mode: 'trim', removeSets: 1 },
+      direction: 'decrease', gravite: 'legere',
+      label: P('Semaine plus légère conseillée', 'A lighter week is advised'),
+      faits: flags,
+      conseil: P('Allège un peu cette semaine.', 'Go a little lighter this week.'),
     };
   }
 
@@ -936,10 +968,16 @@ export function computeVolumeProposal({ sessions = [], program = null, user = {}
   }
 
   if (!stagnating.length) return null;
+  // Ici on NOMME les exercices, et c'est volontaire : ce ne sont pas des
+  // exercices choisis par l'app, ce sont ceux où SES PROPRES LOGS montrent une
+  // stagnation. C'est toujours une donnée observée, pas une prescription.
   return {
-    direction: 'increase',
-    label: P('Tu stagnes mais tu récupères bien — ajouter du volume ?', 'You\'re plateauing but recovering well — add volume?'),
-    detail: P(`+1 série sur : ${stagnating.slice(0, 6).join(', ')}. (perfs stables 2 semaines, fatigue OK)`, `+1 set on: ${stagnating.slice(0, 6).join(', ')}. (stable perf 2 weeks, fatigue OK)`),
-    apply: { mode: 'increase', exercises: stagnating, deltaSets: 1 },
+    direction: 'increase', gravite: 'hausse',
+    label: P('Tu stagnes, mais tu récupères bien', "You're plateauing, but recovering well"),
+    faits: [
+      { tk: 'fait_stagne_exos', liste: stagnating.slice(0, 6) },
+      { tk: 'fait_fatigue_ok', n: Math.round(avgFatigue * 10) / 10 },
+    ],
+    conseil: P('Tu peux ajouter du volume sur ces exercices.', 'You can add volume on these exercises.'),
   };
 }

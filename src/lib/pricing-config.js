@@ -15,7 +15,6 @@ export const DEFAULT_PLANS = [
       'Importation de séances illimitée',
       'Recommandations optimisant la progression',
       'Suivi de séances (poids, reps, repos)',
-      'Coach IA (5 messages/mois)',
       'Accès tableau de bord',
     ],
   },
@@ -30,13 +29,15 @@ export const DEFAULT_PLANS = [
     visible: true,
     cta_label: 'Choisir Coach',
     features: [
-      'Objectifs illimités',
-      'Multi-zones & multi-objectifs',
+      "Jusqu'à 3 objectifs",
+      'Génération de programme illimitée',
       'Ajustements IA après chaque séance',
-      'Phases MEV / MAV / MRV complètes',
-      'Bilans automatiques',
+      'Suivi des douleurs jusqu\'à disparition',
+      // « Bilans automatiques » retiré le 2026-08-22 : rien ne les génère
+      // (`ai_reviews` n'était jamais écrit) et il a été décidé de ne pas les
+      // construire — le coach rédige un bilan à la demande, dans le chat.
       'Historique complet',
-      'Coach IA illimité',
+      'Interactions avec le coach IA débloquées',
     ],
   },
   {
@@ -55,8 +56,7 @@ export const DEFAULT_PLANS = [
       'Techniques avancées (drop sets, rest-pause…)',
       'Analytics poussés & graphiques',
       'Export PDF de programme',
-      'Semaines modulables (prochainement)',
-      'Accès anticipé aux nouveautés',
+      "Limite d'utilisation du coach plus élevée",
     ],
   },
 ];

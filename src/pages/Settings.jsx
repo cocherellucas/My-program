@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import { base44 } from '@/api/base44Client';
 import { useTutorial } from '@/lib/TutorialContext';
 import { useI18n, switchLanguageAndRestart } from '@/lib/i18n';
-import { ChevronLeft, LogOut, RotateCcw, FileText, Brain, ChevronRight, Check, Globe, Dumbbell } from 'lucide-react';
+import { ChevronLeft, LogOut, RotateCcw, FileText, Brain, ChevronRight, Check, Globe, Dumbbell, TrendingDown } from 'lucide-react';
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -137,6 +137,19 @@ export default function Settings() {
             <div className="min-w-0">
               <p className="text-sm font-medium text-white">{t('set_techniques')}</p>
               <p className="text-xs text-white/45 mt-0.5 leading-snug">{t('set_techniques_hint')}</p>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-white/40 flex-shrink-0" />
+        </button>
+        {/* Guide « alléger » — contrepartie des conseils par données : l'app dit
+            quoi faire, ce guide explique comment. */}
+        <button type="button" onClick={() => navigate('/alleger')}
+          className="w-full flex items-center justify-between gap-3 p-4 rounded-2xl bg-white/10 border border-white/15 text-left hover:bg-white/[0.13] transition-colors">
+          <div className="flex items-center gap-3 min-w-0">
+            <TrendingDown className="w-5 h-5 text-white/60 flex-shrink-0" />
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-white">{t('al_title')}</p>
+              <p className="text-xs text-white/45 mt-0.5 leading-snug">{t('set_alleger_hint')}</p>
             </div>
           </div>
           <ChevronRight className="w-5 h-5 text-white/40 flex-shrink-0" />

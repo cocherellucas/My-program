@@ -17,9 +17,9 @@ import {
   getSessionsNeedingCheckin,
   computeVolumeProposal,
 } from '@/lib/coaching-engine';
-import { applyVolumeProposal, markVolumeHandled, isVolumeSuppressed, lireDerniereDecharge } from '@/lib/volume-adjust';
+import { marquerDecharge, markVolumeHandled, isVolumeSuppressed, lireDerniereDecharge } from '@/lib/volume-adjust';
 import { loadEpisodes, saveEpisodes, episodesToCheck, computePainPrescription } from '@/lib/pain-engine';
-import { applyPainLevel } from '@/lib/pain-adjust';
+import { passerAuNiveau } from '@/lib/pain-adjust';
 import { ensureOnline } from '@/lib/net';
 import { devNow } from '@/lib/dev-time';
 import { useI18n } from '@/lib/i18n';
@@ -105,17 +105,17 @@ export default function Dashboard() {
     activeProgram ? computeVolumeProposal({ sessions, program: activeProgram, user: user || {}, seriesLogs, checkins, lang, derniereDecharge }) : null,
     [sessions, activeProgram, user, seriesLogs, checkins, derniereDecharge]
   );
-  const [volumeBusy, setVolumeBusy] = useState(false);
+  // Plus d'état « busy » ici : les actions de la carte sont synchrones depuis
+  // qu'elles n'écrivent plus en base (localStorage seul).
   const [, setVolumeTick] = useState(0); // force le re-rendu après action (suppression localStorage)
 
-  const handleVolumeApply = async () => {
-    if (!activeProgram || !volumeProposal) return;
-    if (!ensureOnline()) return;
-    setVolumeBusy(true);
-    try { await applyVolumeProposal(activeProgram.id, volumeProposal.apply); }
-    catch (e) { console.error('[volume] apply', e); }
+  // « C'est fait » : l'utilisateur DÉCLARE avoir allégé. Rien n'est appliqué au
+  // programme — on date seulement la décharge, ce qui remet à zéro le compteur
+  // « semaines sans allègement ». Aucun réseau, donc aucun ensureOnline().
+  const handleVolumeDone = () => {
+    if (!activeProgram) return;
+    marquerDecharge(activeProgram.id);
     markVolumeHandled(activeProgram.id);
-    setVolumeBusy(false);
     setVolumeTick(t => t + 1);
   };
   const handleVolumeManual = () => {
@@ -172,15 +172,16 @@ export default function Dashboard() {
     } catch (e) { console.error('[pain] reaction', e); }
     setPainBusy(false);
   };
-  const handlePainApply = async () => {
+  // « C'est noté » : on enregistre le cran atteint sur l'échelle (il sert au
+  // prochain check pour savoir quoi conseiller), sans toucher aux séances.
+  // Le programme n'est plus modifié : l'absence de programme actif n'empêche
+  // donc plus rien, on garde le suivi dans tous les cas.
+  const handlePainAck = async () => {
     if (!painCheckEp || !painProposal?.apply) return;
-    if (!activeProgram) { setPainCheckEp(null); setPainProposal(null); return; } // rien à ajuster sans programme
     if (!ensureOnline()) return;
     setPainBusy(true);
-    try {
-      const upd = await applyPainLevel(activeProgram.id, painCheckEp, painProposal.apply.toLevel);
-      await persistEpisode(upd);
-    } catch (e) { console.error('[pain] apply', e); }
+    try { await persistEpisode(passerAuNiveau(painCheckEp, painProposal.apply.toLevel)); }
+    catch (e) { console.error('[pain] niveau', e); }
     setPainBusy(false);
     setPainCheckEp(null); setPainProposal(null);
   };
@@ -259,7 +260,7 @@ export default function Dashboard() {
             proposal={painProposal}
             busy={painBusy}
             onReaction={handlePainReaction}
-            onApply={handlePainApply}
+            onApply={handlePainAck}
             onManual={handlePainManual}
             onDismiss={handlePainDismiss}
             onResume={handlePainResume}
@@ -272,8 +273,7 @@ export default function Dashboard() {
       {showVolumeCard && (
         <VolumeProposalCard
           proposal={volumeProposal}
-          busy={volumeBusy}
-          onApply={handleVolumeApply}
+          onDone={handleVolumeDone}
           onManual={handleVolumeManual}
           onDismiss={handleVolumeDismiss}
         />
