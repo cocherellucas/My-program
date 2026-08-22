@@ -1,4 +1,6 @@
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { OU, QUAND, COMMENT, composerNote } from '@/lib/pain-choices';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { HelpCircle, AlertTriangle, Send, Loader2 } from 'lucide-react';
@@ -6,13 +8,15 @@ import { computeTargetRIR, ririLabel, rirToMode } from '@/lib/rir-optimizer';
 import ReactMarkdown from 'react-markdown';
 import { useI18n } from '@/lib/i18n';
 
-const ZONE_LABELS = {
-  wrists: 'Poignets', shoulders: 'Épaules', elbows: 'Coudes',
-  knees: 'Genoux', lower_back: 'Bas du dos', neck: 'Cervicales',
+// Tables de CLÉS : le texte vit dans le dictionnaire (`zl_*`, `se_q_*`), qui
+// portait déjà les mêmes libellés de son côté — deux sources pour un seul écran.
+const ZONE_TKEYS = {
+  wrists: 'zl_wrists', shoulders: 'zl_shoulders', elbows: 'zl_elbows',
+  knees: 'zl_knees', lower_back: 'zl_lower_back', neck: 'zl_neck',
 };
 
-const QUALITY_LABELS = { good: '✓ Bonne', degraded: '~ Dégradée', bad: '✗ Mauvaise' };
-const MODE_LABELS = { RIR_3: 'RIR 3+', RIR_2: 'RIR 2', RIR_1: 'RIR 1', failure: 'Échec' };
+// (QUALITY_LABELS et MODE_LABELS vivaient ici sans être lus nulle part dans
+// src/ — supprimés plutôt que traduits.)
 
 // Champ numérique UNCONTROLLED : React n'écrit jamais value pendant la frappe.
 // Le DOM gère le curseur nativement, et on commit au blur.
@@ -77,8 +81,9 @@ function LocalNumberInput({ value, onCommit, placeholder, decimal = false, readO
   );
 }
 
-export default function SetRow({ setIdx, totalSets, log, onUpdate, onWeightBlur, onWeightPropagate, rirContext, previousWeight, previousReps, previousMode, previousQuality, nextWeights, exerciseFragileZones = [], locked = false, onAskCoach }) {
+export default function SetRow({ exerciseName, suiviPayant = false, setIdx, totalSets, log, onUpdate, onWeightBlur, onWeightPropagate, rirContext, previousWeight, previousReps, previousMode, previousQuality, nextWeights, exerciseFragileZones = [], locked = false, onAskCoach }) {
   const { t } = useI18n();
+  const navigate = useNavigate();
   const [manuallyEdited, setManuallyEdited] = useState(false);
   const [propagated, setPropagated] = useState(false);
   const [showPain, setShowPain] = useState(false);
@@ -87,7 +92,12 @@ export default function SetRow({ setIdx, totalSets, log, onUpdate, onWeightBlur,
   const [painWhere, setPainWhere] = useState('');
   const [painWhen, setPainWhen] = useState('');
   const [painHow, setPainHow] = useState('');
-  const [painOther, setPainOther] = useState('');
+  // (plus de champ « Autres » : il partait au coach, pas au moteur)
+
+  // Avertissement « le suivi fait partie du plan Coach ». Remontré à CHAQUE
+  // ouverture, et volontairement non mémorisé : rouvrir le panneau après
+  // l'avoir écarté, c'est justement changer d'avis.
+  const [avertissementVu, setAvertissementVu] = useState(false);
   const blurFromEnter = useRef(false);
   const propagateTimer = useRef(null);
   // rirContext = { phase, sessionType, block, weekNumber, plannedWeeks }
@@ -118,7 +128,11 @@ const shouldShowPropagate =
       <div className="flex items-center justify-between">
         <span className="text-sm font-bold text-white">{t('se_set')} {setIdx + 1}</span>
         <button
-          onClick={() => setShowPain(p => !p)}
+          onClick={() => {
+            setShowPain(p => !p);
+            // Toute (ré)ouverture réaffiche l'avertissement.
+            setAvertissementVu(false);
+          }}
           className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border transition-all ${
             showPain || log.pain_note
               ? 'border-red-400/60 bg-red-500/20 text-red-300'
@@ -129,7 +143,32 @@ const shouldShowPropagate =
         </button>
       </div>
 
-      {showPain && (() => {
+      {/* Avertissement AVANT le formulaire, pour un compte sans le suivi.
+          Il tombait après les trois champs remplis : l'utilisateur découvrait
+          qu'il fallait payer une fois le travail fait. Ici il sait d'abord, et
+          décide. Ce n'est PAS un blocage — il peut continuer, et les trois cas
+          de gravité lui répondront gratuitement quoi qu'il arrive. */}
+      {showPain && suiviPayant && !avertissementVu && (
+        <div className="p-3 rounded-xl bg-violet-500/20 border border-violet-400/40 space-y-2.5">
+          <p className="text-xs text-white/85 leading-relaxed">{t('se_pain_notice')}</p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => navigate('/pricing')}
+              className="text-xs font-bold px-3 py-2 rounded-lg bg-white text-violet-700 hover:bg-white/90 transition-colors">
+              {t('se_pain_locked_cta')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setAvertissementVu(true)}
+              className="text-xs font-medium px-3 py-2 rounded-lg bg-white/10 text-white/80 border border-white/20 hover:bg-white/20 transition-colors">
+              {t('se_pain_notice_skip')}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showPain && !(suiviPayant && !avertissementVu) && (() => {
         const lastMsgRole = painThread.length > 0 ? painThread[painThread.length - 1].role : null;
         return (
         <div className="space-y-2">
@@ -146,9 +185,23 @@ const shouldShowPropagate =
                       <span className="text-[11px] font-bold text-violet-300 uppercase tracking-widest">Coach IA</span>
                     </div>
                   )}
-                  <div className="text-sm text-white leading-relaxed [&_strong]:font-bold [&_p]:mb-1 [&_p:last-child]:mb-0">
-                    {msg.role === 'ai' ? <ReactMarkdown>{msg.text}</ReactMarkdown> : msg.text}
-                  </div>
+                  {!!msg.text && (
+                    <div className="text-sm text-white leading-relaxed [&_strong]:font-bold [&_p]:mb-1 [&_p:last-child]:mb-0">
+                      {msg.role === 'ai' ? <ReactMarkdown>{msg.text}</ReactMarkdown> : msg.text}
+                    </div>
+                  )}
+                  {msg.paywall && (
+                    <div className={msg.text ? 'mt-3 pt-3 border-t border-white/15' : ''}>
+                      <p className="text-sm text-white/80 leading-relaxed">{t('se_pain_locked')}</p>
+                      <button
+                        type="button"
+                        onClick={() => navigate('/pricing')}
+                        className="mt-2.5 w-full py-2 rounded-lg bg-white text-violet-700 text-xs font-bold hover:bg-white/90 transition-colors"
+                      >
+                        {t('se_pain_locked_cta')}
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
               {lastMsgRole === 'ai' && !aiLoading && (
@@ -173,43 +226,79 @@ const shouldShowPropagate =
           {lastMsgRole !== 'user' && (
             lastMsgRole === null ? (
               /* Formulaire structuré initial */
-              <div className="space-y-2">
+              <div className="space-y-2.5">
+                {/* Des choix, pas du texte libre : le moteur cherche des
+                    mots-clés, et un mot manqué le faisait répondre « continue »
+                    — y compris sur un craquement décrit autrement. */}
                 {[
-                  { label: 'Où',      value: painWhere, set: setPainWhere, placeholder: 'Poignet, genou, épaule…', required: true },
-                  { label: 'Quand',   value: painWhen,  set: setPainWhen,  placeholder: 'À la montée, en bas du mouvement…', required: true },
-                  { label: 'Comment', value: painHow,   set: setPainHow,   placeholder: 'Gêne, brûlure, tension, coup…', required: true },
-                  { label: 'Autres',  value: painOther, set: setPainOther, placeholder: 'Depuis quand, intensité…', required: false },
-                ].map(({ label, value, set, placeholder, required }) => (
-                  <div key={label} className="flex items-center gap-2">
-                    <span className="text-[11px] text-white/50 w-16 flex-shrink-0 text-right whitespace-nowrap">
-                      {label}{required ? <span className="text-red-400"> *</span> : ''}
-                    </span>
-                    <input
-                      type="text"
-                      value={value}
-                      onChange={(e) => set(e.target.value)}
-                      placeholder={placeholder}
-                      className="flex-1 text-xs bg-red-500/10 border border-red-400/30 rounded-lg px-3 py-1.5 text-white placeholder:text-white/25 focus:outline-none focus:border-red-400/60"
-                    />
+                  { id: 'where', label: t('se_pain_where'), choix: OU, value: painWhere, set: setPainWhere },
+                  { id: 'when', label: t('se_pain_when'), choix: QUAND, value: painWhen, set: setPainWhen },
+                  { id: 'how', label: t('se_pain_how'), choix: COMMENT, value: painHow, set: setPainHow },
+                ].map(({ id, label, choix, value, set }) => (
+                  <div key={id}>
+                    <p className="text-[11px] text-white/50 mb-1">{label}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {choix.map((c) => {
+                        const texte = t(c.tk);
+                        const actif = value === texte;
+                        return (
+                          <button
+                            key={c.id}
+                            type="button"
+                            onPointerDown={(e) => { e.preventDefault(); set(actif ? '' : texte); }}
+                            className={`text-[11px] font-medium px-2.5 py-1.5 rounded-lg border transition-colors ${
+                              actif
+                                ? (c.grave ? 'bg-red-500 text-white border-red-400' : 'bg-white text-violet-700 border-white')
+                                : (c.grave
+                                  ? 'bg-red-500/15 text-red-200 border-red-400/40 hover:bg-red-500/25'
+                                  : 'bg-white/10 text-white/80 border-white/20 hover:bg-white/20')
+                            }`}>
+                            {texte}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 ))}
+
+                {/* Ex-champ « Autres ». Décrire une situation particulière en
+                    texte libre n'avait pas de sens ici : le moteur n'en faisait
+                    rien. On emmène l'utilisateur au coach, avec le contexte de
+                    l'exercice et de la série déjà écrit — il n'a qu'à finir la
+                    phrase. */}
+                <button
+                  type="button"
+                  onPointerDown={(e) => {
+                    e.preventDefault();
+                    const contexte = `${exerciseName || ''}, ${t('se_set').toLowerCase()} ${setIdx + 1} — ${t('pd_coach_prefix')} `;
+                    navigate('/coach', { state: { importText: contexte } });
+                  }}
+                  className="w-full flex items-center justify-center gap-1.5 text-[11px] font-medium text-white/60 hover:text-white/90 py-1.5 transition-colors">
+                  {t('pd_coach')} →
+                </button>
                 <button
                   disabled={!painWhere.trim() || !painWhen.trim() || !painHow.trim()}
                   onPointerDown={async (e) => {
                     e.preventDefault();
                     if (!painWhere.trim() || !painWhen.trim() || !painHow.trim() || !onAskCoach) return;
-                    const parts = [`Où : ${painWhere.trim()}`, `Quand : ${painWhen.trim()}`, `Comment : ${painHow.trim()}`];
-                    if (painOther.trim()) parts.push(`Autres : ${painOther.trim()}`);
-                    const msg = parts.join(' — ');
+                    const msg = composerNote({ ou: painWhere, quand: painWhen, comment: painHow });
                     onUpdate('pain_note', msg);
                     const newThread = [{ role: 'user', text: msg }];
                     setPainThread(newThread);
                     setAiLoading(true);
                     try {
+                      // `onAskCoach` répond soit une chaîne (conseil complet),
+                      // soit { text?, paywall } quand le plan ne couvre pas le
+                      // suivi douleur — un conseil de gravité peut accompagner
+                      // le mur, d'où le texte optionnel.
                       const reply = await onAskCoach(msg, setIdx, newThread);
-                      setPainThread(t => [...t, { role: 'ai', text: reply }]);
+                      const answer = typeof reply === 'string' ? { text: reply } : (reply || {});
+                      // `prev`, pas `t` : `t` est la fonction de traduction du
+                      // composant, et la masquer ici interdisait de traduire le
+                      // message d'erreur juste en dessous.
+                      setPainThread(prev => [...prev, { role: 'ai', text: answer.text || '', paywall: !!answer.paywall }]);
                     } catch {
-                      setPainThread(t => [...t, { role: 'ai', text: "Une erreur s'est produite. Réessaie." }]);
+                      setPainThread(prev => [...prev, { role: 'ai', text: t('se_pain_error') }]);
                     } finally {
                       setAiLoading(false);
                     }
@@ -300,12 +389,12 @@ const shouldShowPropagate =
               </PopoverTrigger>
               <PopoverContent avoidCollisions collisionPadding={16} className="w-52 text-xs space-y-2 bg-violet-900/95 backdrop-blur-sm border border-white/20 text-white shadow-xl z-[200]">
                 <p className="font-semibold text-violet-400">RIR (Reps In Reserve)</p>
-                <p>Le nombre de répétitions que tu aurais pu faire avant d'atteindre l'échec.</p>
+                <p>{t('se_rir_help')}</p>
                 <div className="space-y-1 pt-2 border-t border-white/20">
-                  <p><span className="font-medium">RIR 0</span> = À l'échec</p>
-                  <p><span className="font-medium">RIR 1</span> = 1 rep avant l'échec</p>
-                  <p><span className="font-medium">RIR 2</span> = 2 reps avant l'échec</p>
-                  <p><span className="font-medium">RIR 3+</span> = 3+ reps avant l'échec</p>
+                  <p><span className="font-medium">RIR 0</span> = {t('se_rir_0')}</p>
+                  <p><span className="font-medium">RIR 1</span> = {t('se_rir_1')}</p>
+                  <p><span className="font-medium">RIR 2</span> = {t('se_rir_2')}</p>
+                  <p><span className="font-medium">RIR 3+</span> = {t('se_rir_3')}</p>
                 </div>
               </PopoverContent>
             </Popover>
@@ -333,10 +422,8 @@ const shouldShowPropagate =
             <div key={z.key} className="flex items-start gap-2 px-3 py-2 rounded-lg bg-red-500/15 border border-red-400/40 text-xs text-red-200">
               <span className="mt-0.5">⚠️</span>
               <div>
-                <span className="font-semibold">{ZONE_LABELS[z.key] || z.key} — zone {z.goal === 'protect' ? 'fragile' : 'en renforcement'} : </span>
-                {z.goal === 'protect'
-                  ? 'une mauvaise exécution peut aggraver la blessure. Réduis la charge ou arrête la série.'
-                  : 'l\'exécution doit être parfaite pour progresser en sécurité. Corrige la technique ou réduis la charge.'}
+                <span className="font-semibold">{(ZONE_TKEYS[z.key] ? t(ZONE_TKEYS[z.key]) : z.key)} — {z.goal === 'protect' ? t('se_zone_fragile') : t('se_zone_strengthen')} : </span>
+                {z.goal === 'protect' ? t('se_zone_fragile_d') : t('se_zone_strengthen_d')}
               </div>
             </div>
           ))}

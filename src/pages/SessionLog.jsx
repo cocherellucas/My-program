@@ -21,14 +21,16 @@ import { RestTimerControl } from '@/components/session/RestTimer';
 import { computeTargetRIR } from '@/lib/rir-optimizer';
 import { reglagesPoidsDuCorps } from '@/lib/bodyweight-adjust';
 import { computeVolumeProposal, FRAGILE_ZONE_MUSCLES, nomBaseMuscle } from '@/lib/coaching-engine';
-import { applyVolumeProposal, markVolumeHandled, isVolumeSuppressed, lireDerniereDecharge } from '@/lib/volume-adjust';
+import { marquerDecharge, markVolumeHandled, isVolumeSuppressed, lireDerniereDecharge } from '@/lib/volume-adjust';
 import VolumeProposalCard from '@/components/coaching/VolumeProposalCard';
 import PainCheckCard from '@/components/coaching/PainCheckCard';
-import { detectZoneFromText, loadEpisodes, saveEpisodes, upsertEpisode, episodesToCheck, sessionTouchesZone, computePainPrescription, buildPainAdvice, isSeverePain } from '@/lib/pain-engine';
+import { ajouterNote } from '@/lib/coach-memory';
+import { planActif } from '@/lib/plan';
+import { detectZoneFromText, mentionneDouleur, loadEpisodes, saveEpisodes, upsertEpisode, episodesToCheck, sessionTouchesZone, computePainPrescription, buildPainAdvice, isSeverePain } from '@/lib/pain-engine';
 import { computeCycle } from '@/lib/cycle-engine';
 import { devNow } from '@/lib/dev-time';
 import { useI18n } from '@/lib/i18n';
-import { applyPainLevel } from '@/lib/pain-adjust';
+import { passerAuNiveau } from '@/lib/pain-adjust';
 import { EXERCISES } from '@/lib/exercise-database';
 import { equipementPossede, exerciceFaisable } from '@/lib/equipment';
 import ExerciseCueButton from '@/components/session/ExerciseCueButton';
@@ -48,16 +50,12 @@ const parseRepRange = (targetReps) => {
   return { low: 0, high: 0 };
 };
 
-// Noms d'affichage des zones fragiles
-const ZONE_LABELS = {
-  wrists: 'Poignets', shoulders: 'Épaules', elbows: 'Coudes',
-  knees: 'Genoux', lower_back: 'Bas du dos', neck: 'Cervicales',
-};
 // (La normalisation des noms de muscles vit désormais dans coaching-engine —
 // `nomBaseMuscle` — au lieu d'une table locale qui n'était jamais appelée.)
-
-const fatigueLabels = ['', 'Frais', 'Normal', 'Fatigué', 'Épuisé', 'Détruit'];
-const fatigueColors = ['', 'text-accent', 'text-primary', 'text-chart-4', 'text-destructive', 'text-destructive'];
+// ZONE_LABELS / fatigueLabels / fatigueColors vivaient ici sans être lus par
+// personne (vérifié sur tout src/) : trois tables de texte français en dur qui
+// auraient réapparu à chaque passage i18n. Les zones s'affichent via `zl_*`
+// dans SetRow, la fatigue via `se_fat_1..5`.
 
 function formatSeconds(s) {
   if (!s) return '—';
@@ -72,11 +70,13 @@ function formatSeconds(s) {
 //   1. la table des muscles par zone fragile était RECOPIÉE localement au lieu
 //      d'être importée de coaching-engine — libre de diverger de la version qui
 //      sert au score de décharge et aux propositions de réduction ;
-//   2. le `muscle_group` était comparé BRUT. Or la génération produit
-//      « Pectoraux » quand la table dit « Poitrine » : aucun exercice de
-//      pectoraux n'était jamais signalé à quelqu'un ayant déclaré les poignets
-//      ou les épaules fragiles. `MUSCLE_NORMALIZE`, écrit juste au-dessus pour
-//      ça, n'était appelé nulle part.
+//   2. le `muscle_group` était comparé BRUT, alors que la génération et la
+//      base d'exercices n'employaient pas les mêmes noms de muscles : aucun
+//      exercice de pectoraux n'était signalé à quelqu'un ayant déclaré les
+//      poignets ou les épaules fragiles. `MUSCLE_NORMALIZE`, écrit juste
+//      au-dessus pour ça, n'était appelé nulle part. Les pectoraux ont depuis
+//      été unifiés, mais l'écart demeure sur « Abdominaux »/« Abdos » : on
+//      normalise toujours avant de comparer.
 // Le moteur de douleur (pain-engine) rattrapait le coup par son repli « nom de
 // l'exercice » : la proposition de réduction considérait donc le développé
 // couché comme sollicitant l'épaule, pendant que la séance affirmait le
@@ -105,25 +105,28 @@ function getWarmupAdvice(exercise) {
 
   const sets = [];
 
+  // Clés, pas texte : cette fonction vit au niveau module, hors de portée d'un
+  // `t`. Le rendu traduit ; le calcul reste identique dans les deux langues.
   if (isCompound) {
-    sets.push({ label: 'Série 1', desc: '50% du poids de travail × 10 reps — activer le mouvement' });
-    sets.push({ label: 'Série 2', desc: '65% × 6 reps — sentir la charge' });
-    sets.push({ label: 'Série 3', desc: '80% × 3 reps — préparer le système nerveux' });
+    sets.push({ n: 1, descKey: 'se_wu_c1' });
+    sets.push({ n: 2, descKey: 'se_wu_c2' });
+    sets.push({ n: 3, descKey: 'se_wu_c3' });
   } else {
-    sets.push({ label: 'Série 1', desc: '60% du poids de travail × 10 reps — activation légère' });
-    sets.push({ label: 'Série 2', desc: '80% × 5 reps — mise en tension' });
+    sets.push({ n: 1, descKey: 'se_wu_i1' });
+    sets.push({ n: 2, descKey: 'se_wu_i2' });
   }
 
   const mobility = [];
-  if (isLower) mobility.push('mobilité des hanches et chevilles', 'activation des fessiers (pont fessier ou abduction)');
-  if (isUpperPush) mobility.push('rotation des épaules × 20', 'coiffe des rotateurs — 2 séries × 15-20 reps');
-  if (isUpperPull) mobility.push('rotations des épaules × 10 dans chaque sens', 'échauffement léger des biceps (curl à vide ou élastique)');
-  if (!isLower && !isUpperPush && !isUpperPull) mobility.push('cardio léger 2-3 min (vélo, marche rapide)', 'montée en charge progressive si exercice chargé');
+  if (isLower) mobility.push('se_wu_m_hips', 'se_wu_m_glutes');
+  if (isUpperPush) mobility.push('se_wu_m_sh20', 'se_wu_m_cuff');
+  if (isUpperPull) mobility.push('se_wu_m_sh10', 'se_wu_m_biceps');
+  if (!isLower && !isUpperPush && !isUpperPull) mobility.push('se_wu_m_cardio', 'se_wu_m_ramp');
 
   return { sets, mobility, isCompound };
 }
 
 function WarmupAccordion({ exercise, logs, exIdx, sets: totalSets }) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const advice = getWarmupAdvice(exercise);
   const workingWeight = logs[`${exIdx}-0`]?.weight;
@@ -134,8 +137,8 @@ function WarmupAccordion({ exercise, logs, exIdx, sets: totalSets }) {
         onClick={() => setOpen(v => !v)}
         className="w-full flex items-center justify-between px-4 py-3 text-left">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-white/80">Échauffement</span>
-          <span className="text-xs text-white/40">{open ? '' : '— appuie pour voir'}</span>
+          <span className="text-sm font-semibold text-white/80">{t('se_wu_title')}</span>
+          <span className="text-xs text-white/40">{open ? '' : t('se_wu_tap')}</span>
         </div>
         <span className="text-white/40 text-xs">{open ? '▲' : '▼'}</span>
       </button>
@@ -144,30 +147,33 @@ function WarmupAccordion({ exercise, logs, exIdx, sets: totalSets }) {
         <div className="px-4 pb-4 space-y-4">
           {advice.mobility.length > 0 && (
             <div>
-              <p className="text-xs font-semibold text-white/60 uppercase tracking-wide mb-1.5">Mobilité avant</p>
+              <p className="text-xs font-semibold text-white/60 uppercase tracking-wide mb-1.5">{t('se_wu_mobility')}</p>
               <ul className="space-y-1">
                 {advice.mobility.map((m, i) => (
                   <li key={i} className="text-xs text-white/70 flex items-start gap-1.5">
-                    <span className="text-white/40 mt-0.5">·</span>{m}
+                    <span className="text-white/40 mt-0.5">·</span>{t(m)}
                   </li>
                 ))}
               </ul>
             </div>
           )}
           <div>
-            <p className="text-xs font-semibold text-white/60 uppercase tracking-wide mb-1.5">Séries d'activation</p>
+            <p className="text-xs font-semibold text-white/60 uppercase tracking-wide mb-1.5">{t('se_wu_activation')}</p>
             <div className="space-y-2">
-              {advice.sets.map((s, i) => (
-                <div key={i} className="flex items-start gap-2">
-                  <span className="text-xs font-bold text-white/50 w-14 shrink-0">{s.label}</span>
-                  <span className="text-xs text-white/70">
-                    {workingWeight ? s.desc.replace(/(\d+)%/, (_, pct) => `${Math.round(workingWeight * pct / 100)} kg`) : s.desc}
-                  </span>
-                </div>
-              ))}
+              {advice.sets.map((s, i) => {
+                const desc = t(s.descKey);
+                return (
+                  <div key={i} className="flex items-start gap-2">
+                    <span className="text-xs font-bold text-white/50 w-14 shrink-0">{t('se_set')} {s.n}</span>
+                    <span className="text-xs text-white/70">
+                      {workingWeight ? desc.replace(/(\d+)%/, (_, pct) => `${Math.round(workingWeight * pct / 100)} kg`) : desc}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
-          <p className="text-xs text-white/40 italic">Ces séries ne comptent pas dans ton volume — elles préparent tes articulations et ton système nerveux.</p>
+          <p className="text-xs text-white/40 italic">{t('se_wu_note')}</p>
         </div>
       )}
     </Card>
@@ -175,7 +181,7 @@ function WarmupAccordion({ exercise, logs, exIdx, sets: totalSets }) {
 }
 
 // ─── Single Exercise Focus View ───────────────────────────────────────────────
-function ExerciseFocusCard({ exercise, originalExercise, prescription, exIdx, logs, updateLog, openAtLastSet, isImported, editMode, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, suggestion, onClearSuggestion, onApplyVariant, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach, sessionsHistory, sessionId }) {
+function ExerciseFocusCard({ suiviPayant, exercise, originalExercise, prescription, exIdx, logs, updateLog, openAtLastSet, isImported, editMode, propagateWeight, forcePropagateWeight, totalExercises, onNext, onPrev, onStartRest, isLast, rirContext, onRegressionRequest, onProgressionRequest, suggestion, onClearSuggestion, onApplyVariant, onExtendRest, currentRestSeconds, nextExRestSeconds, onRestTimeSave, editingObjectif, setEditingObjectif, onUpdateExercise, previousLogs, fragileZones, onApplyToFuture, onAskCoach, sessionsHistory, sessionId }) {
   const { t } = useI18n();
   const sets = Math.max(1, exercise.sets || 3);
   // Réglages connus pour CET exercice (src/lib/bodyweight-adjust.js) — la liste
@@ -330,15 +336,17 @@ function ExerciseFocusCard({ exercise, originalExercise, prescription, exIdx, lo
   const { startTutorial } = useTutorial() || {};
   useEffect(() => {
     if (!coachTip || coachTipsOff || !startTutorial) return;
-    const t = setTimeout(() => {
+    // `timer`, pas `t` : `t` est la fonction de traduction du composant, et la
+    // masquer ici rendait toute traduction impossible dans cet effet.
+    const timer = setTimeout(() => {
       startTutorial('coach-tip-intro', [{
         target: 'coach-tip',
-        title: 'Un conseil du coach',
-        description: "Quand tes séries s'écartent de tes objectifs, le coach t'envoie un conseil ici. Touche la bulle pour l'ouvrir : tu peux appliquer le conseil, le fermer, ou désactiver les conseils.",
+        title: t('se_tip_tuto_t'),
+        description: t('se_tip_tuto_d'),
         nonInteractive: true,
       }]);
     }, 400);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [coachTip, coachTipsOff, startTutorial]);
 
   // Valider une série = adopter les valeurs AFFICHÉES (placeholders repris de la séance
@@ -417,13 +425,24 @@ function ExerciseFocusCard({ exercise, originalExercise, prescription, exIdx, lo
                   const originalSets = Math.max(1, ref?.sets || 3);
                   const originalReps = ref?.target_reps || '';
                   const originalRest = ref?.rest_seconds || 90;
-                  const hasChanges = editSets !== originalSets || editReps !== originalReps || editRest !== originalRest;
+                  const ecart = editSets !== originalSets
+                    || editReps !== originalReps
+                    || editRest !== originalRest;
+                  // Grisé seulement quand on SAIT qu'il n'y a rien à
+                  // restaurer : les valeurs affichées égalent la prescription
+                  // de génération. Sans prescription — exercice substitué par
+                  // le matériel donc introuvable par son nom dans
+                  // program_data, ou programme pas encore chargé — la
+                  // référence retombe sur la séance elle-même : l'écart y est
+                  // nul par construction et griser rendrait le bouton mort à
+                  // jamais. Dans ce cas on le laisse actif.
+                  const dejaReinitialise = !!prescription && !ecart;
                   return (
                     <Button
                       size="sm"
                       variant="ghost"
-                      disabled={!hasChanges}
-                      className={`h-6 px-2 text-xs transition-colors ${hasChanges ? 'text-white/70 hover:text-white hover:bg-white/10' : 'text-white/30 cursor-not-allowed'}`}
+                      disabled={dejaReinitialise}
+                      className={`h-6 px-2 text-xs transition-colors ${dejaReinitialise ? 'text-white/30 cursor-not-allowed' : 'text-white/70 hover:text-white hover:bg-white/10'}`}
                       onClick={() => {
                         setEditSets(originalSets);
                         setEditReps(originalReps);
@@ -455,9 +474,9 @@ function ExerciseFocusCard({ exercise, originalExercise, prescription, exIdx, lo
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-48 text-xs space-y-2 ">
-                    <p className="font-semibold text-white">Valeurs optimisées</p>
-                    <p>Ces séries, reps et repos sont optimisés pour tes objectifs. Tu peux les modifier si tu le souhaites.</p>
-                    <p className="text-violet-300 font-medium">En validant, les changements s'appliquent aussi aux futures séances.</p>
+                    <p className="font-semibold text-white">{t('se_opt_title')}</p>
+                    <p>{t('se_opt_body')}</p>
+                    <p className="text-violet-300 font-medium">{t('se_opt_future')}</p>
                   </PopoverContent>
                 </Popover>
               )}
@@ -543,7 +562,7 @@ function ExerciseFocusCard({ exercise, originalExercise, prescription, exIdx, lo
         <div className="p-3 rounded-xl bg-white/10 border border-white/20 space-y-2">
           <div className="flex items-start justify-between gap-2">
             {suggestion.options ? (
-              <p className="text-sm font-semibold text-white">Choisis une variante :</p>
+              <p className="text-sm font-semibold text-white">{t('se_pick_variant')}</p>
             ) : suggestion.name ? (
               <p className="text-sm font-semibold text-white">Essaie : <span className="text-violet-200">{suggestion.name}</span></p>
             ) : null}
@@ -570,7 +589,7 @@ function ExerciseFocusCard({ exercise, originalExercise, prescription, exIdx, lo
       {/* Sets — all visible */}
       <Card className="p-4 space-y-3 bg-white/15 backdrop-blur-sm border-white/20">
         <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-sm text-white">Tes séries</h3>
+          <h3 className="font-semibold text-sm text-white">{t('se_your_sets')}</h3>
           <Popover>
             <PopoverTrigger asChild>
               <button className="text-white/40 hover:text-white/70 transition-colors">
@@ -578,8 +597,8 @@ function ExerciseFocusCard({ exercise, originalExercise, prescription, exIdx, lo
               </button>
             </PopoverTrigger>
             <PopoverContent avoidCollisions collisionPadding={16} className="w-64 text-xs space-y-2 bg-violet-900/95 backdrop-blur-sm border border-white/20 text-white shadow-xl z-[200]">
-              <p className="font-semibold text-violet-300">Tes données sont enregistrées</p>
-              <p className="text-white/70">Chaque kg, rep, RIR et exécution saisis ici sont mémorisés. À la prochaine séance, tu verras tes performances passées sous chaque champ — essaie de faire mieux pour progresser.</p>
+              <p className="font-semibold text-violet-300">{t('se_saved_title')}</p>
+              <p className="text-white/70">{t('se_saved_body')}</p>
             </PopoverContent>
           </Popover>
         </div>
@@ -623,6 +642,8 @@ function ExerciseFocusCard({ exercise, originalExercise, prescription, exIdx, lo
                 </div>
               )}
               <SetRow
+              exerciseName={exercise?.name}
+              suiviPayant={suiviPayant}
               setIdx={setIdx}
               totalSets={sets}
               log={logs[`${exIdx}-${setIdx}`] || {}}
@@ -712,12 +733,10 @@ function ExerciseFocusCard({ exercise, originalExercise, prescription, exIdx, lo
                   <p className="text-sm font-bold text-white">{isPain ? (severePain ? t('se_tip_pain_severe') : t('se_tip_pain')) : isUnder ? t('se_tip_under') : t('se_tip_over')}</p>
                   <p className="text-xs text-violet-200/80 mt-0.5">
                     {isPain
-                      ? (severePain
-                        ? 'Ne force pas dessus : passe à l\'exercice suivant et laisse la zone tranquille aujourd\'hui. Si c\'est encore douloureux demain, avis médical.'
-                        : 'Le mieux : adapte selon ton ressenti. Sinon, voici une proposition automatique, pas forcément optimale pour ton cas.')
+                      ? (severePain ? t('se_tip_d_severe') : t('se_tip_d_pain'))
                       : isUnder
-                        ? (peutAlleger ? 'Ajuste le repos, ou allège l\'exercice — voici comment.' : 'Augmente le repos pour mieux récupérer et atteindre tes cibles.')
-                        : 'Réduis le repos ou augmente le poids.'}
+                        ? (peutAlleger ? t('se_tip_d_under_light') : t('se_tip_d_under_rest'))
+                        : t('se_tip_d_over')}
                   </p>
                 </div>
                 <button onClick={() => { setTipOpen(false); setConfirmDisableTips(false); }} className="text-white/30 hover:text-white/60 transition-colors flex-shrink-0">
@@ -781,11 +800,24 @@ function ExerciseFocusCard({ exercise, originalExercise, prescription, exIdx, lo
                       className="text-xs px-3 py-1.5 rounded-lg bg-white/10 text-white/80 font-medium hover:bg-white/20 transition-colors">
                       {t('se_modify_myself')}
                     </button>
-                    {/* Même interrupteur que les conseils objectifs (coach_tips_disabled) :
-                        si cette bulle s'affiche, ils sont actifs → avertir. */}
-                    <p className="basis-full text-[11px] text-violet-200/70 leading-snug mt-1">
-                      ⚠️ Si tu adaptes toi-même, pense à modifier l'<span className="font-semibold">objectif</span> avec une grande plage de reps (ex. 6-15, avec le tiret « - ») — sinon les conseils « objectifs atteints / non atteints » se déclencheront d'après tes nouvelles valeurs.
-                    </p>
+                    {/* L'avertissement tenait en quatre lignes sous le bouton, dans
+                        une bulle qu'on lit entre deux séries : trop long pour être
+                        lu, assez long pour cacher les actions. Il passe derrière un
+                        « ? » — présent pour qui en a besoin, invisible sinon. */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          aria-label={t('se_self_adapt_warn_title')}
+                          className="inline-flex items-center gap-1 text-[11px] text-violet-200/70 hover:text-violet-100 transition-colors">
+                          <HelpCircle className="w-3 h-3" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent avoidCollisions collisionPadding={16} className="w-72 text-xs space-y-1.5 bg-violet-900/95 backdrop-blur-sm border border-white/20 text-white shadow-xl z-[200]">
+                        <p className="font-semibold text-violet-300">{t('se_self_adapt_warn_title')}</p>
+                        <p className="leading-relaxed">{t('se_self_adapt_warn')}</p>
+                      </PopoverContent>
+                    </Popover>
                   </>
                   )
                 ) : isUnder ? (
@@ -837,7 +869,7 @@ function ExerciseFocusCard({ exercise, originalExercise, prescription, exIdx, lo
                           dismissTip();
                         }}
                         className="text-xs px-3 py-1.5 rounded-lg bg-accent text-white font-medium hover:bg-accent/80 transition-colors">
-                        {isBodyweightExercise(exercise.name) ? '+2.5 kg dans le sac' : '+2.5 kg'}
+                        {isBodyweightExercise(exercise.name) ? t('se_add_bag') : '+2.5 kg'}
                       </button>
                     )}
                     {reglages && (
@@ -858,9 +890,9 @@ function ExerciseFocusCard({ exercise, originalExercise, prescription, exIdx, lo
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <p className="text-[11px] text-white/70 leading-snug">Ne plus afficher les conseils du coach pendant tes séances ? Tu pourras les réactiver dans les paramètres (Profil).</p>
+                    <p className="text-[11px] text-white/70 leading-snug">{t('se_hide_tips_confirm')}</p>
                     <div className="flex items-center gap-2">
-                      <button onClick={disableCoachTips} className="text-xs px-3 py-1.5 rounded-lg bg-destructive text-white font-medium hover:bg-destructive/80 transition-colors">Oui, désactiver</button>
+                      <button onClick={disableCoachTips} className="text-xs px-3 py-1.5 rounded-lg bg-destructive text-white font-medium hover:bg-destructive/80 transition-colors">{t('se_hide_tips_yes')}</button>
                       <button onClick={() => setConfirmDisableTips(false)} className="text-xs px-3 py-1.5 rounded-lg bg-white/15 text-white font-medium hover:bg-white/25 transition-colors">Annuler</button>
                     </div>
                   </div>
@@ -925,7 +957,7 @@ function OverviewItem({ origIdx, exercise, sets, filledSets, isOpen, onToggle, c
   );
 }
 
-function OverviewPanel({ exercises, logs, updateLog, onClose, fragileZones = [], onReorder, canReorder = false, onUpsellReorder }) {
+function OverviewPanel({ suiviPayant = false, exercises, logs, updateLog, onClose, fragileZones = [], onReorder, canReorder = false, onUpsellReorder }) {
   const { t } = useI18n();
   const getLogKey = (exIdx, setIdx) => `${exIdx}-${setIdx}`;
   const [openIdx, setOpenIdx] = useState(null);
@@ -1021,6 +1053,8 @@ function OverviewPanel({ exercises, logs, updateLog, onClose, fragileZones = [],
                 {Array.from({ length: sets }).map((_, setIdx) =>
                   <SetRow
                     key={`${origIdx}-${setIdx}`}
+                    exerciseName={exercise?.name}
+                    suiviPayant={suiviPayant}
                     setIdx={setIdx}
                     log={logs[getLogKey(origIdx, setIdx)] || {}}
                     onUpdate={(field, value) => updateLog(origIdx, setIdx, field, value)}
@@ -1045,7 +1079,7 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
     return (
       <div className="space-y-5">
         <div>
-          <h2 className="font-heading font-bold text-2xl text-white">Séance validée ✅</h2>
+          <h2 className="font-heading font-bold text-2xl text-white">{t('se_saved_ok')}</h2>
         </div>
         <div className="bg-violet-800 rounded-2xl border border-violet-600 p-4 space-y-4">
           <div className="flex items-start gap-3">
@@ -1079,14 +1113,14 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
   }
 
   if (showOverview) {
-    return <OverviewPanel exercises={exercises} logs={logs} updateLog={updateLog} onClose={() => setShowOverview(false)} fragileZones={fragileZones} />;
+    return <OverviewPanel suiviPayant={!isPaid} exercises={exercises} logs={logs} updateLog={updateLog} onClose={() => setShowOverview(false)} fragileZones={fragileZones} />;
   }
 
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="font-heading font-bold text-2xl text-white">Séance terminée 🎉</h2>
-        <p className="text-white/70 text-sm mt-1">Finalise tes infos avant de valider.</p>
+        <h2 className="font-heading font-bold text-2xl text-white">{t('se_done_title')}</h2>
+        <p className="text-white/70 text-sm mt-1">{t('se_done_sub')}</p>
       </div>
 
       <Button variant="outline" className="w-full border-white/30 text-white hover:bg-white/10 hover:text-white" onClick={() => setShowOverview(true)}>
@@ -1106,32 +1140,32 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
               </PopoverTrigger>
               <PopoverContent className="w-72 text-sm space-y-4">
                 <div>
-                  <div className="font-semibold mb-2 text-foreground">Niveaux de fatigue</div>
+                  <div className="font-semibold mb-2 text-foreground">{t('se_fatigue_levels')}</div>
                   <div className="space-y-2">
                     <div className="flex items-start gap-2">
                       <div className="w-2.5 h-2.5 rounded-full bg-accent mt-1 flex-shrink-0" />
-                      <div><span className="font-medium">Frais</span> — Énergie maximale, peu de fatigue accumulée</div>
+                      <div><span className="font-medium">{t('se_fat_1')}</span> {t('se_fat_d1')}</div>
                     </div>
                     <div className="flex items-start gap-2">
                       <div className="w-2.5 h-2.5 rounded-full bg-primary mt-1 flex-shrink-0" />
-                      <div><span className="font-medium">Normal/Fatigué</span> — Bon état de récupération, prêt à progresser</div>
+                      <div><span className="font-medium">{t('se_fat_2')}/{t('se_fat_3')}</span> {t('se_fat_d2')}</div>
                     </div>
                     <div className="flex items-start gap-2">
                       <div className="w-2.5 h-2.5 rounded-full bg-chart-4 mt-1 flex-shrink-0" />
-                      <div><span className="font-medium">Épuisé</span> — Fatigue importante, réduire le volume</div>
+                      <div><span className="font-medium">{t('se_fat_4')}</span> {t('se_fat_d4')}</div>
                     </div>
                     <div className="flex items-start gap-2">
                       <div className="w-2.5 h-2.5 rounded-full bg-destructive mt-1 flex-shrink-0" />
-                      <div><span className="font-medium">Détruit</span> — Surmenage, repos recommandé</div>
+                      <div><span className="font-medium">{t('se_fat_5')}</span> {t('se_fat_d5')}</div>
                     </div>
                   </div>
                 </div>
                 <div className="border-t pt-3">
-                  <div className="font-semibold mb-2 text-foreground">Adaptation des séances</div>
+                  <div className="font-semibold mb-2 text-foreground">{t('se_fat_adapt')}</div>
                   <div className="space-y-2 text-xs">
-                    <div><span className="font-medium">Frais/Normal :</span> Volume augmente, progresser en charge</div>
-                    <div><span className="font-medium">Fatigué :</span> Maintenir le volume, même charge</div>
-                    <div><span className="font-medium">Épuisé/Détruit :</span> Réduire volume ou durée, repos supplémentaire</div>
+                    <div><span className="font-medium">{t('se_fat_1')}/{t('se_fat_2')} :</span> {t('se_fat_a12')}</div>
+                    <div><span className="font-medium">{t('se_fat_3')} :</span> {t('se_fat_a3')}</div>
+                    <div><span className="font-medium">{t('se_fat_4')}/{t('se_fat_5')} :</span> {t('se_fat_a45')}</div>
                   </div>
                 </div>
               </PopoverContent>
@@ -1168,21 +1202,21 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
               </PopoverTrigger>
               <PopoverContent className="w-72 text-sm space-y-3 ">
                 <div>
-                  <div className="font-semibold mb-2">À quoi servent les notes ?</div>
+                  <div className="font-semibold mb-2">{t('se_notes_why')}</div>
                   <div className="space-y-2 text-xs">
-                    <p>Tes notes aident l'IA à adapter tes séances futures de manière intelligente.</p>
-                    <p className="font-medium">Exemples utiles :</p>
+                    <p>{t('se_notes_why_d')}</p>
+                    <p className="font-medium">{t('se_notes_examples')}</p>
                     <ul className="list-disc list-inside space-y-1 ml-1">
-                      <li><span className="text-destructive font-medium">Douleur/gêne</span> → réduction de charge</li>
-                      <li><span className="text-accent font-medium">Trop facile</span> → augmente la charge</li>
-                      <li><span className="text-chart-4 font-medium">Mauvaise position</span> → ajuste intensité</li>
-                      <li><span className="text-primary font-medium">Très dur</span> → réduit le volume</li>
+                      <li><span className="text-destructive font-medium">{t('se_notes_ex_pain')}</span> {t('se_notes_ex_pain_d')}</li>
+                      <li><span className="text-accent font-medium">{t('se_notes_ex_easy')}</span> {t('se_notes_ex_easy_d')}</li>
+                      <li><span className="text-chart-4 font-medium">{t('se_notes_ex_form')}</span> {t('se_notes_ex_form_d')}</li>
+                      <li><span className="text-primary font-medium">{t('se_notes_ex_hard')}</span> {t('se_notes_ex_hard_d')}</li>
                     </ul>
                   </div>
                 </div>
                 <div className="border-t pt-2">
-                  <div className="font-semibold mb-1">Automatisation</div>
-                  <p className="text-xs">Chaque note est analysée pour ajuster les 5 prochaines séances : charges, séries, et RIR cible.</p>
+                  <div className="font-semibold mb-1">{t('se_notes_auto')}</div>
+                  <p className="text-xs">{t('se_notes_auto_d')}</p>
                 </div>
               </PopoverContent>
             </Popover>
@@ -1193,13 +1227,13 @@ function EndPanel({ exercises, logs, updateLog, fatigue, setFatigue, notes, setN
         {proposal === null ? (
           <Button onClick={() => setProposal(generateProposal())} variant="outline" className="w-full border-white/30 text-white hover:bg-white/10" size="lg">
             <TrendingDown className="w-4 h-4 mr-2" />
-            Voir les recommandations pour la suite
+            {t('se_reco_see')}
           </Button>
         ) : proposal.length === 0 ? (
-          <p className="text-xs text-white/50 text-center">Aucun ajustement nécessaire — continue comme ça 💪</p>
+          <p className="text-xs text-white/50 text-center">{t('se_reco_none')}</p>
         ) : (
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-white/70 uppercase tracking-wide">Recommandations pour tes prochaines séances</p>
+            <p className="text-xs font-semibold text-white/70 uppercase tracking-wide">{t('se_reco_title')}</p>
             {proposal.map((p, i) => (
               <div key={i} className={`flex items-start gap-3 px-3 py-2 rounded-lg text-xs ${
                 p.type === 'increase' ? 'bg-green-500/20 text-green-200' :
@@ -1261,11 +1295,14 @@ export default function SessionLog() {
   const [user, setUser] = useState(null);
   const _draft = (() => { try { const s = localStorage.getItem(`session_draft_${sessionId}`); return s ? JSON.parse(s) : {}; } catch { return {}; } })();
   const [logs, setLogs] = useState(() => _draft.logs || {});
-  const [fatigue, setFatigue] = useState(() => _draft.fatigue ?? 2);
+  // 0 = NON RENSEIGNÉ. Le curseur démarrait sur 2, et ce 2 partait en base même
+  // sans y toucher : tout le monde avait « fatigue 2 » sur toutes ses séances,
+  // et le moteur prenait cette valeur inventée pour une réponse.
+  const [fatigue, setFatigue] = useState(() => _draft.fatigue ?? 0);
   const [notes, setNotes] = useState(() => _draft.notes || '');
   const [saving, setSaving] = useState(false);
   const [volumeProposal, setVolumeProposal] = useState(null); // { proposal, programId } — étape fin de séance
-  const [volumeBusy, setVolumeBusy] = useState(false);
+  // Plus d'état « busy » pour le volume : la carte n'écrit plus en base.
   // Suivi douleur — question « comment a réagi ta zone ? » en début de séance
   const [painCheckEp, setPainCheckEp] = useState(null);
   const [painProposal, setPainProposal] = useState(null);
@@ -1650,13 +1687,13 @@ export default function SessionLog() {
     } catch (e) { console.error('[pain] reaction', e); }
     setPainBusy(false);
   };
-  const handlePainApply = async () => {
+  // « C'est noté » : on enregistre le cran atteint (il sert au prochain check),
+  // sans toucher aux séances planifiées — l'app conseille, elle ne modifie plus.
+  const handlePainAck = async () => {
     if (!painCheckEp || !painProposal?.apply) return;
     setPainBusy(true);
-    try {
-      const upd = await applyPainLevel(session.program_id, painCheckEp, painProposal.apply.toLevel);
-      await persistEpisode(upd);
-    } catch (e) { console.error('[pain] apply', e); }
+    try { await persistEpisode(passerAuNiveau(painCheckEp, painProposal.apply.toLevel)); }
+    catch (e) { console.error('[pain] niveau', e); }
     setPainBusy(false);
     setPainCheckEp(null); setPainProposal(null);
   };
@@ -1819,7 +1856,7 @@ export default function SessionLog() {
           };
         });
         setLogs(next);
-        setFatigue(session.global_fatigue ?? 2);
+        setFatigue(session.global_fatigue ?? 0);
         setNotes(session.notes || '');
       } catch (e) {
         console.error('[edit] chargement des perfs enregistrées', e);
@@ -1834,9 +1871,7 @@ export default function SessionLog() {
   // jamais le programme. Les saisies étant indexées par position, on remappe
   // logs, temps de repos et exercice courant selon la permutation.
   const [reorderUpsell, setReorderUpsell] = useState(false);
-  const plan = user?.subscription_plan
-    || (() => { try { return localStorage.getItem('cached_subscription_plan'); } catch { return null; } })()
-    || 'starter';
+  const plan = planActif(user);
   const isPaid = plan !== 'starter';
   // Starter : 1 essai gratuit par semaine glissante (aperçu qui donne envie).
   const FREE_TRY_KEY = 'reorder_free_try';
@@ -1973,11 +2008,11 @@ export default function SessionLog() {
     // faisait perdre la consigne, le GIF et l'historique de l'exercice.
     let suggestion;
     if (hasBadQuality && repsCloseToTarget && !isEccentric) {
-      suggestion = { exIdx, name: `${name} (excentrique 4s)`, notes: 'Descente lente 4s — consolider le patron moteur avant de recharger.' };
+      suggestion = { exIdx, name: `${name} (excentrique 4s)`, notes: t('se_ecc4_consolidate') };
     } else if (reglages) {
       suggestion = { exIdx, name: null, notes: reglages.simple };
     } else {
-      suggestion = { exIdx, name: `${name} (excentrique 4s)`, notes: 'Descente lente 4s pour réduire la difficulté.' };
+      suggestion = { exIdx, name: `${name} (excentrique 4s)`, notes: t('se_ecc4_easier') };
     }
     setExSuggestion(suggestion);
   };
@@ -1994,9 +2029,9 @@ export default function SessionLog() {
     if (reglages) {
       suggestion = { exIdx, name: null, notes: reglages.dur };
     } else if (!isEccentric) {
-      suggestion = { exIdx, name: `${name} (excentrique 5s)`, notes: 'Descente lente 5s, montée explosive.' };
+      suggestion = { exIdx, name: `${name} (excentrique 5s)`, notes: t('se_ecc5') };
     } else {
-      suggestion = { exIdx, name: null, notes: 'Niveau maximum atteint pour cet exercice.' };
+      suggestion = { exIdx, name: null, notes: t('se_max_level') };
     }
     setExSuggestion(suggestion);
   };
@@ -2150,6 +2185,25 @@ export default function SessionLog() {
 
   // Conseil IA en temps réel pendant la séance (bouton "Douleur ?")
   const handleAskCoach = async ({ exercise, setIdx, painNote, logs: setLogs, thread = [], allLogs, prevLogs, sessionsHistory: history }) => {
+    // ── Barrière d'abonnement ──
+    // Le conseil détaillé et le suivi à J+1 font partie des plans payants. Deux
+    // règles tiennent ce choix :
+    //  • le mur tombe APRÈS le formulaire, jamais sur le bouton « Douleur ? » :
+    //    l'utilisateur a décrit sa gêne, c'est le moment où il veut sa réponse ;
+    //  • il ne tombe JAMAIS sur un cas de gravité — un « arrête et consulte »
+    //    ne se monnaie pas (cf. les trois branches de `buildPainAdvice`).
+    // On sort avant l'écriture en mémoire et avant l'ouverture d'un épisode :
+    // sans plan payant il n'y aura pas de relance à J+1, donc rien à suivre.
+    // `user` non chargé → on ne barre pas : `plan` retomberait sur le cache
+    // local (absent tant que le profil n'a pas été ouvert) et un abonné se
+    // verrait proposer de s'abonner. Mieux vaut laisser passer une réponse que
+    // d'envoyer un client payant au guichet.
+    if (user && !isPaid) {
+      return isSeverePain(painNote)
+        ? { text: buildPainAdvice(painNote, lang, { suivi: false }), paywall: true }
+        : { paywall: true };
+    }
+
     // Sauvegarder immédiatement en mémoire coach + récupérer l'historique des douleurs passées
     const today = devNow().toISOString().split('T')[0];
     const painEntry = `[${today} — séance en cours] ${exercise.name} série ${setIdx + 1} : "${painNote}"`;
@@ -2158,8 +2212,9 @@ export default function SessionLog() {
       const existing = await base44.entities.UserMemory.filter({ user_id: user.id });
       if (existing.length > 0) {
         coachNotes = existing[0].coach_notes || '';
+        // (le plafond est appliqué par `ajouterNote` juste en dessous)
         await base44.entities.UserMemory.update(existing[0].id, {
-          coach_notes: coachNotes ? `${coachNotes}\n${painEntry}` : painEntry
+          coach_notes: ajouterNote(coachNotes, painEntry)
         });
       } else {
         await base44.entities.UserMemory.create({ user_id: user.id, coach_notes: painEntry });
@@ -2247,17 +2302,10 @@ Ce que l'utilisateur dit : "${painNote}"`;
     // on veut donner la main à l'IA sur ce flux)
     void prompt;
     const reply = buildPainAdvice(painNote, lang);
-    // Mémoriser le conseil donné : le coach doit savoir ce qu'il a déjà répondu
-    // (cohérence des futures conversations et du suivi)
-    try {
-      const rows = await base44.entities.UserMemory.filter({ user_id: user.id });
-      if (rows.length > 0) {
-        const prev = rows[0].coach_notes || '';
-        await base44.entities.UserMemory.update(rows[0].id, {
-          coach_notes: `${prev}\n[${today}] Conseil donné (${exercise.name}) : ${reply}`
-        });
-      }
-    } catch {}
+    // On n'enregistre PLUS le conseil donné. C'était de loin le plus gros
+    // contributeur de la mémoire (réponses markdown entières), pour la moindre
+    // valeur : c'est ce que le coach a dit, pas ce que l'utilisateur a fait.
+    // La gêne elle-même, elle, est bien mémorisée juste au-dessus.
     return reply;
   };
 
@@ -2290,13 +2338,17 @@ Ce que l'utilisateur dit : "${painNote}"`;
 
     // Avertissement général si douleur détectée
     if (notePain) {
-      const painZone = noteText.match(/coude|épaule|genou|dos|poignet|cervical/)?.[0];
+      // La note est écrite par l'utilisateur DANS SA LANGUE : la regex qui
+      // vivait ici ne connaissait que le français, et la recommandation
+      // retombait silencieusement sur le message générique en anglais.
+      // `detectZoneFromText` (pain-engine) couvre déjà les deux langues.
+      const zoneKey = detectZoneFromText(noteText);
       props.push({
-        exercise: 'Douleur signalée',
+        exercise: t('se_reco_pain'),
         newWeight: null,
-        reason: painZone
-          ? `Au ${painZone} — adapte les exercices concernés à la prochaine séance.`
-          : 'Surveille et adapte la charge sur les exercices concernés à la prochaine séance.',
+        reason: zoneKey
+          ? `${t(`zl_${zoneKey}`)} — ${t('se_reco_pain_zone')}`
+          : t('se_reco_pain_any'),
         type: 'warn',
         general: true,
       });
@@ -2313,28 +2365,28 @@ Ce que l'utilisateur dit : "${painNote}"`;
 
       if (qualityBad || fatigue >= 5) {
         // Qualité dégradée ou fatigue extrême → réduire
-        props.push({ exercise: ex.name, newWeight: Math.round(avgW * 0.92 * 2) / 2, reason: fatigue >= 5 ? 'fatigue maximale — réduis la charge' : 'qualité dégradée — consolide avant d\'augmenter', type: 'reduce' });
+        props.push({ exercise: ex.name, newWeight: Math.round(avgW * 0.92 * 2) / 2, reason: fatigue >= 5 ? t('se_reco_fatmax') : t('se_reco_qualbad'), type: 'reduce' });
       } else if (exHasPain && canProgress) {
         // Douleur sur cet exercice ET bon RIR → conflit : ne pas augmenter la charge, suggérer alternatives
-        const extras = hasExtraTime ? ' ou ajoute une série si tu as le temps' : '';
-        props.push({ exercise: ex.name, newWeight: null, reason: `préfère augmenter les reps ou réduire le temps de repos${extras}`, type: 'adapt' });
+        const extras = hasExtraTime ? t('se_reco_or_set_time') : '';
+        props.push({ exercise: ex.name, newWeight: null, reason: `${t('se_reco_prefer_reps')}${extras}`, type: 'adapt' });
       } else if (exHasPain) {
         // Douleur + difficulté → réduire légèrement
-        props.push({ exercise: ex.name, newWeight: Math.round(avgW * 0.9 * 2) / 2, reason: 'douleur signalée — réduis légèrement la charge à la prochaine séance', type: 'reduce' });
+        props.push({ exercise: ex.name, newWeight: Math.round(avgW * 0.9 * 2) / 2, reason: t('se_reco_pain_reduce'), type: 'reduce' });
       } else if (fatigue >= 4) {
-        props.push({ exercise: ex.name, newWeight: null, reason: 'fatigue élevée — maintien conseillé', type: 'maintain' });
+        props.push({ exercise: ex.name, newWeight: null, reason: t('se_reco_maintain'), type: 'maintain' });
       } else if (canProgress && !notePain) {
         // Bonne séance, pas de douleur → progression possible
         const inc = avgW >= 60 ? 2.5 : avgW >= 20 ? 1.25 : 1;
         const newW = Math.round((avgW + inc) * 2) / 2;
-        const extras = hasExtraTime ? ' ou ajoute une série' : '';
-        props.push({ exercise: ex.name, newWeight: newW, reason: `peut augmenter la charge prudemment (+${inc}kg)${extras}`, type: 'increase' });
+        const extras = hasExtraTime ? t('se_reco_or_set') : '';
+        props.push({ exercise: ex.name, newWeight: newW, reason: `${t('se_reco_add_load')} (+${inc}kg)${extras}`, type: 'increase' });
       } else if (canProgress && notePain) {
         // Bon RIR mais douleur générale (pas sur cet exercice) → suggestion douce
-        const extras = hasExtraTime ? ' ou ajoute une série si tu as le temps' : '';
-        props.push({ exercise: ex.name, newWeight: null, reason: `peut augmenter les reps ou réduire le temps de repos${extras}`, type: 'adapt' });
+        const extras = hasExtraTime ? t('se_reco_or_set_time') : '';
+        props.push({ exercise: ex.name, newWeight: null, reason: `${t('se_reco_can_reps')}${extras}`, type: 'adapt' });
       } else if (noteHard) {
-        props.push({ exercise: ex.name, newWeight: Math.round(avgW * 0.95 * 2) / 2, reason: 'séance difficile — réduis légèrement', type: 'reduce' });
+        props.push({ exercise: ex.name, newWeight: Math.round(avgW * 0.95 * 2) / 2, reason: t('se_reco_hard'), type: 'reduce' });
       }
     }
     return props.filter(p => p.type !== 'maintain' || props.length <= 2);
@@ -2375,7 +2427,9 @@ Ce que l'utilisateur dit : "${painNote}"`;
             tempo: log.tempo || null,
           });
         }));
-        await base44.entities.Session.update(session.id, { global_fatigue: fatigue, notes });
+        // `null` et non 0 quand ce n'est pas renseigné : on n'invente pas une
+        // valeur que l'utilisateur n'a pas donnée.
+        await base44.entities.Session.update(session.id, { global_fatigue: fatigue || null, notes });
         queryClient.invalidateQueries({ queryKey: ['sessions'] });
         queryClient.invalidateQueries({ queryKey: ['program-sessions'] });
         queryClient.invalidateQueries({ queryKey: ['completed-sessions'] });
@@ -2485,17 +2539,21 @@ Ce que l'utilisateur dit : "${painNote}"`;
       status: 'completed',
       actual_date: devNow().toISOString().split('T')[0],
       actual_duration: session.estimated_duration,
-      global_fatigue: fatigue,
+      global_fatigue: fatigue || null, // non renseigné → null, jamais 0
       notes
     });
     // Si douleur signalée → mémoriser pour le coach IA
     const noteText = (notes || '').toLowerCase();
-    const painZone = noteText.match(/coude|épaule|genou|dos|poignet|cervical/)?.[0];
+    // Même détecteur bilingue que la recommandation de fin de séance : la note
+    // est écrite par l'utilisateur dans SA langue. Avec les motifs français
+    // seuls, « my shoulder hurts » n'ouvrait aucun épisode de douleur.
+    const zoneKey = detectZoneFromText(noteText);
+    const painZone = zoneKey ? t(`zl_${zoneKey}`) : null;
     const setPainEntries = Object.entries(logs).filter(([, l]) => l.pain_note).map(([key, l]) => {
       const [exIdx] = key.split('-').map(Number);
-      return `${exercises[exIdx]?.name || 'exercice'} série ${Number(key.split('-')[1]) + 1} : ${l.pain_note}`;
+      return `${exercises[exIdx]?.name || t('se_exercise').toLowerCase()} ${t('se_set').toLowerCase()} ${Number(key.split('-')[1]) + 1} : ${l.pain_note}`;
     });
-    const hasPain = /douleur|mal\b|gêne|pincement|blessure/.test(noteText) || painZone || setPainEntries.length > 0;
+    const hasPain = mentionneDouleur(noteText) || painZone || setPainEntries.length > 0;
     if (hasPain && user?.id) {
       try {
         const today = devNow().toISOString().split('T')[0];
@@ -2505,7 +2563,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
         if (existing.length > 0) {
           const prev = existing[0].coach_notes || '';
           await base44.entities.UserMemory.update(existing[0].id, {
-            coach_notes: prev ? `${prev}\n${painNote}` : painNote
+            coach_notes: ajouterNote(prev, painNote)
           });
         } else {
           await base44.entities.UserMemory.create({ user_id: user.id, coach_notes: painNote });
@@ -2555,7 +2613,10 @@ Ce que l'utilisateur dit : "${painNote}"`;
         : '';
       setCoachPainQuery({
         zone: painZone,
-        preMessage: `J'ai noté une douleur${painZone ? ` au ${painZone}` : ''} pendant ta séance.${painCtx}\n\nPour mieux adapter tes prochains entraînements, dis-moi en plus : comment ça s'est manifesté (gêne légère, vraie douleur, coup) ? Depuis quand ? Ça dure encore maintenant ?`
+        // La zone arrive entre parenthèses plutôt que derrière une préposition :
+        // « au poignet » / « aux cervicales » demandait un accord par zone, que
+        // la traduction n'aurait pas suivi.
+        preMessage: `${t('se_pain_msg_head')}${painZone ? ` (${painZone.toLowerCase()})` : ''}.${painCtx}\n\n${t('se_pain_msg_ask')}`
       });
     } else {
       // Autorégulation du volume : proposer un ajustement (fatigue/perfs fraîches) avant de revenir
@@ -2613,12 +2674,12 @@ Ce que l'utilisateur dit : "${painNote}"`;
 
   if (!session) {
     return hasProgram
-      ? <EmptyState title="Aucune séance en cours" text="Choisis une séance dans ton programme pour commencer." cta="Voir mon programme" />
-      : <EmptyState title="Pas encore de programme" text="Crée ou importe ton programme pour générer tes séances." cta="Créer ou importer" />;
+      ? <EmptyState title={t('se_empty_none_t')} text={t('se_empty_none_d')} cta={t('se_empty_see')} />
+      : <EmptyState title={t('se_empty_prog_t')} text={t('se_empty_prog_d')} cta={t('se_empty_create')} />;
   }
 
   if (exercises.length === 0) {
-    return <EmptyState title="Séance vide" text="Cette séance ne contient aucun exercice." cta="Voir mon programme" />;
+    return <EmptyState title={t('se_empty_ex_t')} text={t('se_empty_ex_d')} cta={t('se_empty_see')} />;
   }
 
   // Mode correction : on attend les perfs enregistrées avant de monter les séries
@@ -2635,23 +2696,21 @@ Ce que l'utilisateur dit : "${painNote}"`;
   if (volumeProposal) {
     const pid = volumeProposal.programId;
     const goProgram = () => { setVolumeProposal(null); navigate('/program'); };
-    const onApply = async () => {
-      setVolumeBusy(true);
-      try { await applyVolumeProposal(pid, volumeProposal.proposal.apply); } catch (e) { console.error('[volume] apply', e); }
-      markVolumeHandled(pid); setVolumeBusy(false); navigate('/program');
-    };
+    // Déclaration de l'utilisateur, pas une action de l'app : on date la
+    // décharge (compteur « semaines sans allègement ») et on s'arrête là.
+    const onDone = () => { marquerDecharge(pid); markVolumeHandled(pid); navigate('/program'); };
     const onManual  = () => { markVolumeHandled(pid); navigate('/program?edit=true'); };
     const onDismiss = () => { markVolumeHandled(pid); navigate('/program'); };
     return (
       <div className="fixed inset-0 z-10 overflow-y-auto bg-violet-600 px-4 py-10" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 2.5rem)' }}>
         <div className="w-full max-w-md mx-auto space-y-5">
           <div>
-            <h2 className="font-heading font-bold text-2xl text-white">Séance validée ✅</h2>
-            <p className="text-white/60 text-sm mt-1">Un ajustement de volume est conseillé pour la suite :</p>
+            <h2 className="font-heading font-bold text-2xl text-white">{t('se_saved_ok')}</h2>
+            <p className="text-white/60 text-sm mt-1">{t('se_vol_advice')}</p>
           </div>
-          <VolumeProposalCard proposal={volumeProposal.proposal} busy={volumeBusy} onApply={onApply} onManual={onManual} onDismiss={onDismiss} />
+          <VolumeProposalCard proposal={volumeProposal.proposal} onDone={onDone} onManual={onManual} onDismiss={onDismiss} />
           <button onClick={goProgram} className="w-full text-center text-sm text-white/50 hover:text-white/80 transition-colors pt-1">
-            Continuer sans changer
+            {t('se_continue_nochange')}
           </button>
         </div>
       </div>
@@ -2788,7 +2847,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
           proposal={painProposal}
           busy={painBusy}
           onReaction={handlePainReaction}
-          onApply={handlePainApply}
+          onApply={handlePainAck}
           onManual={handlePainManual}
           onDismiss={handlePainDismiss}
         />
@@ -2902,6 +2961,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
         showOverview ?
         <motion.div key="overview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <OverviewPanel
+              suiviPayant={!isPaid}
             exercises={exercises}
             logs={logs}
             updateLog={updateLog}
@@ -2967,6 +3027,7 @@ Ce que l'utilisateur dit : "${painNote}"`;
           forcePropagateWeight={forcePropagateWeight}
           fragileZones={fragileZones}
           sessionsHistory={sessionsHistory}
+          suiviPayant={!isPaid}
           onAskCoach={handleAskCoach} />
 
         }

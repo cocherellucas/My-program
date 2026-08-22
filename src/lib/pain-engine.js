@@ -33,6 +33,17 @@ export function detectZoneFromText(text) {
   return null;
 }
 
+// Un texte libre parle-t-il d'une douleur ? Source unique, FR + EN : la même
+// regex vivait recopiée en français seul dans SessionLog (ouverture d'épisode)
+// et dans CoachIA (repli codé quand l'IA ne répond pas). « my shoulder hurts »
+// n'y déclenchait rien — l'utilisateur anglophone tombait sur un message
+// d'erreur générique au lieu du conseil.
+const MOTS_DOULEUR = /douleur|douloureux|mal\b|gêne|gene\b|pincement|blessure|tendinite|inflammation|brûl|brul|craqu|fourmi|engourd|pain|hurts?\b|sore|ache|aching|injur|tendon|inflamm|burn|numb|tingl/i;
+
+export function mentionneDouleur(texte) {
+  return MOTS_DOULEUR.test(texte || '');
+}
+
 const todayStr = () => devNow().toISOString().split('T')[0];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -59,14 +70,34 @@ const EXTRA_TIPS = [
   [/ischio|arrière de la cuisse|arriere de la cuisse|hamstring/, { fr: 'Pour l\'ischio : évite l\'étirement maximal sous charge et ralentis la descente.', en: 'For the hamstring: avoid max stretch under load and slow the descent.' }],
 ];
 
+// ── GRAVITÉ : les trois cas où l'on arrête au lieu d'adapter ──
+// Source unique, utilisée par trois endroits qui doivent rester d'accord :
+//   1. les trois premières branches de `buildPainAdvice` (le conseil « stop ») ;
+//   2. `isSeverePain`, qui pilote la bulle d'action en séance ;
+//   3. la barrière d'abonnement, qui laisse TOUJOURS passer ces conseils-là —
+//      un « arrête et consulte » ne se monnaie pas.
+// Avant regroupement, `isSeverePain` ne connaissait que les termes français :
+// un utilisateur en anglais tapant « sharp pain » n'était pas détecté.
+const GRAVITE_GONFLEMENT = /gonfl|enfl(é|e)|hématome|hematome|bleu\b|swell|swollen|bruise/;
+// `tore|torn` : la liste anglaise ne connaissait que l'infinitif « tear », donc
+// « I tore something » passait pour bénin. Sans importance tant que tout le
+// monde recevait le conseil ; depuis que la gravité décide qui passe la
+// barrière d'abonnement, un manque ici enverrait un blessé vers le mur.
+const GRAVITE_VIVE = /coup\b|craqu|claqu|déchir|dechir|lancinant|aigu(ë|e)?\b|vive|violent|insupportable|très forte|tres forte|(8|9|10)\s*\/\s*10|sharp|sudden|pop\b|tear|tore|torn|stab/;
+const GRAVITE_NERF = /fourmi|engourd|picot|irradie|décharge|decharge|électri|electri|tingl|numb|radiat|shooting/;
+
 // Gravité d'une douleur décrite → pilote la bulle d'action en séance
 // (douleur vive/coup/nerf/gonflement = on arrête l'exercice, pas d'adaptation)
 export function isSeverePain(painNote) {
   const t = (painNote || '').toLowerCase();
-  return /gonfl|enfl(é|e)|hématome|hematome|coup\b|craqu|claqu|déchir|dechir|lancinant|aigu(ë|e)?\b|vive|violent|insupportable|très forte|tres forte|(8|9|10)\s*\/\s*10|fourmi|engourd|picot|irradie|décharge|decharge|électri|electri/.test(t);
+  return GRAVITE_GONFLEMENT.test(t) || GRAVITE_VIVE.test(t) || GRAVITE_NERF.test(t);
 }
 
-export function buildPainAdvice(painNote, lang = 'fr') {
+// `suivi` : promesse « je te redemanderai demain », vraie seulement si un épisode
+// de suivi est bien ouvert derrière. Passer `false` quand ce n'est pas le cas
+// (plan Starter : le suivi à J+1 fait partie des plans payants) — sinon on
+// annoncerait une relance qui n'arrivera jamais.
+export function buildPainAdvice(painNote, lang = 'fr', { suivi = true } = {}) {
   const all = (painNote || '').toLowerCase();
   const P = (fr, en) => (lang === 'en' ? en : fr); // sélecteur de langue
   // Champs étiquetés du formulaire (FR "où/quand/comment/autres", EN "where/when/how/other")
@@ -84,38 +115,73 @@ export function buildPainAdvice(painNote, lang = 'fr') {
   const howT  = how || all;  // repli : texte libre (messages de suivi du fil)
   const whenT = when || all;
 
-  const followUp = P('_Je te redemanderai demain comment ça a réagi._', "_I'll ask you tomorrow how it reacted._");
+  const followUp = suivi
+    ? P('_Je te redemanderai demain comment ça a réagi._', "_I'll ask you tomorrow how it reacted._")
+    : '';
+  // Les conseils de gravité se terminent par une espace avant la relance :
+  // sans relance, on la retire plutôt que de laisser traîner une fin blanche.
+  const fin = (texte) => (followUp ? texte + followUp : texte.trimEnd());
 
   // 1) GRAVITÉ — on n'adapte pas, on arrête
-  if (/gonfl|enfl(é|e)|hématome|hematome|bleu\b|swell|swollen|bruise/.test(all)) {
-    return P(
+  if (GRAVITE_GONFLEMENT.test(all)) {
+    return fin(P(
       '**Stop : arrête cet exercice.** Un gonflement ne se travaille jamais « au travers ».\n\nMets du **froid (15-20 min)** et laisse la zone tranquille aujourd\'hui.\n\nSi c\'est encore gonflé ou douloureux demain, **consulte**. ',
       '**Stop: end this exercise.** Swelling should never be "worked through".\n\nApply **ice (15-20 min)** and leave the area alone today.\n\nIf it\'s still swollen or painful tomorrow, **see a doctor**. '
-    ) + followUp;
+    ));
   }
-  if (/coup\b|craqu|claqu|déchir|dechir|lancinant|aigu(ë|e)?\b|vive|violent|insupportable|très forte|tres forte|(8|9|10)\s*\/\s*10|sharp|sudden|pop\b|tear|stab/.test(all)) {
-    return P(
+  if (GRAVITE_VIVE.test(all)) {
+    return fin(P(
       '**Stop : arrête cet exercice.** Douleur vive ou apparue d\'un coup = on n\'insiste pas.\n\nLaisse cette zone tranquille aujourd\'hui. Si c\'est encore douloureux demain ou que ça enfle → **avis médical**. ',
       '**Stop: end this exercise.** Sharp or sudden pain = don\'t push it.\n\nLeave the area alone today. If it\'s still painful tomorrow or swells → **see a doctor**. '
-    ) + followUp;
+    ));
   }
-  if (/fourmi|engourd|picot|irradie|décharge|decharge|électri|electri|tingl|numb|radiat|shooting/.test(all)) {
-    return P(
+  if (GRAVITE_NERF.test(all)) {
+    return fin(P(
       'Fourmillements ou douleur qui irradie = probablement un **nerf** comprimé ou étiré.\n\n**Arrête cet exercice**, secoue doucement le membre et vérifie ta **position** (prise, poignet, posture).\n\nSi ça revient à chaque série ou persiste après la séance, **consulte**. ',
       'Tingling or radiating pain = likely a compressed or stretched **nerve**.\n\n**Stop this exercise**, gently shake the limb and check your **position** (grip, wrist, posture).\n\nIf it comes back every set or persists after the workout, **see a doctor**. '
-    ) + followUp;
+    ));
   }
 
   const parts = [];
-  const isConstant = /tout le temps|constant|en continu|toute l'amplitude|toute la|all the time|throughout|whole range/.test(whenT);
+
+  // ── MOMENT, calculé UNE fois ────────────────────────────────────────────────
+  // Il servait uniquement à ajouter une phrase à la suite de la nature. Or le
+  // moment CHANGE le sens de la nature : une brûlure pendant l'effort est
+  // métabolique et normale, la même brûlure au repos ne l'est pas du tout. On
+  // le classe donc d'abord, pour que la nature puisse le consulter.
+  const moment =
+    /tout le temps|constant|en continu|toute l'amplitude|toute la|all the time|throughout|whole range/.test(whenT) ? 'constant'
+    : /en bas|bas du mouvement|étir|etir|extension complète|extension complete|allong|bottom|stretch/.test(whenT) ? 'bas'
+    : /mont|concentri|pouss|en tirant|à l'effort|a l'effort|push|lifting|concentric/.test(whenT) ? 'effort'
+    : /descen|négati|negati|excentri|frein|descent|eccentric|lowering/.test(whenT) ? 'descente'
+    : /verrouill|lock|en haut|fin de mouvement|bras tendu|jambe tendue|top|lockout/.test(whenT) ? 'haut'
+    : /après|apres|entre les séries|entre les series|au repos|plus tard|after|between sets|at rest|later/.test(whenT) ? 'apres'
+    : /échauff|echauff|début|debut|première|premiere|warm|start|first/.test(whenT) ? 'echauffement'
+    : null;
+
+  const isConstant = moment === 'constant';
   let gaveAmplitudeRule = false;
+  // Vrai quand la nature a déjà dit ce que la phrase « moment » allait répéter.
+  let momentDejaCouvert = false;
 
   // 2) NATURE de la douleur
   if (/brûl|brul|burn/.test(howT)) {
-    parts.push(P(
-      'Une brûlure **dans le muscle** en fin de série est normale (accumulation métabolique) — continue si l\'exécution reste propre. Si ça brûle sur une **articulation ou un tendon** → baisse la charge de **~20 %**.',
-      'A burn **in the muscle** near the end of a set is normal (metabolic build-up) — keep going if form stays clean. If it burns on a **joint or tendon** → drop the load by **~20%**.'
-    ));
+    // Une brûlure APRÈS l'effort ou dès l'échauffement n'est pas métabolique :
+    // le muscle ne produit plus rien à ce moment-là. C'est un signal tendineux,
+    // et l'ancienne réponse disait exactement le contraire — « c'est normal,
+    // continue ».
+    if (moment === 'apres' || moment === 'echauffement') {
+      parts.push(P(
+        'Une brûlure **en dehors de l\'effort** n\'est pas la brûlure musculaire normale : elle vient plutôt d\'un **tendon irrité**. **Descends la charge jusqu\'à ce que ça ne brûle plus**, et reste là cette semaine.',
+        'A burn **outside of effort** isn\'t the normal muscular burn: it points to an **irritated tendon**. **Take the load down until it stops burning**, and stay there this week.'
+      ));
+      momentDejaCouvert = true;
+    } else {
+      parts.push(P(
+        'Une brûlure **dans le muscle** en fin de série est normale (accumulation métabolique) — continue si l\'exécution reste propre. Si ça brûle sur une **articulation ou un tendon** → **descends jusqu\'à ce que ça ne brûle plus**.',
+        'A burn **in the muscle** near the end of a set is normal (metabolic build-up) — keep going if form stays clean. If it burns on a **joint or tendon** → **take it down until it stops burning**.'
+      ));
+    }
   } else if (/cramp/.test(howT)) {
     parts.push(P(
       '**Crampe** : étire doucement le muscle, **bois** (eau + électrolytes) et allonge le repos avant la prochaine série. Réduis le volume du jour si ça revient.',
@@ -147,8 +213,8 @@ export function buildPainAdvice(painNote, lang = 'fr') {
     ));
   } else if (/mont|concentri|pouss|en tirant|à l\'effort|a l\'effort|push|lifting|concentric/.test(whenT)) {
     parts.push(P(
-      'Ça arrive à **l\'effort** → c\'est la charge : baisse de **~20 %** maintenant et remonte progressivement sur les prochaines séances.',
-      'It happens **under effort** → it\'s the load: drop by **~20%** now and build back up over the next sessions.'
+      'Ça arrive à **l\'effort** → c\'est la charge. **Descends série après série jusqu\'à ce que ça ne réveille plus rien**, et repars de là aux prochaines séances.',
+      'It happens **under effort** → it is the load. **Come down set by set until nothing wakes it up**, and build back from there next sessions.'
     ));
   } else if (/descen|négati|negati|excentri|frein|descent|eccentric|lowering/.test(whenT)) {
     parts.push(P(
@@ -162,8 +228,8 @@ export function buildPainAdvice(painNote, lang = 'fr') {
     ));
   } else if (/après|apres|entre les séries|entre les series|au repos|plus tard|after|between sets|at rest|later/.test(whenT)) {
     parts.push(P(
-      'Ça apparaît **après l\'effort** → allonge le **repos** et surveille : si ça revient à la série suivante, baisse la charge de **~20 %**.',
-      'It shows up **after the effort** → lengthen the **rest** and monitor: if it returns next set, drop the load by **~20%**.'
+      'Ça apparaît **après l\'effort** → allonge le **repos** et surveille : si ça revient à la série suivante, **descends la charge jusqu\'à ce que ça ne revienne plus**.',
+      'It shows up **after the effort** → lengthen the **rest** and monitor: if it comes back next set, **take the load down until it stops coming back**.'
     ));
   } else if (/échauff|echauff|début|debut|première|premiere|warm|start|first/.test(whenT)) {
     parts.push(P(
@@ -202,7 +268,7 @@ export function buildPainAdvice(painNote, lang = 'fr') {
     ));
   }
 
-  parts.push(followUp);
+  if (followUp) parts.push(followUp);
   return parts.join('\n\n');
 }
 
@@ -276,10 +342,10 @@ const ZONE_NAME_HINTS = {
 
 export function exerciseStressesZone(ex, zone) {
   const muscles = new Set(FRAGILE_ZONE_MUSCLES[zone] || []);
-  // `nomBaseMuscle` : un exercice généré porte « Pectoraux » là où la table dit
-  // « Poitrine ». Le premier filet échouait donc toujours sur les pectoraux, et
-  // seul le repli par le nom de l'exercice sauvait la détection — c'est-à-dire
-  // uniquement pour les exercices présents dans la base.
+  // `nomBaseMuscle` : reste nécessaire pour les abdominaux, que la génération
+  // nomme « Abdominaux » et la base « Abdos ». Sans normalisation, le premier
+  // filet échoue et seul le repli par le nom de l'exercice sauve la détection —
+  // c'est-à-dire uniquement pour les exercices présents dans la base.
   if (muscles.has(nomBaseMuscle(ex?.muscle_group))) return true;
   const name = (ex?.name || '').toLowerCase();
   if (!name) return false;
@@ -302,22 +368,26 @@ const ZONE_ART_EN = {
   knees: 'your knee', lower_back: 'your lower back', neck: 'your neck',
 };
 
-// Échelle de réduction — descriptions affichées à l'utilisateur (FR/EN)
+// Échelle de réduction — CONSEILS affichés à l'utilisateur (FR/EN).
+// Formulés à l'impératif depuis le 2026-08-16 : l'app ne modifie plus les
+// séances, elle dit quoi faire et l'utilisateur le fait. L'ordre des crans
+// (charge → séries → fréquence) est inchangé.
 const LEVEL_DETAILS = {
   fr: {
-    1: 'Charge −20 % sur les exercices qui sollicitent la zone (7 prochains jours). Poids du corps : prends la variante plus simple.',
-    2: 'Charge −20 % et −1 série sur les exercices qui sollicitent la zone (7 prochains jours).',
-    3: 'Charge −20 %, −1 série, et ces exercices sont retirés d\'une séance sur deux (7 prochains jours).',
+    1: 'Baisse la charge de 20 % sur les exercices qui sollicitent la zone, pendant 7 jours. Au poids du corps : prends la variante plus simple.',
+    2: 'Baisse la charge de 20 % ET retire une série sur les exercices qui sollicitent la zone, pendant 7 jours.',
+    3: 'Baisse la charge de 20 %, retire une série, et saute ces exercices une séance sur deux, pendant 7 jours.',
   },
   en: {
-    1: 'Load −20% on exercises that stress the area (next 7 days). Bodyweight: take the easier variation.',
-    2: 'Load −20% and −1 set on exercises that stress the area (next 7 days).',
-    3: 'Load −20%, −1 set, and these exercises are removed from every other session (next 7 days).',
+    1: 'Cut the load by 20% on exercises that stress the area, for 7 days. Bodyweight: take the easier variation.',
+    2: 'Cut the load by 20% AND drop one set on exercises that stress the area, for 7 days.',
+    3: 'Cut the load by 20%, drop one set, and skip these exercises every other session, for 7 days.',
   },
 };
 
 // Réaction du corps → épisode mis à jour (check/historique/statut) + proposition.
-// Le NIVEAU ne change qu'au moment d'Appliquer (via applyPainLevel), jamais ici.
+// Le NIVEAU ne change qu'une fois le conseil accepté (« c'est noté » →
+// `passerAuNiveau`, pain-adjust), jamais ici : cette fonction reste pure.
 // reaction : 'better' | 'same' | 'worse' | 'sharp'
 export function computePainPrescription(episode, reaction, lang = 'fr') {
   const P = (fr, en) => (lang === 'en' ? en : fr);
@@ -341,7 +411,7 @@ export function computePainPrescription(episode, reaction, lang = 'fr') {
       proposal: {
         direction: 'stop',
         label: P(`Douleur vive : on met ${art} au repos`, `Sharp pain: we rest ${art}`),
-        detail: P('Repos de la zone et avis médical conseillé. Je peux retirer les exercices qui la sollicitent des 7 prochains jours.', 'Rest the area and see a doctor. I can remove the exercises that stress it for the next 7 days.'),
+        detail: P('Repos de la zone et avis médical conseillé. Retire les exercices qui la sollicitent pendant 7 jours.', 'Rest the area and see a doctor. Take out the exercises that stress it for 7 days.'),
         apply: { zone: episode.zone, toLevel: 4 },
       },
     };
@@ -358,7 +428,7 @@ export function computePainPrescription(episode, reaction, lang = 'fr') {
         proposal: {
           direction: 'stop',
           label: P(`${Art} empire malgré les réductions`, `${Art} is getting worse despite the cutbacks`),
-          detail: P('Repos de la zone et avis médical conseillé. Je peux retirer les exercices qui la sollicitent des 7 prochains jours.', 'Rest the area and see a doctor. I can remove the exercises that stress it for the next 7 days.'),
+          detail: P('Repos de la zone et avis médical conseillé. Retire les exercices qui la sollicitent pendant 7 jours.', 'Rest the area and see a doctor. Take out the exercises that stress it for 7 days.'),
           apply: { zone: episode.zone, toLevel: 4 },
         },
       };

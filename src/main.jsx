@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from '@/App.jsx'
 import '@/index.css'
 import '@/lib/dev-time' // outil de test : window.__time (voyage dans le temps, non destructif)
+import '@/lib/plan'     // outil de test : window.__plan (simule un abonnement, non destructif)
 
 // Désactiver la restauration de scroll native du navigateur (géré manuellement pour Séance et Coach)
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
