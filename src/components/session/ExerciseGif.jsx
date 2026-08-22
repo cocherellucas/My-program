@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useI18n } from '@/lib/i18n';
 import EXERCISE_IMAGES from '@/lib/exercise-images.json';
+import EXERCISE_VIDEOS from '@/lib/exercise-videos.json';
 
 const KEYS = Object.keys(EXERCISE_IMAGES);
 
@@ -44,7 +46,21 @@ function getImages(exerciseName) {
   return null;
 }
 
+const CLES_VIDEO = Object.keys(EXERCISE_VIDEOS);
+function getVideo(exerciseName) {
+  if (!exerciseName) return null;
+  if (EXERCISE_VIDEOS[exerciseName]) return EXERCISE_VIDEOS[exerciseName];
+  const n = normalize(exerciseName);
+  const k = CLES_VIDEO.find((c) => normalize(c) === n);
+  return k ? EXERCISE_VIDEOS[k] : null;
+}
+
 export default function ExerciseGif({ exerciseName, className = '' }) {
+  const { t } = useI18n();
+  // Boucle filmee si elle existe (41 exercices), sinon les deux images
+  // alternees d'origine (145 autres). Le repli n'est pas transitoire : la
+  // majorite du catalogue n'a pas encore de video, il doit rester en place.
+  const video = getVideo(exerciseName);
   const images = getImages(exerciseName);
   const [showSecond, setShowSecond] = useState(false);
   const [loaded0, setLoaded0] = useState(false);
@@ -57,10 +73,27 @@ export default function ExerciseGif({ exerciseName, className = '' }) {
     return () => clearInterval(interval);
   }, [images?.img1]);
 
+  if (video) {
+    return (
+      <div className={`relative rounded-xl overflow-hidden bg-violet-950 ${className}`}>
+        <video
+          src={video}
+          className="absolute inset-0 w-full h-full object-contain"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="metadata"
+          aria-label={exerciseName}
+        />
+      </div>
+    );
+  }
+
   if (!images) {
     return (
       <div className={`rounded-xl bg-violet-700 flex items-center justify-center ${className}`}>
-        <span className="text-white/70 text-xs font-medium text-center px-3">Illustration à venir</span>
+        <span className="text-white/70 text-xs font-medium text-center px-3">{t('gif_soon')}</span>
       </div>
     );
   }

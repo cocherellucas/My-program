@@ -37,3 +37,9 @@ public/Capture*
 
 # Fichiers de verrou LibreOffice (créés tant qu'un tableur est ouvert)
 .~lock.*#
+
+# Rushes video importes du telephone — jamais dans le depot ni dans OneDrive.
+# (Pas de regle *.mp4 globale : elle attrapait aussi public/exos/, les boucles
+#  servies par l app, qui DOIVENT etre versionnees pour partir en production.)
+program-data/202608_*/
+program-data/images-tournage/
