@@ -14,7 +14,7 @@ export const EXERCISES = [
   {
     id: 'bench_press_barbell', name: 'Développé couché barre',
     equipmentOptions: [['Barre olympique','Banc plat'],['Barre olympique','Banc plat','Rack squat'],['Barre olympique','Banc plat','Rack demi-cage']],
-    muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
+    muscles: { primary: ['Pectoraux'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'A', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: false,
     cue: 'Omoplates serrées et fixées sur le banc, pieds au sol. Descends la barre au niveau des tétons, coudes à environ 45° du corps.',
@@ -22,7 +22,7 @@ export const EXERCISES = [
   {
     id: 'bench_press_dumbbell', name: 'Développé couché haltères',
     equipmentOptions: [['Haltères','Banc plat']],
-    muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
+    muscles: { primary: ['Pectoraux'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'A', objectives: ['hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
     cue: 'Omoplates serrées, descends jusqu\'à l\'étirement des pectoraux. L\'amplitude est plus grande qu\'à la barre, profites-en.',
@@ -30,7 +30,7 @@ export const EXERCISES = [
   {
     id: 'incline_press_barbell', name: 'Développé incliné barre',
     equipmentOptions: [['Barre olympique','Banc réglable']],
-    muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
+    muscles: { primary: ['Pectoraux'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'A', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: false,
     cue: 'Banc à 30°, pas plus : au-delà, ce sont les épaules qui prennent le travail. Descends la barre haut sur la poitrine.',
@@ -38,7 +38,7 @@ export const EXERCISES = [
   {
     id: 'incline_press_dumbbell', name: 'Développé incliné haltères',
     equipmentOptions: [['Haltères','Banc réglable']],
-    muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
+    muscles: { primary: ['Pectoraux'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'B', objectives: ['hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
     cue: 'Banc à 30°, descends jusqu\'à l\'étirement. Ne cogne pas les haltères en haut, garde la tension.',
@@ -46,7 +46,7 @@ export const EXERCISES = [
   {
     id: 'decline_press_dumbbell', name: 'Développé décliné haltères',
     equipmentOptions: [['Haltères','Banc décliné']],
-    muscles: { primary: ['Poitrine'], secondary: ['Triceps'] },
+    muscles: { primary: ['Pectoraux'], secondary: ['Triceps'] },
     type: 'compound', block: 'B', objectives: ['hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: true,
     cue: 'Banc incliné vers le bas, pieds bien calés. Descends les haltères vers le bas des pectoraux, coudes rentrés. Fais-toi passer les haltères ou pose-les sur les cuisses avant de t\'allonger.',
@@ -54,7 +54,7 @@ export const EXERCISES = [
   {
     id: 'bench_press_machine', name: 'Développé couché machine',
     equipmentOptions: [['Développé couché machine']],
-    muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
+    muscles: { primary: ['Pectoraux'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'B', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
     cue: 'Règle le siège pour que les poignées arrivent au niveau du bas des pectoraux. Omoplates serrées contre le dossier, ne décolle pas les épaules pour finir la poussée.',
@@ -62,7 +62,7 @@ export const EXERCISES = [
   {
     id: 'incline_press_machine', name: 'Développé incliné machine',
     equipmentOptions: [['Développé incliné machine']],
-    muscles: { primary: ['Poitrine'], secondary: ['Triceps'] },
+    muscles: { primary: ['Pectoraux'], secondary: ['Triceps'] },
     type: 'compound', block: 'B', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
     cue: 'Siège réglé pour que les poignées soient au niveau du haut des pectoraux. Pousse vers le haut et l\'avant, sans hausser les épaules.',
@@ -70,7 +70,7 @@ export const EXERCISES = [
   {
     id: 'pec_deck', name: 'Pec deck',
     equipmentOptions: [['Pec deck']],
-    muscles: { primary: ['Poitrine'], secondary: [] },
+    muscles: { primary: ['Pectoraux'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
     cue: 'Dos calé, coudes à hauteur d\'épaules. Referme lentement et marque un temps d\'arrêt au centre.',
@@ -78,7 +78,7 @@ export const EXERCISES = [
   {
     id: 'cable_crossover', name: 'Écarté poulie',
     equipmentOptions: [['Station câbles double']],
-    muscles: { primary: ['Poitrine'], secondary: [] },
+    muscles: { primary: ['Pectoraux'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
     cue: 'Bras quasi tendus, angle des coudes fixe. Rapproche les mains devant toi et marque un temps au centre.',
@@ -86,7 +86,7 @@ export const EXERCISES = [
   {
     id: 'cable_fly_low', name: 'Écarté poulie basse',
     equipmentOptions: [['Câble poulie basse'],['Station câbles double']],
-    muscles: { primary: ['Poitrine'], secondary: [] },
+    muscles: { primary: ['Pectoraux'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
     cue: 'Poulies en position basse, buste légèrement penché en avant. Monte les bras en arc de cercle jusqu\'à hauteur des épaules, coudes fixes et à peine fléchis.',
@@ -94,7 +94,7 @@ export const EXERCISES = [
   {
     id: 'cable_fly_high', name: 'Écarté poulie haute',
     equipmentOptions: [['Câble poulie haute'],['Station câbles double']],
-    muscles: { primary: ['Poitrine'], secondary: [] },
+    muscles: { primary: ['Pectoraux'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
     cue: 'Poulies en haut, un pas en avant pour mettre les câbles sous tension. Ramène les mains devant le bas de la poitrine en arc de cercle, coudes fixes.',
@@ -102,7 +102,7 @@ export const EXERCISES = [
   {
     id: 'dumbbell_fly', name: 'Écarté haltères',
     equipmentOptions: [['Haltères','Banc plat']],
-    muscles: { primary: ['Poitrine'], secondary: [] },
+    muscles: { primary: ['Pectoraux'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
     cue: 'Coudes légèrement fléchis et VERROUILLÉS dans cet angle : si tu les plies pendant le mouvement, tu fais un développé. Descends jusqu\'à sentir l\'étirement, pas plus bas.',
@@ -110,7 +110,7 @@ export const EXERCISES = [
   {
     id: 'pushup', name: 'Pompe',
     equipmentOptions: [[]], // bodyweight
-    muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
+    muscles: { primary: ['Pectoraux'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'B', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
     cue: 'Corps gainé et aligné, mains largeur d\'épaules. Descends la poitrine près du sol. Avancé : sac à dos chargé sur le haut du dos pour rester dans la plage de répétitions.',
@@ -118,7 +118,7 @@ export const EXERCISES = [
   {
     id: 'pushup_elevated', name: 'Pompe pieds surélevés',
     equipmentOptions: [['Banc plat'],['Banc réglable']],
-    muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
+    muscles: { primary: ['Pectoraux'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'B', objectives: ['hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: true,
     cue: 'Pieds sur un banc ou une chaise — plus ils sont hauts, plus le haut des pectoraux travaille.',
@@ -126,7 +126,7 @@ export const EXERCISES = [
   {
     id: 'dips_chest', name: 'Dips (poitrine)',
     equipmentOptions: [['Barres parallèles'],['Barre de dips']],
-    muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
+    muscles: { primary: ['Pectoraux'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'B', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: true,
     cue: 'Buste penché en avant, coudes légèrement écartés. Descends jusqu\'à l\'étirement des pectoraux sans forcer sur l\'épaule.',
@@ -134,7 +134,7 @@ export const EXERCISES = [
   {
     id: 'bench_smith', name: 'Développé couché Smith',
     equipmentOptions: [['Smith machine','Banc plat']],
-    muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
+    muscles: { primary: ['Pectoraux'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'B', objectives: ['hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: false,
     cue: 'Place le banc pour que la barre descende au niveau des tétons : la barre étant guidée, c\'est la position du banc qui détermine tout. Vérifie les crochets avant de lâcher la charge.',
@@ -218,7 +218,7 @@ export const EXERCISES = [
   {
     id: 'pullover_dumbbell', name: 'Pullover haltère',
     equipmentOptions: [['Haltères','Banc plat']],
-    muscles: { primary: ['Dos'], secondary: ['Triceps','Poitrine'] },
+    muscles: { primary: ['Dos'], secondary: ['Triceps','Pectoraux'] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: true,
     cue: 'Allongé sur le banc, haltère tenu à deux mains au-dessus de la poitrine. Descends derrière la tête bras quasi tendus jusqu\'à l\'étirement, sans cambrer le bas du dos.',
@@ -438,7 +438,7 @@ export const EXERCISES = [
   {
     id: 'close_grip_bench', name: 'Développé couché prise serrée',
     equipmentOptions: [['Barre olympique','Banc plat']],
-    muscles: { primary: ['Triceps'], secondary: ['Poitrine'] },
+    muscles: { primary: ['Triceps'], secondary: ['Pectoraux'] },
     type: 'compound', block: 'B', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: false,
     cue: 'Mains à largeur d\'épaules, pas plus serrées : trop serré, ce sont les poignets qui prennent. Coudes près du corps, descends vers le bas des pectoraux.',
@@ -526,7 +526,7 @@ export const EXERCISES = [
   {
     id: 'diamond_pushup', name: 'Pompe diamant',
     equipmentOptions: [[]], // bodyweight
-    muscles: { primary: ['Triceps'], secondary: ['Poitrine'] },
+    muscles: { primary: ['Triceps'], secondary: ['Pectoraux'] },
     // COMPOUND : une pompe met en jeu l'épaule ET le coude. C'était le seul des
     // treize mouvements de pompe de la base classé en isolation — les dips buste
     // droit, qui visent pourtant aussi les triceps, sont bien en compound.
@@ -607,7 +607,7 @@ export const EXERCISES = [
   {
     id: 'dips_weighted_parallel', name: 'Dips lestés aux barres parallèles',
     equipmentOptions: [['Barres parallèles','Ceinture de lest']],
-    muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
+    muscles: { primary: ['Pectoraux'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'A', objectives: ['strength','hypertrophy'],
     level: ['intermediate','advanced'], failureAllowed: false,
     cue: 'Ceinture de lest, buste penché en avant. Contrôle la descente, pas de rebond en bas.',
@@ -1249,7 +1249,7 @@ export const EXERCISES = [
   {
     id: 'incline_fly_dumbbell', name: 'Écarté incliné haltères',
     equipmentOptions: [['Haltères','Banc réglable']],
-    muscles: { primary: ['Poitrine'], secondary: [] },
+    muscles: { primary: ['Pectoraux'], secondary: [] },
     type: 'isolation', block: 'C', objectives: ['hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
     cue: 'Bras légèrement fléchis, angle fixe du début à la fin. Ouvre jusqu\'à l\'étirement, referme sans laisser les haltères se toucher.',
@@ -1516,7 +1516,7 @@ export const EXERCISES = [
   {
     id: 'dips_entre_deux_chaises_buste_penche', name: 'Dips entre deux chaises (buste penché)',
     equipmentOptions: [[]],
-    muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
+    muscles: { primary: ['Pectoraux'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'B', objectives: ['strength','hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
     fallback: true,
@@ -1525,7 +1525,7 @@ export const EXERCISES = [
   {
     id: 'pompe_large', name: 'Pompe large',
     equipmentOptions: [[]],
-    muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
+    muscles: { primary: ['Pectoraux'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'C', objectives: ['hypertrophy','endurance'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
     fallback: true,
@@ -1534,7 +1534,7 @@ export const EXERCISES = [
   {
     id: 'pompe_large_pieds_sureleves_chaise', name: 'Pompe large pieds surélevés (chaise)',
     equipmentOptions: [[]],
-    muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
+    muscles: { primary: ['Pectoraux'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'B', objectives: ['hypertrophy'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
     fallback: true,
@@ -1543,7 +1543,7 @@ export const EXERCISES = [
   {
     id: 'pompe_pieds_sureleves_chaise', name: 'Pompe pieds surélevés (chaise)',
     equipmentOptions: [[]],
-    muscles: { primary: ['Poitrine'], secondary: ['Triceps','Épaules'] },
+    muscles: { primary: ['Pectoraux'], secondary: ['Triceps','Épaules'] },
     type: 'compound', block: 'B', objectives: ['hypertrophy','strength'],
     level: ['beginner','intermediate','advanced'], failureAllowed: true,
     fallback: true,

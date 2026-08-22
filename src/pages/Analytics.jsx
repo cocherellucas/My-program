@@ -4,8 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
+import { useI18n } from '@/lib/i18n';
 
 export default function Analytics() {
+  const { t } = useI18n();
   const [user, setUser] = useState(null);
   useEffect(() => { base44.auth.me().then(setUser); }, []);
 
@@ -66,19 +68,19 @@ export default function Analytics() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-heading font-bold text-white">Statistiques</h1>
-        <p className="text-white/70 mt-1">Suis ta progression et tes performances</p>
+        <h1 className="text-3xl font-heading font-bold text-white">{t('an_title')}</h1>
+        <p className="text-white/70 mt-1">{t('an_sub')}</p>
       </div>
 
       {/* Summary stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: 'Séances totales', value: totalCompleted },
-          { label: 'Séries enregistrées', value: logs.length },
-          { label: 'Adhérence', value: totalPlanned > 0 ? `${Math.round(totalCompleted / totalPlanned * 100)}%` : '—' },
-          { label: 'Mesures', value: measurements.length },
-        ].map(({ label, value }) => (
-          <Card key={label} className="p-4 text-center bg-white/15 backdrop-blur-sm border-white/20">
+          { id: 'sessions', label: t('an_sessions'), value: totalCompleted },
+          { id: 'sets', label: t('an_sets'), value: logs.length },
+          { id: 'adherence', label: t('stat_adherence'), value: totalPlanned > 0 ? `${Math.round(totalCompleted / totalPlanned * 100)}%` : '—' },
+          { id: 'measures', label: t('an_measures'), value: measurements.length },
+        ].map(({ id, label, value }) => (
+          <Card key={id} className="p-4 text-center bg-white/15 backdrop-blur-sm border-white/20">
             <p className="text-2xl font-heading font-bold text-white">{value}</p>
             <p className="text-xs text-white/60">{label}</p>
           </Card>
@@ -87,7 +89,7 @@ export default function Analytics() {
 
       {/* Fatigue trend */}
       <Card className="p-6 bg-white/15 backdrop-blur-sm border-white/20">
-        <h3 className="font-heading font-bold text-lg mb-4 text-white">Fatigue globale</h3>
+        <h3 className="font-heading font-bold text-lg mb-4 text-white">{t('se_global_fatigue')}</h3>
         {fatigueData.length > 0 ? (
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={fatigueData}>
@@ -98,7 +100,7 @@ export default function Analytics() {
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <p className="text-sm text-white/60 text-center py-8">Pas encore de données de fatigue</p>
+          <p className="text-sm text-white/60 text-center py-8">{t('an_nofatigue')}</p>
         )}
       </Card>
 
@@ -108,7 +110,7 @@ export default function Analytics() {
 
       {sessions.length === 0 && (
         <Card className="p-12 text-center bg-white/15 backdrop-blur-sm border-white/20">
-          <p className="text-white/70">Complète quelques séances pour voir tes statistiques ici.</p>
+          <p className="text-white/70">{t('an_empty')}</p>
         </Card>
       )}
     </div>

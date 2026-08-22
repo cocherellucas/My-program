@@ -746,17 +746,18 @@ function pickBaseProgram(catalog, user, type, zone, focusMuscles) {
 
 // Le muscle_group du catalogue/objectifs ('Pectoraux', 'Abdominaux') ne porte pas
 // toujours le même nom dans la base d'exos. Tables de conversion.
-// ATTENTION : la base n'est pas homogène — elle contient 18 exercices 'Poitrine'
-// ET 2 'Pectoraux', 19 'Abdominaux' et AUCUN 'Abdos'. Traduire vers un seul nom
-// ne trouvait donc rien pour les abdos (0 exercice sur 19) et ratait 2 pectoraux.
-// On cherche désormais sur TOUS les noms possibles.
+// ATTENTION : la base a été homogénéisée sur 'Pectoraux', mais pas sur les
+// abdominaux — elle contient 19 'Abdominaux' et AUCUN 'Abdos'. Traduire vers un
+// seul nom ne trouvait donc rien pour les abdos (0 exercice sur 19). On cherche
+// sur TOUS les noms possibles ; garder 'Abdos' coûte une entrée et protège
+// d'un exercice ajouté un jour avec l'ancien nom.
 const DB_MUSCLE_NAMES = {
-  Pectoraux: ['Pectoraux', 'Poitrine'],
+  Pectoraux: ['Pectoraux'],
   Abdominaux: ['Abdominaux', 'Abdos'],
 };
 const dbMuscleNames = (m) => DB_MUSCLE_NAMES[m] || [m];
 const cibleMuscle = (e, m) => dbMuscleNames(m).some((n) => e.muscles?.primary?.includes(n));
-const APP_MUSCLE = { Poitrine: 'Pectoraux', Abdos: 'Abdominaux' };
+const APP_MUSCLE = { Abdos: 'Abdominaux' };
 const appMuscle = (m) => APP_MUSCLE[m] || m;
 const REPS_BY_BLOCK = { A: '6-8', B: '8-12', C: '10-15' };
 const REST_BY_BLOCK = { A: 150, B: 105, C: 75 };

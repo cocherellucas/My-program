@@ -3,6 +3,7 @@ import { HelpCircle } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { EXERCISES } from '@/lib/exercise-database';
 import { reglagesPoidsDuCorps } from '@/lib/bodyweight-adjust';
+import { useI18n } from '@/lib/i18n';
 
 // Consigne d'exécution d'un exercice, derrière un « ? » à côté de son nom.
 //
@@ -20,6 +21,7 @@ export function aUneConsigne(nomExercice) {
 }
 
 export default function ExerciseCueButton({ name, className = '' }) {
+  const { t } = useI18n();
   const consigne = CONSIGNES.get(name);
   // Au poids du corps on ne peut pas ajouter 2,5 kg : le réglage se fait par le
   // bras de levier, l'assistance, le lest ou l'unilatéral. Ces leviers étaient
@@ -49,9 +51,9 @@ export default function ExerciseCueButton({ name, className = '' }) {
         )}
         {reglages && (
           <div className="space-y-1.5 border-t border-white/15 pt-2.5">
-            <p className="font-semibold text-white">Ajuster la difficulté</p>
-            <p className="leading-relaxed"><span className="font-semibold text-emerald-300">Plus simple —</span> {reglages.simple}</p>
-            <p className="leading-relaxed"><span className="font-semibold text-orange-300">Plus dur —</span> {reglages.dur}</p>
+            <p className="font-semibold text-white">{t('cue_adjust')}</p>
+            <p className="leading-relaxed"><span className="font-semibold text-emerald-300">{t('cue_easier')}</span> {reglages.simple}</p>
+            <p className="leading-relaxed"><span className="font-semibold text-orange-300">{t('cue_harder')}</span> {reglages.dur}</p>
           </div>
         )}
       </PopoverContent>

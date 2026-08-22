@@ -1,9 +1,11 @@
 import { useLocation } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import { useI18n } from '@/lib/i18n';
 
 
 export default function PageNotFound({}) {
+  const { t } = useI18n();
     const location = useLocation();
     const pageName = location.pathname.substring(1);
 
@@ -47,9 +49,9 @@ export default function PageNotFound({}) {
                                     <div className="w-2 h-2 rounded-full bg-orange-400"></div>
                                 </div>
                                 <div className="text-left space-y-1">
-                                    <p className="text-sm font-medium text-slate-700">Note admin</p>
+                                    <p className="text-sm font-medium text-slate-700">{t('nf_admin')}</p>
                                     <p className="text-sm text-slate-600 leading-relaxed">
-                                        Cette page n'a peut-être pas encore été créée. Demande à l'IA de l'implémenter dans le chat.
+                                        {t('nf_admin_d')}
                                     </p>
                                 </div>
                             </div>

@@ -97,7 +97,7 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value.replace(/\s/g, ''))}
                 onKeyDown={(e) => { if (e.key === ' ') e.preventDefault(); }}
                 required
-                placeholder="ton@email.com"
+                placeholder={t('lg_email_ph')}
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white/50"
               />
             </div>

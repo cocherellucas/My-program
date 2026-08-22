@@ -108,10 +108,10 @@ export default function ObjectivesTab({ userId, level, onProgramImpact }) {
       }
 
       setSavedSnapshot(snapshotOf(objectives));
-      toast.success('Objectifs mis à jour');
+      toast.success(t('ot_saved'));
     } catch (e) {
       console.error('[objectives] save', e);
-      toast.error('Erreur lors de la sauvegarde');
+      toast.error(t('ot_error'));
     } finally {
       setSaving(false);
     }

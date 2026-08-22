@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, Dumbbell, Trash2, Play, Clock, ChevronDown, ChevronUp, CalendarDays, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { fr, enUS } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
 import { addDays, startOfWeek, endOfWeek, parseISO, format as fmtDate } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -30,7 +30,8 @@ const COULEUR_STRUCTURE = {
 };
 const COULEUR_STRUCTURE_DEFAUT = 'bg-white/20 text-white border-white/20';
 
-const TYPE_LABELS = { strength: 'Force', hypertrophy: 'Hypertrophie', endurance: 'Endurance', mixed: 'Mixte' };
+// Clés : les libellés de type existaient déjà dans le dictionnaire (`type_*`).
+const TYPE_TKEYS = { strength: 'type_strength', hypertrophy: 'type_hypertrophy', endurance: 'type_endurance', mixed: 'type_mixed' };
 const TYPE_COLORS = {
   strength: 'bg-white/20 text-white border-white/20',
   hypertrophy: 'bg-white/20 text-white border-white/20',
@@ -39,7 +40,8 @@ const TYPE_COLORS = {
 };
 
 function SavedProgramCard({ prog, onDelete, onReapply, isReapplying }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const dfnLocale = lang === 'en' ? enUS : fr;
   const [expanded, setExpanded] = useState(false);
   const [openSessions, setOpenSessions] = useState({});
   const sessions = prog.sessions_templates || [];
@@ -58,7 +60,7 @@ function SavedProgramCard({ prog, onDelete, onReapply, isReapplying }) {
             )}
           </div>
           <div className="flex items-center gap-3 mt-1 text-xs text-white/60 flex-wrap">
-            <span>Sauvegardé le {format(new Date(prog.created_date), 'd MMM yyyy', { locale: fr })}</span>
+            <span>{t('lib_saved_on')} {format(new Date(prog.created_date), 'd MMM yyyy', { locale: dfnLocale })}</span>
           </div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
@@ -76,7 +78,7 @@ function SavedProgramCard({ prog, onDelete, onReapply, isReapplying }) {
 
       {expanded && sessions.length > 0 && (
         <div className="border-t pt-3 space-y-2">
-          <p className="text-xs font-medium text-white/50 uppercase tracking-wide">Séances du programme</p>
+          <p className="text-xs font-medium text-white/50 uppercase tracking-wide">{t('lib_prog_sessions')}</p>
           <div className="grid gap-1">
             {(() => {
               // Inférer le numéro de semaine si non présent
@@ -100,7 +102,7 @@ function SavedProgramCard({ prog, onDelete, onReapply, isReapplying }) {
                       className="w-full px-3 py-2 text-left hover:bg-white/5 transition-colors">
                       <div className="flex items-center justify-between gap-2">
                         <span className="font-medium text-white text-sm truncate flex-1">{(s.day_label || s.day || '').replace(/\s*§\d+/g, '')}</span>
-                        {!isImported && <Badge className={`text-xs flex-shrink-0 ${TYPE_COLORS[s.type] || 'bg-muted'}`}>{TYPE_LABELS[s.type] || s.type}</Badge>}
+                        {!isImported && <Badge className={`text-xs flex-shrink-0 ${TYPE_COLORS[s.type] || 'bg-muted'}`}>{TYPE_TKEYS[s.type] ? t(TYPE_TKEYS[s.type]) : s.type}</Badge>}
                         {(s.exercises?.length > 0) && <ChevronDown className={`w-4 h-4 text-white/50 flex-shrink-0 transition-transform ${openSessions[i] ? 'rotate-180' : ''}`} />}
                       </div>
                       <div className="flex items-center gap-3 mt-1 text-xs text-white/60">
@@ -139,6 +141,8 @@ function SavedProgramCard({ prog, onDelete, onReapply, isReapplying }) {
 }
 
 function SessionHistoryCard({ session }) {
+  const { t, lang } = useI18n();
+  const dfnLocale = lang === 'en' ? enUS : fr;
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -147,7 +151,7 @@ function SessionHistoryCard({ session }) {
         <div className="flex items-center gap-3">
           <div className="w-12 rounded-xl bg-white/20 flex flex-col items-center justify-center flex-shrink-0 py-1.5">
             <span className="text-[10px] text-white/70 capitalize leading-none">
-              {session.actual_date && format(new Date(session.actual_date), 'EEE', { locale: fr })}
+              {session.actual_date && format(new Date(session.actual_date), 'EEE', { locale: dfnLocale })}
             </span>
             <span className="text-sm font-bold text-white leading-none mt-1">
               {session.actual_date && format(new Date(session.actual_date), 'd')}
@@ -160,9 +164,9 @@ function SessionHistoryCard({ session }) {
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-medium text-sm text-white">{(session.day_label || 'Séance').replace(/\s*§\d+/g, '')}</span>
+              <span className="font-medium text-sm text-white">{(session.day_label || t('nav_session')).replace(/\s*§\d+/g, '')}</span>
               <Badge className={`text-xs ${TYPE_COLORS[session.type] || 'bg-muted'}`}>
-                {TYPE_LABELS[session.type] || session.type}
+                {TYPE_TKEYS[session.type] ? t(TYPE_TKEYS[session.type]) : session.type}
               </Badge>
             </div>
             <div className="flex items-center gap-3 mt-0.5 text-xs text-white/60">
@@ -196,7 +200,8 @@ function SessionHistoryCard({ session }) {
 
 // Onglet Séances : filtres jour/mois/année (style calendrier) + regroupement par semaine
 function SessionsTab({ sessions }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const dfnLocale = lang === 'en' ? enUS : fr;
   const [dayFilter, setDayFilter] = useState('all');
   const [monthFilter, setMonthFilter] = useState('all');
   const [yearFilter, setYearFilter] = useState('all');
@@ -288,10 +293,10 @@ function SessionsTab({ sessions }) {
 
         <Select value={yearFilter} onValueChange={setYearFilter}>
           <SelectTrigger className="bg-white/10 border-white/20 text-white text-sm">
-            <SelectValue placeholder="Année" />
+            <SelectValue placeholder={t('lib_year')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Année</SelectItem>
+            <SelectItem value="all">{t('lib_year')}</SelectItem>
             {availableYears.map(y => (
               <SelectItem key={y} value={y}>{y}</SelectItem>
             ))}
@@ -320,7 +325,7 @@ function SessionsTab({ sessions }) {
                     background: 'radial-gradient(ellipse at center, rgba(46,16,101,0.55) 0%, rgba(46,16,101,0.25) 70%, transparent 100%)',
                   }}>
                   <span className="text-[11px] font-semibold text-white/90 uppercase tracking-wider whitespace-nowrap">
-                    Semaine du {fmtDate(week.monday, 'd MMM', { locale: fr })} au {fmtDate(sunday, 'd MMM', { locale: fr })}
+                    {t('lib_week_of')} {fmtDate(week.monday, 'd MMM', { locale: dfnLocale })} {t('lib_week_to')} {fmtDate(sunday, 'd MMM', { locale: dfnLocale })}
                   </span>
                   <span className="text-[11px] text-white/60 ml-auto whitespace-nowrap">
                     {week.sessions.length} {t('sessions_word')}
@@ -341,7 +346,8 @@ function SessionsTab({ sessions }) {
 }
 
 export default function Library() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const dfnLocale = lang === 'en' ? enUS : fr;
   const [user, setUser] = useState(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();

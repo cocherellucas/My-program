@@ -23,7 +23,7 @@ export default function CheckIn24h({ sessions, onSubmit }) {
   if (!sessions?.length || done) return null;
 
   const session = sessions[0];
-  const label   = (session.day_label || session.type || 'Séance').replace(/\s*§\d+/g, '');
+  const label   = (session.day_label || session.type || t('nav_session')).replace(/\s*§\d+/g, '');
 
   const handleSubmit = () => {
     if (!feeling || !sleep) return;

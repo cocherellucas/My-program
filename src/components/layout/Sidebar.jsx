@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useTheme } from '@/lib/ThemeContext';
 import { base44 } from '@/api/base44Client';
+import { useI18n } from '@/lib/i18n';
 
 const PLAN_CONFIG = {
   starter: { icon: Zap, label: 'Starter', gradient: 'from-slate-400 to-slate-500' },
@@ -17,26 +18,27 @@ const PLAN_CONFIG = {
 };
 
 const navItems = [
-  { icon: LayoutDashboard, label: 'Accueil', path: '/' },
-  { icon: Dumbbell, label: 'Programme', path: '/program' },
-  { icon: CalendarDays, label: 'Séance', path: '/session' },
-  { icon: MessageSquare, label: 'Coach IA', path: '/coach' },
-  { icon: User, label: 'Profil', path: '/profile' },
-  { icon: Image, label: 'Vérif. GIFs', path: '/gif-check' },
+  { icon: LayoutDashboard, tk: 'nav_home', path: '/' },
+  { icon: Dumbbell, tk: 'nav_program', path: '/program' },
+  { icon: CalendarDays, tk: 'nav_session', path: '/session' },
+  { icon: MessageSquare, tk: 'sb_coach', path: '/coach' },
+  { icon: User, tk: 'nav_profile', path: '/profile' },
+  { icon: Image, tk: 'sb_gifcheck', path: '/gif-check' },
 ];
 
 const bottomItems = [
-  { icon: BarChart3, label: 'Statistiques', path: '/analytics' },
-  { icon: BookOpen, label: 'Bibliothèque', path: '/library' },
-  { icon: Brain, label: 'Mémoire IA', path: '/memory' },
+  { icon: BarChart3, tk: 'an_title', path: '/analytics' },
+  { icon: BookOpen, tk: 'sb_library', path: '/library' },
+  { icon: Brain, tk: 'mem_title', path: '/memory' },
 ];
 
 const themes = [
-  { name: 'violet', bg: 'bg-purple-600', label: 'Violet' },
-  { name: 'black', bg: 'bg-slate-900', label: 'Noir' },
+  { name: 'violet', bg: 'bg-purple-600', tk: 'sb_theme_violet' },
+  { name: 'black', bg: 'bg-slate-900', tk: 'sb_theme_black' },
 ];
 
 export default function Sidebar({ collapsed, setCollapsed }) {
+  const { t } = useI18n();
   const location = useLocation();
   const { theme, setTheme } = useTheme();
   const [showTheme, setShowTheme] = useState(false);
@@ -97,7 +99,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                     animate={{ opacity: 1 }}
                     className="text-sm font-medium whitespace-nowrap flex-1"
                   >
-                    {item.label}
+                    {t(item.tk)}
                   </motion.span>
                   {isProfile && PlanIcon && (
                     <motion.div
@@ -160,14 +162,14 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                   )}
                 >
                   <item.icon className="w-4 h-4 flex-shrink-0" />
-                  {item.label}
+                  {t(item.tk)}
                 </Link>
               );
             })}
 
             {/* Theme */}
             <div className="pt-2 pb-1 px-3">
-              <p className="text-xs text-violet-300 font-medium mb-2">Thème</p>
+              <p className="text-xs text-violet-300 font-medium mb-2">{t('sb_theme')}</p>
               <div className="flex gap-2">
                 {themes.map((themeItem) => (
                   <button
@@ -181,7 +183,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                     )}
                   >
                     <div className={cn('w-3 h-3 rounded-full', themeItem.bg)} />
-                    {themeItem.label}
+                    {t(themeItem.tk)}
                   </button>
                 ))}
               </div>

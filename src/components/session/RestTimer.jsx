@@ -312,6 +312,9 @@ export default function RestTimer({ seconds = 90, onComplete, onRestTimeChange, 
 }
 
 export function RestTimerControl({ seconds, onSave }) {
+  // Second composant du fichier : il a son propre `t`. L'import de useI18n en
+  // haut ne suffit pas — c'est le hook qui doit être appelé ici.
+  const { t } = useI18n();
   const [value, setValue] = useState(String(seconds));
 
   const handleSave = () => {
@@ -321,7 +324,7 @@ export function RestTimerControl({ seconds, onSave }) {
 
   return (
     <div className="flex items-center gap-2 p-3 rounded-lg bg-white/10 border border-white/20 hidden">
-      <span className="text-xs text-white/60">Repos pour cette série :</span>
+      <span className="text-xs text-white/60">{t('rt_for_set')}</span>
       <Input
         type="number"
         value={value}
@@ -334,7 +337,7 @@ export function RestTimerControl({ seconds, onSave }) {
         onClick={handleSave}
         className="ml-auto text-xs">
         
-        Enregistrer
+        {t('checkin_save')}
       </Button>
     </div>);
 

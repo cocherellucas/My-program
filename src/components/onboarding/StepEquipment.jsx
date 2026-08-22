@@ -79,10 +79,11 @@ export const PRESETS = {
   custom:       [],
 };
 
-const CONTEXT_SUMMARY = {
-  full_gym:     'Accès à tout — machines, poids libres, câbles. Programme sans contrainte matérielle.',
-  home_barbell: 'Barre olympique, rack, banc réglable, haltères, barre de traction et élastiques.',
-};
+// Contextes qui ouvrent le bloc récapitulatif. C'était une table de PHRASES,
+// mais la phrase n'était lue nulle part : seule sa présence servait, en
+// condition d'affichage (le bloc montre la liste du matériel, pas le résumé).
+// Deux phrases françaises en dur qui ne s'affichaient jamais.
+const CONTEXTS_WITH_SUMMARY = new Set(['full_gym', 'home_barbell']);
 
 function EquipItem({ item, selected, onToggle }) {
   return (
@@ -369,7 +370,7 @@ export default function StepEquipment({ data, onChange, hideHeader = false }) {
         </div>
       )}
 
-      {context && CONTEXT_SUMMARY[context] && !showGymPicker && !showContextPicker && !verifyingPreset && (
+      {context && CONTEXTS_WITH_SUMMARY.has(context) && !showGymPicker && !showContextPicker && !verifyingPreset && (
         <div className="bg-white/10 rounded-xl border border-white/20 overflow-hidden">
           {/* Chip enseigne au-dessus */}
           {(selectedChain && selectedChain !== 'all') || ((!selectedChain || selectedChain === 'all') && context === 'full_gym') ? (

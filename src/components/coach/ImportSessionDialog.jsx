@@ -2,15 +2,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Trash2, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { calcDuration } from '@/lib/duration';
 import { useTutorial } from '@/lib/TutorialContext';
+import { useI18n } from '@/lib/i18n';
 
 const DAYS = [
-  { value: 'monday', label: 'Lundi' },
-  { value: 'tuesday', label: 'Mardi' },
-  { value: 'wednesday', label: 'Mercredi' },
-  { value: 'thursday', label: 'Jeudi' },
-  { value: 'friday', label: 'Vendredi' },
-  { value: 'saturday', label: 'Samedi' },
-  { value: 'sunday', label: 'Dimanche' },
+  { value: 'monday', tk: 'day_monday' },
+  { value: 'tuesday', tk: 'day_tuesday' },
+  { value: 'wednesday', tk: 'day_wednesday' },
+  { value: 'thursday', tk: 'day_thursday' },
+  { value: 'friday', tk: 'day_friday' },
+  { value: 'saturday', tk: 'day_saturday' },
+  { value: 'sunday', tk: 'day_sunday' },
 ];
 
 
@@ -64,40 +65,15 @@ const parseExercises = (text) => {
   }).filter(e => e.name);
 };
 
+// Étapes du tuto : on stocke des CLÉS, la table vit au niveau module et n'a
+// pas accès à la fonction de traduction. Traduites au lancement du tuto.
 const IMPORT_TUTORIAL_STEPS = [
-  {
-    target: 'add-session-btn',
-    title: 'Ajouter une séance',
-    description: 'Appuie ici pour créer une nouvelle séance dans ton programme. Tu peux en ajouter jusqu\'à 14 au total.',
-    hideNext: true,
-  },
-  {
-    target: 'session-title-input',
-    title: 'Titre de la séance',
-    description: 'Donne un nom à ta séance, par exemple "Pectoraux & Triceps" ou "Jambes". Ça t\'aide à t\'y retrouver dans ton programme.',
-  },
-  {
-    target: 'session-content-area',
-    title: 'Écris ta séance ici',
-    description: 'Entre tes exercices un par ligne. Les indications juste au-dessus te rappellent le format : exercice, séries × reps. Le repos et le poids sont optionnels.',
-    forceBelow: true,
-  },
-  {
-    target: 'session-day-picker',
-    title: 'Choisis le jour',
-    description: 'Sélectionne le jour où tu veux placer cette séance dans la semaine. Tu peux en mettre deux le même jour si besoin.',
-  },
-  {
-    target: 'session-verify-btn',
-    title: 'Vérifie ta séance',
-    description: 'Une fois ta séance écrite, appuie sur "Vérifier" pour voir si tous tes exercices ont bien été compris. Tu pourras corriger avant d\'importer.',
-    hideNext: true,
-  },
-  {
-    target: 'session-content-area',
-    title: 'Tu peux corriger',
-    description: 'Voici comment ta séance a été comprise. Si quelque chose ne te convient pas, appuie sur "Modifier" pour réécrire ta séance.',
-  },
+  { target: 'add-session-btn',      tk: 'im_tuto_add',    hideNext: true },
+  { target: 'session-title-input',  tk: 'im_tuto_title' },
+  { target: 'session-content-area', tk: 'im_tuto_write',  forceBelow: true },
+  { target: 'session-day-picker',   tk: 'im_tuto_day' },
+  { target: 'session-verify-btn',   tk: 'im_tuto_verify', hideNext: true },
+  { target: 'session-content-area', tk: 'im_tuto_fix' },
   // (Étape « Durée du cycle » retirée avec le sélecteur : tous les programmes
   // tournent maintenant en boucle, il n'y a plus de durée à choisir.)
 ];
@@ -119,6 +95,7 @@ const sortAndRenumber = (arr) => {
 };
 
 export default function ImportSessionDialog({ sessions: initialSessions, onPersist, onClose, isEditing = false }) {
+  const { t } = useI18n();
   const { startTutorial, nextStep, skipStep, wakeTutorial, endTutorial, activeTutorial } = useTutorial() || {};
   const activeTutorialRef = useRef(null);
   activeTutorialRef.current = activeTutorial;
@@ -262,7 +239,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
   }, []);  
 
   useEffect(() => {
-    startTutorial?.('import-dialog', IMPORT_TUTORIAL_STEPS);
+    startTutorial?.('import-dialog', IMPORT_TUTORIAL_STEPS.map(e => ({ ...e, title: t(e.tk + '_t'), description: t(e.tk + '_d') })));
     // À la fermeture du dialog, marque le tuto comme vu s'il est encore en cours
     // (évite qu'il recommence si l'utilisateur ferme avant d'avoir touché le slider de durée)
     return () => {
@@ -314,8 +291,8 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
 
         {/* Header */}
         <div className="px-5 pt-5 pb-3 border-b border-white/10 flex-shrink-0">
-          <h2 className="font-bold text-white text-lg">{isEditing ? 'Modifier le programme' : 'Importer dans le programme'}</h2>
-          <p className="text-white/40 text-xs mt-0.5">{isEditing ? 'Modifie tes séances ou ajoutes-en de nouvelles' : 'Choisis les jours et la durée du cycle'}</p>
+          <h2 className="font-bold text-white text-lg">{isEditing ? t('im_edit_title') : t('im_import_title')}</h2>
+          <p className="text-white/40 text-xs mt-0.5">{isEditing ? t('im_edit_sub') : t('im_import_sub')}</p>
         </div>
 
         {/* Sessions */}
@@ -326,7 +303,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
                 <input
                   value={s.label}
                   onChange={e => updateSession(i, 'label', e.target.value)}
-                  placeholder="Titre de la séance"
+                  placeholder={t('im_session_title')}
                   maxLength={30}
                   className="flex-1 bg-transparent text-white text-sm font-semibold outline-none placeholder-white/30 min-w-0"
                   {...(i === 0 ? { 'data-tutorial': 'session-title-input' } : {})}
@@ -347,7 +324,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
                 const exs = s.exercises?.length ? s.exercises : parseExercises(s.content || '');
                 return (
                   <div className="flex items-center gap-2 text-xs text-white/40 pb-1">
-                    <span>{DAYS.find(d => d.value === s.day)?.label || s.day}</span>
+                    <span>{DAYS.find(d => d.value === s.day)?.tk ? t(DAYS.find(d => d.value === s.day).tk) : s.day}</span>
                     <span>·</span>
                     <span>{exs.length} ex.</span>
                     {exs.length > 0 && <><span>·</span><span>{calcDuration(exs)} min</span></>}
@@ -362,7 +339,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
                     <p className="text-white/40 text-xs font-medium">{exs.length} exercices · {calcDuration(exs)} min estimées</p>
                   )}
                   {exs.length === 0
-                    ? <p className="text-white/30 text-xs italic">Aucun exercice détecté</p>
+                    ? <p className="text-white/30 text-xs italic">{t('im_no_ex')}</p>
                     : exs.map((ex, ei) => (
                       <div key={ei} className="flex flex-col gap-0.5 pb-2 border-b border-white/5 last:border-0 last:pb-0">
                         <p className="text-white text-sm font-semibold">{ex.name}</p>
@@ -385,11 +362,11 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
               })() : (
                 <div className="mb-2">
                   <div {...(i === 0 ? { 'data-tutorial': 'session-content-area' } : {})}>
-                    <p className="text-white/40 text-xs mb-1.5">Exercice, séries × reps. <span className="text-white/25">Repos et poids optionnels.</span></p>
+                    <p className="text-white/40 text-xs mb-1.5">{t('im_format')} <span className="text-white/25">{t('im_format_opt')}</span></p>
                     <textarea
                       value={s.content || ''}
                       onChange={e => updateSession(i, 'content', e.target.value)}
-                      placeholder={"Écris ta séance (1 exercice par ligne) puis appuie sur Vérifier pour voir si tout est bien compris."}
+                      placeholder={t('im_content_ph')}
                       rows={6}
                       className="w-full bg-white/5 rounded-xl px-3 py-2 text-white text-sm outline-none placeholder-white/25 resize-none leading-relaxed border border-white/10"
                     />
@@ -403,7 +380,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
                     className="w-full mt-1.5 py-2 rounded-xl text-xs font-semibold transition-all"
                     style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white' }}
                     {...(i === 0 ? { 'data-tutorial': 'session-verify-btn' } : {})}>
-                    Vérifier
+                    {t('im_verify')}
                   </button>
                 </div>
               ))}
@@ -420,14 +397,14 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
                         color: isSelected ? 'white' : alreadyTwo ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.5)',
                         opacity: alreadyTwo && !isSelected ? 0.4 : 1,
                       }}>
-                      {d.label.slice(0, 2)}
+                      {t(d.tk).slice(0, 2)}
                     </button>
                   );
                 })}
               </div>)}
               {!collapsed[i] && countForDay(s.day, i) === 1 && (
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-white/40 text-xs">Ordre dans la journée :</span>
+                  <span className="text-white/40 text-xs">{t('im_order')}</span>
                   <div className="flex gap-1">
                     {[1,2].map(o => (
                       <button key={o} onClick={() => updateSession(i, 'order', o)}
@@ -436,7 +413,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
                           background: (s.order || 1) === o ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'rgba(255,255,255,0.08)',
                           color: (s.order || 1) === o ? 'white' : 'rgba(255,255,255,0.5)',
                         }}>
-                        {o === 1 ? '1ère' : '2ème'}
+                        {o === 1 ? t('im_first') : t('im_second')}
                       </button>
                     ))}
                   </div>
@@ -456,7 +433,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
             }}
               className="w-full py-3 rounded-2xl border border-dashed border-white/20 text-white/40 text-sm font-semibold flex items-center justify-center gap-2 hover:border-white/40 hover:text-white/60 transition-all">
               <Plus className="w-4 h-4" />
-              Ajouter une séance ({sessions.length}/14)
+              {t('im_add')} ({sessions.length}/14)
             </button>
           )}
 
@@ -470,21 +447,21 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-3xl">
             <div className="mx-6 rounded-2xl p-6 space-y-4 w-full" style={{ background: 'linear-gradient(160deg, #3b0764, #1e0050)', border: '1px solid rgba(255,255,255,0.15)' }}>
               <div className="text-center space-y-1">
-                <p className="font-bold text-white text-base">Supprimer la séance ?</p>
-                <p className="text-white/50 text-sm">"{sessions[confirmDelete]?.label || `Séance ${confirmDelete + 1}`}" sera retirée du programme.</p>
+                <p className="font-bold text-white text-base">{t('im_del_title')}</p>
+                <p className="text-white/50 text-sm">"{sessions[confirmDelete]?.label || `${t('nav_session')} ${confirmDelete + 1}`}" {t('im_del_body')}</p>
               </div>
               <div className="flex gap-3">
                 <button
                   onClick={() => setConfirmDelete(null)}
                   className="flex-1 py-3 rounded-xl text-sm font-semibold border border-white/15 text-white/60 hover:bg-white/10 transition-colors"
-                >Annuler</button>
+                >{t('cancel')}</button>
                 <button
                   onClick={() => {
                     removeSession(confirmDelete);
                     setConfirmDelete(null);
                   }}
                   className="flex-1 py-3 rounded-xl text-sm font-bold text-white bg-red-500/80 hover:bg-red-500 transition-colors"
-                >Supprimer</button>
+                >{t('im_delete')}</button>
               </div>
             </div>
           </div>
@@ -497,7 +474,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
             disabled={saving}
             className="w-full py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 disabled:opacity-80"
             style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
-            {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Mise à jour…</> : 'Fermer'}
+            {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> {t('im_updating')}</> : t('im_close')}
           </button>
         </div>
       </div>
@@ -507,7 +484,7 @@ export default function ImportSessionDialog({ sessions: initialSessions, onPersi
         <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4"
           style={{ background: 'rgba(15,5,40,0.82)', backdropFilter: 'blur(4px)' }}>
           <Loader2 className="w-10 h-10 text-violet-300 animate-spin" />
-          <p className="text-white/90 text-sm font-semibold">Mise à jour de ton programme…</p>
+          <p className="text-white/90 text-sm font-semibold">{t('im_updating_full')}</p>
         </div>
       )}
     </div>

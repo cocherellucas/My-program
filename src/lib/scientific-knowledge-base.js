@@ -853,7 +853,7 @@ export const KNOWLEDGE_BASE = [
     example: 'Ex : pour remplir le haut des pecs (zone souvent creuse), prioriser le développé incliné à 30° avec haltères. Prise légèrement plus serrée que la largeur d\'épaules pour maximiser le stretch pectoral.',
     objectives: ['hypertrophy', 'strength'],
     levels: ['beginner', 'intermediate', 'advanced'],
-    muscles: ['Poitrine', 'Triceps', 'Épaules'],
+    muscles: ['Pectoraux', 'Triceps', 'Épaules'],
     keywords: ['bench press', 'angle', 'pectoraux', 'incliné', 'plat', 'décliné'],
   },
   {
@@ -937,7 +937,7 @@ export const KNOWLEDGE_BASE = [
     example: 'Ex : athlète qui "ne sent pas ses pecs" au développé → faire 3×15 de pec deck (pré-exhaustion), puis immédiatement 4×8 développé couché. Les pecs sont forcés de s\'activer en priorité.',
     objectives: ['hypertrophy'],
     levels: ['intermediate', 'advanced'],
-    muscles: ['Poitrine', 'Épaules'],
+    muscles: ['Pectoraux', 'Épaules'],
     keywords: ['pré-exhaustion', 'isolation', 'composé', 'fatigue', 'technique avancée'],
   },
   {
@@ -993,7 +993,7 @@ export const KNOWLEDGE_BASE = [
     example: 'Ex : dips pour pectoraux — se pencher à 30-45° vers l\'avant dès le départ, descendre jusqu\'à sentir l\'étirement dans les pecs en bas, pousser en gardant l\'inclinaison. Sensation complètement différente des dips triceps.',
     objectives: ['hypertrophy', 'strength'],
     levels: ['intermediate', 'advanced'],
-    muscles: ['Poitrine', 'Triceps'],
+    muscles: ['Pectoraux', 'Triceps'],
     keywords: ['dips', 'pectoraux', 'triceps', 'inclinaison', 'coudes'],
   },
   {
@@ -1161,7 +1161,7 @@ export const KNOWLEDGE_BASE = [
     example: 'Ex : câble croisé — poulies hautes, se pencher légèrement, bras en croix (étirement pectoraux). Ramener les mains devant soi en arc, sentir la contraction au centre. La résistance du câble est présente même en position étirée, contrairement aux haltères.',
     objectives: ['hypertrophy'],
     levels: ['intermediate', 'advanced'],
-    muscles: ['Poitrine'],
+    muscles: ['Pectoraux'],
     keywords: ['câble', 'pectoraux', 'étirement', 'amplitude', 'résistance constante'],
   },
   {
@@ -1448,7 +1448,7 @@ export const KNOWLEDGE_BASE = [
     example: 'Biceps : curl incliné (étirement) + preacher curl (pic contraction). Pectoraux : fly haltères (étirement) + pec deck machine (pic contraction). Ischio-jambiers : RDL ou leg curl assis (étirement) + hip thrust (pic contraction). Quadriceps : squat profond (étirement) + leg extension (pic contraction).',
     objectives: ['hypertrophy'],
     levels: ['intermediate', 'advanced'],
-    muscles: ['Biceps', 'Ischio-jambiers', 'Fessiers', 'Quadriceps', 'Triceps', 'Poitrine', 'Dos', 'Épaules'],
+    muscles: ['Biceps', 'Ischio-jambiers', 'Fessiers', 'Quadriceps', 'Triceps', 'Pectoraux', 'Dos', 'Épaules'],
     keywords: ['tension étirement', 'pic contraction', 'sélection exercice', 'profil de tension', 'stretch', 'contracted'],
   },
   {
@@ -1462,7 +1462,7 @@ export const KNOWLEDGE_BASE = [
     example: 'RDL (étirement) : 4×8 avec 3s d\'excentrique, descendre jusqu\'à mi-tibia. Leg extension (pic contraction) : 3×15-20, pause 1s genou étendu à chaque rep. Résultat : stimulus plus complet du quadriceps et des ischio-jambiers que 4×12 sur les deux exercices.',
     objectives: ['hypertrophy'],
     levels: ['intermediate', 'advanced'],
-    muscles: ['Biceps', 'Ischio-jambiers', 'Fessiers', 'Quadriceps', 'Triceps', 'Poitrine'],
+    muscles: ['Biceps', 'Ischio-jambiers', 'Fessiers', 'Quadriceps', 'Triceps', 'Pectoraux'],
     keywords: ['tempo', 'reps', 'étirement', 'pic contraction', 'excentrique', 'pause isométrique'],
   },
 
@@ -1513,7 +1513,7 @@ export const KNOWLEDGE_BASE = [
     example: 'Ex : utilisateur qui ne sent pas ses pecs au bench → avant la séance : 2×25 fly câble très léger (pré-activation). Pendant le bench : cue "coudes vers l\'intérieur comme pour déchirer la barre", prise légèrement plus serrée. Résultat : sensation dans les pecs immédiate pour la plupart des utilisateurs. Si toujours absent → ajouter pec deck machine en priorité pour construire le chemin neuromusculaire, réduire provisoirement le bench lourd.',
     objectives: ['hypertrophy'],
     levels: ['beginner', 'intermediate', 'advanced'],
-    muscles: ['Poitrine', 'Fessiers', 'Dos', 'Épaules', 'Quadriceps'],
+    muscles: ['Pectoraux', 'Fessiers', 'Dos', 'Épaules', 'Quadriceps'],
     keywords: ['pré-activation', 'recrutement', 'difficulté activation', 'cues', 'ne sent pas', 'muscle difficile', 'connexion neuromusculaire'],
   },
   {
@@ -1767,7 +1767,7 @@ export const KNOWLEDGE_BASE = [
     example: 'Ex : écarté câble croisé — en position d\'étirement (bras ouverts), la résistance du câble est maximale. Avec haltères, la résistance est quasi nulle dans cette position. Avantage câble pour cibler les pecs en étirement.',
     objectives: ['hypertrophy'],
     levels: ['beginner', 'intermediate', 'advanced'],
-    muscles: ['Poitrine', 'Épaules'],
+    muscles: ['Pectoraux', 'Épaules'],
     keywords: ['câble', 'tension constante', 'haltères', 'barre', 'amplitude', 'résistance'],
   },
 
@@ -2649,7 +2649,7 @@ export function getMessageKnowledge(message, { user = {}, objectives = [], limit
 
   // Recherche par muscles mentionnés dans le message
   const MUSCLE_MAP = {
-    pec: 'Poitrine', pecto: 'Poitrine', poitrine: 'Poitrine',
+    pec: 'Pectoraux', pecto: 'Pectoraux', poitrine: 'Pectoraux',
     dos: 'Dos', dorsal: 'Dos', rhomboid: 'Dos',
     epau: 'Épaules', delt: 'Épaules', epaule: 'Épaules',
     bice: 'Biceps', curl: 'Biceps',

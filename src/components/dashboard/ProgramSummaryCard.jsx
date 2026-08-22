@@ -11,7 +11,7 @@ export default function ProgramSummaryCard({ program, objectives, sessions = [] 
   if (!program) {
     return (
       <Card className="p-6 bg-white/15 backdrop-blur-sm border-white/20">
-        <p className="text-white/70 text-center">Aucun programme actif</p>
+        <p className="text-white/70 text-center">{t('ps_none')}</p>
       </Card>
     );
   }

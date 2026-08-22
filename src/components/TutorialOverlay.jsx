@@ -2,8 +2,10 @@ import React, { useRef, useState, useLayoutEffect, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTutorial } from '@/lib/TutorialContext';
+import { useI18n } from '@/lib/i18n';
 
 export default function TutorialOverlay() {
+  const { t } = useI18n();
   const { activeTutorial, targetRect, nextStep, skipStep, skipAll } = useTutorial() || {};
   const bubbleRef = useRef(null);
   const [bubbleH, setBubbleH] = useState(0);
@@ -227,7 +229,7 @@ export default function TutorialOverlay() {
                 {!hideNext && (
                   <button type="button" onClick={step?.dormantNext ? skipStep : nextStep}
                     className="ml-auto text-xs font-bold text-violet-700 bg-white hover:bg-white/95 px-4 py-1.5 rounded-lg shadow transition-all active:scale-[0.97]">
-                    {isLast ? "C'est parti !" : "Suivant →"}
+                    {isLast ? t('se_go') : t('tuto_next')}
                   </button>
                 )}
               </div>
@@ -241,7 +243,7 @@ export default function TutorialOverlay() {
           <button type="button"
             onClick={() => setConfirmSkipAll(true)}
             className="text-[11px] text-white/60 hover:text-white/90 underline underline-offset-4 transition-colors px-3 py-2">
-            Passer tous les tutos
+            {t('tuto_skip_all')}
           </button>
         </div>
 
@@ -259,20 +261,20 @@ export default function TutorialOverlay() {
                 background: 'linear-gradient(160deg, #6d28d9 0%, #4c1d95 100%)',
                 border: '1.5px solid rgba(255,255,255,0.3)',
               }}>
-              <p className="text-base font-bold text-white">Passer tous les tutos ?</p>
+              <p className="text-base font-bold text-white">{t('tuto_skip_all_q')}</p>
               <p className="text-xs text-white/80 mt-2 leading-relaxed">
-                Tu ne verras plus aucune explication du Coach IA dans l'app. Tu pourras toujours les relancer depuis les réglages.
+                {t('tuto_skip_all_d')}
               </p>
               <div className="flex gap-2 mt-4">
                 <button type="button"
                   onClick={() => setConfirmSkipAll(false)}
                   className="flex-1 text-xs font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/20 px-3 py-2 rounded-lg transition-colors">
-                  Annuler
+                  {t('cancel')}
                 </button>
                 <button type="button"
                   onClick={() => { setConfirmSkipAll(false); skipAll?.(); }}
                   className="flex-1 text-xs font-bold text-violet-700 bg-white hover:bg-white/95 px-3 py-2 rounded-lg shadow transition-all active:scale-[0.97]">
-                  Oui, passer tout
+                  {t('tuto_skip_all_yes')}
                 </button>
               </div>
             </motion.div>

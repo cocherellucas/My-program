@@ -16,13 +16,15 @@ import Profile  from '@/pages/Profile';
 import Dashboard   from '@/pages/Dashboard';
 import SessionLog  from '@/pages/SessionLog';
 import CoachIA     from '@/pages/CoachIA';
+import { useI18n } from '@/lib/i18n';
 
 const NAV_PATHS = ['/', '/program', '/session', '/coach', '/library', '/profile'];
 const COACH_IDX = NAV_PATHS.indexOf('/coach');
 const SESSION_IDX = NAV_PATHS.indexOf('/session');
-const PAGE_LABELS = {
-  '/': 'Accueil', '/program': 'Programme', '/session': 'Séance',
-  '/coach': 'Coach', '/library': 'Biblio', '/profile': 'Profil',
+// Clés du dictionnaire : ces libellés existaient déjà en double sous `nav_*`.
+const PAGE_TKEYS = {
+  '/': 'nav_home', '/program': 'nav_program', '/session': 'nav_session',
+  '/coach': 'nav_coach', '/library': 'nav_library', '/profile': 'nav_profile',
 };
 
 // Pages rendues HORS du carrousel (position:fixed propre, hors du transform) :
@@ -50,6 +52,7 @@ const PageGhost = ({ label }) => (
 );
 
 export default function AppLayout() {
+  const { t } = useI18n();
   const [collapsed, setCollapsed] = useState(false);
   const { timerState, stopTimer, updateSeconds } = useRestTimer();
   const location = useLocation();
@@ -305,7 +308,7 @@ export default function AppLayout() {
                     ? <Pre />
                     : isActive
                       ? <OnDemand />
-                      : <PageGhost label={PAGE_LABELS[path]} />}
+                      : <PageGhost label={PAGE_TKEYS[path] ? t(PAGE_TKEYS[path]) : path} />}
                 </div>
               </div>
             );

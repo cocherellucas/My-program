@@ -41,6 +41,7 @@ const EN = new Set(Object.keys(DICT.en || {}));
 // ── Clés appelées ───────────────────────────────────────────────────────────
 const litterales = new Map(); // clé → fichiers
 const dynamiques = new Map(); // préfixe → fichiers
+const citees = new Set();     // clés écrites en dur ailleurs que dans un t()
 for (const f of fichiers(SRC)) {
   const rel = path.relative(RACINE, f);
   const txt = fs.readFileSync(f, 'utf8');
@@ -52,13 +53,20 @@ for (const f of fichiers(SRC)) {
     if (!dynamiques.has(m[1])) dynamiques.set(m[1], new Set());
     dynamiques.get(m[1]).add(rel);
   }
+  // Troisième forme : la clé est stockée puis traduite au rendu — `t(m)`,
+  // `t(s.descKey)`. Invisible aux deux regex ci-dessus, ce qui faisait passer
+  // pour mortes des clés bel et bien affichées (les libellés d'échauffement).
+  // On considère donc comme citée toute chaîne qui EST une clé du dictionnaire.
+  if (path.basename(f) === 'i18n.jsx') continue;
+  for (const m of txt.matchAll(/'([a-z0-9_]+)'/gi)) citees.add(m[1]);
+  for (const m of txt.matchAll(/"([a-z0-9_]+)"/gi)) citees.add(m[1]);
 }
 
 const lignes = [];
 const manquantes = [...litterales.keys()].filter((k) => !FR.has(k)).sort();
 const sansEn = [...FR].filter((k) => !EN.has(k)).sort();
 const sansFr = [...EN].filter((k) => !FR.has(k)).sort();
-const mortes = [...FR].filter((k) => !litterales.has(k)
+const mortes = [...FR].filter((k) => !litterales.has(k) && !citees.has(k)
   && ![...dynamiques.keys()].some((p) => p && k.startsWith(p))).sort();
 
 console.log('\n██ AUDIT I18N ██\n');

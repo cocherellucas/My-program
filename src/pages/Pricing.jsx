@@ -4,8 +4,13 @@ import { Check, Zap, Star, Crown, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DEFAULT_PLANS } from '@/lib/pricing-config';
 import { useNavigate } from 'react-router-dom';
+import { useI18n } from '@/lib/i18n';
 
 export default function Pricing() {
+  const { t, lang } = useI18n();
+  // Le format des prix suit la langue : « 9,90€ » en francais, « €9.90 » en
+  // anglais. Le nombre reste le meme, seule la presentation change.
+  const fmt = (n) => (lang === 'en' ? `€${n.toFixed(2)}` : `${n.toFixed(2).replace('.', ',')}€`);
   const [billing, setBilling] = useState('monthly');
   const [plans, setPlans] = useState(DEFAULT_PLANS);
   const [user, setUser] = useState(null);
@@ -53,13 +58,13 @@ export default function Pricing() {
           className="flex items-center gap-2 text-white/60 hover:text-white transition-colors mb-6 text-sm font-medium"
         >
           <ArrowLeft className="w-4 h-4" />
-          Retour
+          {t('se_back')}
         </button>
 
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-heading font-bold text-white mb-1">Choisis ton plan</h1>
-          <p className="text-white/60 text-xs">Commence gratuitement. Monte en puissance quand tu es prêt.</p>
+          <h1 className="text-2xl font-heading font-bold text-white mb-1">{t('pr_title')}</h1>
+          <p className="text-white/60 text-xs">{t('pr_sub')}</p>
 
           {/* Toggle */}
           <div className="inline-flex items-center gap-1 bg-white/10 border border-white/20 rounded-full p-1 mt-4">
@@ -70,7 +75,7 @@ export default function Pricing() {
                 billing === 'monthly' ? 'bg-white text-violet-700 shadow' : 'text-white/60 hover:text-white'
               )}
             >
-              Mensuel
+              {t('pr_monthly')}
             </button>
             <button
               onClick={() => setBilling('annual')}
@@ -79,7 +84,7 @@ export default function Pricing() {
                 billing === 'annual' ? 'bg-white text-violet-700 shadow' : 'text-white/60 hover:text-white'
               )}
             >
-              Annuel
+              {t('pr_annual')}
               <span className={cn('text-xs px-2 py-0.5 rounded-full font-bold', billing === 'annual' ? 'bg-violet-600 text-white' : 'bg-white/20 text-white')}>-30%</span>
             </button>
           </div>
@@ -96,7 +101,7 @@ export default function Pricing() {
                   <div className="absolute -top-2.5 left-4">
                     <span className="bg-green-500 text-white text-[10px] font-bold px-3 py-0.5 rounded-full flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 bg-white rounded-full inline-block animate-pulse" />
-                      Plan actif
+                      {t('pr_active')}
                     </span>
                   </div>
                 )}
@@ -108,7 +113,7 @@ export default function Pricing() {
                     <p className="font-heading font-bold text-sm text-white">{plan.name}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <p className="text-lg font-heading font-bold text-white">Gratuit</p>
+                    <p className="text-lg font-heading font-bold text-white">{t('pr_free')}</p>
                     {!isActive && (
                       <button className="px-3 py-1.5 rounded-xl font-semibold text-xs bg-white/15 text-white border border-white/20 whitespace-nowrap">
                         {plan.cta_label}
@@ -165,10 +170,13 @@ export default function Pricing() {
                     <p className="text-xs text-white/60 mt-0.5 leading-tight">{plan.description}</p>
                   </div>
                   <div>
-                    <span className="text-2xl font-heading font-bold text-white">{price.toFixed(2).replace('.', ',')}€</span>
-                    <span className="text-xs text-white/60 ml-1">/mois</span>
-                    {billing === 'annual' && plan.discount_annual_pct > 0 && (
-                      <p className="text-[10px] text-white/50 mt-0.5">Économise {plan.discount_annual_pct}%</p>
+                    <span className="text-2xl font-heading font-bold text-white">{fmt(price)}</span>
+                    <span className="text-xs text-white/60 ml-1">{t('pr_per_month')}</span>
+                    {billing === 'annual' && (
+                      <p className="text-[10px] text-white/60 mt-0.5 leading-tight">
+                        {t('pr_ie')} <span className="font-semibold text-white/80">{fmt(price * 12)} {t('pr_per_year')}</span>
+                        {plan.discount_annual_pct > 0 && ` · ${plan.discount_annual_pct}% ${t('pr_saved')}`}
+                      </p>
                     )}
                   </div>
                   <button
@@ -177,10 +185,17 @@ export default function Pricing() {
                     className={cn(
                     'w-full py-2.5 rounded-xl font-semibold text-sm transition-all',
                     isActive ? 'bg-green-500/20 text-green-300 border border-green-400/30 cursor-default'
-                      : isFeatured ? 'bg-white text-violet-700 hover:bg-white/90' : 'bg-white/15 text-white border border-white/20 hover:bg-white/25'
+                      : isFeatured ? 'bg-white text-violet-700 hover:bg-white/90' : 'bg-amber-300 text-violet-900 hover:bg-amber-200 shadow'
                   )}>
-                    {isActive ? 'Ton plan actuel' : plan.cta_label}
+                    {isActive ? t('pr_current') : plan.cta_label}
                   </button>
+                  {!isActive && (
+                    <p className="text-[10px] text-white/55 text-center -mt-1.5 leading-tight">
+                      {billing === 'monthly'
+                        ? t('pr_reassure_monthly')
+                        : `${t('pr_reassure_annual')} · ${fmt(price * 12)} ${t('pr_billed_today')}`}
+                    </p>
+                  )}
                   <ul className="space-y-1.5">
                     {plan.features.map((f, i) => (
                       <li key={i} className="flex items-start gap-1.5 text-xs">
@@ -202,9 +217,9 @@ export default function Pricing() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6" onClick={() => setComingSoon(null)}>
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
           <div className="relative bg-violet-900 border border-white/20 rounded-2xl p-6 w-full max-w-xs shadow-2xl text-center space-y-3" onClick={e => e.stopPropagation()}>
-            <p className="font-bold text-white text-base">Bientôt disponible 🚀</p>
-            <p className="text-sm text-white/60">Le paiement pour le plan {comingSoon.name} arrive très prochainement.</p>
-            <button onClick={() => setComingSoon(null)} className="w-full py-2.5 rounded-xl text-sm font-semibold bg-white text-violet-700 hover:bg-white/90 transition-colors">Compris</button>
+            <p className="font-bold text-white text-base">{t('pr_soon')}</p>
+            <p className="text-sm text-white/60">{t('pr_soon_d1')} {comingSoon.name} {t('pr_soon_d2')}</p>
+            <button onClick={() => setComingSoon(null)} className="w-full py-2.5 rounded-xl text-sm font-semibold bg-white text-violet-700 hover:bg-white/90 transition-colors">{t('got_it')}</button>
           </div>
         </div>
       )}

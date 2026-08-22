@@ -188,7 +188,7 @@ export default function Onboarding() {
         d => !data.duration_per_day?.[d] || parseInt(data.duration_per_day[d]) < 10
       );
       if (missingDuration) {
-        setStepError('Renseigne la durée (min. 10 min) pour chaque jour sélectionné.');
+        setStepError(t('ob_need_duration'));
         return false;
       }
       const tropCourt = await erreurBudgetTemps(data, false, t);

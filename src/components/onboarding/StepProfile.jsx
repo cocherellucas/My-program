@@ -23,37 +23,17 @@ export default function StepProfile({ data, onChange }) {
   // Démarre les tutos pour cette étape (icône ?, input numérique, dropdown)
   useEffect(() => {
     if (!startTutorial) return;
-    const t = setTimeout(() => {
+    // `timer`, pas `t` : `t` est la fonction de traduction du composant.
+    const timer = setTimeout(() => {
       startTutorial('profile-intro', [
-        {
-          target: 'gender-cards',
-          title: 'Choisis ton genre',
-          description: 'Pour commencer, choisis ton genre en cliquant sur une carte. La carte sélectionnée a une bordure blanche.',
-        },
-        {
-          target: 'numeric-input',
-          title: 'Saisir un nombre',
-          description: 'Tape directement au clavier, OU utilise les petites flèches ↑↓ à droite. Reste appuyé pour défiler plus vite.',
-        },
-        {
-          target: 'help-icon',
-          title: 'Besoin d\'aide ?',
-          description: 'Tu vas voir des "?" partout dans l\'app. Clique dessus pour avoir l\'explication détaillée du champ à côté.',
-        },
-        {
-          target: 'dropdown',
-          title: 'Menu déroulant',
-          description: 'Clique pour ouvrir la liste, puis choisis ton option. Tu peux toujours changer plus tard.',
-        },
-        {
-          target: 'next-button',
-          title: 'Boutons avec flèche →',
-          description: "Chaque bouton avec une flèche → t'emmène à l'endroit indiqué par son texte. Ici, \"Suivant\" t'emmènera à l'étape suivante.",
-          nonInteractive: true,
-        },
+        { target: 'gender-cards',  title: t('sp_tuto_gender_t'),   description: t('sp_tuto_gender_d') },
+        { target: 'numeric-input', title: t('sp_tuto_number_t'),   description: t('sp_tuto_number_d') },
+        { target: 'help-icon',     title: t('sp_tuto_help_t'),     description: t('sp_tuto_help_d') },
+        { target: 'dropdown',      title: t('sp_tuto_dropdown_t'), description: t('sp_tuto_dropdown_d') },
+        { target: 'next-button',   title: t('sp_tuto_next_t'),     description: t('sp_tuto_next_d'), nonInteractive: true },
       ]);
     }, 600);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [startTutorial]);
 
   const numInput = (field) => {

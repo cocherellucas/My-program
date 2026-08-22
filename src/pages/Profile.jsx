@@ -192,7 +192,7 @@ export default function Profile() {
       setShowRegenBanner(false);
     }
 
-    toast.success('Profil mis à jour');
+    toast.success(t('pf_updated'));
     setUser({ ...user, ...editableFields });
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
@@ -243,8 +243,8 @@ export default function Profile() {
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-3">
           {/* Email volontairement absent : déjà affiché dans Paramètres → Compte */}
-          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white">Profil</h1>
-          <button onClick={() => navigate('/settings')} aria-label="Paramètres"
+          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white">{t('nav_profile')}</h1>
+          <button onClick={() => navigate('/settings')} aria-label={t('set_title')}
             className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl border border-white/30 text-white hover:bg-white/10 transition-colors">
             <Settings className="w-5 h-5" />
           </button>
@@ -549,8 +549,8 @@ export default function Profile() {
       {showRegenBanner && (
         <div className="p-4 rounded-xl bg-violet-500/20 border border-violet-400/30 space-y-3">
           <div>
-            <p className="text-sm font-semibold text-white">Ton programme n'est plus optimisé pour ton profil</p>
-            <p className="text-xs text-white/60 mt-0.5">Tu viens de modifier un élément qui sert à le construire. Régénère-le pour qu'il en tienne compte — ou continue tes modifications et régénère après.</p>
+            <p className="text-sm font-semibold text-white">{t('pf_stale_t')}</p>
+            <p className="text-xs text-white/60 mt-0.5">{t('pf_stale_d')}</p>
           </div>
           {/* Une seule ligne, même sur mobile : le bouton principal prend la place
               restante et le secondaire garde sa largeur (libellés courts — la
