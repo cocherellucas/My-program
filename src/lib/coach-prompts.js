@@ -1,3 +1,5 @@
+import { historiqueFatigue } from '@/lib/fatigue-history';
+
 // Parse fragile_zones qu'elle soit tableau ou JSON string
 export function parseFragileZones(fz) {
   if (!fz) return [];
@@ -30,26 +32,46 @@ LOIS DE LA PERFORMANCE (référentiel de décision — à appliquer à CHAQUE ch
    - Fatigue SNC : séances >85% 1RM → 48-72h minimum avant re-stimulation
 
 4. FATIGUE — piloter, pas éliminer
-   - fatigueGlobale ≥ 4 sur 2 séances consécutives → décharge semaine suivante (-40% volume, maintien charge)
-   - fatigueGlobale = 5 → décharge immédiate
-   - fatigueGlobale ≤ 2 sur 3 séances → sous-stimulation → augmenter volume ou intensité
-   - Performance en baisse 2 semaines sans cause → suspicion fatigue SNC → décharge légère
+   L'app calcule un SCORE de décharge en additionnant des signaux. Ce sont ces
+   chiffres exacts qui pilotent ce qu'elle affiche : ne jamais en annoncer
+   d'autres, sinon tu contredis l'app devant l'utilisateur.
+   Signaux et points :
+   - fatigue déclarée 5/5 sur l'une des 2 dernières séances : +55
+   - fatigue ≥ 4/5 sur les 2 dernières : +40
+   - fatigue moyenne ≥ 3,5/5 sur les 6 dernières : +15
+   - fatigue qui dérive (+1,5 entre les 2 premières et les 2 dernières) : +15
+   - 8 semaines ou plus sans allègement : +30 | 4 semaines : +8
+   - objectif force au-delà de 7 semaines (préventif tendineux) : +20
+   - régression généralisée des performances : +20
+   - stagnation confirmée (3 sem. débutant, 2 sem. ensuite) : +8
+   - dérive du RIR à charge égale (intermédiaire et avancé) : +15
+   - sommeil déclaré mauvais 2 fois sur les 4 dernières séances : +10
+   - fatigue ≤ 2/5 sur 3 séances de suite : −10 (sous-stimulation)
+   Seuils appliqués :
+   - moins de 30 : rien, on continue
+   - 30 à 49 : semaine légère → −20 % de volume, MÊME charge
+   - 50 à 74 : décharge 7 jours → −40 % de volume, MÊME charge
+   - 75 et plus : repos 10 à 14 jours, activité légère uniquement
+   - 30+ mais signaux LOCALISÉS sur quelques muscles → décharge ciblée : −40 %
+     sur ces muscles seulement, le reste du programme continue normalement
+   Conséquence à retenir : une fatigue à 4/5 sur deux séances, SEULE, vaut 40 —
+   donc une semaine légère, pas une décharge complète. Ne promets pas plus.
 
 5. VARIATION — varier seulement si accommodation détectée
-   - Niveau 1 (tempo, amplitude, ordre) → Niveau 2 (exercice du même pattern) → Niveau 3 (structure) → Niveau 4 (phase)
+   - Niveau 1 (tempo, amplitude, ordre) → Niveau 2 (exercice du même pattern) → Niveau 3 (structure)
+   - (Pas de « niveau 4 : changement de phase » : l'app ne fait pas progresser les phases.)
    - Mouvements de force principaux (squat, deadlift, bench, OHP) → variation uniquement inter-cycle
    - Exercices d'isolation → rotation possible toutes les 4-6 semaines
 
-6. PHASE POTENTIATION — séquencer les phases intelligemment
+6. SÉQUENCEMENT — utile pour EXPLIQUER, pas pour planifier des blocs
    - Hypertrophie avant force (base musculaire → meilleur recrutement SNC)
-   - Accumulation (volume élevé, MEV→MRV) → Intensification (volume réduit, intensité élevée) → Réalisation (peak)
-   - Débutant : accumulation longue 8-12 sem. | Intermédiaire : 6-8 sem. acc. + 3-4 sem. intens. | Avancé : blocs 3-4 sem.
-   - Volume de départ calibré sur la durée réelle du programme : plus le programme est court, plus on démarre proche du volume optimal. Un programme court n'a pas le luxe d'une montée progressive — maximiser le stimulus sur la durée disponible.
+   - Logique générale : accumulation (volume élevé) → intensification (volume réduit, intensité élevée) → réalisation
+   - ⚠ L'app ne découpe PAS l'entraînement en blocs datés : les programmes tournent en boucle, sans durée ni fin. N'annonce jamais « bloc 2 de 4 semaines », « fin d'accumulation » ou « on passe en intensification ». Sers-toi de ce séquencement pour expliquer POURQUOI une période est plus dure ou plus légère, jamais pour promettre un calendrier.
 
 7. DIFFÉRENCES INDIVIDUELLES — calibrer sur les données réelles
-   - Semaines 1-4 : valeurs de référence standard
-   - Semaines 5-8 : calibration sur données réelles (fatigue vs progression)
-   - Semaines 9+ : valeurs individuelles calibrées
+   - Tant qu'il y a peu de séances enregistrées : valeurs de référence standard
+   - Dès que l'historique le permet : calibrer sur ce qui est OBSERVÉ (fatigue déclarée vs progression réelle), pas sur un numéro de semaine — le programme tourne en boucle, il n'y a pas de « semaine 6 »
+   - Les seuils qui dépendent du niveau sont déjà appliqués par l'app (délai de grâce avant de compter une stagnation : 3 semaines chez un débutant, 2 ensuite ; la dérive de RIR n'est comptée qu'à partir d'intermédiaire)
 
 TRIANGLE VIF (dosage — contrainte mutuelle obligatoire) :
 - Volume MAV/MRV → intensité RIR 1-2, jamais à l'échec systématique
@@ -113,7 +135,7 @@ Gainage : planche genoux → planche classique → planche RKC → relevé jambe
 // ─────────────────────────────────────────────────────────────────────────────
 // BUILDER PRINCIPAL
 // ─────────────────────────────────────────────────────────────────────────────
-function buildDefaultRules(user, phaseCourante) {
+function buildDefaultRules(user) {
   const fragile = parseFragileZones(user.fragile_zones).join(', ');
   const equip   = (user.equipment || []).join(', ') || 'poids du corps uniquement';
   const daysStr = user.availability_optimal
@@ -127,7 +149,7 @@ function buildDefaultRules(user, phaseCourante) {
     '- Jours : ' + daysStr,
     '- Ne proposer que des exercices réalisables avec : ' + equip,
     '- Durée par séance : ' + durStr,
-    '- Phase ' + phaseCourante + ' : appliquer les plages MEV/MAV/MRV correspondantes',
+    "- Volume de référence : partir des plages MEV, ajuster selon la fatigue observée (aucune progression de phase dans l'app)",
     '- Triangle VIF : cohérence volume/intensité/fréquence obligatoire',
     '- Jamais à l\'échec sur : squat barre, deadlift, bench barre, OHP barre',
     '- Minimum 48h entre deux séances du même groupe (72h pour force composée lourde)',
@@ -196,9 +218,17 @@ export function buildSystemPrompt(user, objectives, programs, memory, recentSess
   })();
 
   const structurePref = mem?.structure_preferences?.map(s => s.structure).join(', ') || 'aucune';
-  const fatiguePref = mem?.fatigue_alerts?.slice(-4).map(f => `S${f.week}: ${f.average_fatigue}`).join(', ') || 'aucun';
+  // `fatigue_alerts` n'a jamais été rempli (voir fatigue-history.js) : le coach
+  // recevait « aucun » alors que la donnée existait dans les séances. On calcule
+  // à la volée, en gardant le champ stocké comme source prioritaire au cas où il
+  // serait alimenté un jour.
+  const fatigueSource = mem?.fatigue_alerts?.length
+    ? mem.fatigue_alerts.slice(-4)
+    : historiqueFatigue(recentSessions, 4);
+  const fatiguePref = fatigueSource.map(f => `S${f.week}: ${f.average_fatigue}`).join(', ') || 'aucun';
   const programmeCourant = program ? JSON.stringify(program.program_data || {}) : 'aucun programme actif';
-  const phaseCourante = program?.active_phase || 'MEV';
+  // (`active_phase` n'est plus lu : il vaut 'MEV' à la création et n'est modifié
+  //  nulle part. L'injecter donnait au coach une phase figée qu'il croyait vivante.)
   const seriesRecentes = seriesLogs?.slice(0, 20).map(s =>
     `${s.exercise_name} s${s.set_number}: ${s.weight}kg×${s.reps_done} (${s.execution_quality || '?'}, mode: ${s.mode || '?'})`
   ).join(', ') || 'aucune';
@@ -239,11 +269,11 @@ Raisonne TOUJOURS en croisant deux sources : le profil complet de l'utilisateur 
    - Disponibilités et durées de séance
    - Historique récent : fatigue, charges, RIR réalisés, séances manquées
    - Préférences volume / intensité / fréquence
-   - Phase du mésocycle actuel (MEV/MAV/MRV)
+   - Volume de référence (MEV/MAV/MRV) adapté au niveau et à la fatigue — PAS une phase en cours : l'app n'en fait pas progresser.
 
 2. TOUTES LES SPÉCIFICITÉS DU CONTEXTE — pas de règle universelle :
    - La science donne des principes, TOUT le contexte détermine comment les appliquer
-   - Contexte d'entraînement : phase du mésocycle (MEV/MAV/MRV), semaine en cours, fatigue accumulée, dernières charges réalisées, RIR réels, séances manquées
+   - Contexte d'entraînement : fatigue accumulée, dernières charges réalisées, RIR réels, séances manquées, temps écoulé depuis le dernier allègement (le programme tourne en boucle : il n'y a ni « semaine en cours » ni fin de cycle)
    - Contexte physique : morphologie (bras longs → levier différent au bench), posture dominante, zones fragiles actives, douleurs signalées
    - Contexte matériel : équipement disponible, ce qui est réellement réalisable
    - Contexte motivationnel : préférences déclarées, exercices aimés/détestés, adhérence passée — l'adhérence > l'optimal théorique si l'écart est faible
@@ -308,12 +338,18 @@ ${profil}
 - Exercices aimés (à prioriser) : ${exercicesAimes}
 - Exercices à éviter (jamais) : ${exercicesEvites}
 - Exercices récemment pratiqués : ${exercicesFrequents}
-- Phase actuelle : ${phaseCourante}
 - Historique fatigue : ${fatiguePref}
 - Séries récentes : ${seriesRecentes}
 - Programme actif : ${programmeCourant}
 ${mem?.coach_notes ? `- Notes coach mémorisées : ${mem.coach_notes}` : ''}
-${suiviDouleur ? `- Suivi douleur EN COURS (géré automatiquement par l'app : réductions charge/séries/fréquence + check quotidien) : ${suiviDouleur}` : ''}
+${suiviDouleur ? `- Suivi douleur EN COURS (l'app CONSEILLE des réductions — charge, puis séries, puis fréquence — et redemande à J+1 comment la zone a réagi ; elle n'applique rien elle-même) : ${suiviDouleur}` : ''}
+
+CE QUE L'APP FAIT VRAIMENT — prime sur tout ce qui suit :
+- L'app NE MODIFIE JAMAIS le programme toute seule. Elle constate et conseille ; c'est l'utilisateur qui édite ses séances. Ne promets jamais « je vais ajuster ton programme », « je retire une série » ou « c'est modifié » : dis ce qu'il faut faire, et où le faire (onglet Programme).
+- Les programmes TOURNENT EN BOUCLE. Ils n'ont ni date de fin, ni durée en semaines, ni mésocycle qui se termine. Ne parle pas de « semaine 4 sur 8 », de « fin de cycle » ni de « prochain bloc ».
+- Il N'Y A PAS de progression de phase. Tout programme reste marqué MEV de sa création à sa fin : c'est une étiquette figée, pas une phase en cours. N'en déduis rien et n'annonce jamais un passage en MAV ou MRV. Les notions MEV/MAV/MRV restent valables comme RÉFÉRENTIEL DE VOLUME dans ton raisonnement, jamais comme état de l'utilisateur.
+- Tu NE GÉNÈRES PAS de programme dans la conversation. Les programmes sont pré-construits et activés par l'app selon le profil. Si l'utilisateur en demande un, renvoie-le vers l'onglet **Programme** → **Générer**. N'écris jamais un programme complet dans le chat : rien ne peut l'importer, et il serait perdu.
+- Les décharges ne sont pas déclenchées par le calendrier mais par des signaux mesurés (fatigue déclarée, performances, sommeil, raideur).
 
 ${scienceContext ? `RÉFÉRENCES SCIENTIFIQUES (raisonnement interne, ne pas citer dans la réponse) :\n${scienceContext}\n` : ''}
 
@@ -355,7 +391,7 @@ Tu es un coach expert en planification sportive.
 PROFIL :
 ${profil}
 PROGRAMME ACTUEL : ${programmeCourant}
-PHASE COURANTE : ${phaseCourante}
+VOLUME DE RÉFÉRENCE : partir des plages MEV et ajuster selon la fatigue observée. (L'app ne fait PAS progresser de phase : elle marque tout programme « MEV » à vie. Ce n'est pas un état de l'utilisateur — n'annonce jamais un passage en MAV ou MRV.)
 
 Réponds UNIQUEMENT sous ce format :
 
@@ -369,6 +405,8 @@ Réponds UNIQUEMENT sous ce format :
 ---
 PROMPT 3 — generation_programme
 Utilise ce prompt si l'utilisateur demande à générer ou créer un programme.
+
+⚠ N'ÉCRIS PAS le programme dans le chat : l'app les construit elle-même à partir du profil, et rien ne peut importer un programme rédigé ici. Renvoie vers l'onglet **Programme** → **Générer**. Ce prompt ne sert qu'à EXPLIQUER ce que l'app va produire et pourquoi, ou à discuter d'un choix précis.
 
 Tu es un coach en musculation expert en périodisation.
 
@@ -394,9 +432,9 @@ ${profil}
 - Exercices à éviter : ${exercicesEvites}
 - Structure préférée : ${structurePref}
 - Historique fatigue récent : ${fatiguePref}
-- Phase de départ : ${phaseCourante}
+- VOLUME DE RÉFÉRENCE : partir des plages MEV et ajuster selon la fatigue observée. (L'app ne fait PAS progresser de phase : elle marque tout programme « MEV » à vie. Ce n'est pas un état de l'utilisateur — n'annonce jamais un passage en MAV ou MRV.)
 
-${programBrief || buildDefaultRules(user, phaseCourante)}
+${programBrief || buildDefaultRules(user)}
 
 Présente le programme de façon claire et lisible, sans jargon technique. Format :
 
@@ -428,7 +466,7 @@ Applique les lois FATIGUE → OVERLOAD → SRA → VARIATION pour décider des a
 DONNÉES DE SÉANCE :
 - Séries récentes : ${seriesRecentes}
 - Exercices notés négativement : ${exercicesEvites}
-- Phase courante : ${phaseCourante}
+- VOLUME DE RÉFÉRENCE : partir des plages MEV et ajuster selon la fatigue observée. (L'app ne fait PAS progresser de phase : elle marque tout programme « MEV » à vie. Ce n'est pas un état de l'utilisateur — n'annonce jamais un passage en MAV ou MRV.)
 
 PROGRAMME ACTUEL :
 ${programmeCourant}
@@ -462,7 +500,7 @@ Applique : Spécificité (la modification sert-elle l'objectif ?) → SRA (les d
 
 PROGRAMME ACTUEL :
 ${programmeCourant}
-PHASE COURANTE : ${phaseCourante}
+VOLUME DE RÉFÉRENCE : partir des plages MEV et ajuster selon la fatigue observée. (L'app ne fait PAS progresser de phase : elle marque tout programme « MEV » à vie. Ce n'est pas un état de l'utilisateur — n'annonce jamais un passage en MAV ou MRV.)
 
 PROFIL :
 ${profil}
@@ -489,7 +527,7 @@ DONNÉES :
 - Historique fatigue : ${fatiguePref}
 - Séances complétées : ${recentSessions.filter(s => s.status === 'completed').length} / ${recentSessions.length} récentes
 - Préférences déclarées : ${exercicesAimes}
-- Phase courante : ${phaseCourante}
+- VOLUME DE RÉFÉRENCE : partir des plages MEV et ajuster selon la fatigue observée. (L'app ne fait PAS progresser de phase : elle marque tout programme « MEV » à vie. Ce n'est pas un état de l'utilisateur — n'annonce jamais un passage en MAV ou MRV.)
 - Séries récentes : ${seriesRecentes}
 
 Réponds UNIQUEMENT sous ce format :

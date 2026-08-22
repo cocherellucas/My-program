@@ -18,6 +18,7 @@ import { buildActivationResult } from '@/lib/program-activation';
 import { normalizeUser } from '@/lib/utils';
 import { ensureOnline } from '@/lib/net';
 import { devNow } from '@/lib/dev-time';
+import { planActif } from '@/lib/plan';
 import { ecrireSnapshot } from '@/lib/program-snapshot';
 import { useRestTimer } from '@/lib/RestTimerContext';
 import ImportSessionDialog from '@/components/coach/ImportSessionDialog';
@@ -614,7 +615,7 @@ export default function Program() {
     setGenerating(true);
     setGenError(null);
     setGenSeconds(0);
-    setGenPhase('Analyse du profil…');
+    setGenPhase(t('pg_ph_profile'));
     genTimerRef.current = setInterval(() => setGenSeconds(s => s + 1), 1000);
     try {
 
@@ -624,7 +625,7 @@ export default function Program() {
     // Les programmes sont pré-générés en amont puis SÉLECTIONNÉS en runtime
     // selon le profil (niveau, contexte d'entraînement, disponibilités,
     // objectifs), puis dépliés en séances. Voir program-activation.js.
-    setGenPhase('Sélection du programme adapté à ton profil…');
+    setGenPhase(t('pg_ph_select'));
     // Le profil et les objectifs sont RELUS ici, juste avant de générer. Les pages
     // de l'app restent montées (carrousel) : `user` n'était chargé qu'une fois au
     // démarrage et les objectifs venaient d'un cache que rien n'invalidait. Une
@@ -641,11 +642,11 @@ export default function Program() {
     // embarqué au démarrage de l'app).
     const result = await buildActivationResult(freshUser, freshObjectives);
     if (!result) {
-      throw new Error("Aucun programme pré-généré ne correspond encore à ce profil (niveau, équipement, objectifs ou disponibilités). Ajuste un critère et réessaie.");
+      throw new Error(t('pg_no_match'));
     }
 
     // Create program
-    setGenPhase('Enregistrement du programme…');
+    setGenPhase(t('pg_ph_save'));
     const program = await base44.entities.Program.create({
       user_id: freshUser.id,
       version: 1,
@@ -689,7 +690,7 @@ export default function Program() {
     let ignorees = 0;
     for (const s of (result.sessions || [])) {
       sessionIdx++;
-      setGenPhase(`Création des séances… (${sessionIdx}/${totalSessions})`);
+      setGenPhase(`${t('pg_ph_sessions')} (${sessionIdx}/${totalSessions})`);
       const weekOffset = ((s.week || 1) - 1) * 7;
       const dayOffset = offsetDe(s);
       const date = addDays(monday, weekOffset + dayOffset);
@@ -904,10 +905,10 @@ export default function Program() {
   const programIsInfinite = (activeProgram?.planned_weeks || 1) >= 52;
 
   // Programme terminé : toutes les séances sont passées (programmes finis uniquement)
-  const subscriptionPlan = user?.subscription_plan
-    || (() => { try { return localStorage.getItem('cached_subscription_plan'); } catch { return null; } })()
-    || 'starter';
+  const subscriptionPlan = planActif(user);
   const canGenerate = subscriptionPlan !== 'starter'; // "Générer" réservé aux plans > Starter
+  const canExportPDF = subscriptionPlan === 'elite'; // Export PDF réservé à Elite
+  const [exportUpsell, setExportUpsell] = useState(false);
   const programFinished = !!activeProgram && !programIsInfinite && sessions.length > 0 && sessions.every(isPast);
 
   // Signature du contenu d'un programme (séances distinctes : jour + exercices) → pour
@@ -1067,7 +1068,7 @@ export default function Program() {
                   <AlertDialogHeader>
                     <AlertDialogTitle className="text-white text-lg font-bold">{t('pg_delete_title')}</AlertDialogTitle>
                     <AlertDialogDescription className="text-white/60 text-sm">
-                      {lang === 'fr' ? "Toutes les séances planifiées seront supprimées. Les séances déjà complétées restent dans l'historique." : 'All planned workouts will be deleted. Completed workouts stay in your history.'}
+                      {t('pg_delete_body')}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter className="gap-2 mt-2">
@@ -1115,7 +1116,7 @@ export default function Program() {
               {t('pg_modify')}
             </button>
           )}
-          {activeProgram && sessions.length > 0 && (
+          {activeProgram && sessions.length > 0 && (canExportPDF ? (
             <button
               onClick={() => {
                 // Un cycle = les séances de la première semaine du programme
@@ -1125,7 +1126,7 @@ export default function Program() {
                   .sort((a, b) => (a.planned_date || '').localeCompare(b.planned_date || ''));
                 exportProgramPDF({
                   programName: isImported({ program_id: activeProgram.id }) ? t('pg_my_program_imported') : t('pg_my_program'),
-                  subtitle: programIsInfinite ? (lang === 'fr' ? 'Cycle hebdomadaire (programme en boucle)' : 'Weekly cycle (looping program)') : `${t('pg_title')} · ${activeProgram.planned_weeks} ${t('sessions_word') === 'workouts' ? 'weeks' : 'semaines'}`,
+                  subtitle: programIsInfinite ? t('pg_weekly_cycle') : `${t('pg_title')} · ${activeProgram.planned_weeks} ${t('pg_weeks_word')}`,
                   sessions: cycle,
                 });
               }}
@@ -1134,7 +1135,18 @@ export default function Program() {
             >
               <Download className="w-3.5 h-3.5" />
             </button>
-          )}
+          ) : (
+            /* Hors Elite : bouton d'apparence IDENTIQUE, qui explique au clic.
+               Ni grisé ni masqué — un bouton éteint ne dit pas ce qu'il fait,
+               et une infobulle au survol n'existe pas sur mobile. */
+            <button
+              onClick={() => setExportUpsell(true)}
+              className="flex items-center justify-center px-2.5 py-1.5 rounded-xl font-semibold text-xs bg-white text-violet-700 hover:bg-white/90 shadow transition-all"
+              title={t('pg_export_pdf')}
+            >
+              <Download className="w-3.5 h-3.5" />
+            </button>
+          ))}
         </div>
       </div>
 
@@ -1299,7 +1311,7 @@ export default function Program() {
         <Card className="p-12 text-center bg-white/15 backdrop-blur-sm border-white/20">
           <Dumbbell className="w-12 h-12 mx-auto text-white/60 mb-4" />
           <h3 className="font-heading font-bold text-xl mb-2 text-white">{t('pg_no_program')}</h3>
-          <p className="text-white/70 mb-6">{lang === 'fr' ? "L'IA va créer un programme personnalisé basé sur ton profil" : 'The AI will create a program tailored to your profile'}</p>
+          <p className="text-white/70 mb-6">{t('pg_ai_will')}</p>
           <Button onClick={() => (profileIncomplete ? setShowProfileGate(true) : generateProgram({}))} disabled={generating} size="lg">
             <Sparkles className="w-5 h-5 mr-2" />
             {t('pg_generate_mine')}
@@ -1331,7 +1343,7 @@ export default function Program() {
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">{t('pg_has_active_title')}</AlertDialogTitle>
             <AlertDialogDescription className="text-white/70">
-              {lang === 'fr' ? "Pour générer, tu dois d'abord choisir ce que tu fais avec le programme actuel." : 'To generate, first choose what to do with your current program.'}
+              {t('pg_choose_first')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex flex-col gap-2 py-2">
@@ -1367,7 +1379,7 @@ export default function Program() {
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6 bg-black/50 backdrop-blur-md">
           <div className="w-full max-w-sm rounded-2xl p-5 space-y-4" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)' }}>
             <div>
-              <p className="text-white font-bold text-lg">🎉 {lang === 'fr' ? 'Programme terminé !' : 'Program complete!'}</p>
+              <p className="text-white font-bold text-lg">🎉 {t('pg_complete')}</p>
               <p className="text-white/60 text-sm mt-1">{t('pg_finished_q')}</p>
             </div>
             <div className="space-y-2">
@@ -1408,6 +1420,31 @@ export default function Program() {
         document.body
       )}
 
+      {exportUpsell && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4" onClick={() => setExportUpsell(false)}>
+          <div className="w-full max-w-sm rounded-2xl p-6 text-center space-y-4" style={{ background: 'linear-gradient(160deg, #2e1065, #1e0050)', border: '1px solid rgba(255,255,255,0.15)' }} onClick={e => e.stopPropagation()}>
+            <div className="w-12 h-12 rounded-full bg-violet-500/30 flex items-center justify-center mx-auto">
+              <Download className="w-6 h-6 text-violet-300" />
+            </div>
+            <div>
+              <p className="font-bold text-white text-lg">{t('pg_export_upsell_title')}</p>
+              <p className="text-white/60 text-sm mt-1">{t('pg_export_upsell_body')}</p>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setExportUpsell(false)}
+                className="flex-1 py-2.5 rounded-xl border border-white/20 text-white/70 text-sm font-semibold hover:bg-white/10">
+                {t('pg_export_upsell_no')}
+              </button>
+              <button onClick={() => { setExportUpsell(false); navigate('/pricing'); }}
+                className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
+                {t('pg_export_upsell_cta')}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
       {deleting && createPortal(
         <div className="fixed inset-0 bg-violet-900/80 backdrop-blur-sm flex flex-col items-center justify-center z-[200] gap-4">
           <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', boxShadow: '0 0 30px rgba(124,58,237,0.5)' }}>
@@ -1427,7 +1464,7 @@ export default function Program() {
           <div className="text-center space-y-2 max-w-xs px-6">
             <p className="text-white font-semibold text-sm">{genPhase}</p>
             <p className="text-white/60 text-xs leading-relaxed">
-              <span className="text-white/90 font-semibold">Optimisé selon tes données</span> pour un maximum de résultats en un minimum de temps. 💪
+              <span className="text-white/90 font-semibold">{t('pg_optimised')}</span> {t('pg_optimised_d')}
             </p>
           </div>
         </div>,
@@ -1442,7 +1479,7 @@ export default function Program() {
             </p>
             <p className="text-white/60 text-sm">
               {genError === 'network'
-                ? (lang === 'fr' ? 'La génération a été interrompue par un problème réseau. Réessaie — la connexion est souvent rétablie.' : 'Generation was interrupted by a network issue. Try again — the connection is often restored.')
+                ? t('pg_gen_network')
                 : genError}
             </p>
             <div className="flex gap-3 mt-2">
@@ -1451,7 +1488,7 @@ export default function Program() {
               </button>
               <button onClick={() => { setGenError(null); generateProgram(genParamsRef.current); }}
                 className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
-                {lang === 'fr' ? 'Réessayer' : 'Retry'}
+                {t('pg_retry')}
               </button>
             </div>
           </div>

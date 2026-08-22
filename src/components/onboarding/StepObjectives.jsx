@@ -9,18 +9,18 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { cn } from '@/lib/utils';
 import { Plus, Trash2, HelpCircle, ChevronDown, Zap } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
+import { Link } from 'react-router-dom';
+import { base44 } from '@/api/base44Client';
+import { planActif } from '@/lib/plan';
 
-const TYPES = [
-  { value: 'strength', label: 'Devenir plus fort' },
-  { value: 'hypertrophy', label: 'Prendre du muscle' },
-  { value: 'endurance', label: 'Améliorer l\'endurance' },
-];
-
+// TYPES (« Devenir plus fort », etc.) vivait ici sans être lu nulle part :
+// supprimé plutôt que traduit. ZONES ne sert qu'à filtrer par `value` — les
+// libellés passent par `zDisp`/`oj_*`, d'où l'absence de `label` ici.
 const ZONES = [
-  { value: 'full_body', label: 'Corps entier' },
-  { value: 'upper_body', label: 'Haut du corps' },
-  { value: 'lower_body', label: 'Bas du corps' },
-  { value: 'specific_group', label: 'Groupe spécifique' },
+  { value: 'full_body' },
+  { value: 'upper_body' },
+  { value: 'lower_body' },
+  { value: 'specific_group' },
 ];
 
 const GROUPS = [
@@ -38,6 +38,20 @@ export default function StepObjectives({ data, onChange, hideHeader = false }) {
   const ZONE_TKEYS = { full_body: 'oj_full_body', upper_body: 'oj_upper', lower_body: 'oj_lower', specific_group: 'oj_specific' };
   const zDisp = (value) => (ZONE_TKEYS[value] ? t(ZONE_TKEYS[value]) : value);
   const objectives      = data.objectives || [];
+  // Plafond d'objectifs selon le plan : Starter = 1, plans payants = 3 (limite
+  // technique de l'app). Calculé ICI et pas passé en prop : cet écran sert à la
+  // fois à l'onboarding et à l'onglet Objectifs du Profil, et une prop oubliée
+  // d'un côté rouvrirait la limite en silence.
+  const [plan, setPlan] = useState(() => planActif(null));
+  useEffect(() => {
+    base44.auth.me().then((u) => {
+      setPlan(planActif(u));
+      // On continue d'alimenter le cache : c'est lui qui évite d'afficher la
+      // limite Starter à un abonné le temps que `auth.me()` réponde.
+      try { localStorage.setItem('cached_subscription_plan', u?.subscription_plan || 'starter'); } catch {}
+    }).catch(() => {});
+  }, []);
+  const maxObjectifs = plan === 'starter' ? 1 : 3;
   const level           = data.level || 'intermediate';
 
   const [strengthFocus, setStrengthFocus] = useState({});
@@ -436,9 +450,9 @@ export default function StepObjectives({ data, onChange, hideHeader = false }) {
             {obj.type && (obj.type !== 'strength' || focusModeOf(idx, obj) === 'zone') && (() => {
               // Filtre les zones pour éviter les overlaps avec autres objectifs du même type
               const ZONE_TO_MUSCLES = {
-                upper_body: new Set(['Poitrine', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Abdos']),
+                upper_body: new Set(['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Abdos']),
                 lower_body: new Set(['Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Adducteurs']),
-                full_body:  new Set(['Poitrine', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Abdos']),
+                full_body:  new Set(['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Abdos']),
               };
               const otherMuscles = new Set();
               let hasSameTypeOther = false;
@@ -592,16 +606,22 @@ export default function StepObjectives({ data, onChange, hideHeader = false }) {
         ))}
       </div>
 
-      {objectives.length < 3 ? (
+      {objectives.length < maxObjectifs ? (
         <Button data-tutorial="add-objective" variant="outline" onClick={addObjective} className="w-full border-white/30 text-white hover:bg-white/10 hover:text-white">
           <Plus className="w-4 h-4 mr-2" />
-          {t('oj_add')} {objectives.length > 0 && <span className="ml-1 opacity-60">({objectives.length}/3)</span>}
+          {t('oj_add')} {objectives.length > 0 && <span className="ml-1 opacity-60">({objectives.length}/{maxObjectifs})</span>}
         </Button>
       ) : (
-        <div className="text-center py-3 px-4 rounded-xl bg-white/5 border border-white/10">
+        <div className="text-center py-3 px-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
           <p className="text-xs text-white/60">
-            <span className="font-semibold text-white">{t('oj_max3')}</span> {t('oj_max3_d')}
+            <span className="font-semibold text-white">{plan === 'starter' ? t('oj_max1') : t('oj_max3')}</span>{' '}
+            {plan === 'starter' ? t('oj_max1_d') : t('oj_max3_d')}
           </p>
+          {plan === 'starter' && (
+            <Link to="/pricing" className="inline-block text-xs font-semibold text-white underline underline-offset-2 hover:text-white/80">
+              {t('oj_max1_cta')}
+            </Link>
+          )}
         </div>
       )}
 

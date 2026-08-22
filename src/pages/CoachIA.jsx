@@ -10,8 +10,14 @@ import { buildSystemPrompt } from '@/lib/coach-prompts';
 import { getContextualKnowledge, getMessageKnowledge } from '@/lib/scientific-knowledge-base';
 import { getAvailableExercises, getTensionProfile } from '@/lib/exercise-database';
 import { normalizeUser } from '@/lib/utils';
-import { buildPainAdvice, detectZoneFromText, loadEpisodes, saveEpisodes, upsertEpisode } from '@/lib/pain-engine';
+import { buildPainAdvice, detectZoneFromText, mentionneDouleur, loadEpisodes, saveEpisodes, upsertEpisode } from '@/lib/pain-engine';
 import { useI18n } from '@/lib/i18n';
+import { contexteSeanceEnCours } from '@/lib/session-context';
+import { ajouterNote, tauxRemplissage } from '@/lib/coach-memory';
+import { appelerIA } from '@/lib/ia';
+import { planActif } from '@/lib/plan';
+import CoachMemoryPanel, { AnneauMemoire } from '@/components/coach/CoachMemoryPanel';
+import { Brain } from 'lucide-react';
 
 export default function CoachIA() {
   const { t, lang } = useI18n();
@@ -26,7 +32,17 @@ export default function CoachIA() {
   const [attachedFile, setAttachedFile] = useState(null);
   const [hasActiveProgram, setHasActiveProgram] = useState(false);
   const [showImportBlocked, setShowImportBlocked] = useState(false);
+  // Mémoire du coach : chargée une fois, mise à jour quand l'utilisateur
+  // supprime une entrée. `tauxRemplissage` alimente l'anneau du bouton.
+  const [memoryNotes, setMemoryNotes] = useState('');
+  const [memoryId, setMemoryId] = useState(null);
+  const [showMemory, setShowMemory] = useState(false);
+  const tauxMemoire = tauxRemplissage(memoryNotes);
   const bottomRef = useRef(null);
+  // Plan : repli sur le cache local pour ne pas ouvrir le coach en grand le
+  // temps que `auth.me()` réponde (même motif qu'ailleurs dans l'app).
+  const plan = planActif(user);
+  const isPaid = plan !== 'starter';
 
   useEffect(() => {
     base44.auth.me().then(u => {
@@ -35,6 +51,11 @@ export default function CoachIA() {
       base44.entities.Program.filter({ status: 'active' }, '-created_date', 1).then(progs => {
         setHasActiveProgram(progs.length > 0);
       }).catch(() => {});
+      if (u?.id) {
+        base44.entities.UserMemory.filter({ user_id: u.id }).then(rows => {
+          if (rows?.[0]) { setMemoryId(rows[0].id); setMemoryNotes(rows[0].coach_notes || ''); }
+        }).catch(() => {});
+      }
       if (u?.id) {
         try {
           const saved = localStorage.getItem(`coach_history_${u.id}`);
@@ -150,9 +171,12 @@ export default function CoachIA() {
     if (!ts) return '';
     const diff = Date.now() - ts;
     const d = new Date(ts);
-    const time = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    // Locale suivant la langue active : l'heure et la date restaient au format
+    // français (« 14:05 », « 3 août ») même en anglais.
+    const loc = lang === 'en' ? 'en-GB' : 'fr-FR';
+    const time = d.toLocaleTimeString(loc, { hour: '2-digit', minute: '2-digit' });
     if (diff > 48 * 60 * 60 * 1000) {
-      const date = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+      const date = d.toLocaleDateString(loc, { day: 'numeric', month: 'short' });
       return `${date} · ${time}`;
     }
     return time;
@@ -206,6 +230,10 @@ export default function CoachIA() {
 
   const sendMessage = async () => {
     if ((!input.trim() && !attachedFile) || loading) return;
+    // Profil pas encore chargé : on attend. `plan` retomberait sinon sur le
+    // cache local — absent tant que l'utilisateur n'a pas ouvert son profil —
+    // et un abonné se verrait proposer de s'abonner le temps d'un aller-retour.
+    if (!user) return;
     let userMsg = input.trim();
 
     // Lire le contenu du fichier si joint
@@ -219,6 +247,18 @@ export default function CoachIA() {
 
     setInput('');
     setMessages(prev => [...prev, { role: 'user', content: userMsg, ts: Date.now() }]);
+
+    // ── Barrière d'abonnement ──
+    // Le coach est réservé aux plans payants. Le mur est INSTANTANÉ et sans
+    // réponse : ni animation de réflexion, ni réponse factice à débloquer —
+    // on ne fait pas semblant de calculer. Placé ici, il garantit surtout
+    // l'objectif : zéro appel IA tant que rien n'est payé.
+    // (Barrière d'affichage seulement — la vraie barrière de coût est côté
+    // serveur, dans le relais qui porte la clé.)
+    if (!isPaid) {
+      setMessages(prev => [...prev, { role: 'assistant', paywall: true, content: '', ts: Date.now() }]);
+      return;
+    }
 
     // Hors-ligne : le coach a besoin du réseau — message clair, on ne tente rien.
     if (typeof navigator !== 'undefined' && navigator.onLine === false) {
@@ -257,26 +297,32 @@ export default function CoachIA() {
       .join(', ');
 
     const systemContext  = buildSystemPrompt(user, objectives, programs, memory, recentSessions, seriesLogs, scienceContext, '', exerciseListStr);
-    const history = messages.map(m => `${m.role === 'user' ? 'Utilisateur' : 'Coach'}: ${m.content}`).join('\n');
+    // Les 20 derniers messages seulement. On en CONSERVE 100 pour que
+    // l'utilisateur puisse remonter sa conversation, mais les renvoyer tous à
+    // chaque message coûtait ~3 400 jetons pour un « salut » — et un fil de
+    // 20 échanges suffit largement à garder le contexte d'une discussion.
+    const history = messages.slice(-20)
+      .map(m => `${m.role === 'user' ? 'Utilisateur' : 'Coach'}: ${m.content}`).join('\n');
 
     // Instruction spéciale pour l'import de programme
     const importInstruction = `\n\nINSTRUCTION IMPORT : Cette instruction concerne UNIQUEMENT le cas où l'utilisateur veut importer un programme externe (d'un autre coach, d'une feuille Excel, d'un PDF, etc.) dans l'app. Dans CE CAS UNIQUEMENT, dis-lui d'aller dans l'onglet **Programme** puis d'appuyer sur **Modifier** (disponible tant qu'il n'a pas de programme généré actif) pour coller sa séance. NE PAS confondre avec "génère-moi un programme" ou "crée un programme" ou "carte blanche" : dans ce cas, génère directement le programme (PROMPT 3). Ne génère jamais de bloc IMPORT_READY dans le chat.`;
 
-    const llmParams = {
-      prompt: `${systemContext}${importInstruction}\n\n${history}\n\nUtilisateur: ${userMsg}`,
-      model: 'claude_sonnet_4_6',
-    };
-    if (imageBase64) llmParams.add_context_from_images = [imageBase64];
+    // Ce que l'utilisateur est en train de faire MAINTENANT. Le reste du prompt
+    // décrit son passé (profil, séries récentes, fatigue, douleurs, notes) ;
+    // sans ça, « je suis mort » après six exercices et « je suis mort » à
+    // l'échauffement arrivaient au coach exactement pareil.
+    const contexteSeance = contexteSeanceEnCours();
 
-    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 30000));
-    const result = await Promise.race([
-      base44.integrations.Core.InvokeLLM(llmParams),
-      timeout
-    ]).catch(() => {
-      if (imageBase64) return "Je n'arrive pas à analyser l'image directement. Peux-tu me décrire ou copier-coller le contenu de ton programme en texte ? Je pourrai alors l'importer correctement.";
+    // Le fournisseur, le nom du modèle et le délai d'attente vivent dans
+    // `lib/ia.js` — ici on ne connaît que « un prompt entre, du texte sort ».
+    const result = await appelerIA({
+      prompt: `${systemContext}${importInstruction}${contexteSeance}\n\n${history}\n\nUtilisateur: ${userMsg}`,
+      images: imageBase64 ? [imageBase64] : undefined,
+    }).catch(() => {
+      if (imageBase64) return t('co_no_image');
       // IA coupée / hors-ligne : si le message décrit une douleur → arbre de
       // décision codé (même moteur que le formulaire douleur en séance)
-      if (/douleur|mal\b|gêne|gene\b|pincement|blessure|douloureux|tendinite|inflammation|brûl|brul|craqu|fourmi|engourd/i.test(userMsg)) {
+      if (mentionneDouleur(userMsg)) {
         return buildPainAdvice(userMsg, lang);
       }
       return t('co_error');
@@ -297,7 +343,7 @@ export default function CoachIA() {
           const alreadySaved = prev.includes(userMsg.slice(0, 40));
           if (!alreadySaved) {
             await base44.entities.UserMemory.update(existing[0].id, {
-              coach_notes: prev ? `${prev}\n${note}` : note
+              coach_notes: ajouterNote(prev, note)
             });
           }
         } else {
@@ -382,7 +428,18 @@ export default function CoachIA() {
                   : 'bg-white/15 border border-white/20 text-white backdrop-blur-sm'
               }`}
             >
-              {msg.role === 'user' ? (
+              {msg.paywall ? (
+                <div className="space-y-3">
+                  <p className="text-sm text-white leading-relaxed">{t('co_locked')}</p>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); navigate('/pricing'); }}
+                    className="w-full py-2.5 rounded-xl bg-white text-violet-700 text-sm font-bold hover:bg-white/90 transition-colors"
+                  >
+                    {t('co_locked_cta')}
+                  </button>
+                </div>
+              ) : msg.role === 'user' ? (
                 <p className="text-sm">{msg.content}</p>
               ) : (
                 <ReactMarkdown className="text-sm prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
@@ -477,16 +534,35 @@ export default function CoachIA() {
         </div>
         <div className="flex items-center px-1 pt-1 pb-2">
           <p className="text-xs text-white/50"><span className="font-bold text-white">Coach IA</span> · {t('co_footer')}</p>
+          {/* Calé à droite : ce que le coach a retenu, et à quel point c'est
+              plein. L'anneau donne l'état d'un coup d'œil, sans ouvrir. */}
+          <button
+            type="button"
+            onClick={() => setShowMemory(true)}
+            aria-label={t('cm_title')}
+            className="ml-auto flex items-center gap-1.5 px-2 py-1 rounded-lg text-white/50 hover:text-white/90 hover:bg-white/10 transition-colors">
+            <AnneauMemoire taux={tauxMemoire} taille={18} epaisseur={2} />
+            <Brain className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
+
+      {showMemory && (
+        <CoachMemoryPanel
+          notes={memoryNotes}
+          memoryId={memoryId}
+          onClose={() => setShowMemory(false)}
+          onChange={setMemoryNotes}
+        />
+      )}
 
       {showImportBlocked && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6" onClick={() => setShowImportBlocked(false)}>
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
           <div className="relative bg-violet-900 border border-white/20 rounded-2xl p-6 w-full max-w-xs shadow-2xl text-center space-y-4" onClick={e => e.stopPropagation()}>
             <div>
-              <p className="font-bold text-white text-base">Programme déjà existant</p>
-              <p className="text-sm text-white/60 mt-1">Tu dois d'abord supprimer ton programme actuel avant d'en importer un nouveau.</p>
+              <p className="font-bold text-white text-base">{t('co_prog_exists')}</p>
+              <p className="text-sm text-white/60 mt-1">{t('co_prog_exists_d')}</p>
             </div>
             <div className="flex gap-3">
               <button onClick={() => setShowImportBlocked(false)} className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-white/10 text-white hover:bg-white/20 transition-colors">
